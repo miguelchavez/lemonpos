@@ -110,6 +110,7 @@ struct TransactionInfo
   qulonglong points;
   double     profit; 
   int        terminalnum;
+  QString    groups;
 };
 
 struct BalanceInfo

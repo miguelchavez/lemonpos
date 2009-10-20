@@ -362,6 +362,8 @@ bool Azahar::decrementProductStock(qulonglong code, double qty, QDate date)
   return result;
 }
 
+///NOTE or FIXME: increment is used only when returning a product? or also on purchases??
+///               Because this method is decrementing soldunits... not used in lemonview.cpp nor squeezeview !!!!!
 bool Azahar::incrementProductStock(qulonglong code, double qty)
 {
   bool result = false;
@@ -675,27 +677,14 @@ bool Azahar::createOffer(OfferInfo info)
   QString qryStr;
   QSqlQuery query(db);
   if (!db.isOpen()) db.open();
-//   int oldOffer = getProductOfferCode(info.productCode);
-//   if ( oldOffer > 0) {
-//     //The product has an offer!
-//     qryStr = QString("UPDATE offers SET discount=%1, datestart='%2', dateend='%3' WHERE offers.id=%4")
-//     .arg(info.discount)
-//     .arg(info.dateStart.toString("yyyy-MM-dd"))
-//     .arg(info.dateEnd.toString("yyyy-MM-dd"))
-//     .arg(oldOffer);
-//     if (query.exec(qryStr)) result = true; else setError(query.lastError().text());
-//   }
-//   else {
-    //The product has no offer yet.
-    //NOTE: Now multiple offers supported (to save offers history)
-    qryStr = "INSERT INTO offers (discount, datestart, dateend, product_id) VALUES(:discount, :datestart, :dateend, :code)";
-    query.prepare(qryStr);
-    query.bindValue(":discount", info.discount );
-    query.bindValue(":datestart", info.dateStart.toString("yyyy-MM-dd"));
-    query.bindValue(":dateend", info.dateEnd.toString("yyyy-MM-dd"));
-    query.bindValue(":code", info.productCode);
-    if (query.exec()) result = true; else setError(query.lastError().text());
-//   }
+  //NOTE: Now multiple offers supported (to save offers history)
+  qryStr = "INSERT INTO offers (discount, datestart, dateend, product_id) VALUES(:discount, :datestart, :dateend, :code)";
+  query.prepare(qryStr);
+  query.bindValue(":discount", info.discount );
+  query.bindValue(":datestart", info.dateStart.toString("yyyy-MM-dd"));
+  query.bindValue(":dateend", info.dateEnd.toString("yyyy-MM-dd"));
+  query.bindValue(":code", info.productCode);
+  if (query.exec()) result = true; else setError(query.lastError().text());
 
   return result;
 }
@@ -875,7 +864,7 @@ bool Azahar::insertClient(ClientInfo info)
   if (!db.isOpen()) db.open();
   if (db.isOpen()) {
     QSqlQuery query(db);
-    query.prepare("INSERT INTO clients (name, address, phone, phone_movil, points, discount, photo) VALUES(:name, :address, :phone, :cell,:points, :discount, :photo)");
+    query.prepare("INSERT INTO clients (name, address, phone, phone_movil, points, discount, photo, since) VALUES(:name, :address, :phone, :cell,:points, :discount, :photo, :since)");
     query.bindValue(":photo", info.photo);
     query.bindValue(":points", info.points);
     query.bindValue(":discount", info.discount);
@@ -883,6 +872,7 @@ bool Azahar::insertClient(ClientInfo info)
     query.bindValue(":address", info.address);
     query.bindValue(":phone", info.phone);
     query.bindValue(":cell", info.cell);
+    query.bindValue(":since", info.since);
     if (!query.exec()) setError(query.lastError().text()); else result = true;
   }
   return result;
@@ -944,12 +934,14 @@ ClientInfo Azahar::getClientInfo(qulonglong clientId) //NOTE:FALTA PROBAR ESTE M
           int fieldPoints = qC.record().indexOf("points");
           int fieldPhoto  = qC.record().indexOf("photo");
           int fieldDisc   = qC.record().indexOf("discount");
+          int fieldSince  = qC.record().indexOf("since");
           if (qC.value(fieldId).toUInt() == clientId) {
             info.id = qC.value(fieldId).toUInt();
             info.name       = qC.value(fieldName).toString();
             info.points     = qC.value(fieldPoints).toULongLong();
             info.discount   = qC.value(fieldDisc).toDouble();
             info.photo      = qC.value(fieldPhoto).toByteArray();
+            info.since      = qC.value(fieldSince).toDate();
             break;
           }
         }
@@ -999,11 +991,13 @@ QHash<QString, ClientInfo> Azahar::getClientsHash()
         int fieldPoints = qC.record().indexOf("points");
         int fieldPhoto  = qC.record().indexOf("photo");
         int fieldDisc   = qC.record().indexOf("discount");
+        int fieldSince  = qC.record().indexOf("since");
         info.id = qC.value(fieldId).toUInt();
         info.name       = qC.value(fieldName).toString();
         info.points     = qC.value(fieldPoints).toULongLong();
         info.discount   = qC.value(fieldDisc).toDouble();
         info.photo      = qC.value(fieldPhoto).toByteArray();
+        info.since      = qC.value(fieldSince).toDate();
         result.insert(info.name, info);
         if (info.id == 1) m_mainClient = info.name;
       }
@@ -1065,6 +1059,7 @@ TransactionInfo Azahar::getTransactionInfo(qulonglong id)
       int fieldPoints    = query.record().indexOf("points");
       int fieldUtility   = query.record().indexOf("profit");
       int fieldTerminal  = query.record().indexOf("terminalnum");
+      int fieldGroups    = query.record().indexOf("groups");
       info.id     = query.value(fieldId).toULongLong();
       info.amount = query.value(fieldAmount).toDouble();
       info.date   = query.value(fieldDate).toDate();
@@ -1083,8 +1078,9 @@ TransactionInfo Azahar::getTransactionInfo(qulonglong id)
       info.disc      = query.value(fieldDiscount).toDouble();
       info.discmoney = query.value(fieldDiscMoney).toDouble();
       info.points    = query.value(fieldPoints).toULongLong();
-      info.profit   = query.value(fieldUtility).toDouble();
+      info.profit    = query.value(fieldUtility).toDouble();
       info.terminalnum=query.value(fieldTerminal).toInt();
+      info.groups    = query.value(fieldGroups).toString();
     }
   }
   return info;
@@ -1242,7 +1238,7 @@ qulonglong Azahar::insertTransaction(TransactionInfo info)
 {
   qulonglong result=0;
   QSqlQuery query2(db);
-  query2.prepare("INSERT INTO transactions (clientid, type, amount, date,  time, paidwith, changegiven, paymethod, state, userid, cardnumber, itemcount, itemslist, cardauthnumber, profit, terminalnum) VALUES (:clientid, :type, :amount, :date, :time, :paidwith, :changegiven, :paymethod, :state, :userid, :cardnumber, :itemcount, :itemslist, :cardauthnumber, :utility, :terminalnum)");
+  query2.prepare("INSERT INTO transactions (clientid, type, amount, date,  time, paidwith, changegiven, paymethod, state, userid, cardnumber, itemcount, itemslist, cardauthnumber, profit, terminalnum, groups) VALUES (:clientid, :type, :amount, :date, :time, :paidwith, :changegiven, :paymethod, :state, :userid, :cardnumber, :itemcount, :itemslist, :cardauthnumber, :utility, :terminalnum, :groups)");
   query2.bindValue(":type", info.type);
   query2.bindValue(":amount", info.amount);
   query2.bindValue(":date", info.date.toString("yyyy-MM-dd"));
@@ -1259,6 +1255,7 @@ qulonglong Azahar::insertTransaction(TransactionInfo info)
   query2.bindValue(":cardauthnumber", info.cardauthnum);
   query2.bindValue(":utility", info.profit);
   query2.bindValue(":terminalnum", info.terminalnum);
+  query2.bindValue(":groups", info.groups);
   if (!query2.exec() ) {
     int errNum = query2.lastError().number();
     QSqlError::ErrorType errType = query2.lastError().type();
@@ -1273,7 +1270,7 @@ bool Azahar::updateTransaction(TransactionInfo info)
 {
   bool result=false;
   QSqlQuery query2(db);
-  query2.prepare("UPDATE transactions SET disc=:disc, discmoney=:discMoney, amount=:amount, date=:date,  time=:time, paidwith=:paidw, changegiven=:change, paymethod=:paymethod, state=:state, cardnumber=:cardnumber, itemcount=:itemcount, itemslist=:itemlist, cardauthnumber=:cardauthnumber, profit=:utility, terminalnum=:terminalnum, points=:points, clientid=:clientid WHERE id=:code");
+  query2.prepare("UPDATE transactions SET disc=:disc, discmoney=:discMoney, amount=:amount, date=:date,  time=:time, paidwith=:paidw, changegiven=:change, paymethod=:paymethod, state=:state, cardnumber=:cardnumber, itemcount=:itemcount, itemslist=:itemlist, cardauthnumber=:cardauthnumber, profit=:utility, terminalnum=:terminalnum, points=:points, clientid=:clientid, groups=:groups WHERE id=:code");
   query2.bindValue(":disc", info.disc);
   query2.bindValue(":discMoney", info.discmoney);
   query2.bindValue(":code", info.id);
@@ -1292,6 +1289,7 @@ bool Azahar::updateTransaction(TransactionInfo info)
   query2.bindValue(":terminalnum", info.terminalnum);
   query2.bindValue(":points", info.points);
   query2.bindValue(":clientid", info.clientid);
+  query2.bindValue(":groups", info.groups);
   if (!query2.exec() ) {
     int errNum = query2.lastError().number();
     QSqlError::ErrorType errType = query2.lastError().type();
@@ -1439,6 +1437,7 @@ QList<TransactionInfo> Azahar::getLastTransactions(int pageNumber,int numItems,Q
       int fieldPoints    = query.record().indexOf("points");
       int fieldUtility   = query.record().indexOf("profit");
       int fieldTerminal  = query.record().indexOf("terminalnum");
+      int fieldGroups    = query.record().indexOf("groups");
       info.id     = query.value(fieldId).toULongLong();
       info.amount = query.value(fieldAmount).toDouble();
       info.date   = query.value(fieldDate).toDate();
@@ -1457,8 +1456,9 @@ QList<TransactionInfo> Azahar::getLastTransactions(int pageNumber,int numItems,Q
       info.disc      = query.value(fieldDiscount).toDouble();
       info.discmoney = query.value(fieldDiscMoney).toDouble();
       info.points    = query.value(fieldPoints).toULongLong();
-      info.profit   = query.value(fieldUtility).toDouble();
+      info.profit    = query.value(fieldUtility).toDouble();
       info.terminalnum=query.value(fieldTerminal).toInt();
+      info.groups    = query.value(fieldGroups).toString();
       result.append(info);
     }
   }
@@ -1468,7 +1468,7 @@ QList<TransactionInfo> Azahar::getLastTransactions(int pageNumber,int numItems,Q
   return result;
 }
 
-//NOTE: The next method is not used... Also, for what pourpose? is it missing the STATE condition?
+//NOTE: The next method is not used... Also, for what pourpose? is it missing the STATE condition?... Biel?
 QList<TransactionInfo> Azahar::getTransactionsPerDay(int pageNumber,int numItems, QDate beforeDate)
 {
   QList<TransactionInfo> result;
@@ -1496,7 +1496,7 @@ QList<TransactionInfo> Azahar::getTransactionsPerDay(int pageNumber,int numItems
   return result;
 }
 
-// TRANSACTIONITEMS
+// TRANSACTIONITEMS  ///FIXME: Falta tomar en cuenta el nuevo campo 'groups'
 bool Azahar::insertTransactionItem(TransactionItemInfo info)
 {
   bool result = false;
@@ -1541,7 +1541,7 @@ bool Azahar::deleteAllTransactionItem(qulonglong id)
   return result;
 }
 
-
+//FIXME: tomer en cuenta groups de las transacciones...
 QList<TransactionItemInfo> Azahar::getTransactionItems(qulonglong id)
 {
   QList<TransactionItemInfo> result;

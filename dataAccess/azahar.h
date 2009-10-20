@@ -57,6 +57,7 @@ class Azahar : public QObject
 
     // PRODUCTS
     // Si se introduce el alphacode, entonces tambien para buscar el producto por alphacode...
+    // En otros metodos diferentes a getProductInfo se usa el codigo como entero y no como alphacode.
     ProductInfo  getProductInfo(QString code);
     qulonglong   getProductOfferCode(qulonglong code);
     qulonglong   getProductCode(QString text);
