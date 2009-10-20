@@ -1,0 +1,1128 @@
+# translation of es.po to Español
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Miguel Chavez Gamboa <miguel@lemonpos.org>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version: es\n"
+"Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?atid=1011570&group_id=209899&func=browse\n"
+"POT-Creation-Date: 2007-11-22 22:09-0600\n"
+"PO-Revision-Date: 2007-11-22 23:17-0600\n"
+"Last-Translator: Miguel Chavez Gamboa <miguel@lemonpos.org>\n"
+"Language-Team: Español <kde-es@kybs.de>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#: inputdialog.cpp:61
+msgid "Ok"
+msgstr "Aceptar"
+
+#: inputdialog.cpp:64
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: lemon.cpp:136
+msgid "Login"
+msgstr "Login"
+
+#: lemon.cpp:142
+msgctxt "Account balance"
+msgid "Balance"
+msgstr "Corte de caja"
+
+#: lemon.cpp:148
+msgid "Enter Code"
+msgstr "Entrar código"
+
+#: lemon.cpp:154
+msgid "Search Item"
+msgstr "Buscar Artículo"
+
+#: lemon.cpp:160
+msgid "Delete Selected Item"
+msgstr "Borrar artículo seleccionado"
+
+#: lemon.cpp:166
+msgid "Finish transaction"
+msgstr "Terminar transacción"
+
+#: lemon.cpp:172
+msgid "Cancel transaction"
+msgstr "Cacnelar transacción"
+
+#: lemon.cpp:178
+msgid "Cancel a ticket"
+msgstr "Cancelar ticket"
+
+#: lemon.cpp:185
+msgid "Start Operation"
+msgstr "Iniciar Operaciones"
+
+#: lemon.cpp:191
+msgid "Pay focus"
+msgstr "Ir a pagar"
+
+#: lemon.cpp:198
+msgid "Show/Hide Products Grid"
+msgstr "Mostrar/Ocultar Rejilla de productos"
+
+#: lemon.cpp:280
+msgid "General"
+msgstr "General"
+
+#: lemon.cpp:285
+msgid "Store"
+msgstr "Tienda"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_db.ui line 19
+#: lemon.cpp:291 po/extractedrc.cpp:245 extractedrc.cpp:245
+msgid "Database"
+msgstr "Base de datos"
+
+#: lemon.cpp:295
+msgid "Appearence"
+msgstr "Apariencia"
+
+#. i18n: tag string
+#. i18n: file ./ui/pref_security.ui line 13
+#: lemon.cpp:302 po/extractedrc.cpp:191 extractedrc.cpp:191
+msgid "Security"
+msgstr "Seguridad"
+
+#: lemon.cpp:306
+msgid "Printer"
+msgstr "Impresora"
+
+#: lemon.cpp:475
+msgid "Transaction #%1"
+msgstr "Transacción #%1"
+
+#: lemonview.cpp:122
+msgid "Continue"
+msgstr "Continuar"
+
+#: lemonview.cpp:190
+msgid "Welcome to Lemon"
+msgstr "Bienvenido a lemon"
+
+#: lemonview.cpp:191
+msgid "Enter username and password to start using the system."
+msgstr "Escriba su usuario y contraseña para iniciar el punto de venta"
+
+#: lemonview.cpp:194
+msgid "Authorisation Required"
+msgstr "Autorización requerida"
+
+#: lemonview.cpp:195
+msgid "Enter administrator password please."
+msgstr "Escriba la contraseña de administrador"
+
+#: lemonview.cpp:374
+msgid "No product selected"
+msgstr "No hay productos seleccionados."
+
+#: lemonview.cpp:388
+msgid "Enter the ticket numbert to cancel"
+msgstr "Escriba el numero de ticket a cancelar"
+
+#: lemonview.cpp:533 lemonview.cpp:571 lemonview.cpp:664 lemonview.cpp:678
+#: lemonview.cpp:776 lemonview.cpp:821 lemonview.cpp:843 lemonview.cpp:1172
+#: lemonview.cpp:1183 lemonview.cpp:1295 lemonview.cpp:1320 lemonview.cpp:1356
+#: lemonview.cpp:1595 lemonview.cpp:1623 lemonview.cpp:1635 lemonview.cpp:1728
+msgid ""
+"Error #%1, Type:%2\n"
+"'%3'"
+msgstr "Error #%1, Tipo:%2<br>%3"
+
+#: lemonview.cpp:534
+msgid ""
+"Lemon has encountered an error when searching the database, click details to "
+"see the error details."
+msgstr ""
+"Lemon ha encontrado un error al buscar en la base de datos. Presione "
+"\"Detalles\" para ver los detalles del error."
+
+#: lemonview.cpp:534 lemonview.cpp:572 lemonview.cpp:665 lemonview.cpp:679
+#: lemonview.cpp:777 lemonview.cpp:822 lemonview.cpp:844 lemonview.cpp:1173
+#: lemonview.cpp:1337 lemonview.cpp:1357 lemonview.cpp:1922
+msgid "Error"
+msgstr "Error"
+
+#: lemonview.cpp:563
+msgid "%1 item found"
+msgid_plural "%1 items found."
+msgstr[0] "%1 artículo encontrado."
+msgstr[1] "%1 artículos encontrados."
+
+#: lemonview.cpp:564
+msgid "No items found."
+msgstr "No se encontraron articulos"
+
+#: lemonview.cpp:572
+msgid ""
+"Lemon has encountered an error when openning database, click 'details' to "
+"see the error details."
+msgstr ""
+"Lemon ha encontrado un error al intentar abrir la base de datos. Presione "
+"\"detalles\" para ver los detalles del error."
+
+#: lemonview.cpp:573
+msgid "<html><font color=red weight=bold>Not connected to database</font>.</html>"
+msgstr ""
+"<html><font color=red weight=bold>Sin conexión a la base de datos</font>.</"
+"html>"
+
+#: lemonview.cpp:612
+msgid "Currency: %1"
+msgstr "Moneda: %1"
+
+#: lemonview.cpp:615 lemonview.cpp:622
+msgid "%1 %2"
+msgstr "%1 %2"
+
+#: lemonview.cpp:665 lemonview.cpp:777 lemonview.cpp:822 lemonview.cpp:1173
+#: lemonview.cpp:1296 lemonview.cpp:1321 lemonview.cpp:1596 lemonview.cpp:1624
+#: lemonview.cpp:1729
+msgid ""
+"Lemon has encountered an error when querying the database, click details to "
+"see the error details."
+msgstr ""
+"Lemon ha encontrado un error al buscar en la base de datos. Presione "
+"\"detalles\" para ver mas detalles del error."
+
+#: lemonview.cpp:679 lemonview.cpp:844 lemonview.cpp:1184 lemonview.cpp:1636
+msgid ""
+"Lemon has encountered an error when openning database, click details to see "
+"the error details."
+msgstr ""
+"Lemon ha encontrado un error al buscar en la base de datos. Presione "
+"\"detalles\" para ver mas detalles del error."
+
+#: lemonview.cpp:691
+msgid "<html><font color=red weight=bold>Product not available in stock.</font>"
+msgstr ""
+"<html><font color=red weight=bold>Producto no disponible en inventario.</"
+"font>"
+
+#: lemonview.cpp:861 lemonview.cpp:1071
+msgid "Pieces"
+msgstr "Piezas"
+
+#: lemonview.cpp:863 lemonview.cpp:1073
+msgctxt "weight unit"
+msgid "Kilogram"
+msgstr "Kg"
+
+#: lemonview.cpp:865 lemonview.cpp:1075
+msgctxt "length unit"
+msgid "Metre"
+msgstr "Metro"
+
+#: lemonview.cpp:867 lemonview.cpp:1077
+msgctxt "volume unit"
+msgid "Litre"
+msgstr "Litro"
+
+#: lemonview.cpp:869 lemonview.cpp:1079
+msgctxt "area unit"
+msgid "Square Metre"
+msgstr "Metro cuadrado"
+
+#: lemonview.cpp:871 lemonview.cpp:1081 lemonview.cpp:1425
+msgid "Undefined"
+msgstr "Sin definir"
+
+#: lemonview.cpp:876
+msgid ""
+"<html><font color=red weight=bold>Product not found in database.</font></"
+"html>"
+msgstr ""
+"<html><font color=red weight=bold>Producto no encontrado en la base de datos."
+"</font></html>"
+
+#: lemonview.cpp:878
+msgid ""
+"<html><font color=red weight=bold>Product not available in stock.</font></"
+"html>"
+msgstr ""
+"<html><font color=red weight=bold>Produco no disponible en inventario.</"
+"font></html>"
+
+#: lemonview.cpp:997
+msgid "Enter the number of pieces:"
+msgstr "Numero de piezas:"
+
+#: lemonview.cpp:998
+msgid "Enter the kilograms (i.e. 0.500):"
+msgstr "Peso (ej. .250)"
+
+#: lemonview.cpp:999
+msgid "Enter the metres (i.e. 2.75):"
+msgstr "Metros (ej. 2.75):"
+
+#: lemonview.cpp:1000
+msgid "Enter the litres (i.e. 0.500):"
+msgstr "Litros (ej. 0.5)"
+
+#: lemonview.cpp:1001
+msgid "Enter the cubic metres (i.e. 2.75):"
+msgstr "Metros cúbicos (ej. 3.78):"
+
+#: lemonview.cpp:1002
+msgid "Enter the new quantity:"
+msgstr "Nueva Cantidad:"
+
+#: lemonview.cpp:1087
+msgid "Taxes:"
+msgstr "Impuestos:"
+
+#: lemonview.cpp:1088
+msgid "Tax:"
+msgstr "IVA:"
+
+#: lemonview.cpp:1089
+msgid "Other taxes:"
+msgstr "Otros impuestos:"
+
+#: lemonview.cpp:1090
+msgid "Sold by:"
+msgstr "Vendido por:"
+
+#: lemonview.cpp:1091
+msgid "Price:"
+msgstr "Precio:"
+
+#: lemonview.cpp:1092 lemonview.cpp:1953
+msgid "Discount:"
+msgstr "Descuento:"
+
+#: lemonview.cpp:1184
+msgid "Create New Transaction: Error"
+msgstr "Crear nueva transacción: Error"
+
+#: lemonview.cpp:1204
+msgid ""
+"<html><font color=red weight=bold>Please fill the correct pay amount before "
+"finishing a transaction.</font></html>"
+msgstr ""
+"<html><font color=red weight=bold>Llene la cantidad a pagar antes de "
+"finalizar.</font></html>"
+
+#: lemonview.cpp:1216
+msgid "<html><font color=red weight=bold>Please enter the card number.</font></html>"
+msgstr "<html><font color=red weight=bold>Llene el número de tarjeta.</font></html>"
+
+#: lemonview.cpp:1224
+msgid ""
+"<html><font color=red weight=bold>Please enter the Authorisation number from "
+"the bank voucher.</font></html>"
+msgstr ""
+"<html><font color=red weight=bold>Llene el número de autorización del banco."
+"</font></html>"
+
+#: lemonview.cpp:1232
+msgid "Before selling, you must start operations."
+msgstr "Antes de vender, debe iniciar operaciones."
+
+#: lemonview.cpp:1296
+msgid "Finish Transaction: Error"
+msgstr "Finalizar transacción: Error"
+
+#: lemonview.cpp:1321
+msgid "Update Transaction: Error"
+msgstr "Actualizar transacción: Error"
+
+#: lemonview.cpp:1337
+msgid "The Drawer is not initialized, please start operation first."
+msgstr "La gaveta no esta inicializada, por favor inicie operaciones."
+
+#: lemonview.cpp:1357
+msgid ""
+"Lemon has encountered an error when saving transaction, click details to see "
+"the error details."
+msgstr ""
+"Lemon ha encontrado un error al intentar guardar la transacción. Presione "
+"detalles para ver los detalles del error."
+
+#: lemonview.cpp:1366
+msgid "Salesperson: %1"
+msgstr "Vendedor: %1"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 994
+#: lemonview.cpp:1367 po/extractedrc.cpp:164 extractedrc.cpp:164
+msgid "Qty"
+msgstr "Cantidad"
+
+#: lemonview.cpp:1368
+msgid "Product"
+msgstr "Producto"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 801
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 989
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 801
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 989
+#: lemonview.cpp:1369 po/extractedrc.cpp:143 po/extractedrc.cpp:161
+#: extractedrc.cpp:143 extractedrc.cpp:161
+msgid "Price"
+msgstr "Precio"
+
+#: lemonview.cpp:1370
+msgid "Special"
+msgstr "Offerta"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 1009
+#: lemonview.cpp:1371 po/extractedrc.cpp:173 extractedrc.cpp:173
+msgid "Total"
+msgstr "Total"
+
+#: lemonview.cpp:1372
+msgid "Terminal #%1"
+msgstr "Terminal #%1"
+
+#: lemonview.cpp:1417
+msgctxt "weight unit"
+msgid "Kg"
+msgstr "Kg"
+
+#: lemonview.cpp:1419
+msgctxt "length unit"
+msgid "m"
+msgstr "m"
+
+#: lemonview.cpp:1421
+msgctxt "volume unit"
+msgid "Lt"
+msgstr "Lt"
+
+#: lemonview.cpp:1423
+msgctxt "area unit"
+msgid "m²"
+msgstr "m²"
+
+#: lemonview.cpp:1466
+msgid "        * %1 *     -%2"
+msgstr "        * %1 *     -%2"
+
+#: lemonview.cpp:1470
+msgid "%1 article."
+msgid_plural "%1 articles."
+msgstr[0] "%1 articulo"
+msgstr[1] "%1 artículos"
+
+#: lemonview.cpp:1471
+msgid "A total of"
+msgstr "Total"
+
+#: lemonview.cpp:1474
+msgid "<br>Paid with %1, your change is <b>%2</b><br>"
+msgstr "<br>Pagado con %1, su cambio es <b>%2</b><br>"
+
+#: lemonview.cpp:1483
+msgid "You saved $%1"
+msgstr "Usted Ahorro %1"
+
+#: lemonview.cpp:1487
+msgid "Paid with %1, your change is %2"
+msgstr "Pagado con %1, su cambio %2"
+
+#: lemonview.cpp:1492
+msgid "<br>Card # %1<br>Authorisation # %2"
+msgstr "<br>Tarjeta # %1<br>Autorización # %2"
+
+#: lemonview.cpp:1596
+msgid "Delete Transaction: Error"
+msgstr "Borrar Transacción: Error"
+
+#: lemonview.cpp:1624 lemonview.cpp:1636
+msgid "Cancel Transaction: Error"
+msgstr "Cancelar Transacción: Error"
+
+#: lemonview.cpp:1645
+msgid "Enter the amount of money to deposit in the drawer"
+msgstr "Cantidad de dinero a depositar en la gaveta:"
+
+#: lemonview.cpp:1729
+msgid "Balance (Corte de caja): Error"
+msgstr "Corte de Caja: Error"
+
+#: lemonview.cpp:1736
+msgid "Balance for user %1"
+msgstr "Corte de Caja para el usuario %1"
+
+#: lemonview.cpp:1737
+msgid "Initial Amount deposited:"
+msgstr "Cantidad inicial en la gaveta:"
+
+#: lemonview.cpp:1738
+msgid "Deposit"
+msgstr "Deposito"
+
+#: lemonview.cpp:1739
+msgid "In"
+msgstr "Entrada"
+
+#: lemonview.cpp:1740
+msgid "Out"
+msgstr "Salida"
+
+#: lemonview.cpp:1741
+msgid "In Drawer"
+msgstr "En la gaveta"
+
+#: lemonview.cpp:1742
+msgid "Drawer Balance"
+msgstr "Corte de Caja"
+
+#: lemonview.cpp:1743
+msgid "Transactions Details"
+msgstr "Detalles de transacción"
+
+#: lemonview.cpp:1744
+msgid "Transactions"
+msgstr "Transacciones"
+
+#: lemonview.cpp:1745
+msgid "Id"
+msgstr "Num"
+
+#: lemonview.cpp:1746
+msgid "Time"
+msgstr "Hora"
+
+#: lemonview.cpp:1747
+msgid "Amount"
+msgstr "Cantidad"
+
+#: lemonview.cpp:1748
+msgid "Paid with"
+msgstr "Pagado con"
+
+#: lemonview.cpp:1749
+msgid "Pay Method"
+msgstr "Metodo de pago"
+
+#: lemonview.cpp:1791
+msgid "----------%1----------"
+msgstr "----------%1----------"
+
+#: lemonview.cpp:1793
+msgid "%1           %2      %3"
+msgstr "%1           %2      %3"
+
+#: lemonview.cpp:1824
+msgid "Card"
+msgstr "Tarjeta"
+
+#: lemonview.cpp:1824
+msgid "Unknown"
+msgstr "Desconocido"
+
+#: lemonview.cpp:1922
+msgid "Lemon has encountered an error, click details to see the error details."
+msgstr "Lemon ha encontrado un error, pulse detalles para ver los detalles."
+
+#: lemonview.cpp:1951
+msgid "Price: "
+msgstr "Precio:"
+
+#: lemonview.cpp:1952
+msgid "Available: "
+msgstr "Disponible:"
+
+#: lemonview.cpp:1954
+msgid "Category:"
+msgstr "Categoría:"
+
+#: loginwindow.cpp:58
+msgid "&Ok"
+msgstr "&Aceptar"
+
+#: loginwindow.cpp:127
+msgid "Username:"
+msgstr "Usuario:"
+
+#: loginwindow.cpp:128
+msgid "Password:"
+msgstr "Contraseña:"
+
+#: loginwindow.cpp:199
+msgid "Invalid username or password"
+msgstr "Usuario o contraseña inválido "
+
+#: main.cpp:13
+msgid "Lemon, A point of sale for linux"
+msgstr "Lemon, un punto de venta para linux"
+
+#: main.cpp:20
+msgid "lemon"
+msgstr "lemon"
+
+#: main.cpp:20
+msgid "(C) 2007 Miguel Chavez Gamboa"
+msgstr "(C) 2007 Miguel Chavez Gamboa"
+
+#: main.cpp:21
+msgid "Miguel Chavez Gamboa"
+msgstr "Miguel Chavez Gamboa"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 9
+#: po/extractedrc.cpp:3 extractedrc.cpp:3
+msgid "How the main window is divided."
+msgstr "Division de la pantalla"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 14
+#: po/extractedrc.cpp:6 extractedrc.cpp:6
+msgid "Store Name"
+msgstr "Nombre de la tienda:"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 18
+#: po/extractedrc.cpp:9 extractedrc.cpp:9
+msgid "Store Logo FileName"
+msgstr "Archivo de logotipo de la tienda"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 22
+#: po/extractedrc.cpp:12 extractedrc.cpp:12
+msgid "Store Branch Number"
+msgstr "Número de sucursal:"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 26
+#: po/extractedrc.cpp:15 extractedrc.cpp:15
+msgid "Store Branch Name"
+msgstr "Nombre de la sucursal"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 30
+#: po/extractedrc.cpp:18 extractedrc.cpp:18
+msgid "Ticket Message"
+msgstr "Mensaje del ticket"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 36
+#: po/extractedrc.cpp:21 extractedrc.cpp:21
+msgid "POS Number"
+msgstr "Número de caja:"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 40
+#: po/extractedrc.cpp:24 extractedrc.cpp:24
+msgid "Requiere delete authorisation"
+msgstr "Requerir autorización para borrar articulos de la lista"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 44
+#: po/extractedrc.cpp:27 extractedrc.cpp:27
+msgid "Show a dialog when printing the ticket"
+msgstr "Mostrar dialogo al imprimir"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 48
+#: po/extractedrc.cpp:30 extractedrc.cpp:30
+msgid "Show Currency"
+msgstr "Mostrar Moneda"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 52
+#: po/extractedrc.cpp:33 extractedrc.cpp:33
+msgid "Full Currency String"
+msgstr "Tipo de moneda"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 56
+#: po/extractedrc.cpp:36 extractedrc.cpp:36
+msgid "Short Currency String"
+msgstr "Abreviación del tipo de moneda:"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 60
+#: po/extractedrc.cpp:39 extractedrc.cpp:39
+msgid "Show Products Grid"
+msgstr "Mostrar Rejilla de productos"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 66
+#: po/extractedrc.cpp:42 extractedrc.cpp:42
+msgid "DB Server Name"
+msgstr "Nombre del servidor de la base de datos:"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 70
+#: po/extractedrc.cpp:45 extractedrc.cpp:45
+msgid "DB Username"
+msgstr "Usuario de la base dedatos"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 74
+#: po/extractedrc.cpp:48 extractedrc.cpp:48
+msgid "DB Password"
+msgstr "Contraseña del usuario de la base de datos"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 78
+#: po/extractedrc.cpp:51 extractedrc.cpp:51
+msgid "DB Name"
+msgstr "Nombre de la base de datos"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 82
+#. i18n: tag string
+#. i18n: file ./ui/prefs_db.ui line 99
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 82
+#. i18n: tag string
+#. i18n: file ./ui/prefs_db.ui line 99
+#: po/extractedrc.cpp:54 po/extractedrc.cpp:263 extractedrc.cpp:54
+#: extractedrc.cpp:263
+msgid "Delete empty cancelled transactions"
+msgstr "Borrar transacciones vacías"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 88
+#: po/extractedrc.cpp:57 extractedrc.cpp:57
+msgid "Use style"
+msgstr "Usar estilo"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 92
+#: po/extractedrc.cpp:60 extractedrc.cpp:60
+msgid "Get Stylesheet Name"
+msgstr "Obtener nombre de estilo"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 98
+#: po/extractedrc.cpp:63 extractedrc.cpp:63
+msgid "Allow any user to quit application"
+msgstr "Permitir a cualquier usuario salir del sistema"
+
+#. i18n: tag label
+#. i18n: file ./lemon.kcfg line 104
+#: po/extractedrc.cpp:66 extractedrc.cpp:66
+msgid "Print Ticket (dou you have a ticket printer?)"
+msgstr "Imprimir ticket"
+
+#. i18n: tag text
+#. i18n: file ./lemonui.rc line 4
+#: po/extractedrc.cpp:69 extractedrc.cpp:69
+msgid "Basic Use Toolbar"
+msgstr "Barra de herramientas básica"
+
+#. i18n: tag text
+#. i18n: file ./lemonui.rc line 16
+#: po/extractedrc.cpp:72 extractedrc.cpp:72
+msgid "Administrator's Toolbar"
+msgstr "Barra de herramientas de configuración"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 13
+#. i18n: tag string
+#. i18n: file ./ui/pref_printers.ui line 13
+#. i18n: tag string
+#. i18n: file ./ui/pref_style.ui line 13
+#. i18n: tag string
+#. i18n: file ./ui/prefs_db.ui line 13
+#. i18n: tag string
+#. i18n: file ./ui/store_data.ui line 13
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 13
+#. i18n: tag string
+#. i18n: file ./ui/pref_printers.ui line 13
+#. i18n: tag string
+#. i18n: file ./ui/pref_style.ui line 13
+#. i18n: tag string
+#. i18n: file ./ui/prefs_db.ui line 13
+#. i18n: tag string
+#. i18n: file ./ui/store_data.ui line 13
+#: po/extractedrc.cpp:75 po/extractedrc.cpp:185 po/extractedrc.cpp:197
+#: po/extractedrc.cpp:242 po/extractedrc.cpp:266 extractedrc.cpp:75
+#: extractedrc.cpp:185 extractedrc.cpp:197 extractedrc.cpp:242
+#: extractedrc.cpp:266
+msgid "Form"
+msgstr "Forma"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 129
+#: po/extractedrc.cpp:78 extractedrc.cpp:78
+msgid "&Code:"
+msgstr "&Código:"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 203
+#: po/extractedrc.cpp:81 extractedrc.cpp:81
+msgid "Cocacola 1 litro"
+msgstr "Cocacola 1 litro"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 228
+#: po/extractedrc.cpp:84 extractedrc.cpp:84
+msgid "$ 8.50"
+msgstr "$ 8.50"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 250
+#: po/extractedrc.cpp:87 extractedrc.cpp:87
+msgid "Descuento: $ 0.0"
+msgstr "Descuento: $ 0.0"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 266
+#: po/extractedrc.cpp:91 extractedrc.cpp:91
+#, no-c-format
+msgid "Impuestos: 15%"
+msgstr "Impuestos: 15%"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 288
+#: po/extractedrc.cpp:95 extractedrc.cpp:95
+#, no-c-format
+msgid "IVA: $ 1.50 (15%)"
+msgstr "IVA: $ 1.50 (15%)"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 310
+#: po/extractedrc.cpp:98 extractedrc.cpp:98
+msgid "Otros imp: $ 0.0"
+msgstr "Otros imp: $ 0.0"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 332
+#: po/extractedrc.cpp:101 extractedrc.cpp:101
+msgid "Sold by: (kg or unit)"
+msgstr "Venta por (Kg, pieza):"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 421
+#: po/extractedrc.cpp:104 extractedrc.cpp:104
+msgid "<b>Payment</b>"
+msgstr "<b>Pago</b>"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 448
+#: po/extractedrc.cpp:107 extractedrc.cpp:107
+msgid "Ca&sh"
+msgstr "&Efectivo"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 479
+#: po/extractedrc.cpp:110 extractedrc.cpp:110
+msgid "Ca&rd"
+msgstr "&Tarjeta"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 552
+#: po/extractedrc.cpp:113 extractedrc.cpp:113
+msgid "Cash &Amount:"
+msgstr "Can&tidad:"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 622
+#: po/extractedrc.cpp:116 extractedrc.cpp:116
+msgid "Card &Number:"
+msgstr "Núm. de Tarjeta:"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 650
+#: po/extractedrc.cpp:119 extractedrc.cpp:119
+msgid "9999-9999-9999-9999; "
+msgstr "9999-9999-9999-9999; "
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 657
+#: po/extractedrc.cpp:122 extractedrc.cpp:122
+msgid "Authorization number:"
+msgstr "Núm de Autorización"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 727
+#: po/extractedrc.cpp:125 extractedrc.cpp:125
+msgid "TextLabel"
+msgstr "Etiqueta"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 743
+#: po/extractedrc.cpp:128 extractedrc.cpp:128
+msgid "Enter item description:"
+msgstr "Descripción:"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 763
+#: po/extractedrc.cpp:131 extractedrc.cpp:131
+msgid ""
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">.<span style=\" font-"
+"weight:600; color:#ff6347;\">.</span></p></body></html>"
+msgstr ""
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">.<span style=\" font-"
+"weight:600; color:#ff6347;\">.</span></p></body></html>"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 776
+#: po/extractedrc.cpp:137 extractedrc.cpp:137
+msgid "Go back"
+msgstr "Volver"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 796
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 984
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 796
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 984
+#: po/extractedrc.cpp:140 po/extractedrc.cpp:158 extractedrc.cpp:140
+#: extractedrc.cpp:158
+msgid "Description"
+msgstr "Descripción"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 806
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 979
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 806
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 979
+#: po/extractedrc.cpp:146 po/extractedrc.cpp:155 extractedrc.cpp:146
+#: extractedrc.cpp:155
+msgid "Code"
+msgstr "Código"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 904
+#: po/extractedrc.cpp:149 extractedrc.cpp:149
+msgid "filter by description"
+msgstr "Filtrar por descripción"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 914
+#: po/extractedrc.cpp:152 extractedrc.cpp:152
+msgid "filter by category"
+msgstr "Filtrar por categoría"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 999
+#: po/extractedrc.cpp:167 extractedrc.cpp:167
+msgid "Units"
+msgstr "Unidades"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 1004
+#: po/extractedrc.cpp:170 extractedrc.cpp:170
+msgid "Discount"
+msgstr "Descuento"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 1085
+#: po/extractedrc.cpp:176 extractedrc.cpp:176
+msgid "Total:"
+msgstr "Total:"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 1169
+#: po/extractedrc.cpp:179 extractedrc.cpp:179
+msgid "Change:"
+msgstr "Cambio:"
+
+#. i18n: tag string
+#. i18n: file ./ui/mainview.ui line 1255
+#: po/extractedrc.cpp:182 extractedrc.cpp:182
+msgid "Pesos Mexicanos"
+msgstr "Pesos Mexicanos"
+
+#. i18n: tag string
+#. i18n: file ./ui/pref_printers.ui line 19
+#: po/extractedrc.cpp:188 extractedrc.cpp:188
+msgid "Print Ticket (if you have a ticket printer)"
+msgstr "Imprimir ticket"
+
+#. i18n: tag string
+#. i18n: file ./ui/pref_security.ui line 25
+#: po/extractedrc.cpp:194 extractedrc.cpp:194
+msgid "Allow any user to quit, asking for administrator's password"
+msgstr "Permitir a cualquier usuario salir del programa."
+
+#. i18n: tag string
+#. i18n: file ./ui/pref_style.ui line 19
+#: po/extractedrc.cpp:200 extractedrc.cpp:200
+msgid "Use style sheet"
+msgstr "Usar estilo"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_base.ui line 30
+#: po/extractedrc.cpp:203 extractedrc.cpp:203
+msgid "This is the &Terminal Number:"
+msgstr "Esta es la terminal número:"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_base.ui line 40
+#: po/extractedrc.cpp:206 extractedrc.cpp:206
+msgid "9999; "
+msgstr "9999; "
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_base.ui line 49
+#: po/extractedrc.cpp:209 extractedrc.cpp:209
+msgid "Currency"
+msgstr "Moneda"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_base.ui line 79
+#: po/extractedrc.cpp:212 extractedrc.cpp:212
+msgid "&Short currency string:"
+msgstr "Descripción &corta de la moneda:"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_base.ui line 89
+#: po/extractedrc.cpp:215 extractedrc.cpp:215
+msgid "&Full currency string:"
+msgstr "Descripción &larga de la moneda:"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_base.ui line 99
+#: po/extractedrc.cpp:218 extractedrc.cpp:218
+msgid ""
+"If checked the short currency is shown aside the total due, otherwise only "
+"full currency is shown above it."
+msgstr ""
+"Si se habilita.se desplegará la descripción corta de la moneda junto al "
+"total. De lo contrario, será mostrada la descripción larga arriba del total."
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_base.ui line 102
+#: po/extractedrc.cpp:221 extractedrc.cpp:221
+msgid ""
+"This is an option which If checked the short currency is shown aside the "
+"total due, otherwise only full currency is shown above it."
+msgstr "Opción para mostrar la moneda"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_base.ui line 105
+#: po/extractedrc.cpp:224 extractedrc.cpp:224
+msgid "Show the short currency on the total label"
+msgstr "Mostrar la descripción corta de la moneda."
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_base.ui line 115
+#: po/extractedrc.cpp:227 extractedrc.cpp:227
+msgid "Dialogs and Authorizations"
+msgstr "Dialogos y autorización"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_base.ui line 121
+#: po/extractedrc.cpp:230 extractedrc.cpp:230
+msgid "Show a dialog when printing ticket"
+msgstr "Mostrar dialogo al imprimir ticket"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_base.ui line 128
+#: po/extractedrc.cpp:233 extractedrc.cpp:233
+msgid "Requiere authorisation to delete items from shopping list"
+msgstr "Requerir autorización para borrar un elemento de la lista de compras."
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_base.ui line 138
+#: po/extractedrc.cpp:236 extractedrc.cpp:236
+msgid "Products Grid"
+msgstr "Rejilla de productos"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_base.ui line 144
+#: po/extractedrc.cpp:239 extractedrc.cpp:239
+msgid "Show products grid"
+msgstr "Mostrar la rejilla de productos"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_db.ui line 25
+#: po/extractedrc.cpp:248 extractedrc.cpp:248
+msgid "&Server:"
+msgstr "&Servidor:"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_db.ui line 38
+#: po/extractedrc.cpp:251 extractedrc.cpp:251
+msgid "&Username:"
+msgstr "&Usuario:"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_db.ui line 51
+#: po/extractedrc.cpp:254 extractedrc.cpp:254
+msgid "&Password:"
+msgstr "&Contraseña:"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_db.ui line 77
+#: po/extractedrc.cpp:257 extractedrc.cpp:257
+msgid "&Database Name:"
+msgstr "&Nombre de la base de datos:"
+
+#. i18n: tag string
+#. i18n: file ./ui/prefs_db.ui line 93
+#: po/extractedrc.cpp:260 extractedrc.cpp:260
+msgid "Extra options"
+msgstr "Opciones extra"
+
+#. i18n: tag string
+#. i18n: file ./ui/store_data.ui line 21
+#: po/extractedrc.cpp:269 extractedrc.cpp:269
+msgid "&Name:"
+msgstr "&Nombre:"
+
+#. i18n: tag string
+#. i18n: file ./ui/store_data.ui line 38
+#: po/extractedrc.cpp:272 extractedrc.cpp:272
+msgid "Branch &number:"
+msgstr "Número de sucursal:"
+
+#. i18n: tag string
+#. i18n: file ./ui/store_data.ui line 51
+#: po/extractedrc.cpp:275 extractedrc.cpp:275
+msgid "&Branch:"
+msgstr "&Sucursal:"
+
+#. i18n: tag string
+#. i18n: file ./ui/store_data.ui line 68
+#: po/extractedrc.cpp:278 extractedrc.cpp:278
+msgid "Ticket &Message:"
+msgstr "Mensaje al final del ticket:"
+
+#. i18n: tag string
+#. i18n: file ./ui/store_data.ui line 90
+#: po/extractedrc.cpp:281 extractedrc.cpp:281
+msgid "Logo"
+msgstr "Logotipo de la tienda:"
+
+#: po/extractedrc.cpp:282 extractedrc.cpp:282
+msgctxt "NAME OF TRANSLATORS"
+msgid "Your names"
+msgstr "Miguel Chávez Gamboa"
+
+#: po/extractedrc.cpp:283 extractedrc.cpp:283
+msgctxt "EMAIL OF TRANSLATORS"
+msgid "Your emails"
+msgstr "miguel@lemonpos.org           "
+

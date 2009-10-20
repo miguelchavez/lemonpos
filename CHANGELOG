@@ -1,0 +1,53 @@
+CHANGELOG FOR LEMONPOS VERSION 0.7 (SVN revision 260)
+-----------------------------------------------------
+
+Important fix:
+  - In 0.6.1 version, there is an error on the lemon_mysql.sql script. The database name is changed from 'lemondb' to 'lemontest'
+    The SVN has not been affected. This release fixes that. [Thanks to Dave Plater whose reported the bug and the fix].
+
+General:
+  - Added Catalan translation (ca.po).
+
+Lemon:
+  - BUGFIX: regexp for payment input (1...20, now only one '.' is allowed)
+  - BUGFIX: ticket Alignment done (printTicket) [patch by Biel Frontera]
+  - BUGFIX: added a missing i18n at line 1392   [patch by Biel Frontera]
+  - BUGFIX: At search items, when doubleclicked on an already inserted product, the search panel is not closed.
+  - BUGFIX: Double clicking on any product in shopping list that is sold by pieces is not incremented.
+  - Improvement: ENABLED Drawer openning.  Added an option to enable at configuration.
+    Can someone test this? I dont have a cash drawer.
+  - Improvement: Transaction cancel now saves cashout, substract client points, restore stockqty for sold products.
+    Also does not allow ticket cancelation on already canecelled tickets, and when there is not enough cash in drawer.
+  - Improvement: Changed the way to search items with the priceChecker; now an 'enter' is requiered, resulting an improved
+    usability when using a barcode reader.
+  - Improvement: Dont close purchase dialog on return pressed on any widget to improve usability for barcode reader.
+  - Added Feature: support for item qty in code input. Example: 10x123456 means 10 units of the product which code is 123456.
+  - Added Feature: Now in every transaction items and its price/discount are saved in the database
+    to preserve the data at which they were sold. [patch by Biel Frontera]
+  - Added feature: one more filter to product grid filters: most sold products [by Biel Frontera]
+  - Added feature: Reprint Ticket [Adapted from Biel Frontera code ]
+  - Added feature: Change sale date (to register old sales that were not registered before) [Adapted from Biel Frontera code ].
+  - Added feature: Cash-Out. To take out money for payments at the POS.
+  - Added Feature: Now lemon does not quit if not connected to mysql, a config dialog for database is shown.
+  - Added Feature: A low level cash in drawer alarm. A config option for showing the alert and minimum value.
+  - Added Icons:   Cash-Out, reprint-ticket, balance.
+
+Squeeze:
+  - BUGFIX: Preferences disabled/enabled when requiered.
+  - BUGFIX: Spanish Translation fixed for the filter 'show only not empty balances'.
+  - BUGFIX: PurchaseEditor changed focus to empty fields when entering 'Items Per Box' qty. This is giving the
+    impression of not allowing more than 1 digit at the qty. [thanks for the report to Dave Plater]
+  - Added Feature: New report for cash-outs.
+  - Added Feature: New field in the offers editor to allow calculation of offer-percentage with the price entered
+     So now offers can be calculated with price or percentage [by Biel Frontera]
+  - Added Feature: Now squeeze does not quit if not connected to mysql, a config dialog for database is shown.
+     
+
+Database:
+  - New TransactionItems table, adapted code at finishCurrentTransaction() and others [ by Biel Frontera ]
+  - Changed collates from 'utf8_spanish_ci' and 'latin1_general_ci' to 'utf8_general_ci'.
+
+
+Azahar:
+  - BUG FIX: at SQL queries: getAlmostSoldOutProducts,getTop5SoldProducts...
+  - Added some methods for future use at squeeze, regarding new tables and fields. [by Biel Frontera]

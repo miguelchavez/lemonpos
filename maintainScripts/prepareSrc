@@ -1,0 +1,12 @@
+
+# delete backup files (.*)
+echo "Deleting backup files..."
+find trunk/ -depth -type f -name .\* -exec rm {} \;
+
+echo "Deleting .svn directories"
+find trunk/ -depth -type d -name .svn -exec rm -rf {} \;
+
+#change owner
+#sudo chown -R mich:users squeezeNEW/
+
+echo "Done, you can sync now..."

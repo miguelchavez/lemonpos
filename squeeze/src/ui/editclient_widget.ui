@@ -1,0 +1,150 @@
+<ui version="4.0" >
+ <class>clientEditor</class>
+ <widget class="QWidget" name="clientEditor" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>420</width>
+    <height>379</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QLabel" name="label_14" >
+     <property name="text" >
+      <string>&amp;Name:</string>
+     </property>
+     <property name="buddy" >
+      <cstring>editClientName</cstring>
+     </property>
+    </widget>
+   </item>
+   <item rowspan="4" row="0" column="1" >
+    <widget class="QLabel" name="labelClientPhoto" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Maximum" hsizetype="Maximum" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize" >
+      <size>
+       <width>128</width>
+       <height>128</height>
+      </size>
+     </property>
+     <property name="frameShape" >
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="text" >
+      <string/>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QLineEdit" name="editClientName" />
+   </item>
+   <item row="2" column="0" >
+    <widget class="QLabel" name="label_16" >
+     <property name="text" >
+      <string>&amp;Address:</string>
+     </property>
+     <property name="buddy" >
+      <cstring>editClientAddress</cstring>
+     </property>
+    </widget>
+   </item>
+   <item rowspan="2" row="3" column="0" >
+    <widget class="QTextEdit" name="editClientAddress" >
+     <property name="maximumSize" >
+      <size>
+       <width>16777215</width>
+       <height>100</height>
+      </size>
+     </property>
+     <property name="acceptRichText" >
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item rowspan="2" row="4" column="1" >
+    <widget class="QPushButton" name="btnChangeClientPhoto" >
+     <property name="text" >
+      <string>Change &amp;Photo</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" >
+    <widget class="QLabel" name="label_17" >
+     <property name="text" >
+      <string>Phone</string>
+     </property>
+     <property name="buddy" >
+      <cstring>editClientPhone</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" >
+    <widget class="QLineEdit" name="editClientPhone" />
+   </item>
+   <item row="7" column="0" >
+    <widget class="QLabel" name="label_18" >
+     <property name="text" >
+      <string>Cell Phone:</string>
+     </property>
+     <property name="buddy" >
+      <cstring>editClientCell</cstring>
+     </property>
+    </widget>
+   </item>
+   <item rowspan="6" row="7" column="1" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>161</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="8" column="0" >
+    <widget class="QLineEdit" name="editClientCell" />
+   </item>
+   <item row="9" column="0" >
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>Points:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" >
+    <widget class="QLineEdit" name="editClientPoints" />
+   </item>
+   <item row="11" column="0" >
+    <widget class="QLabel" name="label_2" >
+     <property name="text" >
+      <string>Discount:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0" >
+    <widget class="QLineEdit" name="editClientDiscount" />
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

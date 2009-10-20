@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+  <kcfgfile name="lemonrc"/>
+  <group name="lemon">
+    <entry name="SplitterSizes" type="IntList">
+      <label>How the main window is divided.</label>
+    </entry>
+  </group>
+  <group name="Store Preferences">
+    <entry name="editStoreName" type="String">
+      <label>Store Name</label>
+      <default>My Store</default>
+    </entry>
+    <entry name="storePhone" type="String">
+      <label>Store Phone Number</label>
+      <default></default>
+    </entry>
+    <entry name="storeAddress" type="String">
+      <label>Store Address</label>
+      <default></default>
+    </entry>
+    <entry name="editTicketMessage" type="String">
+      <label>Ticket Message</label>
+      <default>Thanks for your preference!</default>
+    </entry>
+    <entry name="storeLogo" type="String">
+      <label>Store Logo file</label>
+      <default></default>
+    </entry>
+  </group>
+  <group name="General Preferences">
+    <entry name="editTerminalNumber" type="Int">
+      <label>POS Number</label>
+      <default>1</default>
+    </entry>
+    <entry name="requiereDelAuth" type="Bool">
+      <label>Requiere delete authorisation</label>
+      <default>false</default>
+    </entry>
+    <entry name="lowSecurityMode" type="Bool">
+    <label>Low Security Mode</label>
+    <default>false</default>
+    </entry>
+    <entry name="showCurrencyOnTotal" type="Bool">
+      <label>Show Currency</label>
+      <default>true</default>
+    </entry>
+    <entry name="editCurrencyFull" type="String">
+      <label>Full Currency String</label>
+      <default>Pesos Mexicanos</default>
+    </entry>
+    <entry name="editCurrencyShort" type="String">
+      <label>Short Currency String</label>
+      <default>MXP</default>
+    </entry>
+    <entry name="showGrid" type="Bool">
+      <label>Show Products Grid</label>
+      <default>true</default>
+    </entry>
+    <entry name="stockAlertValue" type="Int">
+     <label>Low Stock Alert</label>
+     <default>5</default>
+    </entry>
+    <entry name="cashMinLevel" type="Double">
+     <label>Low Cash Level</label>
+     <default>100</default>
+    </entry>
+    <entry name="displayWarningOnLowCash" type="Bool">
+      <label>Display Low Cash Warning</label>
+      <default>true</default>
+    </entry>
+  </group>
+  <group name="Database">
+    <entry name="editDBServer" type="String">
+      <label>DB Server Name</label>
+      <default>localhost</default>
+    </entry>
+    <entry name="editDBUsername" type="String">
+      <label>DB Username</label>
+      <default>lemonclient</default>
+    </entry>
+    <entry name="editDBPassword" type="String">
+      <label>DB Password</label>
+      <default>xarwit0721</default>
+    </entry>
+    <entry name="editDBName" type="String">
+      <label>DB Name</label>
+      <default>lemondb</default>
+    </entry>
+    <entry name="deleteEmptyCancelledTransactions" type="Bool">
+      <label>Delete empty cancelled transactions</label>
+      <default>true</default>
+    </entry>
+  </group>
+  <group name="Styles">
+    <entry name="useStyle" type="Bool">
+      <label>Use style</label>
+      <default>true</default>
+    </entry>
+    <entry name="styleName" type="String">
+      <label>Get Stylesheet Name</label>
+      <default>1</default>
+    </entry>
+  </group>
+  <group name="security">
+    <entry name="allowAnyUserToQuit" type="Bool">
+      <label>Allow any user to quit application</label>
+      <default>false</default>
+    </entry>
+  </group>
+  <group name="printer">
+   <entry name="showDialogOnPrinting" type="Bool">
+      <label>Show a dialog when printing the ticket</label>
+      <default>true</default>
+    </entry>
+    <entry name="ticketTime" type="Int">
+    <label>Time showing the ticket dialog</label>
+    <default>3</default>
+    </entry>
+    <entry name="openDrawer" type="Bool">
+      <label>There is a drawer and use it</label>
+      <default>false</default>
+    </entry>
+    <entry name="smallTicket" type="Bool">
+      <label>Print a small receipt using a ticket printer.</label>
+      <default>true</default>
+    </entry>
+    <entry name="bigReceipt" type="Bool">
+      <label>Print a big receipt using a normal printer</label>
+      <default>false</default>
+    </entry>
+    <entry name="printBalances" type="Bool">
+      <label>Print balances using ticket printer</label>
+      <default>false</default>
+    </entry>
+    <entry name="printTicket" type="Bool">
+      <label>Print Ticket (dou you have a ticket printer?)</label>
+      <default>false</default>
+    </entry>
+    <entry name="printChangedDateTicket" type="Bool">
+      <label>Print Date Changed Ticket</label>
+      <default>false</default>
+    </entry>
+    <entry name="printerDevice" type="String">
+      <label>Get printer device to use for printing</label>
+      <default>/dev/lp0</default>
+    </entry>
+    <entry name="printerCodec" type="String">
+      <label>Get Printer Codec to use</label>
+      <default>UTF-8</default> 
+    </entry>
+  </group>
+</kcfg>

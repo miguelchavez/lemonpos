@@ -1,0 +1,293 @@
+/***************************************************************************
+ *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                  *
+ *   miguel.chavez.gamboa@gmail.com                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+ ***************************************************************************/
+
+#ifndef LEMONVIEW_H
+#define LEMONVIEW_H
+
+class QStringList;
+class QTableWidgetItem;
+class LoginWindow;
+
+#include <qwidget.h>
+#include <QList>
+#include <QtSql>
+
+#include "enums.h"
+#include "gaveta.h"
+#include "loginwindow.h"
+#include "ui_mainview.h"
+
+/**
+ * This is the main view class for lemon.  Most of the non-menu,
+ * non-toolbar, and non-statusbar (e.g., non frame) GUI code should go
+ * here.
+ *
+ * @short Main view
+ * @author Miguel Chavez Gamboa <miguel.chavez.gamboa@gmail.com>
+ * @version 2007.11
+ */
+class lemonView : public QWidget, public Ui::mainview
+{
+    Q_OBJECT
+public:
+    lemonView(QWidget *parent);
+
+    virtual ~lemonView();
+
+    QString getLoggedUser();
+    QString getLoggedUserName(QString id);
+    unsigned int getLoggedUserId(QString uname);
+    QString getCurrentTransactionString();
+    qulonglong     getCurrentTransaction();
+    QList<int> getTheSplitterSizes();
+
+    void setTheSplitterSizes(QList<int> s);
+    bool isTransactionInProgress() { return transactionInProgress;}
+    void cancelByExit();
+    bool canStartSelling() {return operationStarted;}
+    bool validAdminUser();
+    void saveBalance();
+    
+  private:
+    Ui::mainview ui_mainview;
+    QString loggedUser;
+    QString loggedUserName;
+    unsigned int loggedUserId;
+    qulonglong   currentTransaction;
+    double  totalSum;
+    Gaveta *drawer;
+    bool   drawerCreated;
+    bool   modelsCreated;
+    bool   operationStarted;
+    bool   transactionInProgress;
+    QSqlDatabase db;
+    LoginWindow *dlgLogin;
+    LoginWindow *dlgPassword;
+    QHash<qulonglong, ProductInfo> productsHash;
+    QSqlTableModel *productsModel;
+    QHash<QString, int> categoriesHash;
+    ClientInfo clientInfo;
+    QHash<QString, ClientInfo> clientsHash;
+    qulonglong buyPoints;
+    double discMoney;
+    QDateTime transDateTime;
+    
+    QSqlRelationalTableModel *historyTicketsModel;
+
+    QSqlQueryModel *productsFilterModel;
+
+    void loadIcons();
+    void setUpInputs();
+    void setupModel();
+
+  signals:
+    /**
+   * Use this signal to change the content of the statusbar
+     */
+    void signalChangeStatusbar(const QString& text);
+
+    /**
+     * Use this signal to change the content of the caption
+     */
+    void signalChangeCaption(const QString& text);
+    /**
+     * Use this signal to inform that the administrator has logged on.
+     **/
+    void signalAdminLoggedOn();
+    /**
+     * Use this signal to inform that the administrator has logged off.
+     **/
+    void signalAdminLoggedOff();
+    /**
+     * Use this signal to inform that no user has logged on.
+     **/
+    void signalNoLoggedUser();
+    /**
+     * Use this signal to inform that an user has logged on (!=admin).
+     **/
+    void signalLoggedUser();
+    /**
+     * Use this signal to update the clock on the statusbar
+     */
+    void signalUpdateClock();
+
+    void signalQueryDb(QString code);
+    /**
+     * Signal used to update transaction number
+     */
+    void signalUpdateTransactionInfo();
+    /**
+     * Signal used to inform the start of operation.
+     */
+    void signalStartedOperation();
+
+    void signalShowProdGrid();
+
+    void signalShowDbConfig();
+
+
+  private slots:
+    void setUpTable();
+    /**
+     * Slot used to show the "enter code" widget
+     */
+    void showEnterCodeWidget();
+    /**
+     * Slot used to show the "search item" widget
+     */
+    void showSearchItemWidget();
+    /**
+     * Slot used to search an item description into database, to get the code.
+     */
+    void doSearchItemDesc();
+    /**
+      * Slot to search for a product code in the table, if found then qty is incremented.
+    */
+    bool incrementTableItemQty(QString code, double q);
+    /**
+      * Slot used to get a product info from the database and insert it to the table
+      */
+    void insertItem(QString code);
+    /**
+     * Slot used to insert an item into the buy list, do the real insert
+     */
+    int doInsertItem(QString itemCode, QString itemDesc, double itemQty, double itemPrice, double itemDiscount, QString itemUnits);
+    /**
+     * Slot used to delete the current item.
+    */
+    void deleteSelectedItem();
+   /**
+     * Slot used to increment qty on doubleclick on an item
+    */
+    void itemDoubleClicked(QTableWidgetItem* item);
+   /**
+     * Slot used to add clicked item to shopping list...
+     */
+    void itemSearchDoubleClicked(QTableWidgetItem *item);
+   /**
+     * Slot used to refresh (recalculate) the total due.
+    */
+    void refreshTotalLabel();
+  /**
+     * Slot used to display product information on the left panel.
+   */
+    void displayItemInfo(QTableWidgetItem* item);
+  /**
+     * Slot used to create a new transaction. It gets last transaction number from database, and creates a new one.
+   */
+    void createNewTransaction(TransactionType type); //NOTE: With parameter transactionType ??
+  /**
+     * Slot used to finish current TRansaction. It saves transaction on database.
+   */
+    void finishCurrentTransaction();
+  /**
+     * Slot used to cancel the current transaction on the database.
+   */
+    void cancelCurrentTransaction();
+    void preCancelCurrentTransaction();
+    void deleteCurrentTransaction();
+  /**
+     * Slot used to cancel a transaction from database
+   */
+    void cancelTransaction(qulonglong transactionNumber);
+    void askForIdToCancel();
+    void askForTicketToReturnProduct();
+  /**
+     * Slot used to start store operation, gaveta qty is set to 0.
+   */
+    void startOperation();
+    void slotDoStartOperation();
+  /**
+     * Slot used to clear the tableWidget, totals, amount and card number.
+   */
+    void clearUsedWidgets();
+  /**
+     * Slot used to print the ticket, show a frame message and wait a few seconds...
+   **/
+    void printTicket(TicketInfo ticket);
+  /**
+     * Slot used to print balance for the user.
+   */
+    void printBalance(QStringList lines);
+    void showBalance(QStringList lines);
+  /**
+     * This slot is used to make a balance for the user (initial + in - out = drawer amount).
+   */
+    void corteDeCaja();
+    void endOfDay();
+
+    void startAgain();
+  /**
+     * Slot used to get the row where an item with code is at the main table.
+     * Returns -1 if not found, else returns table row where is located.
+   **/
+    int getItemRow(QString c);
+
+    void buttonDone();
+    void checksChanged();
+    void focusPayInput();
+    void setupGridView();
+
+
+    void doEmitSignalQueryDb();
+
+    void settingsChanged();
+    void settingsChangedOnInitConfig();
+    void login();
+    void setupDB();
+    void connectToDb();
+    void setupClients();
+    void timerTimeout();
+    void clearLabelSearchMsg();
+    void clearLabelInsertCodeMsg();
+    void clearLabelPayMsg();
+    void goSelectCardAuthNumber();
+
+
+    void listViewOnMouseMove(const QModelIndex & index);
+    void listViewOnClick( const QModelIndex & index );
+    void comboClientsOnChange();
+    void updateClientInfo();
+    void updateModelView();
+    void showProductsGrid(bool show);
+    void showPriceChecker();
+    void hideProductsGrid();
+    void populateCategoriesHash();
+    void setFilter();
+    void showChangeDate();
+
+    void showReprintTicket();
+    void setupTicketView();
+    void setupHistoryTicketsModel();
+    void printTicketFromTransaction(qulonglong transactionNumber);
+    void printSelTicket();
+    void setHistoryFilter();
+    void btnTicketsDone() {  ui_mainview.mainPanel->setCurrentIndex(0); };
+    void itemHIDoubleClicked(const QModelIndex &index);
+
+    void cashOut();
+    void cashIn();
+    void cashAvailable();
+    void modifyProductsFilterModel(); //this feature is only present on 0.7.4 - 0.8 but not in SVN. It is for search combobox - biel
+
+};
+
+#endif // LEMONVIEW_H
