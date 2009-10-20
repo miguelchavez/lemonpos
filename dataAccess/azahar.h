@@ -57,7 +57,7 @@ class Azahar : public QObject
 
     // PRODUCTS
     // Si se introduce el alphacode, entonces tambien para buscar el producto por alphacode...
-    ProductInfo  getProductInfo(qulonglong code);
+    ProductInfo  getProductInfo(QString code);
     qulonglong   getProductOfferCode(qulonglong code);
     qulonglong   getProductCode(QString text);
     QList<qulonglong> getProductsCode(QString regExpName);
@@ -137,6 +137,8 @@ class Azahar : public QObject
     QString     getPayTypeStr(qulonglong type);
     qulonglong  getPayTypeId(QString type);
 
+    //TAX MODELS
+    double      getTotalTaxPercent(const QString& elementsid);
 
 };
 
