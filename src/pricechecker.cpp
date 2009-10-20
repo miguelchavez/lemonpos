@@ -91,7 +91,7 @@ PriceChecker::~PriceChecker()
 
 void PriceChecker::checkIt()
 {
-  ProductInfo info = myDb->getProductInfo(ui->editCode->text().toULongLong());
+  ProductInfo info = myDb->getProductInfo(ui->editCode->text());
   ui->labelPCName->setText(info.desc);
   ui->labelPCPrice->setText(KGlobal::locale()->formatMoney(info.price));
   if (info.validDiscount) ui->labelPCDiscount->setText(KGlobal::locale()->formatMoney(-info.disc));

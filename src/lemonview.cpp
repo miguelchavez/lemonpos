@@ -660,7 +660,7 @@ void lemonView::doSearchItemDesc()
   //iteramos la lista
   for (int i = 0; i < pList.size(); ++i) {
      qulonglong c = pList.at(i);
-     ProductInfo pInfo = myDb->getProductInfo(c);
+     ProductInfo pInfo = myDb->getProductInfo(QString::number(c));
      //insert each product to the search table...
      int rowCount = ui_mainview.tableSearch->rowCount();
       ui_mainview.tableSearch->insertRow(rowCount);
@@ -832,7 +832,7 @@ void lemonView::insertItem(QString code)
     //As it was not incremented on tableView, so there is not in the productsHash... so we get it from db.
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
-    info = myDb->getProductInfo(codeX.toULongLong()); //includes discount and validdiscount
+    info = myDb->getProductInfo(codeX); //includes discount and validdiscount
 
     //verify item units and qty..
     if (info.units == uPiece) { 

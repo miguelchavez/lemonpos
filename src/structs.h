@@ -35,7 +35,6 @@ struct ProductInfo {
   double cost;
   double tax;  //total tax in percentage
   double totaltax;//in money...
-  //double extratax;
   QByteArray photo;
   double stockqty;
   int units;
