@@ -106,7 +106,7 @@ void PromoEditor::productChanged()
   if (code != 0){
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
-    ;               ProductInfo info = myDb->getProductInfo(code);
+    ProductInfo info = myDb->getProductInfo(QString::number(code));
     ui->spinboxPrice->setValue(info.price*(100.0-ui->spinboxDiscount->value())/100);
   }
   checkValid();
@@ -120,7 +120,7 @@ void PromoEditor::discountChanged()
     if (code != 0){
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
-      ;               ProductInfo info = myDb->getProductInfo(code);
+      ProductInfo info = myDb->getProductInfo(QString::number(code));
       ui->spinboxPrice->setValue(info.price*(100.0-ui->spinboxDiscount->value())/100);
     }
   }
@@ -135,7 +135,7 @@ void PromoEditor::priceChanged()
     if (code != 0){
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
-      ;               ProductInfo info = myDb->getProductInfo(code);
+      ProductInfo info = myDb->getProductInfo(QString::number(code));
       ui->spinboxDiscount->setValue(100.0-(ui->spinboxPrice->value()*100/info.price));
     }
   }

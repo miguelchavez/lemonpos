@@ -49,44 +49,45 @@ class ProductEditor : public KDialog
     double  getStockQty()    { return ui->editStockQty->text().toDouble(); };
     int     getCategoryId();
     int     getMeasureId();
-    QString getCategoryStr(int c);
-    QString getMeasureStr(int c);
     double  getCost()        { return ui->editCost->text().toDouble(); };
-    double  getTax1()        { return ui->editTax->text().toDouble(); };
-    double  getTax2()        { return ui->editExtraTaxes->text().toDouble(); };
+    double  getTax()         { return m_tax; };
+    double  getTotalTax()    { return m_totalTax; };
+    QString getTaxElements() { return m_taxElements; };
     double  getPrice()       { return ui->editFinalPrice->text().toDouble(); };
     qulonglong getPoints()   { return ui->editPoints->text().toULongLong(); };
     QPixmap getPhoto()       { qDebug()<<"pixmap Size:"<<pix.size(); return pix; };
+    qulonglong getBrandId()  { return m_brandId;     };
+    qulonglong getProviderId() {return m_providerId; };
+    qulonglong getTaxModelId() { return m_taxModel;  };
+    qulonglong getAlphaCode()  { return ui->editAlphacode->text().toULongLong(); };
     
 
-    void    populateCategoriesCombo();
-    void    populateMeasuresCombo();
 
     void    setDb(QSqlDatabase database);
     void    setCode(qulonglong c)      {ui->editCode->setText(QString::number(c)); };
     void    setDescription(QString d)  {ui->editDesc->setText(d); };
     void    setStockQty(double q)      {ui->editStockQty->setText(QString::number(q)); };
-    void    setCategory(QString str);
-    void    setCategory(int i);
-    void    setMeasure(QString str);
-    void    setMeasure(int i);
     void    setCost(double c)          {ui->editCost->setText(QString::number(c)); };
-    void    setTax1(double t)          {ui->editTax->setText(QString::number(t)); };
-    void    setTax2(double t)          {ui->editExtraTaxes->setText(QString::number(t)); };
     void    setPrice(double p)         {ui->editFinalPrice->setText(QString::number(p)); };
     void    setPoints(qulonglong p)    {ui->editPoints->setText(QString::number(p)); };
     void    setPhoto(QPixmap p);
-    
+    void    setProviderId(qulonglong id) { m_providerId = id; };
+    void    setBrandId(qulonglong id) { m_brandId = id; };
+    void    setTaxModel(qulonglong id);
+    void    setAlphaCode(QString code) { ui->editAlphacode->setText(code); };
+    void    setCategory(int i);
+    void    setMeasure(int i);
     void    disableCode()              { ui->editCode->setReadOnly(true); };
     void    enableCode()               { ui->editCode->setReadOnly(false); modifyCode=true;};
-    
-private slots:
+
+  private slots:
     void    changePhoto();
     void    changeCode();
     void    calculatePrice();
     void    checkIfCodeExists();
     void    checkFieldsState();
-protected slots:
+    void    updateTax(int);
+  protected slots:
     virtual void slotButtonClicked(int button);
   private:
     ProductEditorUI *ui;
@@ -94,6 +95,34 @@ protected slots:
     QPixmap pix;
     returnType status;
     bool modifyCode;
+    qulonglong m_providerId;
+    qulonglong m_brandId;
+    qulonglong m_taxModel;
+    double m_tax;
+    double m_totalTax;
+    QString m_taxElements;
+
+    QString getCategoryStr(int c);
+    QString getMeasureStr(int c);
+    QString getBrandStr(int c);
+    QString getProviderStr(int c);
+    QString getTaxModelStr(int c);
+    void    setCategory(QString str);
+
+    void    setMeasure(QString str);
+
+    void    setTax(const QString &str);
+    void    setTax(const int &i);
+    void    setBrand(const QString &str);
+    void    setBrand(const int &i);
+    void    setProvider(const QString &str);
+    void    setProvider(const int &i);
+    
+    void    populateCategoriesCombo();
+    void    populateMeasuresCombo();
+    void    populateBrandsCombo();
+    void    populateProvidersCombo();
+    void    populateTaxModelsCombo();
 };
 
 #endif

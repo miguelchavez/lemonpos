@@ -3,7 +3,6 @@
  *   miguel.chavez.gamboa@gmail.com                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
-
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
@@ -1147,6 +1146,8 @@ void lemonView::createNewTransaction(TransactionType type)
     info.discmoney = 0;
     info.points = 0;
     info.profit = 0;
+    info.providerid = 0;
+    info.groups = "";
     info.terminalnum=Settings::editTerminalNumber();
 
     Azahar *myDb = new Azahar;
@@ -2239,6 +2240,7 @@ void lemonView::setupModel()
 
     productsModel->select();
 
+    ///TODO: -MCH- Remove the filter by Biel?
     //BFB. Added QCompleter to editFilterByDesc
     productsFilterModel->setQuery("");
     QCompleter *completer = new QCompleter(this);

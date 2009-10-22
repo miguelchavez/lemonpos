@@ -73,9 +73,6 @@
 #include <kpassivepopup.h>
 #include <KNotification>
 
-//evaluating floating bar.
-#include "floatingtoolbar.h"
-
 //TODO: Change all qDebug to errorDialogs or remove them.
 //NOTE: Common configuration fields need to be shared between lemon and squeeze (low stock alarm value).
 
@@ -83,8 +80,8 @@ enum {pWelcome=0, pBrowseProduct=1, pBrowseOffers=2, pBrowseUsers=3, pBrowseMeas
 
 
 squeezeView::squeezeView(QWidget *parent)
-    : QWidget(parent),
-      m_toolBar(0)
+    : QWidget(parent)//,
+      //m_toolBar(0)
 {
   ui_mainview.setupUi(this);
   setAutoFillBackground(true);
@@ -148,18 +145,9 @@ squeezeView::squeezeView(QWidget *parent)
     ui_mainview.chViewProductsListAsTable->setChecked(true);
   }
   
-  m_toolBar = new FloatingToolBar(this,this); //ui_mainview.groupFilterProducts
-  m_toolBar->winId(); // force it to be a native widget (prevents problem with QX11EmbedContainer)
-  m_toolBar->setSide(FloatingToolBar::Top);
-  QLabel *nlabel = new QLabel("Just a test", m_toolBar);
-  nlabel->setMargin(4);
-  m_toolBar->addWidget(nlabel);
-  QPushButton * boton = new QPushButton("press me!", m_toolBar);
-  m_toolBar->addWidget(boton);
-  QAction *act = new QAction(m_toolBar);
-  act->setText(i18n("Cash in drawer"));
-  act->setIcon(KIcon("lemon-money"));
-  m_toolBar->addAction(act);
+  //m_toolBar = new FloatingToolBar(this,this); //ui_mainview.groupFilterProducts
+  //m_toolBar->winId(); // force it to be a native widget (prevents problem with QX11EmbedContainer)
+  //m_toolBar->setSide(FloatingToolBar::Top);
 }
 
 
@@ -374,9 +362,9 @@ void squeezeView::showProductsPage()
   ui_mainview.titleBar->setText(i18n("Products"));
   ui_mainview.titleBar->setPixmap((DesktopIcon("lemon-box",32)));
 
-  m_toolBar->addWidget(ui_mainview.groupFilterProducts);
+  //m_toolBar->addWidget(ui_mainview.groupFilterProducts);
   //ui_mainview.groupFilterProducts->setChecked(true); //TESTING!!!
-  m_toolBar->showAndAnimate();
+  //m_toolBar->showAndAnimate();
 }
 
 void squeezeView::showOffersPage()
@@ -604,7 +592,7 @@ void squeezeView::updateGraphs()
         ///we got one result per day (sum)
         //insert the day,profit to the plot
         AccSales  = info.amount;
-        AccProfit = info.utility;
+        AccProfit = info.profit;
         day       = info.date.day();
         objSales->addPoint(day,AccSales, QString::number(AccSales));
         objProfit->addPoint(day,AccProfit, QString::number(AccProfit));
@@ -859,13 +847,13 @@ void squeezeView::setupProductsModel()
     productSoldUnitsIndex= productsModel->fieldIndex("soldunits");
     productLastSoldIndex= productsModel->fieldIndex("datelastsold");
     productUnitsIndex= productsModel->fieldIndex("units");
-    productTaxIndex = productsModel->fieldIndex("taxpercentage");
-    productETaxIndex= productsModel->fieldIndex("extrataxes");
     productPhotoIndex=productsModel->fieldIndex("photo");
     productCategoryIndex=productsModel->fieldIndex("category");
     productPointsIndex=productsModel->fieldIndex("points");
     productLastProviderIndex = productsModel->fieldIndex("lastproviderid");
     productAlphaCodeIndex = productsModel->fieldIndex("alphacode");
+    productBrandIndex = productsModel->fieldIndex("brandid");
+    productTaxModelIndex = productsModel->fieldIndex("taxmodel");
 
 
     ui_mainview.productsView->setModel(productsModel);
@@ -881,15 +869,12 @@ void squeezeView::setupProductsModel()
 
     ui_mainview.productsViewAlt->setColumnHidden(productPhotoIndex, true);
     ui_mainview.productsViewAlt->setColumnHidden(productUnitsIndex, true);
-    ui_mainview.productsViewAlt->setColumnHidden(productTaxIndex, true);
-    ui_mainview.productsViewAlt->setColumnHidden(productETaxIndex, true);
     ui_mainview.productsViewAlt->setColumnHidden(productPointsIndex, true);
-    /// 0.7 version : hidden next columns
-    ui_mainview.productsViewAlt->setColumnHidden(productLastProviderIndex, true);
-    ui_mainview.productsViewAlt->setColumnHidden(productAlphaCodeIndex, true);
 
     productsModel->setRelation(productCategoryIndex, QSqlRelation("categories", "catid", "text"));
-    productsModel->setRelation(productLastProviderIndex, QSqlRelation("providers", "id", "name"));
+    productsModel->setRelation(productLastProviderIndex, QSqlRelation("providers", "id", "provname"));
+    productsModel->setRelation(productBrandIndex, QSqlRelation("brands", "brandid", "bname"));
+    productsModel->setRelation(productTaxModelIndex, QSqlRelation("taxmodels", "modelid", "tname"));
 
     productsModel->setHeaderData(productCodeIndex, Qt::Horizontal, i18n("Code"));
     productsModel->setHeaderData(productDescIndex, Qt::Horizontal, i18n("Name"));
@@ -901,6 +886,8 @@ void squeezeView::setupProductsModel()
     productsModel->setHeaderData(productLastSoldIndex, Qt::Horizontal, i18n("Last Sold") );
     productsModel->setHeaderData(productLastProviderIndex, Qt::Horizontal, i18n("Last Provider") );
     productsModel->setHeaderData(productAlphaCodeIndex, Qt::Horizontal, i18n("Alpha Code") );
+    productsModel->setHeaderData(productTaxModelIndex, Qt::Horizontal, i18n("Tax Model") );
+    productsModel->setHeaderData(productBrandIndex, Qt::Horizontal, i18n("Brand") );
     
     ProductDelegate *delegate = new ProductDelegate(ui_mainview.productsView);
     ui_mainview.productsView->setItemDelegate(delegate);
@@ -1551,16 +1538,10 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     double stockQty = model->data(indx, Qt::DisplayRole).toDouble();
     indx = model->index(row, productsModel->fieldIndex("cost"));
     double cost = model->data(indx, Qt::DisplayRole).toDouble();
-//     indx = model->index(row, productsModel->fieldIndex("soldunits"));
-//     double soldunits = model->data(indx, Qt::DisplayRole).toDouble();
     indx = model->index(row, productsModel->fieldIndex("datelastsold"));
     QString datelastsold = model->data(indx, Qt::DisplayRole).toString();
     indx = model->index(row, productsModel->fieldIndex("units"));
     int units = model->data(indx, Qt::DisplayRole).toInt();
-    indx = model->index(row, productsModel->fieldIndex("taxpercentage"));
-    double tax1 = model->data(indx, Qt::DisplayRole).toDouble();
-    indx = model->index(row, productsModel->fieldIndex("extrataxes"));
-    double tax2 = model->data(indx, Qt::DisplayRole).toDouble();
     indx = model->index(row, productsModel->fieldIndex("category"));
     int category = model->data(indx, Qt::DisplayRole).toInt();
     indx = model->index(row, productsModel->fieldIndex("points"));
@@ -1569,6 +1550,16 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     QByteArray photoBA = model->data(indx, Qt::DisplayRole).toByteArray();
     QPixmap photo;
     photo.loadFromData(photoBA);
+    indx = model->index(row, productsModel->fieldIndex("taxmodel"));
+    qulonglong taxmodel = model->data(indx, Qt::DisplayRole).toULongLong();
+    qDebug()<<"tax model from model:"<<taxmodel<<" Index:"<<indx;
+    indx = model->index(row, productsModel->fieldIndex("alphacode"));
+    QString alphacode = model->data(indx, Qt::DisplayRole).toString();
+    indx = model->index(row, productsModel->fieldIndex("brandid"));
+    qulonglong brandid = model->data(indx, Qt::DisplayRole).toULongLong();
+    indx = model->index(row, productsModel->fieldIndex("lastproviderid"));
+    qulonglong providerid = model->data(indx, Qt::DisplayRole).toULongLong();
+    
 
     ProductInfo pInfo;
 
@@ -1578,16 +1569,18 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     productEditorDlg->disableCode(); //On Edit product, code cannot be changed.
     productEditorDlg->setDb(db);
     productEditorDlg->setCode(id);
+    productEditorDlg->setAlphaCode(alphacode);
     productEditorDlg->setDescription(name);
     productEditorDlg->setStockQty(stockQty);
     productEditorDlg->setPrice(price);
     productEditorDlg->setCost(cost);
     productEditorDlg->setMeasure(units);
-    productEditorDlg->setTax1(tax1);
-    productEditorDlg->setTax2(tax2);
+    productEditorDlg->setTaxModel(taxmodel);
     productEditorDlg->setCategory(category);
     productEditorDlg->setPhoto(photo);
     productEditorDlg->setPoints(points);
+    productEditorDlg->setBrandId(brandid);
+    productEditorDlg->setProviderId(providerid);
 
     qulonglong newcode=0;
     //Launch dialog, and if dialog is accepted...
@@ -1600,15 +1593,17 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
       pInfo.price    = productEditorDlg->getPrice();
       pInfo.cost     = productEditorDlg->getCost();
       pInfo.units    = productEditorDlg->getMeasureId();
-      pInfo.tax      = productEditorDlg->getTax1();
-      pInfo.extratax = productEditorDlg->getTax2();
+      pInfo.tax      = productEditorDlg->getTax();
+      pInfo.taxmodelid=productEditorDlg->getTaxModelId();
+      pInfo.totaltax = productEditorDlg->getTotalTax();
       pInfo.category = productEditorDlg->getCategoryId();
       pInfo.points   = productEditorDlg->getPoints();
       photo          = productEditorDlg->getPhoto();
       pInfo.photo    = Misc::pixmap2ByteArray(new QPixmap(photo)); //Photo ByteArray
-      //FIXME: NEXT 2 lines are temporal remove on 0.8 version
-      pInfo.alphaCode = "-NA-";
-      pInfo.lastProviderId = 1;
+      pInfo.alphaCode= productEditorDlg->getAlphaCode();
+      pInfo.brandid  = productEditorDlg->getBrandId();
+      pInfo.taxElements= productEditorDlg->getTaxElements();
+      pInfo.lastProviderId = productEditorDlg->getProviderId();
 
       //Update database
       Azahar *myDb = new Azahar;
@@ -1741,7 +1736,7 @@ void squeezeView::doPurchase()
         tInfo.cardauthnum = "-NA-";
         tInfo.itemcount   = purchaseEditorDlg->getItemCount();
         tInfo.itemlist    = items.join(";");
-        tInfo.utility     = 0; //FIXME: utility is calculated until products are sold, not before.
+        tInfo.profit      = 0; //FIXME: utility is calculated until products are sold, not before.
         tInfo.terminalnum = 0; //NOTE: Not really a terminal... from admin computer.
         myDb->insertTransaction(tInfo);
 
@@ -1834,14 +1829,16 @@ void squeezeView::createProduct()
         info.stockqty= prodEditorDlg->getStockQty();
         info.cost    = prodEditorDlg->getCost();
         info.units   = prodEditorDlg->getMeasureId();
-        info.tax     = prodEditorDlg->getTax1();
-        info.extratax= prodEditorDlg->getTax2();
+        info.tax     = prodEditorDlg->getTax();
+        info.totaltax= prodEditorDlg->getTotalTax();
         info.photo   = Misc::pixmap2ByteArray(new QPixmap(prodEditorDlg->getPhoto()));
         info.category= prodEditorDlg->getCategoryId();
         info.points  = prodEditorDlg->getPoints();
-        //FIXME: NEXT 2 lines are temporal remove on 0.8 version
-        info.alphaCode = "-NA-";
-        info.lastProviderId = 1;
+        info.alphaCode = prodEditorDlg->getAlphaCode();
+        info.lastProviderId = prodEditorDlg->getProviderId();
+        info.brandid = prodEditorDlg->getBrandId();
+        info.taxmodelid     = prodEditorDlg->getTaxModelId();
+        info.taxElements    = prodEditorDlg->getTaxElements();
         if (!myDb->insertProduct(info)) qDebug()<<"ERROR:"<<myDb->lastError();
         productsModel->select();
       break;
@@ -2036,7 +2033,7 @@ void squeezeView::deleteSelectedProduct()
          myDb->setDatabase(db);
          //in case of multiple offers for a product
          qulonglong oID = myDb->getProductOfferCode(iD);
-         while (oId != 0) do {
+         while (oID != 0) {
            qDebug()<<"DELETING product code:"<<iD<<" offer code:"<<oID;
            qulonglong oID = myDb->getProductOfferCode(iD);
            if (myDb->deleteOffer(oID)) qDebug()<<"Ok, offer also deleted...";

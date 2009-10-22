@@ -1,9 +1,8 @@
 /***************************************************************************
- *   Copyright (C) 2008-2009 by Miguel Chavez Gamboa                  *
+ *   Copyright (C) 2008-2009 by Miguel Chavez Gamboa                       *
  *   miguel.chavez.gamboa@gmail.com                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
-
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
@@ -642,6 +641,71 @@ QStringList Azahar::getMeasuresList()
   return result;
 }
 
+//BRANDS
+QStringList Azahar::getBrandsList()
+{
+  qDebug()<<"getBrandsList...";
+  QStringList result;
+  result.clear();
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec("select bname from brands;")) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("bname");
+        QString text = myQuery.value(fieldText).toString();
+        result.append(text);
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
+//PROVIDERS
+QStringList Azahar::getProvidersList()
+{
+  QStringList result;
+  result.clear();
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec("select provname from providers;")) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("provname");
+        QString text = myQuery.value(fieldText).toString();
+        result.append(text);
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
+QString Azahar::getProviderName(const qulonglong &id)
+{
+  QString result;
+  result.clear();
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("select provname from providers where id=%1;").arg(id))) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("provname");
+        result = myQuery.value(fieldText).toString();
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
 // TAX MODELS
 double Azahar::getTotalTaxPercent(const QString& elementsid)
 {
@@ -666,6 +730,96 @@ double Azahar::getTotalTaxPercent(const QString& elementsid)
         qDebug()<<"ERROR: "<<myQuery.lastError();
       }
     } //for each one
+  }
+  return result;
+}
+
+TaxModelInfo Azahar::getTaxModelInfo(const qulonglong id)
+{
+  TaxModelInfo result;
+  
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("select * from taxmodels where modelid=%1;").arg(id))) {
+      while (myQuery.next()) {
+        int fieldName = myQuery.record().indexOf("tname");
+        QString name  = myQuery.value(fieldName).toString();
+        int fieldAppw = myQuery.record().indexOf("appway");
+        QString appw  = myQuery.value(fieldAppw).toString();
+        int fieldElem = myQuery.record().indexOf("elementsid");
+        QString elem  = myQuery.value(fieldElem).toString();
+        
+        result.id     = id;
+        result.name   = name;
+        result.appway = appw;
+        result.elements = elem;
+        result.taxAmount =0; //not yet calculated!!!
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
+QString Azahar::getTaxModelElements(const qulonglong id)
+{
+  QString result="";
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("select elementsid from taxmodels where modelid=%1;").arg(id))) {
+      while (myQuery.next()) {
+        int fieldElem = myQuery.record().indexOf("elementsid");
+        result = myQuery.value(fieldElem).toString();
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
+QStringList Azahar::getTaxModelsList()
+{
+  QStringList result;
+  result.clear();
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec("select tname from taxmodels;")) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("tname");
+        QString text = myQuery.value(fieldText).toString();
+        result.append(text);
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
+QString Azahar::getTaxModelName(const qulonglong &id)
+{
+  QString result;
+  result.clear();
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("select tname from taxmodels where modelid=%1;").arg(id))) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("tname");
+        result = myQuery.value(fieldText).toString();
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
   }
   return result;
 }
@@ -1238,7 +1392,19 @@ qulonglong Azahar::insertTransaction(TransactionInfo info)
 {
   qulonglong result=0;
   QSqlQuery query2(db);
-  query2.prepare("INSERT INTO transactions (clientid, type, amount, date,  time, paidwith, changegiven, paymethod, state, userid, cardnumber, itemcount, itemslist, cardauthnumber, profit, terminalnum, groups) VALUES (:clientid, :type, :amount, :date, :time, :paidwith, :changegiven, :paymethod, :state, :userid, :cardnumber, :itemcount, :itemslist, :cardauthnumber, :utility, :terminalnum, :groups)");
+  query2.prepare("INSERT INTO transactions ( \
+  clientid, userid, type, amount, date,  time, \
+  paidwith,  paymethod, changegiven, state,    \
+  cardnumber, itemcount, itemslist, points, \
+  discmoney, disc, cardauthnumber, profit,  \
+  terminalnum, providerid, groups) \
+  VALUES ( \
+  :clientid, :userid, :type, :amount, :date, :time, \
+  :paidwith, :paymethod, :changegiven, :state,  \
+  :cardnumber, :itemcount, :itemslist, :points, \
+  :discmoney, :disc, :cardauthnumber, :utility, \
+  :terminalnum, :providerid, :groups)");
+  
   query2.bindValue(":type", info.type);
   query2.bindValue(":amount", info.amount);
   query2.bindValue(":date", info.date.toString("yyyy-MM-dd"));
@@ -1252,9 +1418,13 @@ qulonglong Azahar::insertTransaction(TransactionInfo info)
   query2.bindValue(":cardnumber", info.cardnumber);
   query2.bindValue(":itemcount", info.itemcount);
   query2.bindValue(":itemslist", info.itemlist);
+  query2.bindValue(":points", info.points);
+  query2.bindValue(":discmoney", info.discmoney);
+  query2.bindValue(":disc", info.disc);
   query2.bindValue(":cardauthnumber", info.cardauthnum);
   query2.bindValue(":utility", info.profit);
   query2.bindValue(":terminalnum", info.terminalnum);
+  query2.bindValue(":providerid", info.providerid);
   query2.bindValue(":groups", info.groups);
   if (!query2.exec() ) {
     int errNum = query2.lastError().number();
@@ -1678,6 +1848,29 @@ qulonglong  Azahar::getPayTypeId(QString type)
   }
   return result;
 }
+
+//Brand
+QString Azahar::getBrandName(const qulonglong &id)
+{
+  qDebug()<<"getBrandName...";
+  QString result;
+  result.clear();
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("select bname from brands where brandid=%1;").arg(id))) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("bname");
+        result = myQuery.value(fieldText).toString();
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
 
 
 #include "azahar.moc"

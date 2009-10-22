@@ -3,7 +3,6 @@
  *   miguel@lemonpos.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
-
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
@@ -32,7 +31,6 @@ class QPainter;
 class PieChart;
 class LoginWindow;
 class KPlotObject;
-class FloatingToolBar;
 
 /**
  * This is the main view class for squeeze.  Most of the non-menu,
@@ -73,7 +71,7 @@ public:
     QSqlTableModel *clientsModel;
     QSqlRelationalTableModel *transactionsModel;
     int productCodeIndex, productDescIndex, productPriceIndex, productStockIndex, productCostIndex,
-    productSoldUnitsIndex, productLastSoldIndex, productUnitsIndex, productTaxIndex, productETaxIndex,
+    productSoldUnitsIndex, productLastSoldIndex, productUnitsIndex, productBrandIndex,productTaxModelIndex,
     productPhotoIndex, productCategoryIndex, productPointsIndex, productLastProviderIndex, productAlphaCodeIndex;
     int offerIdIndex, offerDiscountIndex, offerDateStartIndex, offerDateEndIndex,offerProdIdIndex;
     int userIdIndex, usernameIndex, nameIndex, passwordIndex, saltIndex, addressIndex, phoneIndex, cellIndex, roleIndex,
@@ -88,8 +86,6 @@ public:
     bool modelsCreated,graphSoldItemsCreated;
     PieChart *pieSoldItems, *pieAlmostSoldOutItems;
     KPlotObject *objProfit, *objSales;
-
-    FloatingToolBar *m_toolBar;
 
 
 signals:

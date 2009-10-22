@@ -294,7 +294,7 @@ void PurchaseEditor::checkIfCodeExists()
   myDb->setDatabase(db);
   QString codeStr = ui->editCode->text();
   if (codeStr.isEmpty()) codeStr = "0";
-  ProductInfo pInfo = myDb->getProductInfo(codeStr.toULongLong());
+  ProductInfo pInfo = myDb->getProductInfo(codeStr);
   if (pInfo.code ==0 && pInfo.desc=="Ninguno") productExists = false;
   if (pInfo.code > 0) {
     status = estatusMod;
@@ -306,7 +306,8 @@ void PurchaseEditor::checkIfCodeExists()
     setMeasure(pInfo.units);
     ui->editCost->setText(QString::number(pInfo.cost));
     ui->editTax->setText(QString::number(pInfo.tax));
-    ui->editExtraTaxes->setText(QString::number(pInfo.extratax));
+    //FIXME: add tax models
+    //ui->editExtraTaxes->setText(QString::number(pInfo.extratax));
     ui->editFinalPrice->setText(QString::number(pInfo.price));
     ui->editPoints->setText(QString::number(pInfo.points));
     if (!(pInfo.photo).isEmpty()) {
@@ -371,11 +372,12 @@ void PurchaseEditor::addItemToList()
     info.price   = getPrice();
     info.cost    = getCost();
     info.tax     = getTax1();
-    info.extratax= getTax2();
+    //FIXME: add tax models
+    //info.extratax= getTax2();
     info.photo   = getPhotoBA();
     info.units   = getMeasureId();
     info.category= getCategoryId();
-    info.utility = getProfit();
+    info.profit  = getProfit();
     info.points  = getPoints();
     info.stockqty= getQtyOnDb();
     info.purchaseQty = getPurchaseQty();

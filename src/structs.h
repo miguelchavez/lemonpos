@@ -1,9 +1,8 @@
 /***************************************************************************
- *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                  *
+ *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
  *   miguel.chavez.gamboa@gmail.com                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
-
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
@@ -111,6 +110,7 @@ struct TransactionInfo
   double     profit; 
   int        terminalnum;
   QString    groups;
+  qulonglong providerid;
 };
 
 struct BalanceInfo
@@ -202,6 +202,30 @@ struct AmountAndProfitInfo
 {
     double amount;
     double profit;
+};
+
+struct BrandInfo
+{
+  qulonglong id;
+  QString    name;
+};
+
+struct ProviderInfo
+{
+  qulonglong id;
+  QString    name;
+  QString    address;
+  QString    phone;
+  QString    cell;
+};
+
+struct TaxModelInfo
+{
+  qulonglong id;
+  QString    name;
+  QString    appway;
+  QString    elements;
+  double     taxAmount;
 };
 
 struct InvoiceInfo

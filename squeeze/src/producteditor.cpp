@@ -48,8 +48,6 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     QRegExpValidator * validatorEAN13 = new QRegExpValidator(regexpC, this);
     ui->editCode->setValidator(validatorEAN13);
     ui->editUtility->setValidator(new QDoubleValidator(0.00, 999999999999.99, 3,ui->editUtility));
-    ui->editTax->setValidator(new QDoubleValidator(0.00, 999999999999.99, 3,ui->editTax));
-    ui->editExtraTaxes->setValidator(new QDoubleValidator(0.00, 999999999999.99, 3,ui->editExtraTaxes));
     ui->editCost->setValidator(new QDoubleValidator(0.00, 999999999999.99, 3, ui->editCost));
     ui->editStockQty->setValidator(new QDoubleValidator(0.00,999999999999.99, 3, ui->editStockQty));
     ui->editPoints->setValidator(new QIntValidator(0,999999999, ui->editPoints));
@@ -65,13 +63,12 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     connect( ui->editStockQty, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
     connect( ui->editPoints, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
     connect( ui->editCost, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
-    connect( ui->editTax, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
-    connect( ui->editExtraTaxes, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
     connect( ui->editFinalPrice, SIGNAL(textEdited(const QString &)), this, SLOT(checkFieldsState()));
+
+    connect(ui->taxModelCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateTax(int)));
 
     status = statusNormal;
     modifyCode = false;
-    ui->labelError->hide();
     
     if (newProduct) ui->labelStockQty->setText(i18n("Purchase Qty:")); else ui->labelStockQty->setText(i18n("Stock Qty:"));
     
@@ -79,7 +76,9 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
 
     ui->editStockQty->setText("0.0");
     ui->editPoints->setText("0.0");
-    ui->editExtraTaxes->setText("0.0");
+    m_tax = 0.0;
+    m_totalTax = 0.0;
+    m_taxModel = 0;
 }
 
 ProductEditor::~ProductEditor()
@@ -93,6 +92,9 @@ void ProductEditor::setDb(QSqlDatabase database)
   if (!db.isOpen()) db.open();
   populateCategoriesCombo();
   populateMeasuresCombo();
+  populateProvidersCombo();
+  populateBrandsCombo();
+  populateTaxModelsCombo();
 }
 
 void ProductEditor::populateCategoriesCombo()
@@ -101,6 +103,30 @@ void ProductEditor::populateCategoriesCombo()
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   ui->categoriesCombo->addItems(myDb->getCategoriesList());
+}
+
+void ProductEditor::populateProvidersCombo()
+{
+  QSqlQuery query(db);
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  ui->providerCombo->addItems(myDb->getProvidersList());
+}
+
+void ProductEditor::populateBrandsCombo()
+{
+  QSqlQuery query(db);
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  ui->brandCombo->addItems(myDb->getBrandsList());
+}
+
+void ProductEditor::populateTaxModelsCombo()
+{
+  QSqlQuery query(db);
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  ui->taxModelCombo->addItems(myDb->getTaxModelsList());
 }
 
 void ProductEditor::populateMeasuresCombo()
@@ -134,13 +160,22 @@ int ProductEditor::getMeasureId()
   return code;
 }
 
-
 void ProductEditor::setCategory(QString str)
 {
  int idx = ui->categoriesCombo->findText(str,Qt::MatchCaseSensitive);
  if (idx > -1) ui->categoriesCombo->setCurrentIndex(idx);
  else {
   qDebug()<<"Str not found:"<<str;
+  }
+}
+
+void ProductEditor::setTax(const QString &str)
+{
+  qDebug()<<"setting Tax Str";
+  int idx = ui->taxModelCombo->findText(str,Qt::MatchCaseSensitive);
+  if (idx > -1) ui->taxModelCombo->setCurrentIndex(idx);
+  else {
+    qDebug()<<"Str not found:"<<str;
   }
 }
 
@@ -156,6 +191,24 @@ void ProductEditor::setMeasure(int i)
  setMeasure(text);
 }
 
+void ProductEditor::setTax(const int &i)
+{
+  QString text = getTaxModelStr(i);
+  setTax(text);
+}
+
+void ProductEditor::setBrand(const int &i)
+{
+  QString text = getBrandStr(i);
+  setBrand(text);
+}
+
+void ProductEditor::setProvider(const int &i)
+{
+  QString text = getProviderStr(i);
+  setProvider(text);
+}
+
 void ProductEditor::setMeasure(QString str)
 {
 int idx = ui->measuresCombo->findText(str,Qt::MatchCaseSensitive);
@@ -163,6 +216,55 @@ int idx = ui->measuresCombo->findText(str,Qt::MatchCaseSensitive);
  else {
   qDebug()<<"Str not found:"<<str;
   }
+}
+
+void ProductEditor::setBrand(const QString &str)
+{
+  int idx = ui->brandCombo->findText(str,Qt::MatchCaseSensitive);
+  if (idx > -1) ui->brandCombo->setCurrentIndex(idx);
+  else {
+    qDebug()<<"Str not found:"<<str;
+  }
+}
+
+void ProductEditor::setProvider(const QString &str)
+{
+  int idx = ui->providerCombo->findText(str,Qt::MatchCaseSensitive);
+  if (idx > -1) ui->providerCombo->setCurrentIndex(idx);
+  else {
+    qDebug()<<"Str not found:"<<str;
+  }
+}
+
+void ProductEditor::setTaxModel(qulonglong id)
+{
+  m_taxModel = id;
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  QString str = myDb->getTaxModelName(id);
+  qDebug()<<"tax id:"<<id;
+
+  int idx = ui->taxModelCombo->findText(str,Qt::MatchCaseSensitive);
+  if (idx > -1) ui->taxModelCombo->setCurrentIndex(idx);
+  else {
+    qDebug()<<"TaxModel Str not found:"<<str;
+  }
+  updateTax(0);
+}
+
+void ProductEditor::updateTax(int)
+{
+  //get data from selected model.
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  m_taxElements  = myDb->getTaxModelElements(m_taxModel);
+  m_tax          = myDb->getTotalTaxPercent(m_taxElements);
+  //way to apply the tax?? -- There is a problem if the cost includes taxes already.
+  double cost    = ui->editCost->text().toDouble();
+  double utility = ui->editUtility->text().toDouble();
+  //Utility is calculated before taxes... Taxes include utility... is it ok?
+  utility = ((utility/100)*cost);
+  m_totalTax = (cost + utility)*m_tax; //taxes in money.
 }
 
 QString ProductEditor::getCategoryStr(int c)
@@ -178,6 +280,30 @@ QString ProductEditor::getMeasureStr(int c)
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   QString str = myDb->getMeasureStr(c);
+  return str;
+}
+
+QString ProductEditor::getBrandStr(int c)
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  QString str = myDb->getBrandName(c);
+  return str;
+}
+
+QString ProductEditor::getProviderStr(int c)
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  QString str = myDb->getProviderName(c);
+  return str;
+}
+
+QString ProductEditor::getTaxModelStr(int c)
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  QString str = myDb->getTaxModelName(c);
   return str;
 }
 
@@ -199,28 +325,23 @@ void ProductEditor::calculatePrice()
  else if (ui->editUtility->text().isEmpty()) {
    ui->editUtility->setFocus();
  }
- else if (ui->editTax->text().isEmpty()) {
-   ui->editTax->setText("0.0");
-   ui->editTax->setFocus();
-   ui->editTax->selectAll();
- }
+//  else if (ui->editTax->text().isEmpty()) {
+//    ui->editTax->setText("0.0");
+//    ui->editTax->setFocus();
+//    ui->editTax->selectAll();
+//  }
  else {
-  if (ui->editExtraTaxes->text().isEmpty()) {
-   ui->editExtraTaxes->setText("0.0");
-   ui->editExtraTaxes->setFocus();
-   ui->editExtraTaxes->selectAll();
-  }
+//   if (ui->editExtraTaxes->text().isEmpty()) {
+//    ui->editExtraTaxes->setText("0.0");
+//    ui->editExtraTaxes->setFocus();
+//    ui->editExtraTaxes->selectAll();
+//   }
   //TODO: if TAXes are included in cost...
   double cost    = ui->editCost->text().toDouble();
   double utility = ui->editUtility->text().toDouble();
-  double tax     = ui->editTax->text().toDouble();
-  double tax2    = ui->editExtraTaxes->text().toDouble();
   //Utility is calculated before taxes... Taxes include utility... is it ok?
   utility = ((utility/100)*cost);
-  double cu      = cost + utility;
-  tax     = ((tax/100)*cu);
-  tax2    = ((tax2/100)*cu);
-  finalPrice = cost + utility + tax + tax2;
+  finalPrice = cost + utility + m_totalTax;
   
   // BFB: avoid more than 2 decimal digits in finalPrice. Round.
   ui->editFinalPrice->setText(QString::number(finalPrice,'f',2));
@@ -239,7 +360,6 @@ void ProductEditor::changeCode()
 
 void ProductEditor::checkIfCodeExists()
 {
-  ui->labelError->hide();
   enableButtonOk( false );
   QString codeStr = ui->editCode->text();
   if (codeStr.isEmpty()) {
@@ -248,7 +368,7 @@ void ProductEditor::checkIfCodeExists()
 
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
-  ProductInfo pInfo = myDb->getProductInfo(codeStr.toULongLong());
+  ProductInfo pInfo = myDb->getProductInfo(codeStr);
 
   if (pInfo.code > 0) {
     //code exists...
@@ -256,14 +376,16 @@ void ProductEditor::checkIfCodeExists()
     if (!modifyCode){
       //Prepopulate dialog...
       ui->editDesc->setText(pInfo.desc);
+      ui->editAlphacode->setText(pInfo.alphaCode);
       ui->editStockQty->setText(QString::number(pInfo.stockqty));
       setCategory(pInfo.category);
       setMeasure(pInfo.units);
       ui->editCost->setText(QString::number(pInfo.cost));
-      ui->editTax->setText(QString::number(pInfo.tax));
-      ui->editExtraTaxes->setText(QString::number(pInfo.extratax));
       ui->editFinalPrice->setText(QString::number(pInfo.price));
       ui->editPoints->setText(QString::number(pInfo.points));
+      setTax(pInfo.taxmodelid);
+      setBrand(pInfo.brandid);
+      setProvider(pInfo.lastProviderId);
       if (!pInfo.photo.isEmpty()) {
         QPixmap photo;
         photo.loadFromData(pInfo.photo);
@@ -271,7 +393,7 @@ void ProductEditor::checkIfCodeExists()
       }
     }//if !modifyCode
     else {
-      ui->labelError->show();
+      //ui->labelError->show(); FIXME: Agregar el mibitTip
       enableButtonOk( false );
     }
   }
@@ -283,9 +405,10 @@ void ProductEditor::checkIfCodeExists()
       ui->editStockQty->clear();
       setCategory(1);
       setMeasure(1);
+      setBrand(1);
+      setProvider(1);
+      setTax(1);
       ui->editCost->clear();
-      ui->editTax->clear();
-      ui->editExtraTaxes->clear();
       ui->editFinalPrice->clear();
       ui->editPoints->clear();
       ui->editUtility->clear();
@@ -296,7 +419,6 @@ void ProductEditor::checkIfCodeExists()
   }
 }
 
-
 void ProductEditor::checkFieldsState()
 {
   bool ready = false;
@@ -305,8 +427,8 @@ void ProductEditor::checkFieldsState()
     //!ui->editStockQty->text().isEmpty()   &&   Comment: This requirement was removed in order to use check-in/check-out procedures.
     !ui->editPoints->text().isEmpty()     &&
     !ui->editCost->text().isEmpty()       &&
-    !ui->editTax->text().isEmpty()        &&
-    !ui->editExtraTaxes->text().isEmpty() &&
+    //!ui->editTax->text().isEmpty()        &&
+    //!ui->editExtraTaxes->text().isEmpty() &&
     !ui->editFinalPrice->text().isEmpty()
     )  {
     ready = true;

@@ -35,13 +35,13 @@
 static const char description[] =
     I18N_NOOP("Lemon, A point of sale for linux");
 
-static const char version[] = "0.8";
+static const char version[] = "0.9";
 KSplashScreen *splash;
 
 int main(int argc, char **argv)
 {
-    KAboutData about("lemon", 0, ki18n("lemon"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2007-2009 Miguel Chavez Gamboa"), KLocalizedString(), 0, "miguel@lemonpos.org           ");
-    about.addAuthor( ki18n("Miguel Chavez Gamboa"), KLocalizedString(), "miguel@lemonpos.org           " );
+    KAboutData about("lemon", 0, ki18n("lemon"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2007-2009 Miguel Chavez Gamboa"), KLocalizedString(), 0, "miguel@lemonpos.org");
+    about.addAuthor( ki18n("Miguel Chavez Gamboa"), KLocalizedString(), "miguel@lemonpos.org" );
 
     about.addCredit(ki18n("Biel Frontera"), ki18n("Code contributor"));
     

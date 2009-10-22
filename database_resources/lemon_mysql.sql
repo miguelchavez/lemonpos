@@ -1,8 +1,8 @@
 # (C) 2007-2009, Miguel Chavez Gamboa
 # run this as: cat lemon_mysql.sql | mysql -u root -p
 
-CREATE DATABASE lemondb;
-USE lemondb;
+CREATE DATABASE lemonposdb;
+USE lemonposdb;
 
 CREATE TABLE IF NOT EXISTS `transactions` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   `date` date NOT NULL,
   `time` time NOT NULL,
   `paidwith` double unsigned NOT NULL default '0.0',
+  `changegiven` double NOT NULL default '0',
   `paymethod` int(10) NOT NULL default '0',
   `state` int(10) NOT NULL default '0',
   `cardnumber` varchar(20) character set utf8 collate utf8_general_ci, #Card/Check
@@ -105,7 +106,7 @@ CREATE TABLE IF NOT EXISTS `taxelements` (
   `elementid` bigint(20) unsigned NOT NULL auto_increment,
   `ename` VARCHAR(50) NOT NULL,
   `amount` double unsigned NOT NULL,
-  PRIMARY KEY  (`elementid`, `modelid`)
+  PRIMARY KEY  (`elementid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `balances` (
@@ -285,48 +286,49 @@ group by `transactions`.`date`;
 # Note: if you change the password to the lemonclient user (which is a must),
 # also re-grant it again with the new password. see the grant clause below.
 
-CREATE USER 'lemonclient'@'localhost' IDENTIFIED BY 'xarwit0721';
-GRANT ALL ON lemondb.* TO 'lemonclient'@'localhost' IDENTIFIED BY 'xarwit0721';
+#CREATE USER 'lemonclient'@'localhost' IDENTIFIED BY 'xarwit0721';
+GRANT ALL ON lemonposdb.* TO 'lemonclient'@'localhost' IDENTIFIED BY 'xarwit0721';
 
 
 # CREATE lemon users (users using lemon, cashiers... )
 #With password 'linux'. Note that this password is salt-hashed (SHA56).
 
-INSERT INTO lemondb.users (id, username, password, salt, name, role) VALUES (1, 'admin', 'C07B1E799DC80B95060391DDF92B3C7EF6EECDCB', 'h60VK', 'Administrator', 0);
+INSERT INTO lemonposdb.users (id, username, password, salt, name, role) VALUES (1, 'admin', 'C07B1E799DC80B95060391DDF92B3C7EF6EECDCB', 'h60VK', 'Administrator', 0);
 
 ##You may change the string values for the next fields
 
 
 #Insert a default measure (very important to keep this id)
-INSERT INTO lemondb.measures (id, text) VALUES(1, 'Pc');
+INSERT INTO lemonposdb.measures (id, text) VALUES(1, 'Pc');
 #Insert a default client
-INSERT INTO lemondb.clients (id, name, points, discount) VALUES (1, 'General', 0, 0);
+INSERT INTO lemonposdb.clients (id, name, points, discount) VALUES (1, 'General', 0, 0);
 #Insert a default category
-INSERT INTO lemondb.categories (catid, text) VALUES (1, 'General');
+INSERT INTO lemonposdb.categories (catid, text) VALUES (1, 'General');
 
 #Insert default payment types (very important to keep these ids)
-INSERT INTO lemondb.paytypes (typeid, text) VALUES(1, 'Cash');
-INSERT INTO lemondb.paytypes (typeid, text) VALUES(2, 'Card');
+INSERT INTO lemonposdb.paytypes (typeid, text) VALUES(1, 'Cash');
+INSERT INTO lemonposdb.paytypes (typeid, text) VALUES(2, 'Card');
 #Insert default transactions states (very important to keep these ids)
-INSERT INTO lemondb.transactionstates (stateid, text) VALUES(1, 'Not Completed');
-INSERT INTO lemondb.transactionstates (stateid, text) VALUES(2, 'Completed');
-INSERT INTO lemondb.transactionstates (stateid, text) VALUES(3, 'Cancelled');
-INSERT INTO lemondb.transactionstates (stateid, text) VALUES(4, 'PO Pending');
-INSERT INTO lemondb.transactionstates (stateid, text) VALUES(5, 'PO Completed');
-INSERT INTO lemondb.transactionstates (stateid, text) VALUES(6, 'PO Incomplete');
+INSERT INTO lemonposdb.transactionstates (stateid, text) VALUES(1, 'Not Completed');
+INSERT INTO lemonposdb.transactionstates (stateid, text) VALUES(2, 'Completed');
+INSERT INTO lemonposdb.transactionstates (stateid, text) VALUES(3, 'Cancelled');
+INSERT INTO lemonposdb.transactionstates (stateid, text) VALUES(4, 'PO Pending');
+INSERT INTO lemonposdb.transactionstates (stateid, text) VALUES(5, 'PO Completed');
+INSERT INTO lemonposdb.transactionstates (stateid, text) VALUES(6, 'PO Incomplete');
 #Insert default transactions types (very important to keep these ids)
-INSERT INTO lemondb.transactiontypes (ttypeid, text) VALUES(1, 'Sell');
-INSERT INTO lemondb.transactiontypes (ttypeid, text) VALUES(2, 'Purchase');
-INSERT INTO lemondb.transactiontypes (ttypeid, text) VALUES(3, 'Change');
-INSERT INTO lemondb.transactiontypes (ttypeid, text) VALUES(4, 'Return');
+INSERT INTO lemonposdb.transactiontypes (ttypeid, text) VALUES(1, 'Sell');
+INSERT INTO lemonposdb.transactiontypes (ttypeid, text) VALUES(2, 'Purchase');
+INSERT INTO lemonposdb.transactiontypes (ttypeid, text) VALUES(3, 'Change');
+INSERT INTO lemonposdb.transactiontypes (ttypeid, text) VALUES(4, 'Return');
 #Insert default cashFLOW types
-INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(1, 'Normal cash OUT');
-INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(2, 'Money return on ticket cancel');
-INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(3, 'Money return on product return');
-INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(4, 'Normal Cash IN');
+INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(1, 'Normal cash OUT');
+INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(2, 'Money return on ticket cancel');
+INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(3, 'Money return on product return');
+INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(4, 'Normal Cash IN');
 #Insert default provider
-INSERT INTO lemondb.providers (id,name,address,phone,cellphone) VALUES(1,'Default Provider', '-NA-', '-NA-', '-NA-');
+INSERT INTO lemonposdb.providers (id,provname,address,phone,cellphone) VALUES(1,'Default Provider', '-NA-', '-NA-', '-NA-');
 
 #Insert default tax model and elements
-INSERT INTO lemondb.taxmodels (modelid,tname,appway,elementsid) VALUES(1,"General Tax", "*.15","1");
-INSERT INTO lemondb.taxelements (elementid, ename, amount) VALUES (1,"Simple 15%", 15);
+INSERT INTO lemonposdb.taxmodels (modelid,tname,appway,elementsid) VALUES(1,"General Tax", "*.15","1");
+INSERT INTO lemonposdb.taxelements (elementid, ename, amount) VALUES (1,"Simple 15%", 15);
+INSERT INTO lemonposdb.brands (brandid, bname) VALUES(1,"ACME"); #CHANGE THIS BRAND NAME!
