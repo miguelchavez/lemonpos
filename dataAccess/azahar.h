@@ -143,16 +143,19 @@ class Azahar : public QObject
     QStringList getTaxModelsList();
     QString     getTaxModelElements(const qulonglong id);
     QString     getTaxModelName(const qulonglong &id);
+    qulonglong  getTaxModelId(const QString &text);
 
     //PROVIDERS
     //QHash<qulonglong, QString> getProvidersHash();
     QStringList getProvidersList();
     QString     getProviderName(const qulonglong &id);
+    qulonglong  getProviderId(const QString &name);
 
     //BRANDS
     //QHash<qulonglong, QString> getBrandsHash();
     QStringList getBrandsList();
     QString     getBrandName(const qulonglong &id);
+    qulonglong  getBrandId(const QString &name);
 };
 
 #endif

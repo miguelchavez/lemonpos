@@ -1524,94 +1524,36 @@ void squeezeView::usersViewOnSelected(const QModelIndex & index)
 
 void squeezeView::productsViewOnSelected(const QModelIndex &index)
 {
+  ProductInfo pInfo;
+  
  if (db.isOpen()) {
-  //getting data from model...
+    //getting data from model...
     const QAbstractItemModel *model = index.model();
     int row = index.row();
     QModelIndex indx = model->index(row, productsModel->fieldIndex("code"));
     qulonglong id = model->data(indx, Qt::DisplayRole).toULongLong();
-    indx = model->index(row, productsModel->fieldIndex("name"));
-    QString name = model->data(indx, Qt::DisplayRole).toString();
-    indx = model->index(row, productsModel->fieldIndex("price"));
-    double price = model->data(indx, Qt::DisplayRole).toDouble();
-    indx = model->index(row, productsModel->fieldIndex("stockqty"));
-    double stockQty = model->data(indx, Qt::DisplayRole).toDouble();
-    indx = model->index(row, productsModel->fieldIndex("cost"));
-    double cost = model->data(indx, Qt::DisplayRole).toDouble();
-    indx = model->index(row, productsModel->fieldIndex("datelastsold"));
-    QString datelastsold = model->data(indx, Qt::DisplayRole).toString();
-    indx = model->index(row, productsModel->fieldIndex("units"));
-    int units = model->data(indx, Qt::DisplayRole).toInt();
-    indx = model->index(row, productsModel->fieldIndex("category"));
-    int category = model->data(indx, Qt::DisplayRole).toInt();
-    indx = model->index(row, productsModel->fieldIndex("points"));
-    qulonglong points = model->data(indx, Qt::DisplayRole).toULongLong();
-    indx = model->index(row, productsModel->fieldIndex("photo"));
-    QByteArray photoBA = model->data(indx, Qt::DisplayRole).toByteArray();
-    QPixmap photo;
-    photo.loadFromData(photoBA);
-    indx = model->index(row, productsModel->fieldIndex("taxmodel"));
-    qulonglong taxmodel = model->data(indx, Qt::DisplayRole).toULongLong();
-    qDebug()<<"tax model from model:"<<taxmodel<<" Index:"<<indx;
-    indx = model->index(row, productsModel->fieldIndex("alphacode"));
-    QString alphacode = model->data(indx, Qt::DisplayRole).toString();
-    indx = model->index(row, productsModel->fieldIndex("brandid"));
-    qulonglong brandid = model->data(indx, Qt::DisplayRole).toULongLong();
-    indx = model->index(row, productsModel->fieldIndex("lastproviderid"));
-    qulonglong providerid = model->data(indx, Qt::DisplayRole).toULongLong();
-    
-
-    ProductInfo pInfo;
 
     //Launch Edit dialog
     ProductEditor *productEditorDlg = new ProductEditor(this, false);
+
     //Set data on dialog
     productEditorDlg->disableCode(); //On Edit product, code cannot be changed.
     productEditorDlg->setDb(db);
-    productEditorDlg->setCode(id);
-    productEditorDlg->setAlphaCode(alphacode);
-    productEditorDlg->setDescription(name);
-    productEditorDlg->setStockQty(stockQty);
-    productEditorDlg->setPrice(price);
-    productEditorDlg->setCost(cost);
-    productEditorDlg->setMeasure(units);
-    productEditorDlg->setTaxModel(taxmodel);
-    productEditorDlg->setCategory(category);
-    productEditorDlg->setPhoto(photo);
-    productEditorDlg->setPoints(points);
-    productEditorDlg->setBrandId(brandid);
-    productEditorDlg->setProviderId(providerid);
-
+    productEditorDlg->setCode(id); //this method get all data for such product code.
     qulonglong newcode=0;
+
     //Launch dialog, and if dialog is accepted...
     if (productEditorDlg->exec() ) {
       //get changed|unchanged values
-      newcode        = productEditorDlg->getCode();
-      pInfo.code     = newcode;
-      pInfo.desc     = productEditorDlg->getDescription();
-      pInfo.stockqty = productEditorDlg->getStockQty();
-      pInfo.price    = productEditorDlg->getPrice();
-      pInfo.cost     = productEditorDlg->getCost();
-      pInfo.units    = productEditorDlg->getMeasureId();
-      pInfo.tax      = productEditorDlg->getTax();
-      pInfo.taxmodelid=productEditorDlg->getTaxModelId();
-      pInfo.totaltax = productEditorDlg->getTotalTax();
-      pInfo.category = productEditorDlg->getCategoryId();
-      pInfo.points   = productEditorDlg->getPoints();
-      photo          = productEditorDlg->getPhoto();
-      pInfo.photo    = Misc::pixmap2ByteArray(new QPixmap(photo)); //Photo ByteArray
-      pInfo.alphaCode= productEditorDlg->getAlphaCode();
-      pInfo.brandid  = productEditorDlg->getBrandId();
-      pInfo.taxElements= productEditorDlg->getTaxElements();
-      pInfo.lastProviderId = productEditorDlg->getProviderId();
-
+      pInfo = productEditorDlg->getProductInfo();
+      newcode = pInfo.code; //to check if code change...
       //Update database
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
-      if (!myDb->updateProduct(pInfo, id)) qDebug()<<myDb->lastError();
+      if (!myDb->updateProduct(pInfo, id)) qDebug()<<"Product update error:"<<myDb->lastError();
       // Check offers, to move or delete them.
       if (id != newcode) {
-        if (!myDb->moveOffer(id, newcode)) qDebug()<<myDb->lastError();
+        if (!myDb->moveOffer(id, newcode)) qDebug()<<"Offer update error:"<<myDb->lastError();
       }
       //FIXME: We must see error types, which ones are for duplicate KEYS (codes) to advertise the user.
       productsModel->select();
@@ -1809,36 +1751,19 @@ void squeezeView::createProduct()
   ProductEditor *prodEditorDlg = new ProductEditor(this, true);
   prodEditorDlg->setDb(db);
   prodEditorDlg->enableCode();
-  qulonglong newcode = 0;
 
   if (prodEditorDlg->exec()) {
     int resultado = prodEditorDlg->result();
 
-    newcode = prodEditorDlg->getCode();
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
     ProductInfo info;
 
-    //This switch is for theprodEditorDlg->getPrice() new feature: When adding a new product, if entered code exists, it will be edited. to save time...
+    //The next is for the prodEditorDlg new feature: When adding a new product, if entered code exists, it will be edited. to save time...
     switch (resultado) {
       case QDialog::Accepted:
       case statusNormal:
-        info.code = newcode;
-        info.desc    = prodEditorDlg->getDescription();
-        info.price   = prodEditorDlg->getPrice();
-        info.stockqty= prodEditorDlg->getStockQty();
-        info.cost    = prodEditorDlg->getCost();
-        info.units   = prodEditorDlg->getMeasureId();
-        info.tax     = prodEditorDlg->getTax();
-        info.totaltax= prodEditorDlg->getTotalTax();
-        info.photo   = Misc::pixmap2ByteArray(new QPixmap(prodEditorDlg->getPhoto()));
-        info.category= prodEditorDlg->getCategoryId();
-        info.points  = prodEditorDlg->getPoints();
-        info.alphaCode = prodEditorDlg->getAlphaCode();
-        info.lastProviderId = prodEditorDlg->getProviderId();
-        info.brandid = prodEditorDlg->getBrandId();
-        info.taxmodelid     = prodEditorDlg->getTaxModelId();
-        info.taxElements    = prodEditorDlg->getTaxElements();
+        info = prodEditorDlg->getProductInfo();
         if (!myDb->insertProduct(info)) qDebug()<<"ERROR:"<<myDb->lastError();
         productsModel->select();
       break;

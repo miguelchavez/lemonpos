@@ -325,7 +325,21 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   bool result = false;
   if (!db.isOpen()) db.open();
   QSqlQuery query(db);
-  query.prepare("UPDATE products SET code=:newcode, photo=:photo, name=:name, price=:price, stockqty=:stock, cost=:cost, units=:measure, taxmodelid=:taxmodel, category=:category, points=:points, alphacode=:alphacode, lastproviderid=:lastproviderid, brandid=:brand WHERE code=:id");
+  query.prepare("UPDATE products SET \
+  code=:newcode, \
+  name=:name, \
+  price=:price, \
+  cost=:cost, \
+  stockqty=:stock, \
+  brandid=:brand, \
+  units=:measure, \
+  taxmodel=:taxmodel, \
+  photo=:photo, \
+  category=:category, \
+  points=:points, \
+  alphacode=:alphacode, \
+  lastproviderid=:lastproviderid \
+  WHERE code=:id;");
   query.bindValue(":newcode", info.code);
   query.bindValue(":name", info.desc);
   query.bindValue(":price", info.price);
@@ -341,7 +355,16 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   query.bindValue(":alphacode", info.alphaCode);
   query.bindValue(":lastproviderid", info.lastProviderId);
 
-  if (!query.exec()) setError(query.lastError().text()); else result=true;
+  if (!query.exec()) {
+    setError(query.lastError().text());
+//     qDebug()<<"ERROR updating product:"<<query.lastError().text();
+//     qDebug()<<"Query BoundValues:"<<query.boundValues();
+//     qDebug()<<"Query executed:"<<query.executedQuery();
+//     qDebug()<<"Query last:"<<query.lastQuery();
+//     qDebug()<<"NumRows Affected:"<<query.numRowsAffected();
+  }
+  else result=true;
+  
   return result;
 }
 
@@ -706,6 +729,25 @@ QString Azahar::getProviderName(const qulonglong &id)
   return result;
 }
 
+qulonglong Azahar::getProviderId(const QString &name)
+{
+  qulonglong result = 0;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("select id from providers where provname='%1';").arg(name))) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("id");
+        result = myQuery.value(fieldText).toULongLong();
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
 // TAX MODELS
 double Azahar::getTotalTaxPercent(const QString& elementsid)
 {
@@ -774,6 +816,25 @@ QString Azahar::getTaxModelElements(const qulonglong id)
       while (myQuery.next()) {
         int fieldElem = myQuery.record().indexOf("elementsid");
         result = myQuery.value(fieldElem).toString();
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
+qulonglong Azahar::getTaxModelId(const QString &text)
+{
+  qulonglong result = 0;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("select modelid from taxmodels where tname='%1';").arg(text))) {
+      while (myQuery.next()) {
+        int fieldModel = myQuery.record().indexOf("modelid");
+        result = myQuery.value(fieldModel).toULongLong();
       }
     }
     else {
@@ -1871,6 +1932,23 @@ QString Azahar::getBrandName(const qulonglong &id)
   return result;
 }
 
-
+qulonglong Azahar::getBrandId(const QString &name)
+{
+  qulonglong result = 0;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("select brandid from brands where bname='%1';").arg(name))) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("brandid");
+        result = myQuery.value(fieldText).toULongLong();
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
 
 #include "azahar.moc"
