@@ -357,11 +357,6 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
 
   if (!query.exec()) {
     setError(query.lastError().text());
-//     qDebug()<<"ERROR updating product:"<<query.lastError().text();
-//     qDebug()<<"Query BoundValues:"<<query.boundValues();
-//     qDebug()<<"Query executed:"<<query.executedQuery();
-//     qDebug()<<"Query last:"<<query.lastQuery();
-//     qDebug()<<"NumRows Affected:"<<query.numRowsAffected();
   }
   else result=true;
   
@@ -401,6 +396,15 @@ bool Azahar::incrementProductStock(qulonglong code, double qty)
   return result;
 }
 
+bool Azahar::deleteProduct(qulonglong code)
+{
+  bool result = false;
+  if (!db.isOpen()) db.open();
+  QSqlQuery query(db);
+  query = QString("DELETE FROM products WHERE code=%1").arg(code);
+  if (!query.exec()) setError(query.lastError().text()); else result=true;
+  return result;
+}
 
 double Azahar::getProductDiscount(qulonglong code)
 {

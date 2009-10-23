@@ -66,6 +66,7 @@ class Azahar : public QObject
     bool         updateProduct(ProductInfo info, qulonglong oldcode);
     bool         decrementProductStock(qulonglong code, double qty, QDate date);
     bool         incrementProductStock(qulonglong code, double qty);
+    bool         deleteProduct(qulonglong code);
     double       getProductDiscount(qulonglong code);
     QList<pieProdInfo>  getTop5SoldProducts();
     QList<pieProdInfo>  getAlmostSoldOutProducts(int min, int max);

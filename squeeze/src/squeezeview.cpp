@@ -863,7 +863,7 @@ void squeezeView::setupProductsModel()
     ui_mainview.productsView->setResizeMode(QListView::Adjust);
     ui_mainview.productsView->setModelColumn(productsModel->fieldIndex("photo"));
 
-    ui_mainview.productsViewAlt->setModel(productsModel);
+    //FIXME:TEMPORAL ui_mainview.productsViewAlt->setModel(productsModel);
     ui_mainview.productsViewAlt->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui_mainview.productsViewAlt->setSelectionMode(QAbstractItemView::SingleSelection);
 
@@ -1935,8 +1935,10 @@ void squeezeView::deleteSelectedProduct()
     QModelIndex index;
     if (ui_mainview.productsView->isHidden()) {
       index = ui_mainview.productsViewAlt->currentIndex();
+      qDebug()<<"On list view!";
     } else {
       index = ui_mainview.productsView->currentIndex();
+      qDebug()<<"On grid view!";
     }
     
     if (productsModel->tableName().isEmpty()) setupProductsModel();
@@ -1947,15 +1949,19 @@ void squeezeView::deleteSelectedProduct()
       int answer = KMessageBox::questionYesNo(this, i18n("Do you really want to delete the selected product?"),
                                               i18n("Delete"));
       if (answer == KMessageBox::Yes) {
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
         //first we obtain the product code to be deleted.
         qulonglong  iD = productsModel->record(index.row()).value("code").toULongLong();
-        productsModel->removeRow(index.row());
+        if (!productsModel->removeRow(index.row(), index)) {
+          // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 .. Qt 4.4
+          bool d = myDb->deleteProduct(iD); qDebug()<<"Deleteing product ("<<iD<<") manually...";
+          if (d) qDebug()<<"Delete succed...";
+        }
         productsModel->submitAll();
         productsModel->select();
         //We must delete the product's offers also.
 
-         Azahar *myDb = new Azahar;
-         myDb->setDatabase(db);
          //in case of multiple offers for a product
          qulonglong oID = myDb->getProductOfferCode(iD);
          while (oID != 0) {
