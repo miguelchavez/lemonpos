@@ -863,7 +863,7 @@ void squeezeView::setupProductsModel()
     ui_mainview.productsView->setResizeMode(QListView::Adjust);
     ui_mainview.productsView->setModelColumn(productsModel->fieldIndex("photo"));
 
-    //FIXME:TEMPORAL ui_mainview.productsViewAlt->setModel(productsModel);
+    ui_mainview.productsViewAlt->setModel(productsModel);
     ui_mainview.productsViewAlt->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui_mainview.productsViewAlt->setSelectionMode(QAbstractItemView::SingleSelection);
 
@@ -1610,6 +1610,7 @@ void squeezeView::clientsViewOnSelected(const QModelIndex & index)
       photo          = clientEditorDlg->getPhoto();
       cInfo.points   = clientEditorDlg->getPoints();
       cInfo.discount = clientEditorDlg->getDiscount();
+      cInfo.since    = QDate::currentDate();
 
       cInfo.photo    = Misc::pixmap2ByteArray(new QPixmap(photo));
 
@@ -1846,6 +1847,7 @@ void squeezeView::createClient()
       photo    = clientEditorDlg->getPhoto();
       info.points   = clientEditorDlg->getPoints();
       info.discount = clientEditorDlg->getDiscount();
+      info.since    = QDate::currentDate();
 
       info.photo = Misc::pixmap2ByteArray(new QPixmap(photo));
       if (!db.isOpen()) openDB();
@@ -1913,7 +1915,7 @@ void squeezeView::deleteSelectedOffer()
     QModelIndex index = ui_mainview.tableBrowseOffers->currentIndex();
     if (offersModel->tableName().isEmpty()) setupOffersModel();
     if (index == offersModel->index(-1,-1) ) {
-      //FIXME: Hey, I think the word "offer" does not mean what i mean... (special..)
+      //FIXME: Hey, I think the word "offer" does not mean what i mean...
       KMessageBox::information(this, i18n("Please select an offer to delete, then press the delete button again."), i18n("Cannot delete"));
       //TODO: Present a dialog to select which user to delete...
     }
@@ -1921,7 +1923,12 @@ void squeezeView::deleteSelectedOffer()
       int answer = KMessageBox::questionYesNo(this, i18n("Do you really want to delete the selected discount?"),
                                               i18n("Delete"));
       if (answer == KMessageBox::Yes) {
-        offersModel->removeRow(index.row());
+        //same weird error when deleting offers that the products! :S
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
+        qulonglong  code = offersModel->record(index.row()).value("id").toULongLong();
+        qDebug()<<"Offer code to delete:"<<code<<" index at model:"<<index.row();
+        if (!offersModel->removeRow(index.row(), index)) myDb->deleteOffer(code);
         offersModel->submitAll();
         offersModel->select();
       }
@@ -1935,10 +1942,8 @@ void squeezeView::deleteSelectedProduct()
     QModelIndex index;
     if (ui_mainview.productsView->isHidden()) {
       index = ui_mainview.productsViewAlt->currentIndex();
-      qDebug()<<"On list view!";
     } else {
       index = ui_mainview.productsView->currentIndex();
-      qDebug()<<"On grid view!";
     }
     
     if (productsModel->tableName().isEmpty()) setupProductsModel();
@@ -1954,22 +1959,21 @@ void squeezeView::deleteSelectedProduct()
         //first we obtain the product code to be deleted.
         qulonglong  iD = productsModel->record(index.row()).value("code").toULongLong();
         if (!productsModel->removeRow(index.row(), index)) {
-          // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 .. Qt 4.4
+          // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 ..
           bool d = myDb->deleteProduct(iD); qDebug()<<"Deleteing product ("<<iD<<") manually...";
-          if (d) qDebug()<<"Delete succed...";
+          if (d) qDebug()<<"Deletion succed...";
         }
         productsModel->submitAll();
         productsModel->select();
         //We must delete the product's offers also.
-
-         //in case of multiple offers for a product
-         qulonglong oID = myDb->getProductOfferCode(iD);
-         while (oID != 0) {
-           qDebug()<<"DELETING product code:"<<iD<<" offer code:"<<oID;
-           qulonglong oID = myDb->getProductOfferCode(iD);
-           if (myDb->deleteOffer(oID)) qDebug()<<"Ok, offer also deleted...";
-           else qDebug()<<"DEBUG:"<<myDb->lastError();
-         }
+        //in case of multiple offers for a product
+        qulonglong oID = myDb->getProductOfferCode(iD);
+        while (oID != 0) {
+          qDebug()<<"DELETING product code:"<<iD<<" offer code:"<<oID;
+          qulonglong oID = myDb->getProductOfferCode(iD);
+          if (myDb->deleteOffer(oID)) qDebug()<<"Ok, offer also deleted...";
+          else qDebug()<<"DEBUG:"<<myDb->lastError();
+        }
       }
     }
   }
