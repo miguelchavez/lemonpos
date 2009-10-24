@@ -1927,7 +1927,6 @@ void squeezeView::deleteSelectedOffer()
         Azahar *myDb = new Azahar;
         myDb->setDatabase(db);
         qulonglong  code = offersModel->record(index.row()).value("id").toULongLong();
-        qDebug()<<"Offer code to delete:"<<code<<" index at model:"<<index.row();
         if (!offersModel->removeRow(index.row(), index)) myDb->deleteOffer(code);
         offersModel->submitAll();
         offersModel->select();
