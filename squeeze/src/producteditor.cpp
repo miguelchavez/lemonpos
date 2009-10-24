@@ -46,6 +46,7 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     ui->btnChangeCode->setIcon(QIcon(DesktopIcon("edit-clear", 32)));
     //Locate SVG for the tip.
     codeTip = new MibitTip(this, ui->editCode, "tip.svg", DesktopIcon("emblem-important", 32));
+    codeTip->setSize(200,100);
 
     //Set Validators for input boxes
     QRegExp regexpC("[0-9]{1,13}"); //(EAN-13 y EAN-8) .. y productos sin codigo de barras?
@@ -466,7 +467,7 @@ void ProductEditor::checkIfCodeExists()
       }
     }//if !modifyCode
     else {
-      codeTip->showTip(i18n("The product already exists.", 3000));
+      codeTip->showTip(i18n("The product already exists."), 3000);
       enableButtonOk( false );
     }
   }

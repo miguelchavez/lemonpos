@@ -83,7 +83,7 @@ MibitTip::~MibitTip ()
 {
 }
 
-void MibitTip::showTip( const QString &msg, const int &ttl)
+void MibitTip::showTip( const QString &msg, const int ttl)
 {
     timeToLive = ttl;
     /// Warning: if a tip is showing, if another showTip() is called, it is ignored.
