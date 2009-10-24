@@ -17,6 +17,7 @@ set(squeeze_SRCS
    ../../src/sha1.cc
    ../../src/productdelegate.cpp
    ../../dataAccess/azahar.cpp
+   ../../mibitWidgets/mibittip.cpp
  )
 
 kde4_add_ui_files( squeeze_SRCS

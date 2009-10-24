@@ -71,7 +71,7 @@ class MibitTip : public QSvgWidget
       * Its partner is the widget where the tip frame will be shown on.
       *
       */
-    void showTip( const QString &msg );
+    void showTip( const QString &msg, const int &ttl );
     void setSVG( const QString &file );
     void setIcon(const QPixmap &icon );
     void setMaxHeight(int h) { maxHeight = h; }
@@ -89,6 +89,7 @@ class MibitTip : public QSvgWidget
     int maxWidth;
     QString fileName;
     bool closedByUser;
+    int timeToLive;
 
   protected:
     void mousePressEvent ( QMouseEvent * event );

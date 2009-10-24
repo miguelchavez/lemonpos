@@ -29,6 +29,8 @@
 #include "ui_producteditor.h"
 #include "../../src/structs.h"
 
+class MibitTip;
+
 enum returnType {statusNormal=998, statusMod=999};
 
 class ProductEditorUI : public QFrame, public Ui::productEditor
@@ -83,6 +85,7 @@ class ProductEditor : public KDialog
     returnType status;
     bool modifyCode;
     ProductInfo m_pInfo;
+    MibitTip *codeTip;
 
     QString getCategoryStr(int c);
     QString getMeasureStr(int c);

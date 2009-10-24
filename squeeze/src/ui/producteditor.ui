@@ -74,32 +74,14 @@
      </item>
      <item>
       <widget class="QToolButton" name="btnChangeCode">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
        <property name="toolTip">
-        <string>Enable Code Editing</string>
+        <string>Change code</string>
        </property>
        <property name="text">
-        <string/>
+        <string>...</string>
        </property>
        <property name="autoRaise">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -197,7 +179,7 @@
         <string>...</string>
        </property>
        <property name="autoRaise">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -227,7 +209,7 @@
         <string>...</string>
        </property>
        <property name="autoRaise">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -314,7 +296,7 @@
         <string>...</string>
        </property>
        <property name="autoRaise">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -363,7 +345,7 @@
         <string>...</string>
        </property>
        <property name="autoRaise">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -967,7 +949,7 @@
         <string>...</string>
        </property>
        <property name="autoRaise">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -1044,7 +1026,6 @@
   <tabstop>editUtility</tabstop>
   <tabstop>btnCalculatePrice</tabstop>
   <tabstop>btnPhoto</tabstop>
-  <tabstop>btnChangeCode</tabstop>
   <tabstop>btnAddBrand</tabstop>
   <tabstop>btnAddProvider</tabstop>
   <tabstop>btnAddCategory</tabstop>

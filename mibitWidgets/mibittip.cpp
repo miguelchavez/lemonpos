@@ -49,6 +49,7 @@ MibitTip::MibitTip( QWidget *parent, QWidget *partner, const QString &file, cons
     m_partner= partner;
     m_tipPosition = drawOn;
     closedByUser = false;
+    timeToLive = 4000;
 
 
     //create labels
@@ -82,21 +83,19 @@ MibitTip::~MibitTip ()
 {
 }
 
-void MibitTip::showTip( const QString &msg)
+void MibitTip::showTip( const QString &msg, const int &ttl)
 {
-    /// Warning: if a tip is showing and showTip() is called, it does not animate, just change txt msg
-    text->setText( msg );
+    timeToLive = ttl;
+    /// Warning: if a tip is showing, if another showTip() is called, it is ignored.
     if (timeLine->state() == QTimeLine::NotRunning && size().height() <= 0) {
+        text->setText( msg );
         show();
         //make it grow
         timeLine->setDirection(QTimeLine::Forward);
         timeLine->start();
         //autoShrink
-        QTimer::singleShot(5000, this, SLOT(autoHide()));
-    } else {
-      //if called when is showing, try to enlarge the time to be shown.
-      // how? it is a singleshot timer without name....
-    }
+        QTimer::singleShot(timeToLive-1000, this, SLOT(autoHide()));
+    } //else qDebug()<<"Animation running... sorry";
 }
 
 void MibitTip::morph(int newSize)
