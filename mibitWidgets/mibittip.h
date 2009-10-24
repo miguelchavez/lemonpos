@@ -76,6 +76,7 @@ class MibitTip : public QSvgWidget
     void setIcon(const QPixmap &icon );
     void setMaxHeight(int h) { maxHeight = h; }
     void setMaxWidth(int w) { maxWidth = w; }
+    void setSize(const int &w, const int &h) { setMaxHeight(h); setMaxWidth(w); }
 
   private:
     QWidget *m_parent;
