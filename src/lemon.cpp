@@ -140,7 +140,7 @@ void lemon::setupActions()
   //Our actions
   QAction* loginAction =  actionCollection()->addAction( "login" );
   loginAction->setText(i18n("Login"));
-  loginAction->setIcon(KIcon("office-address-book")); //identity
+  loginAction->setIcon(KIcon("preferences-web-browser-identification")); //identity  office-address-book
   loginAction->setShortcut(Qt::CTRL+Qt::Key_L);
   connect(loginAction, SIGNAL(triggered(bool)),m_view, SLOT(login()));
   

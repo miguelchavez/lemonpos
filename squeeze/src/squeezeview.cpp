@@ -98,7 +98,7 @@ squeezeView::squeezeView(QWidget *parent)
 
   
   /// Left Menu
-  ui_mainview.titleData->setPixmap(DesktopIcon("vcs_diff",32)); //database icon kexi vcs_diff
+  ui_mainview.titleData->setPixmap(DesktopIcon("kexi",32)); //database icon kexi
   ui_mainview.titleStock->setPixmap(DesktopIcon("lemon-box",32));
   ui_mainview.titleReports->setPixmap(DesktopIcon("view-pim-tasks", 32)); //graphics-viewer-document
 

@@ -20,6 +20,7 @@
 #include <KLocale>
 #include <KMessageBox>
 #include <KFileDialog>
+#include <KStandardDirs>
 
 #include <QByteArray>
 #include <QRegExpValidator>
@@ -45,7 +46,9 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
 
     ui->btnChangeCode->setIcon(QIcon(DesktopIcon("edit-clear", 32)));
     //Locate SVG for the tip.
-    codeTip = new MibitTip(this, ui->editCode, "tip.svg", DesktopIcon("emblem-important", 32));
+    QString path = KStandardDirs::locate("appdata", "styles/");
+    path = path+"tip.svg";
+    codeTip = new MibitTip(this, ui->editCode, path, DesktopIcon("dialog-information", 22));
     codeTip->setSize(100,100);
 
     //Set Validators for input boxes
@@ -467,7 +470,7 @@ void ProductEditor::checkIfCodeExists()
       }
     }//if !modifyCode
     else {
-      codeTip->showTip(i18n("The product already exists."), 2000);
+      codeTip->showTip(i18n("The product already exists."), 3000);
       enableButtonOk( false );
     }
   }
