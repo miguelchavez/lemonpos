@@ -55,8 +55,8 @@ class ProductEditor : public KDialog
     void    setTaxModel(qulonglong id);
     void    setCategory(int i);
     void    setMeasure(int i);
-    void    disableCode()              { ui->editCode->setReadOnly(true); };
-    void    enableCode()               { ui->editCode->setReadOnly(false); modifyCode=true;};
+    void    disableCode()              { ui->editCode->setReadOnly(true); modifyCode=false; };
+    void    enableCode()               { ui->editCode->setReadOnly(false); modifyCode=true; };
 
   private slots:
     void    changePhoto();
@@ -84,6 +84,7 @@ class ProductEditor : public KDialog
     QPixmap pix;
     returnType status;
     bool modifyCode;
+    bool creatingNewProduct;
     ProductInfo m_pInfo;
     MibitTip *codeTip;
 

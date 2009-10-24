@@ -87,9 +87,9 @@ void MibitTip::showTip( const QString &msg, const int ttl)
 {
     timeToLive = ttl;
     timeLine->setFrameRange(0, maxHeight);
-    /// Warning: if a tip is showing, if another showTip() is called, it is ignored.
+    text->setText( msg );
+    /// Warning: if a tip is showing, if another showTip() is called, it not animated, just changed the msg.
     if (timeLine->state() == QTimeLine::NotRunning && size().height() <= 0) {
-        text->setText( msg );
         show();
         //make it grow
         timeLine->setDirection(QTimeLine::Forward);

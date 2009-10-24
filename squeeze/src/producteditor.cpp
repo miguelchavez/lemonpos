@@ -89,6 +89,7 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
 
     status = statusNormal;
     modifyCode = false;
+    creatingNewProduct = newProduct;
     
     if (newProduct) ui->labelStockQty->setText(i18n("Purchase Qty:")); else ui->labelStockQty->setText(i18n("Stock Qty:"));
     
@@ -402,17 +403,7 @@ void ProductEditor::calculatePrice()
  else if (ui->editUtility->text().isEmpty()) {
    ui->editUtility->setFocus();
  }
-//  else if (ui->editTax->text().isEmpty()) {
-//    ui->editTax->setText("0.0");
-//    ui->editTax->setFocus();
-//    ui->editTax->selectAll();
-//  }
  else {
-//   if (ui->editExtraTaxes->text().isEmpty()) {
-//    ui->editExtraTaxes->setText("0.0");
-//    ui->editExtraTaxes->setFocus();
-//    ui->editExtraTaxes->selectAll();
-//   }
   //TODO: if TAXes are included in cost...
   double cost    = ui->editCost->text().toDouble();
   double utility = ui->editUtility->text().toDouble();
@@ -447,11 +438,10 @@ void ProductEditor::checkIfCodeExists()
   myDb->setDatabase(db);
   ProductInfo pInfo = myDb->getProductInfo(codeStr);
 
-  if (pInfo.code > 0) {
-    //code exists...
+  if (pInfo.code > 0) { //code exists...
     status = statusMod;
-    if (!modifyCode){
-      //Prepopulate dialog... NOTE: Check m_pInfo !!!
+    if (!creatingNewProduct){ //only populate product info if there is not a new product.
+      //Prepopulate dialog...
       ui->editDesc->setText(pInfo.desc);
       ui->editAlphacode->setText(pInfo.alphaCode);
       ui->editStockQty->setText(QString::number(pInfo.stockqty));
@@ -468,9 +458,9 @@ void ProductEditor::checkIfCodeExists()
         photo.loadFromData(pInfo.photo);
         setPhoto(photo);
       }
-    }//if !modifyCode
+    }//if !creatingNewProduct
     else {
-      codeTip->showTip(i18n("The product already exists."), 3000);
+      codeTip->showTip(i18n("This code is for product named %1",pInfo.desc), 4000);
       enableButtonOk( false );
     }
   }
