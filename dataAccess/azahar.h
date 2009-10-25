@@ -70,6 +70,10 @@ class Azahar : public QObject
     double       getProductDiscount(qulonglong code);
     QList<pieProdInfo>  getTop5SoldProducts();
     QList<pieProdInfo>  getAlmostSoldOutProducts(int min, int max);
+    double       getProductStockQty(qulonglong code);
+
+    //PRODUCT STOCK CORRECTION
+    bool         correctStock(qulonglong pcode, double oldStockQty, double newStockQty, const QString &reason );
 
     //CATEGORIES
     QHash<QString, int> getCategoriesHash();

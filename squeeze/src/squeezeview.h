@@ -120,6 +120,7 @@ signals:
    void productsViewOnSelected(const QModelIndex &index);
    void clientsViewOnSelected(const QModelIndex &index);
    void doPurchase();
+   void stockCorrection();
    void adjustOffersTable();
    void showPrefs();
    void cleanErrorLabel();
@@ -138,6 +139,8 @@ signals:
    void showCashFlowPage();
    void setupCashFlowModel();
    void hideShowFilterProductsGroup();
+
+   void correctStock(qulonglong code, double oldStock, double newStock, const QString &reason);
 
     /* DB slots */
    void createUser();

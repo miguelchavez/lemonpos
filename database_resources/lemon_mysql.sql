@@ -234,6 +234,15 @@ CREATE TABLE IF NOT EXISTS `products_providers` (
   KEY  (`product_id`, `provider_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+CREATE TABLE IF NOT EXISTS `stock_corrections` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `product_id` bigint(20) unsigned NOT NULL,
+  `new_stock_qty` bigint(20) unsigned NOT NULL,
+  `old_stock_qty` bigint(20) unsigned NOT NULL,
+  `reason` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
 CREATE OR REPLACE VIEW `v_transactions` AS
 select
 concat( DATE_FORMAT( t.date, '%d/%m/%Y' ) , ' ', TIME_FORMAT( t.time, '%H:%i' ) ) AS datetime,

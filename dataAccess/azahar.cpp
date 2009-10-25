@@ -67,6 +67,52 @@ QString Azahar::lastError()
   return errorStr;
 }
 
+bool  Azahar::correctStock(qulonglong pcode, double oldStockQty, double newStockQty, const QString &reason )
+{ //each correction is an insert to the table.
+  bool result1, result2;
+  result1 = result2 = false;
+  if (!db.isOpen()) db.open();
+  QSqlQuery query(db);
+  query.prepare("INSERT INTO stock_corrections (product_id, new_stock_qty, old_stock_qty, reason) VALUES(:pcode, :newstock, :oldstock, :reason); ");
+  query.bindValue(":pcode", pcode);
+  query.bindValue(":newstock", newStockQty);
+  query.bindValue(":oldstock", oldStockQty);
+  query.bindValue(":reason", reason);
+  if (!query.exec()) setError(query.lastError().text()); else result=true;
+
+  //modify stock
+  QSqlQuery query2(db);
+  query2.prepare("UPDATE products set stockqty=:newstock where code=:pcode;");
+  query2.bindValue(":pcode", pcode);
+  query2.bindValue(":newstock", newStockQty);
+  if (!query2.exec()) setError(query2.lastError().text()); else result2=true;
+  return (result1 && result2);
+}
+
+double Azahar::getProductStockQty(qulonglong code)
+{
+  double result=0.0;
+  if (db.isOpen()) {
+    QString qry = QString("SELECT stockqty from products WHERE code=%1").arg(code);
+    QSqlQuery query(db);
+    if (!query.exec(qry)) {
+      int errNum = query.lastError().number();
+      QSqlError::ErrorType errType = query.lastError().type();
+      QString error = query.lastError().text();
+      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),error);
+    }
+    if (query.size() == -1)
+      setError(i18n("Error serching product id %1, Rows affected: %2", code,query.size()));
+    else {
+      while (query.next()) {
+        int fieldStock = query.record().indexOf("stockqty");
+        result = query.value(fieldStock).toDouble(); //return stock
+      }
+    }
+  }
+  return result;
+}
+
 qulonglong Azahar::getProductOfferCode(qulonglong code)
 {
   qulonglong result=0;

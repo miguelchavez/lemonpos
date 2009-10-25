@@ -11,6 +11,7 @@ set(squeeze_SRCS
    purchaseeditor.cpp
    offersdelegate.cpp
    piechart.cpp
+   ../../src/inputdialog.cpp
    ../../src/loginwindow.cpp
    ../../src/misc.cpp
    ../../src/hash.cpp
@@ -67,7 +68,7 @@ target_link_libraries(squeeze
   ${KDE4_KIO_LIBS}
   ${QT_LIBRARIES}
   ${QT_QTSQL_LIBRARY}
-  ${KDE4_KDEPRINT_LIBS}
+  #${KDE4_KDEPRINT_LIBS}
 )
 
 install(TARGETS squeeze DESTINATION ${BIN_INSTALL_DIR} )

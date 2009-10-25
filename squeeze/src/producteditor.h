@@ -44,6 +44,8 @@ class ProductEditor : public KDialog
 {
   Q_OBJECT
   public:
+    bool correctingStockOk;
+
     ProductEditor( QWidget *parent=0, bool newProduct = false  );
     ~ProductEditor();
     ProductInfo getProductInfo() { return m_pInfo; };
@@ -57,6 +59,10 @@ class ProductEditor : public KDialog
     void    setMeasure(int i);
     void    disableCode()              { ui->editCode->setReadOnly(true); modifyCode=false; };
     void    enableCode()               { ui->editCode->setReadOnly(false); modifyCode=true; };
+    QString getReason()      { return reason; };
+    bool    isCorrectingStock() {return correctingStockOk;};
+    double  getOldStock()    { return oldStockQty; };
+    void    setStockQtyReadOnly(bool enabled) { ui->editStockQty->setReadOnly(enabled); };
 
   private slots:
     void    changePhoto();
@@ -87,6 +93,7 @@ class ProductEditor : public KDialog
     bool creatingNewProduct;
     ProductInfo m_pInfo;
     MibitTip *codeTip;
+    QString reason;
 
     QString getCategoryStr(int c);
     QString getMeasureStr(int c);

@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                  *
+ *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
  *   miguel@lemonpos.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -49,6 +49,7 @@ class InputDialog : public QDialog
     double dValue;
     qulonglong iValue;
     QString reason;
+    qulonglong getPCode() { return productCodeEdit->text().toULongLong(); } ;
   public slots:
     void setProductCode(qulonglong theCode);
     void setAmount(double damnt);

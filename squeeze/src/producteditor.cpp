@@ -66,6 +66,7 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     connect( ui->btnChangeCode,      SIGNAL( clicked() ), this, SLOT( changeCode() ) );
     connect( ui->editCode, SIGNAL(textEdited(const QString &)), SLOT(checkIfCodeExists()));
     connect( ui->editCode, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
+    connect( ui->btnStockCorrect,      SIGNAL( clicked() ), this, SLOT( modifyStock() ) );
 
     connect( ui->editDesc, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
     connect( ui->editStockQty, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
@@ -426,6 +427,27 @@ void ProductEditor::changeCode()
   ui->editCode->selectAll();
 }
 
+void ProductEditor::modifyStock()
+{
+  double newStockQty=0;
+  oldStockQty = ui->editStockQty->text().toDouble();
+  bool ok = false;
+  InputDialog *dlg = new InputDialog(this, true, dialogStockCorrection, i18n("Enter the quantity and reason for the change:"));
+  dlg->setProductCode(ui->editCode->text().toULongLong());
+  dlg->setAmount(ui->editStockQty->text().toDouble());
+  dlg->setProductCodeReadOnly();
+  if (dlg->exec())
+  {
+    newStockQty = dlg->dValue;
+    reason = dlg->reason;
+    ok = true;
+  }
+  if (ok) { //send data to database...
+    ui->editStockQty->setText( QString::number(newStockQty) ); //update this info on producteditor
+    correctingStockOk = ok;
+  }
+}
+
 void ProductEditor::checkIfCodeExists()
 {
   enableButtonOk( false );
@@ -502,7 +524,7 @@ void ProductEditor::checkFieldsState()
   }
   enableButtonOk(ready);
   
-  if (!ready  && ui->editCode->hasFocus() ) {
+  if (!ready  && ui->editCode->hasFocus() && ui->editCode->isReadOnly() ) {
     ui->editDesc->setFocus();
   }
 }

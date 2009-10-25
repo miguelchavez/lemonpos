@@ -242,6 +242,8 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.btnBalances, SIGNAL(clicked()),  SLOT( showBalancesPage()));
   connect(ui_mainview.btnStockCheckIn, SIGNAL(clicked()),  SLOT( doPurchase()));
   connect(ui_mainview.btnCashFlow, SIGNAL(clicked()),  SLOT( showCashFlowPage()));
+
+  connect(ui_mainview.btnStockCorrection, SIGNAL(clicked()),  SLOT( stockCorrection()));
   
   connect(ui_mainview.chViewProductsListAsGrid, SIGNAL(toggled(bool)), SLOT(showProdListAsGrid()));
   connect(ui_mainview.chViewProductsListAsTable, SIGNAL(toggled(bool)), SLOT(showProdListAsTable() ));
@@ -1538,6 +1540,7 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
 
     //Set data on dialog
     productEditorDlg->disableCode(); //On Edit product, code cannot be changed.
+    productEditorDlg->setStockQtyReadOnly(true); //on edit, cannot change qty to force use stockCorrection
     productEditorDlg->setDb(db);
     productEditorDlg->setCode(id); //this method get all data for such product code.
     qulonglong newcode=0;
@@ -1554,6 +1557,10 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
       // Check offers, to move or delete them.
       if (id != newcode) {
         if (!myDb->moveOffer(id, newcode)) qDebug()<<"Offer update error:"<<myDb->lastError();
+      }
+      if (productEditorDlg->isCorrectingStock()) {
+        qDebug()<<"Correcting stock. Old:"<<productEditorDlg->getOldStock()<<" New:"<<productEditorDlg->getStockQty()<<" Reason"<<productEditorDlg->getReason();
+        correctStock(pInfo.code, productEditorDlg->getOldStock(), productEditorDlg->getStockQty(), productEditorDlg->getReason());
       }
       //FIXME: We must see error types, which ones are for duplicate KEYS (codes) to advertise the user.
       productsModel->select();
@@ -1687,6 +1694,38 @@ void squeezeView::doPurchase()
   }
 }
 
+void squeezeView::stockCorrection()
+{
+  //launch a dialong asking: Item code, New stockQty, and reason.
+  double newStockQty =0;
+  double oldStockQty = 0;
+  qulonglong pcode=0;
+  QString reason;
+  bool ok = false;
+  InputDialog *dlg = new InputDialog(this, true, dialogStockCorrection, i18n("Enter the quantity and reason for the change:"));
+  if (dlg->exec())
+  {
+    newStockQty = dlg->dValue;
+    reason = dlg->reason;
+    pcode  = dlg->getPCode();
+    ok = true;
+  }
+  if (ok) { //send data to database...
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    oldStockQty = myDb->getProductStockQty(pcode);
+    qDebug()<<"New Qty:"<<newStockQty<<" Reason:"<<reason;
+    correctStock(pcode, oldStockQty, newStockQty, reason);
+  }
+}
+
+void squeezeView::correctStock(qulonglong code, double oldStock, double newStock, const QString &reason)
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  if (!myDb->correctStock(code, oldStock, newStock, reason )) qDebug()<<myDb->lastError();
+}
+
 void squeezeView::createUser()
 {
   Azahar *myDb = new Azahar;
@@ -1752,6 +1791,7 @@ void squeezeView::createProduct()
   ProductEditor *prodEditorDlg = new ProductEditor(this, true);
   prodEditorDlg->setDb(db);
   prodEditorDlg->enableCode();
+  prodEditorDlg->setStockQtyReadOnly(false);
 
   if (prodEditorDlg->exec()) {
     int resultado = prodEditorDlg->result();
