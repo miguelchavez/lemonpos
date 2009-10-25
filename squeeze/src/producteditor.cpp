@@ -29,6 +29,7 @@
 #include "../../dataAccess/azahar.h"
 #include "../../src/misc.h"
 #include "../../mibitWidgets/mibittip.h"
+#include "../../src/inputdialog.h"
 
 ProductEditorUI::ProductEditorUI( QWidget *parent )
 : QFrame( parent )

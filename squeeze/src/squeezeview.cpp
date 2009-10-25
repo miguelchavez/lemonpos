@@ -37,6 +37,7 @@
 #include "../../src/productdelegate.h"
 #include "offersdelegate.h"
 #include "../../dataAccess/azahar.h"
+#include "../../src/inputdialog.h"
 
 // Pie Chart by EresLibre
 #include "piechart.h"
@@ -1559,8 +1560,7 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
         if (!myDb->moveOffer(id, newcode)) qDebug()<<"Offer update error:"<<myDb->lastError();
       }
       if (productEditorDlg->isCorrectingStock()) {
-        qDebug()<<"Correcting stock. Old:"<<productEditorDlg->getOldStock()<<" New:"<<productEditorDlg->getStockQty()<<" Reason"<<productEditorDlg->getReason();
-        correctStock(pInfo.code, productEditorDlg->getOldStock(), productEditorDlg->getStockQty(), productEditorDlg->getReason());
+        correctStock(pInfo.code, productEditorDlg->getOldStock(), pInfo.stockqty, productEditorDlg->getReason());
       }
       //FIXME: We must see error types, which ones are for duplicate KEYS (codes) to advertise the user.
       productsModel->select();

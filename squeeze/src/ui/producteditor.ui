@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>445</width>
-    <height>341</height>
+    <width>481</width>
+    <height>343</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -837,7 +837,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="btnStockCorrection">
+      <widget class="QToolButton" name="btnStockCorrect">
        <property name="toolTip">
         <string>Correct stock</string>
        </property>

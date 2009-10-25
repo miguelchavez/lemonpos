@@ -78,7 +78,7 @@ bool  Azahar::correctStock(qulonglong pcode, double oldStockQty, double newStock
   query.bindValue(":newstock", newStockQty);
   query.bindValue(":oldstock", oldStockQty);
   query.bindValue(":reason", reason);
-  if (!query.exec()) setError(query.lastError().text()); else result=true;
+  if (!query.exec()) setError(query.lastError().text()); else result1=true;
 
   //modify stock
   QSqlQuery query2(db);

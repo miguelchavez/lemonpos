@@ -67,6 +67,7 @@ class ProductEditor : public KDialog
   private slots:
     void    changePhoto();
     void    changeCode();
+    void    modifyStock();
     void    calculatePrice();
     void    checkIfCodeExists();
     void    checkFieldsState();
@@ -94,6 +95,7 @@ class ProductEditor : public KDialog
     ProductInfo m_pInfo;
     MibitTip *codeTip;
     QString reason;
+    double oldStockQty;
 
     QString getCategoryStr(int c);
     QString getMeasureStr(int c);
