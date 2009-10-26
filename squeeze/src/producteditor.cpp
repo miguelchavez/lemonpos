@@ -60,12 +60,14 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     ui->editReason->setEmptyMessage("Enter the Reason for the change here...");
     connect(ui->btnCancel, SIGNAL(clicked()), panel, SLOT(hidePanel()));
     connect(ui->btnCancel, SIGNAL(clicked()), this, SLOT(showBtns()));
+    connect(panel, SIGNAL(hiddenOnUserRequest()), ui->editCost, SLOT(setFocus()));
+    connect(panel, SIGNAL(hiddenOnUserRequest()), this, SLOT(showBtns()));
     connect(ui->btnOk, SIGNAL(clicked()), this, SLOT(updateStock()));
     connect(ui->editNewStock, SIGNAL(returnPressed()),ui->editReason, SLOT(setFocus()) );
     connect(ui->editReason, SIGNAL(returnPressed()),ui->btnOk, SLOT(setFocus()) );
     ui->editNewStock->setMinimumWidth(250);
     panel->addWidget(ui->groupStockCorrection);
-    showingPanel = false;
+    correctingStockOk = false;
     
 
     //Set Validators for input boxes
@@ -447,9 +449,9 @@ void ProductEditor::changeCode()
 void ProductEditor::modifyStock()
 {
   panel->showPanel();
-  showingPanel = true;
   ui->editNewStock->setFocus();
-  setButtons( KDialog::None );
+  enableButtonOk(false);
+  enableButtonCancel(false);
   
 //   InputDialog *dlg = new InputDialog(this, true, dialogStockCorrection, i18n("Enter the quantity and reason for the change, press <Enter> to accept or <ESC> to cancel"));
 //   dlg->setProductCode(ui->editCode->text().toULongLong());
@@ -474,18 +476,18 @@ void ProductEditor::updateStock()
   
   if (!ui->editNewStock->text().isEmpty() && !ui->editReason->text().isEmpty()) {
     ui->editStockQty->setText(ui->editNewStock->text());
-    reason = ui->editReason->text(); 
+    reason = ui->editReason->text();
     correctingStockOk = true;
     panel->hidePanel();
-    showingPanel = false;
-    setButtons( KDialog::Ok|KDialog::Cancel );
-    qDebug()<<"Ok ready to correct stock...";
+    enableButtonOk(true);
+    enableButtonCancel(true);
   }
 }
 
 void ProductEditor::showBtns()
 {
-  setButtons( KDialog::Ok|KDialog::Cancel );
+  enableButtonOk(true);
+  enableButtonCancel(true);
 }
 
 void ProductEditor::checkIfCodeExists()
@@ -611,15 +613,7 @@ void ProductEditor::slotButtonClicked(int button)
       done(statusMod);
     }
   }
-  else {
-    qDebug()<<"btn cancel";
-    if (!showingPanel) QDialog::reject();
-    else {
-      qDebug()<<"Showing panel";
-      panel->hide();
-      showingPanel = false;
-    }
-  }
+  else QDialog::reject();
 }
 
 #include "producteditor.moc"

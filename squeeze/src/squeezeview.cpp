@@ -1572,7 +1572,6 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
       if (productEditorDlg->isCorrectingStock()) {
         correctStock(pInfo.code, productEditorDlg->getOldStock(), pInfo.stockqty, productEditorDlg->getReason());
       }
-      //FIXME: We must see error types, which ones are for duplicate KEYS (codes) to advertise the user.
       productsModel->select();
     }
     delete productEditorDlg;

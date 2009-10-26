@@ -94,7 +94,6 @@ class ProductEditor : public KDialog
     QPixmap pix;
     returnType status;
     bool modifyCode;
-    bool showingPanel;
     bool creatingNewProduct;
     ProductInfo m_pInfo;
     MibitTip *codeTip;

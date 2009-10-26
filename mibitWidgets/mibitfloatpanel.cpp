@@ -168,6 +168,7 @@ void MibitFloatPanel::animate(const int &step)
 void MibitFloatPanel::hideOnUserRequest()
 {
     hideDialog();
+    emit hiddenOnUserRequest();
 }
 
 void MibitFloatPanel::hideDialog()
@@ -211,6 +212,15 @@ void MibitFloatPanel::enterEvent ( QEvent * )
 void MibitFloatPanel::leaveEvent( QEvent * )
 {
     if (m_mode == pmAuto) QTimer::singleShot(100,this,SLOT(hideOnUserRequest()));
+}
+
+void MibitFloatPanel::keyPressEvent ( QKeyEvent * event )
+{
+    if ( event->key() == Qt::Key_Escape )
+    {
+        if (m_mode == pmManual)
+        hideOnUserRequest();
+    } //else ignore event.
 }
 
 MibitFloatPanel::~MibitFloatPanel() {}

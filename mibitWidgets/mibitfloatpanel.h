@@ -60,6 +60,7 @@ public:
     void setMaxWidth(const int &m)   { setMaximumWidth(m); maxWidth = m; }
     void setSize( const int &w, const int &h ) { setMaxHeight(h); setMaxWidth(w); }
     void setMode(const PanelModes mode) { m_mode = mode; }
+
 private:
     QTimeLine *timeLine;
     QHBoxLayout *hLayout;
@@ -72,6 +73,8 @@ private:
     PanelPosition m_position;
     PanelModes m_mode;
     void reposition();
+signals:
+    void hiddenOnUserRequest();
 public slots:
     void showPanel();
     void hidePanel() { hideDialog(); }
@@ -83,6 +86,7 @@ private slots:
 protected:
     void enterEvent ( QEvent * event );
     void leaveEvent ( QEvent * event );
+    void keyPressEvent ( QKeyEvent * event );
 };
 
 #endif // MIBITFLOATPANEL_H
