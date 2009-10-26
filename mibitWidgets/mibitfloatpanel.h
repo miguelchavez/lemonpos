@@ -51,7 +51,7 @@ class MibitFloatPanel : public QSvgWidget
 {
 Q_OBJECT
 public:
-    MibitFloatPanel(QWidget *parent = 0, const QString &file = 0, PanelPosition position = Top);
+    MibitFloatPanel(QWidget *parent = 0, const QString &file = 0, PanelPosition position = Top, const int &w=100, const int &h=100);
     ~MibitFloatPanel();
     void addWidget(QWidget * widget);
     void setPosition(const PanelPosition pos);

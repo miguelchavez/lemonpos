@@ -29,7 +29,7 @@
 #include <QEvent>
 #include <QDebug>
 
-MibitFloatPanel::MibitFloatPanel(QWidget *parent, const QString &file, PanelPosition position)
+MibitFloatPanel::MibitFloatPanel(QWidget *parent, const QString &file, PanelPosition position, const int &w, const int &h)
         : QSvgWidget( parent )
 {
     //setMouseTracking(true);
@@ -41,10 +41,10 @@ MibitFloatPanel::MibitFloatPanel(QWidget *parent, const QString &file, PanelPosi
     m_parent = parent;
     m_fileName = file;
     canBeHidden = false; //at the begining is hidden.
-    setMinimumHeight(100);
-    setMinimumWidth(100);
-    setMaxHeight(100);
-    setMaxWidth(100);
+    setMinimumHeight(h);
+    setMinimumWidth(w);
+    setMaxHeight(h);
+    setMaxWidth(w);
     setFixedHeight(0);
     animRate = 500; //default animation speed (half a second rate).
 

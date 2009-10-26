@@ -53,8 +53,7 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     path = path+"tip.svg";
     codeTip = new MibitTip(this, ui->editCode, path, DesktopIcon("dialog-information", 22));
     codeTip->setSize(100,100);
-    panel = new MibitFloatPanel(this, path);
-    panel->setSize(300,150);
+    panel = new MibitFloatPanel(this, path, Top,300,150);
     panel->setMode(pmManual);
     ui->editNewStock->setEmptyMessage("Enter the new Stock quantity here...");
     ui->editReason->setEmptyMessage("Enter the Reason for the change here...");
