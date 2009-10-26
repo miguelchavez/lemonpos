@@ -43,6 +43,7 @@ class QPixmap;
 
 
     enum PanelPosition  {Top = 1, Bottom = 2, Left = 3, Right = 4 };
+    enum PanelModes     {pmAuto = 1, pmManual=2};
     enum PanelConstants {pMinH= 100, pMinW = 100 };
 
 
@@ -53,12 +54,12 @@ public:
     MibitFloatPanel(QWidget *parent = 0, const QString &file = 0, PanelPosition position = Top);
     ~MibitFloatPanel();
     void addWidget(QWidget * widget);
-    void hidePanel();
     void setPosition(const PanelPosition pos);
     void setSVG(const QString &file);
     void setMaxHeight(const int &m)   { setMaximumHeight(m); maxHeight = m; }
     void setMaxWidth(const int &m)   { setMaximumWidth(m); maxWidth = m; }
     void setSize( const int &w, const int &h ) { setMaxHeight(h); setMaxWidth(w); }
+    void setMode(const PanelModes mode) { m_mode = mode; }
 private:
     QTimeLine *timeLine;
     QHBoxLayout *hLayout;
@@ -69,13 +70,16 @@ private:
     int maxWidth;
     int animRate;
     PanelPosition m_position;
+    PanelModes m_mode;
     void reposition();
+public slots:
+    void showPanel();
+    void hidePanel() { hideDialog(); }
 private slots:
     void animate(const int &step);
-    void hideDialog();
     void hideOnUserRequest();
+    void hideDialog();
     void onAnimationFinished();
-    void showPanel();
 protected:
     void enterEvent ( QEvent * event );
     void leaveEvent ( QEvent * event );

@@ -30,6 +30,7 @@
 #include "../../src/structs.h"
 
 class MibitTip;
+class MibitFloatPanel;
 
 enum returnType {statusNormal=998, statusMod=999};
 
@@ -83,6 +84,8 @@ class ProductEditor : public KDialog
     void    updateStockQty(const QString &str);
     void    updateCategory(int);
     void    updateMeasure(int);
+    void    updateStock(); //for floatpanel - correction
+    void    showBtns();
   protected slots:
     virtual void slotButtonClicked(int button);
   private:
@@ -91,9 +94,11 @@ class ProductEditor : public KDialog
     QPixmap pix;
     returnType status;
     bool modifyCode;
+    bool showingPanel;
     bool creatingNewProduct;
     ProductInfo m_pInfo;
     MibitTip *codeTip;
+    MibitFloatPanel *panel;
     QString reason;
     double oldStockQty;
 

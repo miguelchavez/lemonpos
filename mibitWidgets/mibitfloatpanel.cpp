@@ -37,6 +37,7 @@ MibitFloatPanel::MibitFloatPanel(QWidget *parent, const QString &file, PanelPosi
     if (file != 0) setSVG(file);
 
     m_position = position;
+    m_mode     = pmAuto;
     m_parent = parent;
     m_fileName = file;
     canBeHidden = false; //at the begining is hidden.
@@ -92,7 +93,7 @@ void MibitFloatPanel::reposition()
 
 void MibitFloatPanel::addWidget(QWidget * widget)
 {
-    hLayout->addWidget(widget, 0, Qt::AlignCenter);
+    hLayout->addWidget(widget, 1, Qt::AlignCenter);
 }
 
 void MibitFloatPanel::showPanel()
@@ -204,12 +205,12 @@ void MibitFloatPanel::setSVG(const QString &file)
 
 void MibitFloatPanel::enterEvent ( QEvent * )
 {
-    QTimer::singleShot(100,this,SLOT(showPanel()));
+    if (m_mode == pmAuto) QTimer::singleShot(100,this,SLOT(showPanel()));
 }
 
 void MibitFloatPanel::leaveEvent( QEvent * )
 {
-    QTimer::singleShot(100,this,SLOT(hideOnUserRequest()));
+    if (m_mode == pmAuto) QTimer::singleShot(100,this,SLOT(hideOnUserRequest()));
 }
 
 MibitFloatPanel::~MibitFloatPanel() {}

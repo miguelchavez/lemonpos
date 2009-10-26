@@ -29,6 +29,8 @@
 #include "../../dataAccess/azahar.h"
 #include "../../src/misc.h"
 #include "../../mibitWidgets/mibittip.h"
+#include "../../mibitWidgets/mibitfloatpanel.h"
+#include "../../mibitWidgets/mibitlineedit.h"
 #include "../../src/inputdialog.h"
 
 ProductEditorUI::ProductEditorUI( QWidget *parent )
@@ -51,6 +53,20 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     path = path+"tip.svg";
     codeTip = new MibitTip(this, ui->editCode, path, DesktopIcon("dialog-information", 22));
     codeTip->setSize(100,100);
+    panel = new MibitFloatPanel(this, path);
+    panel->setSize(300,150);
+    panel->setMode(pmManual);
+    ui->editNewStock->setEmptyMessage("Enter the new Stock quantity here...");
+    ui->editReason->setEmptyMessage("Enter the Reason for the change here...");
+    connect(ui->btnCancel, SIGNAL(clicked()), panel, SLOT(hidePanel()));
+    connect(ui->btnCancel, SIGNAL(clicked()), this, SLOT(showBtns()));
+    connect(ui->btnOk, SIGNAL(clicked()), this, SLOT(updateStock()));
+    connect(ui->editNewStock, SIGNAL(returnPressed()),ui->editReason, SLOT(setFocus()) );
+    connect(ui->editReason, SIGNAL(returnPressed()),ui->btnOk, SLOT(setFocus()) );
+    ui->editNewStock->setMinimumWidth(250);
+    panel->addWidget(ui->groupStockCorrection);
+    showingPanel = false;
+    
 
     //Set Validators for input boxes
     QRegExp regexpC("[0-9]{1,13}"); //(EAN-13 y EAN-8) .. y productos sin codigo de barras?
@@ -430,23 +446,46 @@ void ProductEditor::changeCode()
 
 void ProductEditor::modifyStock()
 {
-  double newStockQty=0;
+  panel->showPanel();
+  showingPanel = true;
+  ui->editNewStock->setFocus();
+  setButtons( KDialog::None );
+  
+//   InputDialog *dlg = new InputDialog(this, true, dialogStockCorrection, i18n("Enter the quantity and reason for the change, press <Enter> to accept or <ESC> to cancel"));
+//   dlg->setProductCode(ui->editCode->text().toULongLong());
+//   dlg->setAmount(ui->editStockQty->text().toDouble());
+//   dlg->setProductCodeReadOnly();
+//   if (dlg->exec())
+//   {
+//     newStockQty = dlg->dValue;
+//     reason = dlg->reason;
+//     ok = true;
+//   }
+//   if (ok) { //send data to database...
+//     ui->editStockQty->setText( QString::number(newStockQty) ); //update this info on producteditor
+//     correctingStockOk = ok;
+//   }
+}
+
+void ProductEditor::updateStock()
+{
+  correctingStockOk = false;
   oldStockQty = ui->editStockQty->text().toDouble();
-  bool ok = false;
-  InputDialog *dlg = new InputDialog(this, true, dialogStockCorrection, i18n("Enter the quantity and reason for the change, press <Enter> to accept or <ESC> to cancel"));
-  dlg->setProductCode(ui->editCode->text().toULongLong());
-  dlg->setAmount(ui->editStockQty->text().toDouble());
-  dlg->setProductCodeReadOnly();
-  if (dlg->exec())
-  {
-    newStockQty = dlg->dValue;
-    reason = dlg->reason;
-    ok = true;
+  
+  if (!ui->editNewStock->text().isEmpty() && !ui->editReason->text().isEmpty()) {
+    ui->editStockQty->setText(ui->editNewStock->text());
+    reason = ui->editReason->text(); 
+    correctingStockOk = true;
+    panel->hidePanel();
+    showingPanel = false;
+    setButtons( KDialog::Ok|KDialog::Cancel );
+    qDebug()<<"Ok ready to correct stock...";
   }
-  if (ok) { //send data to database...
-    ui->editStockQty->setText( QString::number(newStockQty) ); //update this info on producteditor
-    correctingStockOk = ok;
-  }
+}
+
+void ProductEditor::showBtns()
+{
+  setButtons( KDialog::Ok|KDialog::Cancel );
 }
 
 void ProductEditor::checkIfCodeExists()
@@ -572,7 +611,15 @@ void ProductEditor::slotButtonClicked(int button)
       done(statusMod);
     }
   }
-  else QDialog::reject();
+  else {
+    qDebug()<<"btn cancel";
+    if (!showingPanel) QDialog::reject();
+    else {
+      qDebug()<<"Showing panel";
+      panel->hide();
+      showingPanel = false;
+    }
+  }
 }
 
 #include "producteditor.moc"
