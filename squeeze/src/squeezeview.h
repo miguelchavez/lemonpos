@@ -170,6 +170,7 @@ signals:
    void setupTransactionsModel();
    void checkDBStatus();
    void connectToDb();
+   void freeze();
 
    //Biel - export products
    void exportTable();

@@ -19,5 +19,6 @@ install( FILES
         radiobutton_on.png
         tira.png
         dialog.png
+        dialog_mask.png
         elegant.qss
         DESTINATION  ${DATA_INSTALL_DIR}/lemon/styles/elegant/ )

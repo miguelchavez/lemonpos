@@ -136,8 +136,8 @@ QLabel#labelPCName {
 /** dialog - cancelar ticket, corte de caja **/
 QLabel#titleLabelInputDialog {
   color: #e6ce21;
-  font-size:12px;
-  font-weight: bold;
+  color: white;
+  font-size:13px;
 }
 
 /** Table **/

@@ -1056,6 +1056,7 @@ void lemonView::itemSearchDoubleClicked(QTableWidgetItem *item)
   ui_mainview.mainPanel->setCurrentIndex(pageMain);
 }
 
+//FIXME: Con los nuevos TaxModels, sobra informacion (extrataxes). Verificar cantidades tambien (% y dinero)
 void lemonView::displayItemInfo(QTableWidgetItem* item)
 {
   int row = item->row();
@@ -1091,10 +1092,10 @@ void lemonView::displayItemInfo(QTableWidgetItem* item)
         .arg(KGlobal::locale()->formatMoney(info.totaltax)).arg(info.tax);
     ui_mainview.labelDetailTax1->setText(QString("<html>%1 <b>%2</b></html>")
         .arg(tTax).arg(str));
-    str = QString("%1 (%2 %)")
-        .arg(KGlobal::locale()->formatMoney(info.tax));
-    ui_mainview.labelDetailTax2->setText(QString("<html>%1 <b>%2</b></html>")
-        .arg(tOTax).arg(str));
+    //str = QString("%1 (%2 %)") 
+    //    .arg(KGlobal::locale()->formatMoney(info.tax));
+    ui_mainview.labelDetailTax2->setText("-Deprecated-");//(QString("<html>%1 <b>%2</b></html>")
+        //.arg(tOTax).arg(str));
     ui_mainview.labelDetailUnits->setText(QString("<html>%1 <b>%2</b></html>")
         .arg(tUnits).arg(uLabel));
     ui_mainview.labelDetailDesc->setText(QString("<html><b>%1</b></html>").arg(desc));
@@ -2676,7 +2677,7 @@ void lemonView::cashIn()
     info.time = QTime::currentTime();
     info.terminalNum = Settings::editTerminalNumber();
     info.userid = loggedUserId;
-    info.type   = ctCashIn; //normal cash-out
+    info.type   = ctCashIn; //normal cash-in
     myDb->insertCashFlow(info);
     //affect drawer
     if (Settings::openDrawer()) drawer->open();

@@ -125,6 +125,7 @@ squeezeView::squeezeView(QWidget *parent)
   QTimer::singleShot(20000, timerUpdateGraphs, SLOT(start()));
   QTimer::singleShot(2010, this, SLOT(showWelcomeGraphs()));
   QTimer::singleShot(2000, this, SLOT(login()));
+  QTimer::singleShot(1, this, SLOT(freeze()));
 
   ui_mainview.stackedWidget->setCurrentIndex(pWelcome);
   ui_mainview.errLabel->hide();
@@ -151,6 +152,12 @@ squeezeView::squeezeView(QWidget *parent)
   //m_toolBar->setSide(FloatingToolBar::Top);
 }
 
+void squeezeView::freeze()
+{
+  qDebug()<<"Freezing ui until loggin in...";
+  adminIsLogged = false;
+  emit signalAdminLoggedOff();
+}
 
 void squeezeView::cleanErrorLabel()
 {
@@ -160,6 +167,7 @@ void squeezeView::cleanErrorLabel()
 
 void squeezeView::login(){
   qDebug()<<"Login()";
+  adminIsLogged = false;
   emit signalAdminLoggedOff();
   dlgPassword->clearLines();
   if (!db.isOpen()) {
@@ -188,9 +196,11 @@ void squeezeView::login(){
     
     if ( doit ) {
         emit signalAdminLoggedOn();
+        adminIsLogged = true;
         qDebug()<<"Admin Logged on..";
     } else {
       emit signalAdminLoggedOff();
+      adminIsLogged = false;
       qDebug()<<"login cancelled...";
     }
   }
@@ -700,7 +710,7 @@ void squeezeView::setupDb()
   dlgPassword->setDb(db);
   if (db.isOpen()) {
     emit signalConnected();
-    enableUI();
+    if (adminIsLogged)  enableUI(); //enable until logged in...
     productsModel   = new QSqlRelationalTableModel();
     offersModel     = new QSqlRelationalTableModel();
     usersModel      = new QSqlTableModel();
@@ -771,7 +781,7 @@ void squeezeView::connectToDb()
     }
     dlgPassword->setDb(db);
     emit signalConnected();
-    enableUI();
+    if (adminIsLogged) enableUI();
     setupProductsModel();
     setupMeasuresModel();
     setupClientsModel();
@@ -1702,7 +1712,7 @@ void squeezeView::stockCorrection()
   qulonglong pcode=0;
   QString reason;
   bool ok = false;
-  InputDialog *dlg = new InputDialog(this, true, dialogStockCorrection, i18n("Enter the quantity and reason for the change:"));
+  InputDialog *dlg = new InputDialog(this, true, dialogStockCorrection, i18n("Enter the quantity and reason for the change, press <Enter> to accept or <ESC> to cancel"));
   if (dlg->exec())
   {
     newStockQty = dlg->dValue;
@@ -1829,7 +1839,7 @@ void squeezeView::createMeasure()
 //
 //     measuresModel->insertRow(row);
   bool ok=false;
-  QString meas = QInputDialog::getText(this, i18n("New Weight or Measure"), i18n("Enter the new weight or measure to insert:"),
+  QString meas = QInputDialog::getText(this, i18n("New Weight or Measure"), i18n("Enter the new weight or measure to insert"),
                                      QLineEdit::Normal, "", &ok );
   if (ok && !meas.isEmpty()) {
     Azahar *myDb = new Azahar;
@@ -1845,7 +1855,7 @@ void squeezeView::createCategory()
 {
   if (db.isOpen()) {
   bool ok=false;
-  QString cat = QInputDialog::getText(this, i18n("New category"), i18n("Enter the new category to insert:"),
+  QString cat = QInputDialog::getText(this, i18n("New category"), i18n("Enter the new category to insert"),
                                      QLineEdit::Normal, "", &ok );
   if (ok && !cat.isEmpty()) {
     Azahar *myDb = new Azahar;

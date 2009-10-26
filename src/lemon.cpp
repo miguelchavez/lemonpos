@@ -438,8 +438,10 @@ void lemon::disableUi()
   m_view->setDisabled(true);
   QAction *action = actionCollection()->action("enterCode");
   action->setDisabled(true);
-  action = actionCollection()->action("startOperation");
-  action->setDisabled(true);
+  if (m_view->canStartSelling()) {
+    action = actionCollection()->action("startOperation");
+    action->setDisabled(true);
+  }
   action = actionCollection()->action("searchItem");
   action->setDisabled(true);
   action = actionCollection()->action("deleteSelectedItem");

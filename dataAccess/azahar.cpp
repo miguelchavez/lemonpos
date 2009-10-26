@@ -234,18 +234,9 @@ ProductInfo Azahar::getProductInfo(QString code)
       }
       //get missing stuff - tax,offers for the requested product
       info.tax = getTotalTaxPercent(info.taxElements);
-      double pWOtax = info.price/(1+((info.tax)/100)); //here we assume tax is already included in the price.
+      double pWOtax = info.price/(1+((info.tax)/100));//here we assume tax is already included in the price.
       info.totaltax = pWOtax*((info.tax)/100); // in money...
       
-      //get units descriptions
-//       qry = QString("SELECT * from measures WHERE id=%1").arg(info.units);
-//       QSqlQuery query3(db);
-//       if (query3.exec(qry)) {
-//         while (query3.next()) {
-//           int fieldUD = query3.record().indexOf("text");
-//           info.unitStr=query3.value(fieldUD).toString(); //Added: Dec 15 2007
-//         }//query3 - get descritptions
-//       }
      //get discount info... if have one.
      QSqlQuery query2(db);
      if (query2.exec(QString("Select * from offers where product_id=%1").arg(info.code) )) {
@@ -1992,6 +1983,47 @@ qulonglong Azahar::getBrandId(const QString &name)
       while (myQuery.next()) {
         int fieldText = myQuery.record().indexOf("brandid");
         result = myQuery.value(fieldText).toULongLong();
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
+
+bool Azahar::getConfigFirstRun()
+{
+  bool result = false;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("select firstrun from config;"))) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("firstrun");
+        QString value = myQuery.value(fieldText).toString();
+        if (value == "yes, it is February 6 1978")
+          result = true;
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
+bool Azahar::getConfigTaxIsIncludedInPrice()
+{
+  bool result = false;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("select taxIsIncludedInPrice from config;"))) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("taxIsIncludedInPrice");
+        result = myQuery.value(fieldText).toBool();
       }
     }
     else {

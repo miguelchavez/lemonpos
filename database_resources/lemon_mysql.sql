@@ -231,7 +231,7 @@ CREATE TABLE IF NOT EXISTS `products_providers` (
   `provider_id` int(10) unsigned NOT NULL,
   `product_id` bigint(20) unsigned NOT NULL,
   `price` double unsigned NOT NULL default '0.0', #price?? implement later if decided
-  KEY  (`product_id`, `provider_id`)
+  PRIMARY KEY  (`product_id`, `provider_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `stock_corrections` (
@@ -241,6 +241,13 @@ CREATE TABLE IF NOT EXISTS `stock_corrections` (
   `old_stock_qty` bigint(20) unsigned NOT NULL,
   `reason` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
   PRIMARY KEY  (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+#Some general config that is gonna be taken from azahar.
+CREATE TABLE IF NOT EXISTS `config` (
+  `firstrun` varchar(30) character set utf8 collate utf8_general_ci NOT NULL,
+  `taxIsIncludedInPrice` bool NOT NULL default true,
+  PRIMARY KEY  (`firstrun`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW `v_transactions` AS
@@ -335,9 +342,14 @@ INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(2, 'Money return on t
 INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(3, 'Money return on product return');
 INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(4, 'Normal Cash IN');
 #Insert default provider
-INSERT INTO lemonposdb.providers (id,provname,address,phone,cellphone) VALUES(1,'Default Provider', '-NA-', '-NA-', '-NA-');
+INSERT INTO lemonposdb.providers (id,provname,address,phone,cellphone) VALUES(1,'No provider', '-NA-', '-NA-', '-NA-');
+
+#brands
+INSERT INTO lemonposdb.brands (brandid, bname) VALUES(1,"Unbranded");
 
 #Insert default tax model and elements
-INSERT INTO lemonposdb.taxmodels (modelid,tname,appway,elementsid) VALUES(1,"General Tax", "*.15","1");
+--COMMENT  THIS LINES IF YOU RUN YOUR COUNTRY SCRIPT.
+INSERT INTO lemonposdb.taxmodels (modelid,tname,appway,elementsid) VALUES(1,"Default", "*.15","1");
 INSERT INTO lemonposdb.taxelements (elementid, ename, amount) VALUES (1,"Simple 15%", 15);
-INSERT INTO lemonposdb.brands (brandid, bname) VALUES(1,"ACME"); #CHANGE THIS BRAND NAME!
+
+INSERT INTO lemonposdb.config (firstrun, taxIsIncludedInPrice) VALUES('yes, it is February 6 1978', true);

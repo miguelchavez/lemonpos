@@ -433,7 +433,7 @@ void ProductEditor::modifyStock()
   double newStockQty=0;
   oldStockQty = ui->editStockQty->text().toDouble();
   bool ok = false;
-  InputDialog *dlg = new InputDialog(this, true, dialogStockCorrection, i18n("Enter the quantity and reason for the change:"));
+  InputDialog *dlg = new InputDialog(this, true, dialogStockCorrection, i18n("Enter the quantity and reason for the change, press <Enter> to accept or <ESC> to cancel"));
   dlg->setProductCode(ui->editCode->text().toULongLong());
   dlg->setAmount(ui->editStockQty->text().toDouble());
   dlg->setProductCodeReadOnly();

@@ -161,6 +161,10 @@ class Azahar : public QObject
     QStringList getBrandsList();
     QString     getBrandName(const qulonglong &id);
     qulonglong  getBrandId(const QString &name);
+
+    //new config way - for cross binary access.
+    bool        getConfigFirstRun();
+    bool        getConfigTaxIsIncludedInPrice();
 };
 
 #endif

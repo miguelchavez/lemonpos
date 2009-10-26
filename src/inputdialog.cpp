@@ -53,6 +53,7 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
   //labels
   titleLayout->addWidget(lPixmap);
   label = new QLabel(msg, this);
+  label->setWordWrap(true);
   titleLayout->addWidget(label);
   QSpacerItem *spacerItem2 = new QSpacerItem(50, 50, QSizePolicy::Minimum, QSizePolicy::Maximum);
   vLayout->addLayout(titleLayout);
@@ -69,12 +70,12 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
 
 
   //layout
-  gridLayout->addWidget(productCodeLabel, 0,0,1,1);
-  gridLayout->addWidget(productCodeEdit, 0,1,1,1);
-  gridLayout->addWidget(reasonLabel, 1,0,1,1);
-  gridLayout->addWidget(reasonEdit, 1,1,1,1);
-  gridLayout->addWidget(qLabel, 2,0,1,1);
-  gridLayout->addWidget(lineEdit, 2,1,1,1);
+  gridLayout->addWidget(productCodeLabel, 0,0,0);//1,1);
+  gridLayout->addWidget(productCodeEdit, 0,1,0);//1,1);
+  gridLayout->addWidget(reasonLabel, 1,0,0);//1,1);
+  gridLayout->addWidget(reasonEdit, 1,1,0);//1,1);
+  gridLayout->addWidget(qLabel, 2,0,0);//1,1);
+  gridLayout->addWidget(lineEdit, 2,1,0);//1,1);
   vLayout->addLayout(gridLayout);
 
  if (type == dialogCashOut) {
@@ -86,7 +87,7 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
   }
   else if (type == dialogStockCorrection ) {
     productCodeEdit->setClickMessage(i18n("Enter the product code here..."));
-    productCodeEdit->setClickMessage(i18n("Enter the new stock quantity here..."));
+    lineEdit->setClickMessage(i18n("Enter the new stock quantity here..."));
     productCodeEdit->show();
     productCodeLabel->show();
     reasonLabel->show();
@@ -98,7 +99,7 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
     productCodeEdit->hide();
     productCodeLabel->hide();
   }
-  
+
   //qDebug()<<"Min:"<<min<<"Max:"<<max;
   if (integer) {
     int imin=min; int imax=0;
@@ -131,14 +132,20 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
   buttonCancel->setShortcut(Qt::Key_Escape);
   buttonsLayout->addWidget(buttonCancel);
   buttonsLayout->addWidget(buttonAccept);
+  if (type == dialogStockCorrection ) {
+    buttonAccept->hide();
+    buttonCancel->hide();
+  }
+
   //QSpacerItem *spacerItem3 = new QSpacerItem(70, 70, QSizePolicy::Minimum, QSizePolicy::Maximum);
   //buttonsLayout->addItem(spacerItem3);
   vLayout->addLayout(buttonsLayout);
 
   buttonAccept->setMaximumSize(QSize(130, 27));
   buttonCancel->setMaximumSize(QSize(130, 27));
-  lineEdit->setMaximumSize(QSize(220, 27));
-  reasonEdit->setMaximumSize(QSize(220, 27));
+  lineEdit->setMaximumSize(QSize(260, 27));
+  reasonEdit->setMaximumSize(QSize(260, 27));
+  productCodeEdit->setMaximumSize(QSize(260, 27));
   
   iValue = 0;
   dValue = 0.0;
@@ -149,11 +156,11 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
   //style
   //QRect geom = geometry();
   //qDebug()<<"Geometry before resize:"<<geom;
-  resize(365,160);
+  resize(362,158);
   //geom = geometry();
   //qDebug()<<"Geometry after resize:"<<geom;
   QString path = KStandardDirs::locate("appdata", "styles/");
-  QPixmap pixm = QPixmap(path + Settings::styleName() + "/dialog.png");
+  QPixmap pixm = QPixmap(path + Settings::styleName() + "/dialog_mask.png");
   setMask( pixm.mask() );
   
   connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(acceptIt()));
@@ -211,19 +218,6 @@ void InputDialog::acceptIt()
     if (lineEdit->hasAcceptableInput())
       QDialog::accept();
   }
-
-  //old way...
-//   if (lineEdit->hasAcceptableInput()) {
-//     if (!reasonEdit->isHidden()) { //cash out dialog
-//       if (!reasonEdit->text().isEmpty()) {
-//         QDialog::accept();
-//       }
-//     }
-//     else { //no cashOut dialog ..
-//       QDialog::accept();
-//     }
-//   }
-  
 }
 
 void InputDialog::setProductCode(qulonglong theCode)

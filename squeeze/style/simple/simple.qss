@@ -78,3 +78,10 @@ QTableView, QListView
   background-attachment: fixed;
   background-repeat:no-repeat;
 }
+
+/** dialog - cancelar ticket, corte de caja **/
+QLabel#titleLabelInputDialog {
+  color: #e6ce21;
+  color:white;
+  font-size:13px;
+}
