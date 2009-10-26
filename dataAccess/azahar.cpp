@@ -236,7 +236,7 @@ ProductInfo Azahar::getProductInfo(QString code)
       info.tax = getTotalTaxPercent(info.taxElements);
       if (getConfigTaxIsIncludedInPrice()) {
         ///tax is included in price... mexico style.
-        double pWOtax = info.price/(1+((info.tax)/100));//here we assume tax is already included in the price.
+        double pWOtax = info.price/(1+((info.tax)/100));
         info.totaltax = pWOtax*((info.tax)/100); // in money...
         qDebug()<<"Tax is included in public price...";
       } else {
@@ -2039,6 +2039,34 @@ bool Azahar::getConfigTaxIsIncludedInPrice()
     }
   }
   return result;
+}
+
+void Azahar::cleanConfigFirstRun()
+{
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("update config set firstrun='yes, i like the rainy days';"))) {
+      qDebug()<<"Change config firstRun...";
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+}
+
+void Azahar::setConfigTaxIsIncludedInPrice(bool option)
+{
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("update config set taxIsIncludedInPrice=%1;").arg(option))) {
+      qDebug()<<"Change config taxIsIncludedInPrice...";
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
 }
 
 #include "azahar.moc"

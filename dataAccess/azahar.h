@@ -165,6 +165,8 @@ class Azahar : public QObject
     //new config way - for cross binary access.
     bool        getConfigFirstRun();
     bool        getConfigTaxIsIncludedInPrice();
+    void        cleanConfigFirstRun();
+    void        setConfigTaxIsIncludedInPrice(bool option);
 };
 
 #endif

@@ -462,8 +462,6 @@ void lemonView::clearUsedWidgets()
   ui_mainview.tableWidget->setRowCount(0);
   totalSum = 0.0;
   buyPoints = 0;
-  ui_mainview.labelDetailTax1->setText("");
-  ui_mainview.labelDetailTax2->setText("");
   ui_mainview.labelDetailUnits->setText("");
   ui_mainview.labelDetailDesc->setText(i18n("No product selected"));
   ui_mainview.labelDetailPrice->setText("");
@@ -1072,14 +1070,10 @@ void lemonView::displayItemInfo(QTableWidgetItem* item)
     QString str;
     QString tTotalTax= i18n("Taxes:");
     QString tTax    = i18n("Tax:");
-    QString tOTax   = i18n("Other taxes:");
     QString tUnits  = i18n("Sold by:");
     QString tPrice  = i18n("Price:");
     QString tDisc   = i18n("Discount:");
     QString tPoints = i18n("Points:");
-    //double pWOtax = info.price/(1+((info.tax/*info.tax+info.extratax*/)/100));
-    //double tax1m = (info.tax/100)*pWOtax;
-    //double tax2m = (info.extratax/100)*pWOtax;
     QPixmap pix;
     pix.loadFromData(info.photo);
 
@@ -1090,12 +1084,6 @@ void lemonView::displayItemInfo(QTableWidgetItem* item)
         .arg(tTotalTax).arg(str));
     str = QString("%1 (%2 %)")
         .arg(KGlobal::locale()->formatMoney(info.totaltax)).arg(info.tax);
-    ui_mainview.labelDetailTax1->setText(QString("<html>%1 <b>%2</b></html>")
-        .arg(tTax).arg(str));
-    //str = QString("%1 (%2 %)") 
-    //    .arg(KGlobal::locale()->formatMoney(info.tax));
-    ui_mainview.labelDetailTax2->setText("-Deprecated-");//(QString("<html>%1 <b>%2</b></html>")
-        //.arg(tOTax).arg(str));
     ui_mainview.labelDetailUnits->setText(QString("<html>%1 <b>%2</b></html>")
         .arg(tUnits).arg(uLabel));
     ui_mainview.labelDetailDesc->setText(QString("<html><b>%1</b></html>").arg(desc));
