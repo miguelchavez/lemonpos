@@ -234,8 +234,16 @@ ProductInfo Azahar::getProductInfo(QString code)
       }
       //get missing stuff - tax,offers for the requested product
       info.tax = getTotalTaxPercent(info.taxElements);
-      double pWOtax = info.price/(1+((info.tax)/100));//here we assume tax is already included in the price.
-      info.totaltax = pWOtax*((info.tax)/100); // in money...
+      if (getConfigTaxIsIncludedInPrice()) {
+        ///tax is included in price... mexico style.
+        double pWOtax = info.price/(1+((info.tax)/100));//here we assume tax is already included in the price.
+        info.totaltax = pWOtax*((info.tax)/100); // in money...
+        qDebug()<<"Tax is included in public price...";
+      } else {
+        ///tax is not included in price... usa style.
+        info.totaltax = info.price*(1+(info.tax/100)); //tax in money
+        qDebug()<<"Tax is NOT included in public price...";
+      }
       
      //get discount info... if have one.
      QSqlQuery query2(db);
