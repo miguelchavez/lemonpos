@@ -480,7 +480,7 @@ void ProductEditor::updateStock()
     panel->hidePanel();
     enableButtonOk(true);
     enableButtonCancel(true);
-  }
+  } else ui->editNewStock->setFocus();
 }
 
 void ProductEditor::showBtns()

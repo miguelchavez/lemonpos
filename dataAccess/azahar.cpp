@@ -73,11 +73,15 @@ bool  Azahar::correctStock(qulonglong pcode, double oldStockQty, double newStock
   result1 = result2 = false;
   if (!db.isOpen()) db.open();
   QSqlQuery query(db);
-  query.prepare("INSERT INTO stock_corrections (product_id, new_stock_qty, old_stock_qty, reason) VALUES(:pcode, :newstock, :oldstock, :reason); ");
+  QDate date = QDate::currentDate();
+  QTime time = QTime::currentTime();
+  query.prepare("INSERT INTO stock_corrections (product_id, new_stock_qty, old_stock_qty, reason, date, time) VALUES(:pcode, :newstock, :oldstock, :reason, :date, :time); ");
   query.bindValue(":pcode", pcode);
   query.bindValue(":newstock", newStockQty);
   query.bindValue(":oldstock", oldStockQty);
   query.bindValue(":reason", reason);
+  query.bindValue(":date", date.toString("yyyy-MM-dd"));
+  query.bindValue(":time", time.toString("hh:mm"));
   if (!query.exec()) setError(query.lastError().text()); else result1=true;
 
   //modify stock

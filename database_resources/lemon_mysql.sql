@@ -240,6 +240,8 @@ CREATE TABLE IF NOT EXISTS `stock_corrections` (
   `new_stock_qty` bigint(20) unsigned NOT NULL,
   `old_stock_qty` bigint(20) unsigned NOT NULL,
   `reason` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
+  `date` varchar(20) NOT NULL,
+  `time` varchar(20) NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
