@@ -30,7 +30,6 @@ bool PrintDEV::printSmallBalance(const QString &dev, const QString &codec, const
 {
   QFile file(printerFile);
   if (file.open(QIODevice::ReadWrite)) {
-    qDebug()<<"[Printing balance on "<<printerFile<<"]";
     QTextStream out(&file);
     if (printerCodec.length() != 0) out.setCodec(QTextCodec::codecForName(printerCodec.toLatin1()));
     else out.setCodec(QTextCodec::codecForName("UTF-8"));
