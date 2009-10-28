@@ -1524,11 +1524,16 @@ void lemonView::printTicket(TicketInfo ticket)
   //FIXME:This is a test... fix it later.
   if (Settings::printTicket()) {
     if (Settings::smallTicket()) {
-      qDebug()<<"Printing small ticket";
-      QString printerFile=Settings::printerDevice();
-      if (printerFile.length() == 0) printerFile="/dev/lp0";
-      QFile file(printerFile);
-      QString printerCodec=Settings::printerCodec();
+      if (Settings::smallTicketDotMatrix()) {
+        QString printerFile=Settings::printerDevice();
+        if (printerFile.length() == 0) printerFile="/dev/lp0";
+        QString printerCodec=Settings::printerCodec();
+        PrintDEV::printSmallTicket(printerFile, printerCodec, itemsForPrint.join("\n"));
+      }
+      else if (Settings::smallTicketCUPS) { // some code taken from Daniel O'Neill contribution.
+        
+      }
+      else {
       if (file.open(QIODevice::ReadWrite)) {
         qDebug()<<"Printing ticket...";
         QTextStream out(&file);
@@ -1891,6 +1896,8 @@ void lemonView::corteDeCaja()
 
   saveBalance();
 
+  ///TODO: Create balance data to send to the printerFormater (format text: bold, font, spaces,etc..)
+  
   // Create lines to print and/or show on dialog...
 
   //----------Translated strings--------------------
@@ -2182,22 +2189,20 @@ void lemonView::showBalance(QStringList lines)
 
 void lemonView::printBalance(QStringList lines)
 {
-  if (Settings::printBalances() && Settings::smallTicket()) {
-    QString printerFile=Settings::printerDevice();
-    if (printerFile.length() == 0) printerFile="/dev/lp0";
-    QString printerCodec=Settings::printerCodec();
-    QFile file(printerFile);
-    if (file.open(QIODevice::ReadWrite)) {
-      qDebug()<<"Printing balance...";
-      QTextStream out(&file);
-      if (printerCodec.length() != 0) out.setCodec(QTextCodec::codecForName(printerCodec.toLatin1()));
-      else out.setCodec(QTextCodec::codecForName("UTF-8"));
-      out << "\x1b\x4b\x30";              // Feed back x30 dot lines
-      out << "\x1b\x4b\x20";              // Feed back x20 dot lines
-      out << lines.join("\n");    // Print data
-      out << "\x1b\x64\x06";              // Feed 6 lines
-      file.close();
-    } else qDebug()<<"ERROR: Could not open printer...";
+  //Balances are print on small tickets. Getting the selected printed from config.
+  if (Settings::printBalances()) {
+    if (Settings::smallTicketDotMatrix()) {
+      QString printerFile=Settings::printerDevice();
+      if (printerFile.length() == 0) printerFile="/dev/lp0";
+      QString printerCodec=Settings::printerCodec();
+      qDebug()<<"[Printing balance on "<<printerFile<<"]";
+      PrintDEV::printSmallBalance(printerFile, printerCodec, lines.join("\n"));
+    } // DOT-MATRIX PRINTER on /dev/lpX
+    else if (Settings::smallTicketCUPS()) {
+      //for use CUPS we need a QPrinter...
+      ///PrintCUPS::printSmallBalance(); ///FIXME:Send BalanceInfo data, not lines.. this must be called on this method caller..
+      ///maybe its good to move this code to where it was called...
+    } //THERMAL (CUPS) PRINTER
   }
 }
 

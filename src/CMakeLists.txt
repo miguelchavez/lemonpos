@@ -14,6 +14,8 @@ set(lemon_SRCS
    misc.cpp
    ../dataAccess/azahar.cpp
    pricechecker.cpp
+   ../printing/print-dev.cpp
+   ../printing/print-cups.cpp
    #printers/sp500.cpp
  )
 
