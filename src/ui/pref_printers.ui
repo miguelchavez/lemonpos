@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>296</width>
-    <height>257</height>
+    <width>480</width>
+    <height>292</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0" colspan="2">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
     <widget class="QGroupBox" name="kcfg_printTicket">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -39,9 +39,9 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QRadioButton" name="kcfg_smallTicket">
+       <widget class="QRadioButton" name="kcfg_smallTicketCUPS">
         <property name="text">
-         <string>Small receipt using a ticket printer</string>
+         <string>Small receipt using a thermal ticket printer (using CUPS)</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -49,16 +49,18 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="kcfg_openDrawer">
-        <property name="text">
-         <string>Open drawer</string>
+       <widget class="QRadioButton" name="kcfg_smallTicketDotMatrix">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="kcfg_printBalances">
         <property name="text">
-         <string>Print Balances</string>
+         <string>Small receipt using a dot-matrix ticket printer (using /dev/lpX)</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -97,23 +99,73 @@
        </layout>
       </item>
       <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Maximum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="kcfg_openDrawer">
+          <property name="text">
+           <string>Open drawer</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="QRadioButton" name="kcfg_bigReceipt">
         <property name="text">
-         <string>A big receipt using normal printer</string>
+         <string>Big format [A4, Letter] receipt using normal printer (using CUPS)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::MinimumExpanding</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>4</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="kcfg_printBalances">
+        <property name="text">
+         <string>Print Balances on your selected printer (above).</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item>
     <widget class="QCheckBox" name="kcfg_printChangedDateTicket">
      <property name="text">
       <string>Print Date Changed Tickets</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item>
     <spacer>
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -124,7 +176,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>40</height>
+       <height>10</height>
       </size>
      </property>
     </spacer>
