@@ -322,7 +322,8 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.btnExportTransactions, SIGNAL(clicked()),  SLOT( exportTable()));
   connect(ui_mainview.btnExportCashFlow, SIGNAL(clicked()),  SLOT( exportTable()));
   //connect(ui_mainview.btnExportCustomReports, SIGNAL(clicked()),  SLOT( exportTable()));
-  
+
+
 }
 
 void squeezeView::hideShowFilterProductsGroup()
@@ -1547,7 +1548,7 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     qulonglong id = model->data(indx, Qt::DisplayRole).toULongLong();
 
     //Launch Edit dialog
-    ProductEditor *productEditorDlg = new ProductEditor(this, false);
+    ProductEditor *productEditorDlg = new ProductEditor(this, false, db);
 
     //Set data on dialog
     productEditorDlg->disableCode(); //On Edit product, code cannot be changed.
@@ -1555,6 +1556,9 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     productEditorDlg->setDb(db);
     productEditorDlg->setCode(id); //this method get all data for such product code.
     qulonglong newcode=0;
+
+    connect ( productEditorDlg, SIGNAL(updateCategoriesModel()), this, SLOT(updateCategoriesModel()) );
+    connect ( productEditorDlg, SIGNAL(updateMeasuresModel()), this, SLOT(updateMeasuresModel()) );
 
     //Launch dialog, and if dialog is accepted...
     if (productEditorDlg->exec() ) {
@@ -1797,7 +1801,7 @@ void squeezeView::createOffer()
 void squeezeView::createProduct()
 {
  if (db.isOpen()) {
-  ProductEditor *prodEditorDlg = new ProductEditor(this, true);
+  ProductEditor *prodEditorDlg = new ProductEditor(this, true, db);
   prodEditorDlg->setDb(db);
   prodEditorDlg->enableCode();
   prodEditorDlg->setStockQtyReadOnly(false);

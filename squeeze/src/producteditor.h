@@ -47,7 +47,7 @@ class ProductEditor : public KDialog
   public:
     bool correctingStockOk;
 
-    ProductEditor( QWidget *parent=0, bool newProduct = false  );
+    ProductEditor( QWidget *parent=0, bool newProduct = false, const QSqlDatabase& database=QSqlDatabase()  );
     ~ProductEditor();
     ProductInfo getProductInfo() { return m_pInfo; };
     void    setDb(QSqlDatabase database);
@@ -64,11 +64,19 @@ class ProductEditor : public KDialog
     bool    isCorrectingStock() {return correctingStockOk;};
     double  getOldStock()    { return oldStockQty; };
     void    setStockQtyReadOnly(bool enabled) { ui->editStockQty->setReadOnly(enabled); };
+    
+  signals:
+    void    updateCategoriesModel();
+    void    updateMeasuresModel();
+    void    updateBrandsModel();
+    void    updateTaxModels();
+    void    updateProvidersModel();
+    void    updateProductsModel();
+    
 
   private slots:
     void    changePhoto();
     void    changeCode();
-    void    modifyStock();
     void    calculatePrice();
     void    checkIfCodeExists();
     void    checkFieldsState();
@@ -84,7 +92,11 @@ class ProductEditor : public KDialog
     void    updateStockQty(const QString &str);
     void    updateCategory(int);
     void    updateMeasure(int);
-    void    updateStock(); //for floatpanel - correction
+    void    updateBtn(); //for floatpanel - ok button
+    void    showPanelBrand();
+    void    showPanelStock();
+    void    showPanelCategory();
+    void    showPanelMeasures();
     void    showBtns();
   protected slots:
     virtual void slotButtonClicked(int button);
@@ -100,6 +112,7 @@ class ProductEditor : public KDialog
     MibitFloatPanel *panel;
     QString reason;
     double oldStockQty;
+    QSqlDatabase database;
 
     QString getCategoryStr(int c);
     QString getMeasureStr(int c);

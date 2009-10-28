@@ -2073,4 +2073,25 @@ void Azahar::setConfigTaxIsIncludedInPrice(bool option)
   }
 }
 
+qulonglong Azahar::insertBrand(const QString &name)
+{
+  qulonglong result =0;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen())
+  {
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO brands (bname) VALUES (:brand)");
+    query.bindValue(":brand", name);
+    
+    if (!query.exec() ) {
+      int errNum = query.lastError().number();
+      QSqlError::ErrorType errType = query.lastError().type();
+      QString errStr = query.lastError().text();
+      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),errStr);
+      setError(details);
+    } else result = query.lastInsertId().toULongLong();
+  }
+  return result;
+}
+
 #include "azahar.moc"

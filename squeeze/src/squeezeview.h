@@ -175,6 +175,10 @@ signals:
    //Biel - export products
    void exportTable();
    void exportQTableView(QAbstractItemView *tableview);
+
+
+   void updateCategoriesModel() { categoriesModel->select(); populateCategoriesHash(); }
+   void updateMeasuresModel() { measuresModel->select(); }
 };
 
 #endif // SQUEEZEVIEW_H

@@ -39,13 +39,15 @@ ProductEditorUI::ProductEditorUI( QWidget *parent )
     setupUi( this );
 }
 
-ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
+ProductEditor::ProductEditor( QWidget *parent, bool newProduct, const QSqlDatabase& database )
 : KDialog( parent )
 {
     ui = new ProductEditorUI( this );
     setMainWidget( ui );
     setCaption( i18n("Product Editor") );
     setButtons( KDialog::Ok|KDialog::Cancel );
+
+    db = database;
 
     ui->btnChangeCode->setIcon(QIcon(DesktopIcon("edit-clear", 32)));
     //Locate SVG for the tip.
@@ -61,12 +63,13 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     connect(ui->btnCancel, SIGNAL(clicked()), this, SLOT(showBtns()));
     connect(panel, SIGNAL(hiddenOnUserRequest()), ui->editCost, SLOT(setFocus()));
     connect(panel, SIGNAL(hiddenOnUserRequest()), this, SLOT(showBtns()));
-    connect(ui->btnOk, SIGNAL(clicked()), this, SLOT(updateStock()));
+    connect(ui->btnOk, SIGNAL(clicked()), this, SLOT(updateBtn()));
     connect(ui->editNewStock, SIGNAL(returnPressed()),ui->editReason, SLOT(setFocus()) );
     connect(ui->editReason, SIGNAL(returnPressed()),ui->btnOk, SLOT(setFocus()) );
     ui->editNewStock->setMinimumWidth(250);
-    panel->addWidget(ui->groupStockCorrection);
+    panel->addWidget(ui->groupFloatPanel);
     correctingStockOk = false;
+    oldStockQty =0;
     
 
     //Set Validators for input boxes
@@ -84,7 +87,10 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     connect( ui->btnChangeCode,      SIGNAL( clicked() ), this, SLOT( changeCode() ) );
     connect( ui->editCode, SIGNAL(textEdited(const QString &)), SLOT(checkIfCodeExists()));
     connect( ui->editCode, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
-    connect( ui->btnStockCorrect,      SIGNAL( clicked() ), this, SLOT( modifyStock() ) );
+    connect( ui->btnStockCorrect, SIGNAL( clicked() ), this, SLOT( showPanelStock() ) );
+    connect( ui->btnAddBrand, SIGNAL( clicked() ), this, SLOT( showPanelBrand() ) );
+    connect( ui->btnAddCategory, SIGNAL( clicked() ), this, SLOT( showPanelCategory() ) );
+    connect( ui->btnAddUnits, SIGNAL( clicked() ), this, SLOT( showPanelMeasures() ) );
 
     connect( ui->editDesc, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
     connect( ui->editStockQty, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
@@ -445,42 +451,132 @@ void ProductEditor::changeCode()
   ui->editCode->selectAll();
 }
 
-void ProductEditor::modifyStock()
+void ProductEditor::showPanelStock()
 {
+  ui->editReason->show();
+  ui->editNewStock->show();
+  ui->groupFloatPanel->setTitle("Stock Correction");
+  ui->editNewStock->setEmptyMessage("Enter the new stock quantity here");
+  ui->editReason->setEmptyMessage("Enter the reason for the change here");
+  ui->btnOk->setText("Update Stock");
   panel->showPanel();
   ui->editNewStock->setFocus();
   enableButtonOk(false);
   enableButtonCancel(false);
-  
-//   InputDialog *dlg = new InputDialog(this, true, dialogStockCorrection, i18n("Enter the quantity and reason for the change, press <Enter> to accept or <ESC> to cancel"));
-//   dlg->setProductCode(ui->editCode->text().toULongLong());
-//   dlg->setAmount(ui->editStockQty->text().toDouble());
-//   dlg->setProductCodeReadOnly();
-//   if (dlg->exec())
-//   {
-//     newStockQty = dlg->dValue;
-//     reason = dlg->reason;
-//     ok = true;
-//   }
-//   if (ok) { //send data to database...
-//     ui->editStockQty->setText( QString::number(newStockQty) ); //update this info on producteditor
-//     correctingStockOk = ok;
-//   }
 }
 
-void ProductEditor::updateStock()
+void ProductEditor::showPanelBrand()
 {
-  correctingStockOk = false;
-  oldStockQty = ui->editStockQty->text().toDouble();
-  
-  if (!ui->editNewStock->text().isEmpty() && !ui->editReason->text().isEmpty()) {
-    ui->editStockQty->setText(ui->editNewStock->text());
-    reason = ui->editReason->text();
-    correctingStockOk = true;
-    panel->hidePanel();
-    enableButtonOk(true);
-    enableButtonCancel(true);
-  } else ui->editNewStock->setFocus();
+  ui->editReason->hide();
+  ui->groupFloatPanel->setTitle("Create New Brand");
+  ui->editNewStock->setEmptyMessage("Enter the new brand name here");
+  ui->btnOk->setText("Create Brand");
+  panel->showPanel();
+  ui->editNewStock->setFocus();
+  enableButtonOk(false);
+  enableButtonCancel(false);
+}
+
+void ProductEditor::showPanelCategory()
+{
+  ui->editReason->hide();
+  ui->groupFloatPanel->setTitle("Create New Category");
+  ui->editNewStock->setEmptyMessage("Enter the new category name here");
+  ui->btnOk->setText("Create Category");
+  panel->showPanel();
+  ui->editNewStock->setFocus();
+  enableButtonOk(false);
+  enableButtonCancel(false);
+}
+
+void ProductEditor::showPanelMeasures()
+{
+  ui->editReason->hide();
+  ui->groupFloatPanel->setTitle("Create New Weight or Measure");
+  ui->editNewStock->setEmptyMessage("Enter the new measure name here");
+  ui->btnOk->setText("Create Measure");
+  panel->showPanel();
+  ui->editNewStock->setFocus();
+  enableButtonOk(false);
+  enableButtonCancel(false);
+}
+
+void ProductEditor::updateBtn()
+{
+  if (ui->groupFloatPanel->title().contains("Stock", Qt::CaseInsensitive)) {
+    ///correcting stock
+    correctingStockOk = false;
+    oldStockQty = ui->editStockQty->text().toDouble();
+    if (!ui->editNewStock->text().isEmpty() && !ui->editReason->text().isEmpty()) {
+      ui->editStockQty->setText(ui->editNewStock->text());
+      reason = ui->editReason->text();
+      correctingStockOk = true;
+      panel->hidePanel();
+      enableButtonOk(true);
+      enableButtonCancel(true);
+    } else ui->editNewStock->setFocus();
+  } else if (ui->groupFloatPanel->title().contains("Brand", Qt::CaseInsensitive)) {
+    ///creating new brand
+    correctingStockOk = false;
+    if (!ui->editNewStock->text().isEmpty()) { //jus reusing the line edit
+      //send new brand to db
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      myDb->insertBrand(ui->editNewStock->text());
+      //repopulate brands list
+      populateBrandsCombo();
+      //select the new brand... we suppose that the user wants to use the new one
+      int idx = ui->brandCombo->findText(ui->editNewStock->text(),Qt::MatchCaseSensitive);
+      if (idx > -1) ui->brandCombo->setCurrentIndex(idx); else qDebug()<<"brand not found on combo box:"<<ui->editNewStock->text();
+      //update brands model
+      emit updateBrandsModel();
+      //finally close panel and reenable buttons
+      panel->hidePanel();
+      enableButtonOk(true);
+      enableButtonCancel(true);
+    }
+  } else if (ui->groupFloatPanel->title().contains("Category", Qt::CaseInsensitive)) {
+    ///creating new category
+    correctingStockOk = false;
+    if (!ui->editNewStock->text().isEmpty()) { //jus reusing the line edit
+      //send new category to db
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      myDb->insertCategory(ui->editNewStock->text());
+      //repopulate categories list
+      populateCategoriesCombo();
+      //select the new cat... we suppose that the user wants to use the new one
+      int idx = ui->categoriesCombo->findText(ui->editNewStock->text(),Qt::MatchCaseSensitive);
+      if (idx > -1) ui->categoriesCombo->setCurrentIndex(idx); else qDebug()<<"category not found on combo box:"<<ui->editNewStock->text();
+      //update Cat model
+      emit updateCategoriesModel();
+      //finally close panel and reenable buttons
+      panel->hidePanel();
+      enableButtonOk(true);
+      enableButtonCancel(true);
+    }
+  }
+  else if (ui->groupFloatPanel->title().contains("Measure", Qt::CaseInsensitive)) {
+    ///creating new category
+    correctingStockOk = false;
+    if (!ui->editNewStock->text().isEmpty()) { //jus reusing the line edit
+      //send new measure to db
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      myDb->insertMeasure(ui->editNewStock->text());
+      //repopulate measures list
+      populateMeasuresCombo();
+      //select the new measures... we suppose that the user wants to use the new one
+      int idx = ui->measuresCombo->findText(ui->editNewStock->text(),Qt::MatchCaseSensitive);
+      if (idx > -1) ui->measuresCombo->setCurrentIndex(idx); else qDebug()<<"measure not found on combo box:"<<ui->editNewStock->text();
+      //update model
+      emit updateMeasuresModel();
+      //finally close panel and reenable buttons
+      panel->hidePanel();
+      enableButtonOk(true);
+      enableButtonCancel(true);
+    }
+  }
 }
 
 void ProductEditor::showBtns()
@@ -530,7 +626,7 @@ void ProductEditor::checkIfCodeExists()
   else { //code does not exists...
     status = statusNormal;
     if (!modifyCode) {
-      //clear all used edits NOTE: Check m_pInfo!!
+      //clear all used edits
       ui->editDesc->clear();
       ui->editStockQty->clear();
       setCategory(1);
