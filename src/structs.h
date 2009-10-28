@@ -23,6 +23,9 @@
 
 #include <QString>
 #include <QByteArray>
+#include <QPixmap>
+#include <QDateTime>
+#include <QDate>
 
 struct ProductInfo {
   qulonglong code;
@@ -169,6 +172,14 @@ struct TicketInfo {
   QDateTime datetime;
 };
 
+struct PrintTicketInfo {
+  QString    storeName;
+  QString    storeAddr;
+  QString    storePhone;
+  QString    ticketMsg;
+  QPixmap    storeLogo;
+  TicketInfo ticketInfo;
+};
 
 struct TransactionItemInfo
 {

@@ -1,5 +1,5 @@
 /**************************************************************************
-*   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
+*   Copyright (C) 2009 by Miguel Chavez Gamboa                            *
 *   miguel@lemonpos.org                                                   *
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
@@ -28,16 +28,23 @@
 
 bool PrintDEV::printSmallBalance(const QString &dev, const QString &codec, const QString &lines)
 {
-  QFile file(printerFile);
+  bool result = false;
+  QFile file(dev);
   if (file.open(QIODevice::ReadWrite)) {
     QTextStream out(&file);
-    if (printerCodec.length() != 0) out.setCodec(QTextCodec::codecForName(printerCodec.toLatin1()));
+    if (codec.length() != 0) out.setCodec(QTextCodec::codecForName(codec.toLatin1()));
     else out.setCodec(QTextCodec::codecForName("UTF-8"));
     out << "\x1b\x4b\x30";              // Feed back x30 dot lines
     out << "\x1b\x4b\x20";              // Feed back x20 dot lines
-    out << lines.join("\n");    // Print data
+    out << lines;                       // Print data
     out << "\x1b\x64\x06";              // Feed 6 lines
     file.close();
-  } else qDebug()<<"ERROR: Could not open printer port:"<<printerFile;
+    result = true; // result can be: file.close() result...
+  }
+}
+
+bool PrintDEV::printSmallTicket(const QString &dev, const QString &codec, const QString &lines)
+{
+  bool result = printSmallBalance(dev, codec, lines); //it is the same code!
 }
 

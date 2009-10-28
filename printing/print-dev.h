@@ -17,8 +17,8 @@
 *   Free Software Foundation, Inc.,                                       *
 *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
 ***************************************************************************/
-#ifndef PRINT-DEV_H
-#define PRINT-DEV_H
+#ifndef PRINT_DEV_H
+#define PRINT_DEV_H
 
 /**
 * This class is for printing on printers supporting the ports /dev/XXX 
@@ -33,8 +33,7 @@ class QString;
 class PrintDEV {
   public:
     static bool printSmallBalance(const QString &dev, const QString &codec, const QString &lines);
-    
-
+    static bool printSmallTicket(const QString &dev, const QString &codec, const QString &lines);
 };
 
 #endif
