@@ -60,6 +60,7 @@ class MibitLineEdit : public QLineEdit
     virtual void paintEvent( QPaintEvent *ev );
     virtual void focusInEvent( QFocusEvent *ev );
     virtual void focusOutEvent( QFocusEvent *ev );
+    virtual void keyPressEvent( QKeyEvent * event );
 
   private:
     QString emptyMessage;
@@ -80,6 +81,9 @@ class MibitLineEdit : public QLineEdit
     void shakeIt();
 public slots:
     void shake();
+
+signals:
+    void plusKeyPressed();
 };
 
 #endif // MibitLineEdit_H

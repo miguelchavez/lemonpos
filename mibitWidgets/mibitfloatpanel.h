@@ -60,6 +60,7 @@ public:
     void setMaxWidth(const int &m)   { setMaximumWidth(m); maxWidth = m; }
     void setSize( const int &w, const int &h ) { setMaxHeight(h); setMaxWidth(w); }
     void setMode(const PanelModes mode) { m_mode = mode; }
+    void reParent(QWidget *newparent);
 
 private:
     QTimeLine *timeLine;

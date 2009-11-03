@@ -150,6 +150,13 @@ void MibitLineEdit::focusOutEvent( QFocusEvent *ev )
     QLineEdit::focusOutEvent( ev );
 }
 
+void MibitLineEdit::keyPressEvent ( QKeyEvent * event )
+{
+    if ( event->key() == Qt::Key_Plus ) {
+        emit plusKeyPressed();
+    } else QLineEdit::keyPressEvent(event);
+}
+
 
 void MibitLineEdit::shake()
 {

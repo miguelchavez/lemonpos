@@ -869,7 +869,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QTableView" name="productsViewAlt"/>
+        <widget class="QTableView" name="productsViewAlt">
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QListView" name="productsView"/>
@@ -1199,6 +1203,9 @@ p, li { white-space: pre-wrap; }
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item>
@@ -1249,6 +1256,9 @@ p, li { white-space: pre-wrap; }
           <set>QAbstractItemView::DoubleClicked</set>
          </property>
          <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="sortingEnabled">
           <bool>true</bool>
          </property>
         </widget>
@@ -1557,7 +1567,11 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item>
-        <widget class="QTableView" name="transactionsTable"/>
+        <widget class="QTableView" name="transactionsTable">
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -1770,7 +1784,11 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item>
-        <widget class="QTableView" name="balancesTable"/>
+        <widget class="QTableView" name="balancesTable">
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1801,7 +1819,11 @@ p, li { white-space: pre-wrap; }
      <widget class="QWidget" name="pageCashOuts">
       <layout class="QVBoxLayout" name="verticalLayout_9">
        <item>
-        <widget class="QTableView" name="cashFlowTable"/>
+        <widget class="QTableView" name="cashFlowTable">
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_5">

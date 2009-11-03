@@ -243,6 +243,7 @@ public:
     void buttonDone();
     void checksChanged();
     void focusPayInput();
+    void plusPressed();
     void setupGridView();
 
 

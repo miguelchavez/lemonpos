@@ -16,6 +16,8 @@ set(lemon_SRCS
    pricechecker.cpp
    ../printing/print-dev.cpp
    ../printing/print-cups.cpp
+   ../mibitWidgets/mibitfloatpanel.cpp
+   ../mibitWidgets/mibitlineedit.cpp
    #printers/sp500.cpp
  )
 

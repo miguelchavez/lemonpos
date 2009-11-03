@@ -242,6 +242,8 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   connect(ui_mainview.btnTicketPrint, SIGNAL(clicked()), SLOT(printSelTicket()) );
   connect(ui_mainview.ticketView, SIGNAL(doubleClicked(const QModelIndex &)), SLOT(itemHIDoubleClicked(const QModelIndex &)) );
 
+  connect(ui_mainview.editItemCode, SIGNAL(plusKeyPressed()), this, SLOT(plusPressed()));
+
   timerClock->start(1000);
 
   drawer = new Gaveta();
@@ -317,7 +319,7 @@ void lemonView::setUpInputs()
   QRegExpValidator * validatorFloat = new QRegExpValidator(regexpA,this);
   ui_mainview.editAmount->setValidator(validatorFloat);
   //Item code (to insert) //
-  QRegExp regexpC("[1-9]+[0-9]*[//.]{0,1}[0-9]{0,2}[xX]{0,1}[0-9]{0,13}");
+  QRegExp regexpC("[1-9]+[0-9]*[//.]{0,1}[0-9]{0,2}[xX//*]{0,1}[0-9]{0,13}");
   QRegExpValidator * validatorEAN13 = new QRegExpValidator(regexpC, this);
   ui_mainview.editItemCode->setValidator(validatorEAN13);
   QRegExp regexpAN("[A-Za-z_0-9\\\\/\\-]+");//any letter, number, both slashes, dash and lower dash.
@@ -537,6 +539,13 @@ void lemonView::focusPayInput()
   ui_mainview.groupWidgets->setCurrentIndex(pageMain);
   ui_mainview.editAmount->setFocus();
   ui_mainview.editAmount->setSelection(0, ui_mainview.editAmount->text().length());
+}
+
+void lemonView::plusPressed()
+{
+  doEmitSignalQueryDb();
+  focusPayInput();
+  //NOTE: This shortcut is setting focus to the payInput... but what about PaymentMethod?
 }
 
 void lemonView::goSelectCardAuthNumber()
@@ -808,22 +817,28 @@ void lemonView::insertItem(QString code)
   info.code = 0;
   info.desc = "[INVALID]";
 
-  //now code could contain number of items to insert,example: 10x12345678990
-  QStringList list = code.split(QRegExp("[xX]{1,1}"),QString::SkipEmptyParts);
+  //now code could contain number of items to insert,example: 10x12345678990 or 10*1234567890
+  QStringList list = code.split(QRegExp("[xX//*]{1,1}"),QString::SkipEmptyParts);
   if (list.count()==2) {
     qty =   list.takeAt(0).toDouble();
     codeX = list.takeAt(0);
   }
-
+  
   //verify item units and qty..
   if (productsHash.contains(codeX.toULongLong())) {
     info = productsHash.value(codeX.toULongLong());
-  
-    if (info.units == uPiece) { 
-     unsigned int intqty = qty;
-     qty = intqty;
-    }
+  } else {
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    info = myDb->getProductInfo(codeX.toULongLong()); //includes discount and validdiscount
   }
+  
+  if (info.units == uPiece) {
+    unsigned int intqty = qty;
+    qty = intqty;
+  }
+  
+  if ( qty <= 0) {return;}
 
   if (!incrementTableItemQty(codeX, qty) ) {
     //As it was not incremented on tableView, so there is not in the productsHash... so we get it from db.
@@ -1985,7 +2000,7 @@ void lemonView::corteDeCaja()
     while (dPaidWith.length()<10) dPaidWith = dPaidWith.insert(dPaidWith.length(), ' ');
 
     //if (info.paymethod == pCash) dPayMethod = i18n("Cash");/*dPaidWith;*/
-    myDb->getPayTypeStr(info.paymethod);//using payType methods
+    dPayMethod = myDb->getPayTypeStr(info.paymethod);//using payType methods
     //else if (info.paymethod == pCard) dPayMethod = i18n("Card");  else dPayMethod = i18n("Unknown");
     line = QString("%1 %2 %3")
        .arg(dId)
@@ -2199,7 +2214,6 @@ void lemonView::printBalance(QStringList lines)
       PrintDEV::printSmallBalance(printerFile, printerCodec, lines.join("\n"));
     } // DOT-MATRIX PRINTER on /dev/lpX
     else if (Settings::smallTicketCUPS()) {
-      //for use CUPS we need a QPrinter...
       ///PrintCUPS::printSmallBalance(); ///FIXME:Send BalanceInfo data, not lines.. this must be called on this method caller..
       ///maybe its good to move this code to where it was called...
     } //THERMAL (CUPS) PRINTER

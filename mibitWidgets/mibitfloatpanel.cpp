@@ -129,7 +129,6 @@ void MibitFloatPanel::showPanel()
         //make it grow
         timeLine->setDirection(QTimeLine::Forward);
         timeLine->start();
-
     } 
 }
 
@@ -160,9 +159,11 @@ void MibitFloatPanel::animate(const int &step)
         break;
     }
 
+    dRect.setWidth(maxWidth);
+    dRect.setHeight(maxHeight);
+    setGeometry(dRect);
     setFixedHeight(maxHeight);
     setFixedWidth(maxWidth);
-    setGeometry(dRect);
 }
 
 void MibitFloatPanel::hideOnUserRequest()
@@ -221,6 +222,13 @@ void MibitFloatPanel::keyPressEvent ( QKeyEvent * event )
         if (m_mode == pmManual)
         hideOnUserRequest();
     } //else ignore event.
+}
+
+void MibitFloatPanel::reParent(QWidget *newparent)
+{
+  setParent(newparent);
+  //update
+  reposition();
 }
 
 MibitFloatPanel::~MibitFloatPanel() {}
