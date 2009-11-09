@@ -1016,7 +1016,7 @@ bool Azahar::insertUser(UserInfo info)
   if (!db.isOpen()) db.open();
   if (db.isOpen()) {
     QSqlQuery query(db);
-    query.prepare("INSERT INTO users (username, password, salt, name, address, phone, phone_movil, photo) VALUES(:uname, :pass, :salt, :name, :address, :phone, :cell, :photo)");
+    query.prepare("INSERT INTO users (username, password, salt, name, address, phone, phone_movil, photo) VALUES(:uname, :pass, :salt, :name, :address, :phone, :cell, :rol, :photo)");
     query.bindValue(":photo", info.photo);
     query.bindValue(":uname", info.username);
     query.bindValue(":name", info.name);
@@ -1025,6 +1025,7 @@ bool Azahar::insertUser(UserInfo info)
     query.bindValue(":cell", info.cell);
     query.bindValue(":pass", info.password);
     query.bindValue(":salt", info.salt);
+    query.bindValue(":rol", info.role);
     if (!query.exec()) setError(query.lastError().text()); else result = true;
     //FIXME: We must see error types, which ones are for duplicate KEYS (codes) to advertise the user.
   }//db open
@@ -1072,7 +1073,7 @@ bool Azahar::updateUser(UserInfo info)
   bool result=false;
   if (!db.isOpen()) db.open();
   QSqlQuery query(db);
-  query.prepare("UPDATE users SET photo=:photo, username=:uname, name=:name, address=:address, phone=:phone, phone_movil=:cell, salt=:salt, password=:pass  WHERE id=:code;");
+  query.prepare("UPDATE users SET photo=:photo, username=:uname, name=:name, address=:address, phone=:phone, phone_movil=:cell, salt=:salt, password=:pass, role=:rol  WHERE id=:code;");
   query.bindValue(":code", info.id);
   query.bindValue(":photo", info.photo);
   query.bindValue(":uname", info.username);
@@ -1082,6 +1083,7 @@ bool Azahar::updateUser(UserInfo info)
   query.bindValue(":cell", info.cell);
   query.bindValue(":pass", info.password);
   query.bindValue(":salt", info.salt);
+  query.bindValue(":rol", info.role);
   if (!query.exec()) setError(query.lastError().text()); else result=true;
   return result;
 }

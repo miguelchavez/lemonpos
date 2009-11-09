@@ -160,7 +160,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QRadioButton" name="chRoleBaisc">
+       <widget class="QRadioButton" name="chRoleBasic">
         <property name="text">
          <string>Vendor</string>
         </property>

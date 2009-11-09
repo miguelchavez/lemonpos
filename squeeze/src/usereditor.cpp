@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
- *   miguel@lemonpos.org                                                   *
+ *   miguel.chavez.gamboa@gmail.com                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
 
@@ -25,6 +25,7 @@
 #include <QByteArray>
 
 #include "usereditor.h"
+#include "../../src/enums.h"
 
 UserEditorUI::UserEditorUI( QWidget *parent )
 : QFrame( parent )
@@ -73,5 +74,33 @@ void UserEditor::setUserName(QString uname)
   ui->editUsersUsername->setText(uname);
 }
 
+
+void UserEditor::setUserRole(const int &role)
+{
+  switch (role) {
+    case roleBasic:
+      ui->chRoleBasic->setChecked(true);
+      break;
+    case roleAdmin:
+      ui->chRoleAdmin->setChecked(true);
+      break;
+    case roleSupervisor:
+      ui->chRoleSupervisor->setChecked(true);
+      break;
+    default:
+      ui->chRoleBasic->setChecked(true);
+  }
+    
+}
+
+int UserEditor::getUserRole()
+{
+  if ( ui->chRoleBasic->isChecked() )
+    return roleBasic;
+  else if (ui->chRoleSupervisor->isChecked())
+    return roleSupervisor;
+  else
+    return roleAdmin;
+}
 
 #include "usereditor.moc"

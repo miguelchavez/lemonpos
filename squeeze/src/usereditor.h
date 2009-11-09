@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
- *   miguel@lemonpos.org                                                   *
+ *   miguel.chavez.gamboa@gmail.com                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
 
@@ -45,6 +45,7 @@ class UserEditor : public KDialog
     void setCell(QString cell) { ui->editUsersCell->setText(cell); };
     void setPhoto(QPixmap photo) { ui->labelUsersPhoto->setPixmap(photo); pix = photo; };
     void setId(long int id) { userId = id; };
+    void setUserRole(const int &role);
 
     QString getUserName(){ return ui->editUsersUsername->text();};
     QString getRealName(){ return ui->editUsersName->text();};
@@ -53,6 +54,7 @@ class UserEditor : public KDialog
     QString getCell(){ return ui->editUsersCell->text();};
     QString getNewPassword() { return ui->editUsersPassword->text(); };
     QPixmap getPhoto(){ return pix;};
+    int     getUserRole();
 
   private slots:
     void changePhoto();
