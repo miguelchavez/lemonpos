@@ -1484,6 +1484,8 @@ void squeezeView::usersViewOnSelected(const QModelIndex & index)
     QString oldPassword = model->data(indx, Qt::DisplayRole).toString();
     indx = model->index(row, usersModel->fieldIndex("salt"));
     QString oldSalt = model->data(indx, Qt::DisplayRole).toString();
+    indx = model->index(row, usersModel->fieldIndex("role"));
+    int role = model->data(indx, Qt::DisplayRole).toInt();
 
     QPixmap photo;
     photo.loadFromData(photoBA);
@@ -1499,6 +1501,7 @@ void squeezeView::usersViewOnSelected(const QModelIndex & index)
     userEditorDlg->setPhone(phone);
     userEditorDlg->setCell(cell);
     userEditorDlg->setPhoto(photo);
+    userEditorDlg->setUserRole(role);
 
     if (userEditorDlg->exec() ) {
       uInfo.id = id;
@@ -1508,6 +1511,7 @@ void squeezeView::usersViewOnSelected(const QModelIndex & index)
       uInfo.phone    = userEditorDlg->getPhone();
       uInfo.cell     = userEditorDlg->getCell();
       photo    = userEditorDlg->getPhoto();
+      uInfo.role     = userEditorDlg->getUserRole();
 
       uInfo.photo = Misc::pixmap2ByteArray(new QPixmap(photo));
 
@@ -1748,6 +1752,7 @@ void squeezeView::createUser()
   if (!db.isOpen()) openDB();
   if (db.isOpen()) {
     UserEditor *userEditorDlg = new UserEditor(this);
+    userEditorDlg->setUserRole(roleBasic); //preset as default the basic role
     QPixmap photo;
 
     if (userEditorDlg->exec() ) {
@@ -1758,6 +1763,7 @@ void squeezeView::createUser()
       info.cell     = userEditorDlg->getCell();
       photo    = userEditorDlg->getPhoto();
       info.photo = Misc::pixmap2ByteArray(new QPixmap(photo));
+      uInfo.role    = userEditorDlg->getUserRole();
 
       QByteArray saltBA = Hash::getSalt();
       info.salt = QString(saltBA);
