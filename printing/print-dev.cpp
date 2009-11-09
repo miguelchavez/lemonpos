@@ -41,10 +41,12 @@ bool PrintDEV::printSmallBalance(const QString &dev, const QString &codec, const
     file.close();
     result = true; // result can be: file.close() result...
   }
+  return result;
 }
 
 bool PrintDEV::printSmallTicket(const QString &dev, const QString &codec, const QString &lines)
 {
   bool result = printSmallBalance(dev, codec, lines); //it is the same code!
+  return result;
 }
 

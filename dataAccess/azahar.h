@@ -100,6 +100,7 @@ class Azahar : public QObject
     unsigned int getUserId(QString uname);
     QHash<QString,UserInfo> getUsersHash();
     bool         insertUser(UserInfo info);
+    int          getUserRole(const qulonglong &userid);
 
     //CLIENTS
     bool         insertClient(ClientInfo info);
@@ -137,6 +138,7 @@ class Azahar : public QObject
 
     //CASHOUTS
     qulonglong insertCashFlow(CashFlowInfo info);
+    QList<CashFlowInfo> getCashFlowInfoList(const QList<qulonglong> &idList);
 
     //PayTypes
     QString     getPayTypeStr(qulonglong type);
@@ -162,6 +164,9 @@ class Azahar : public QObject
     QString     getBrandName(const qulonglong &id);
     qulonglong  getBrandId(const QString &name);
     qulonglong  insertBrand(const QString &name);
+
+    //LOGS
+    bool        insertLog(const qulonglong &userid, const QDate &date, const QTime &time, const QString actionStr);
 
     //new config way - for cross binary access.
     bool        getConfigFirstRun();

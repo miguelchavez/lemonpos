@@ -22,6 +22,7 @@
 #include "lemon.h"
 #include "lemonview.h"
 #include "settings.h"
+#include "enums.h"
 
 #include <kapplication.h>
 // #include <qpainter.h>
@@ -38,7 +39,7 @@
 #include <kstandardaction.h>
 #include <KLocale>
 #include <kstandarddirs.h>
-#include <knotification.h>
+#include <KNotification>
 
 #include <ktoolbar.h>
 
@@ -105,12 +106,19 @@ lemon::lemon()
     connect(m_view,SIGNAL(signalChangeCaption(const QString&)),this, SLOT(changeCaption(const QString&)));
     connect(m_view, SIGNAL(signalAdminLoggedOn()), this, SLOT(enableConfig()));
     connect(m_view, SIGNAL(signalAdminLoggedOff()), this, SLOT(disableConfig()));
+    connect(m_view, SIGNAL(signalSupervisorLoggedOn()), this, SLOT(enableConfig())); //new
+    connect(m_view, SIGNAL(signalSupervisorLoggedOff()), this, SLOT(disableConfig())); //new
     connect(m_view, SIGNAL(signalNoLoggedUser()), this, SLOT(disableUi()));
     connect(m_view, SIGNAL(signalLoggedUser()), this, SLOT(reactOnLogOn()));
     connect(m_view, SIGNAL(signalStartedOperation()), this, SLOT(reactOnStartedOp()) );
     connect(m_view, SIGNAL(signalUpdateTransactionInfo()), this, SLOT(updateTransaction()));
     connect(m_view, SIGNAL(signalShowProdGrid()), this, SLOT(triggerGridAction()));
     connect(m_view, SIGNAL(signalShowDbConfig()), this, SLOT(showDBConfigDialog()));
+
+    connect(m_view, SIGNAL(signalEnableUI()), this, SLOT(enableUi()) );
+    connect(m_view, SIGNAL(signalDisableUI()), this, SLOT(disableUi()) );
+
+    connect(m_view, SIGNAL(signalEnableStartOperationAction()), this, SLOT(enableStartOp()) );
 
     loadStyle();
     disableConfig();
@@ -195,8 +203,8 @@ void lemon::setupActions()
   startOperationAction->setText(i18n("Start Operation"));
   startOperationAction->setIcon(KIcon("window-new"));
   startOperationAction->setShortcut(QKeySequence::New); // New Qt::Key_Control+Qt::Key_N
-  connect(startOperationAction, SIGNAL(triggered(bool)),m_view, SLOT(startOperation()));
-  
+  connect(startOperationAction, SIGNAL(triggered(bool)),m_view, SLOT(_slotDoStartOperation()));
+
   QAction *payFocusAction = actionCollection()->addAction("payFocus");
   payFocusAction->setText(i18n("Pay focus"));
   payFocusAction->setIcon(KIcon("lemon-payfocus"));
@@ -414,19 +422,26 @@ void lemon::reactOnStartedOp()
   }
 }
 
+void lemon::enableStartOp()
+{
+  if (!m_view->canStartSelling()) {
+    QAction *action = actionCollection()->action("startOperation");
+    action->setEnabled(true);
+  }
+}
 
 void lemon::reactOnLogOn()
 {
- QString msg = i18n("Administrator needs to start operation before you can start selling...");
   if (m_view->canStartSelling())
     enableUi();
   else {
     disableUi();
+    QString msg = i18n("Administrator or Supervisor needs to start operation before you can start selling...");
     //Show a dialog saying that operations need to be started by admin ???
-    if (m_view->getLoggedUser() !="admin") {
+    if (m_view->getLoggedUserRole() == roleBasic ) {
       KNotification *notify = new KNotification("information", this);
       notify->setText(msg);
-      QPixmap pixmap = DesktopIcon("dialog-information",32); //NOTE: This does not works
+      QPixmap pixmap = DesktopIcon("dialog-information",48);
       notify->setPixmap(pixmap);
       notify->sendEvent();
     }
@@ -577,7 +592,10 @@ void lemon::updateDate()
 
 void lemon::updateUserName()
 {
-  labelUserInfo->setText(m_view->getLoggedUser());
+  if (m_view->getLoggedUserRole() == roleBasic)
+    labelUserInfo->setText(m_view->getLoggedUser());
+  else
+    labelUserInfo->setText(QString("<html><font color=red><b>%1</font></b>").arg(m_view->getLoggedUser()));
 }
 
 void lemon::updateTransaction()
@@ -612,14 +630,14 @@ bool lemon::queryClose()
     bool reallyQuit=false;
     if (m_view->getLoggedUser() == "admin") reallyQuit=true;  else reallyQuit = m_view->validAdminUser();
     //cancel current transaction
-    if (m_view->isTransactionInProgress()){  m_view->cancelByExit(); qDebug()<<"Cancelled on queryClose";}
+    if (m_view->isTransactionInProgress()){  m_view->cancelByExit(); }
     //save balance
     m_view->saveBalance();
     return reallyQuit;
   }
   else if ( m_view->getLoggedUser() == "admin" ) {
     //cancel current transaction
-    if (m_view->isTransactionInProgress()){  m_view->cancelByExit(); qDebug()<<"Cancelled on queryClose";}
+    if (m_view->isTransactionInProgress()){  m_view->cancelByExit(); }
     //save balance
     m_view->saveBalance();
     return true;

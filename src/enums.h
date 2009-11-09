@@ -30,6 +30,6 @@ enum SellUnits        {uPiece=1, uWeightKg=2, uLengthMts=3, uVolumeLitre=4, uVol
 enum                  {colCode=0, colDesc=1, colPrice=2, colQty=3, colUnits=4, colDisc=5, colDue=6}; //column names and numbers..
 enum                  {pageMain=0, pageSearch=1, pageReprintTicket=2, pageRerturnProducts=3, pageAdds=4};
 
-enum userRoles        {roleBasic=1, roleAdmin=2};//not used.
+enum userRoles        {roleBasic=1, roleAdmin=2, roleSupervisor=3 };
 
 #endif

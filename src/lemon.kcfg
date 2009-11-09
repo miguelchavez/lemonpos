@@ -30,6 +30,10 @@
       <label>Store Logo file</label>
       <default></default>
     </entry>
+    <entry name="chLogoOnTop" type="Bool">
+      <label>Print Logo on ticket Top</label>
+      <default>true</default>
+    </entry>
   </group>
   <group name="General Preferences">
     <entry name="editTerminalNumber" type="Int">
@@ -124,8 +128,12 @@
       <label>There is a drawer and use it</label>
       <default>false</default>
     </entry>
-    <entry name="smallTicket" type="Bool">
-      <label>Print a small receipt using a ticket printer.</label>
+    <entry name="smallTicketDotMatrix" type="Bool">
+      <label>Print a small receipt using a ticket printer -dot matrix-.</label>
+      <default>false</default>
+    </entry>
+    <entry name="smallTicketCUPS" type="Bool">
+      <label>Print a small receipt using a thermal ticket printer -CUPS-</label>
       <default>true</default>
     </entry>
     <entry name="bigReceipt" type="Bool">

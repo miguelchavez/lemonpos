@@ -65,6 +65,9 @@ class Gaveta
    void      insertTransactionId(qulonglong id);
    bool      isUnused();
    void      open();
+   QList<qulonglong> getCashflowIds();
+   void      insertCashflow(qulonglong id);
+   
 
   private:
     void      addLog(double qty);
@@ -80,6 +83,7 @@ class Gaveta
     bool      unused;
     QList<qulonglong> tIds;
     QList<double> log;
+    QList<qulonglong> cashflowIds;
     QDateTime startDateTime;
     QString   printerDevice;
 };

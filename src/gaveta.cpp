@@ -33,6 +33,7 @@ Gaveta::Gaveta()
   setAvailableInCash(0.0);
   startDateTime = QDateTime::currentDateTime();
   tIds.clear();
+  cashflowIds.clear();
 }
 
 Gaveta::~Gaveta()
@@ -59,6 +60,7 @@ void Gaveta::setAvailableInCash(double amount)
   out = 0;
   initialAmount = 0.0;
   tIds.clear();
+  cashflowIds.clear();
   if (amount>0) unused=false; else unused=true;
 }
 
@@ -148,6 +150,16 @@ void Gaveta::insertTransactionId(qulonglong id)
 QList<qulonglong> Gaveta::getTransactionIds()
 {
   return tIds;
+}
+
+QList<qulonglong> Gaveta::getCashflowIds()
+{
+  return cashflowIds;
+}
+
+void Gaveta::insertCashflow(qulonglong id)
+{
+  cashflowIds.append(id);
 }
 
 void Gaveta::incCardTransactions()

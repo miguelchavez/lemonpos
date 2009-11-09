@@ -23,6 +23,9 @@
 #include "productdelegate.h"
 #include "pricechecker.h"
 #include "../dataAccess/azahar.h"
+#include "../printing/print-dev.h"
+#include "../printing/print-cups.h"
+#include "ticketpopup.h"
 
 //StarMicronics printers
 // #include "printers/sp500.h"
@@ -57,79 +60,11 @@
 #include <kpassivepopup.h>
 #include <KNotification>
 
+
 /* Widgets zone                                                                                                         */
 /*======================================================================================================================*/
 
 ///NOTE: Testing with KDE 4.2, this TicketPopup dialog was not shown. So it was changed.
-
-class TicketPopup : public QDialog
-{
-  private:
-    QGridLayout *gridLayout;
-    QLabel *imagelabel;
-    QTextEdit *editText;
-    QTimer *timer;
-    
-  public:
-    TicketPopup(QWidget *parent=0, QString text="", QPixmap pixmap=0, int timeToClose=1000)
-    {
-      setWindowFlags(Qt::Dialog|Qt::FramelessWindowHint);
-      setWindowModality(Qt::ApplicationModal);
-      setObjectName("main");
-      
-      gridLayout = new QGridLayout(this);
-      imagelabel = new QLabel(this);
-      imagelabel->setPixmap(pixmap);
-      imagelabel->setAlignment(Qt::AlignCenter);
-      gridLayout->addWidget(imagelabel, 0, 0);
-      editText = new QTextEdit(this);
-      editText->setHtml(text);
-      editText->setReadOnly(true);
-      gridLayout->addWidget(editText, 1, 0);
-      gridLayout->setMargin(17);
-      
-      timer = new QTimer(this);
-      timer->setInterval(timeToClose);
-      connect(timer, SIGNAL(timeout()), this, SLOT(close()));
-      
-      QString path = KStandardDirs::locate("appdata", "images/");
-      QString filen = path + "/imgPrint.png";
-      QPixmap pix(filen);
-      setMask(pix.mask());
-      QString st;
-      st = QString("main { background-image: url(%1);}").arg(filen);
-      setStyleSheet(st);
-    }
-    void setPixmap(QPixmap pixmap) { imagelabel->setPixmap(pixmap); }
-    void popup()
-    {
-      //NOTE: Why before show() the frameGeometry is bigger, and after showing it, it resizes itself?
-      move(2000,2000);
-      show();
-      int x = (QApplication::desktop()->width()/2 )-(frameGeometry().width()/2);
-      int y = (QApplication::desktop()->height()/2)-(frameGeometry().height()/2);
-      setGeometry(x,y,335,340);
-      timer->start();
-    }
-    virtual void paint(QPainter *) {}
-  protected:
-    void paintEvent(QPaintEvent *e)
-    {
-      QPainter painter;
-      painter.begin(this);
-      painter.setClipRect(e->rect());
-      painter.setRenderHint(QPainter::Antialiasing);
-      
-      paint(&painter);
-      painter.restore();
-      painter.save();
-      int level = 180;
-      painter.setPen(QPen(QColor(level, level, level), 6));
-      painter.setBrush(Qt::NoBrush);
-      painter.drawRect(rect());
-    }
-    
-};
 
 class BalanceDialog : public QDialog
 {
@@ -212,7 +147,8 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   QTimer::singleShot(1100, this, SLOT(login()));
   QTimer *timerClock = new QTimer(this);
 
-
+  loggedUserRole = roleBasic;
+  
   //Signals
   connect(timerClock, SIGNAL(timeout()), SLOT(timerTimeout()) );
   //connect(ui_mainview.editItemDescSearch, SIGNAL(returnPressed()), this, SLOT(doSearchItemDesc()));
@@ -248,6 +184,7 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
 
   drawer = new Gaveta();
   drawer->setPrinterDevice(Settings::printerDevice());
+  //NOTE: setPrinterDevice: what about CUPS printers recently added support for?
   drawerCreated = true;
   
   operationStarted = false;
@@ -259,7 +196,8 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   ui_mainview.editTransactionDate->setDateTime(transDateTime);
   ui_mainview.groupSaleDate->hide();
 
-  
+
+  ui_mainview.editItemCode->setEmptyMessage(i18n("Enter code or qty*code. <Enter> or <+> Keys to go pay"));
 
   clearUsedWidgets();
   loadIcons();
@@ -319,7 +257,7 @@ void lemonView::setUpInputs()
   QRegExpValidator * validatorFloat = new QRegExpValidator(regexpA,this);
   ui_mainview.editAmount->setValidator(validatorFloat);
   //Item code (to insert) //
-  QRegExp regexpC("[1-9]+[0-9]*[//.]{0,1}[0-9]{0,2}[xX//*]{0,1}[0-9]{0,13}");
+  QRegExp regexpC("[0-9]+[0-9]*[//.]{0,1}[0-9]{0,2}[xX//*]{0,1}[0-9]{0,13}");
   QRegExpValidator * validatorEAN13 = new QRegExpValidator(regexpC, this);
   ui_mainview.editItemCode->setValidator(validatorEAN13);
   QRegExp regexpAN("[A-Za-z_0-9\\\\/\\-]+");//any letter, number, both slashes, dash and lower dash.
@@ -457,7 +395,7 @@ void lemonView::checksChanged()
 
 void lemonView::clearUsedWidgets()
 {
-  ui_mainview.editAmount->setText("0.0");
+  ui_mainview.editAmount->setText("");
   ui_mainview.editCardNumber->setText("");
   ui_mainview.editCardAuthNumber->setText("");
   ui_mainview.tableWidget->clearContents();
@@ -504,18 +442,19 @@ void lemonView::askForIdToCancel()
   } //continuar
 }
 
+///NOTE: Not implemented yet
 void lemonView::askForTicketToReturnProduct()
 {
   bool continuar=false;
   if (Settings::lowSecurityMode()) {//qDebug()<<"LOW security mode";
-  continuar=true;
+    continuar=true;
   } else if (Settings::requiereDelAuth()) {// qDebug()<<"NO LOW security mode, but AUTH REQUIRED!";
-  dlgPassword->show();
-  dlgPassword->hide();
-  dlgPassword->clearLines();
-  continuar = dlgPassword->exec();
+    dlgPassword->show();
+    dlgPassword->hide();
+    dlgPassword->clearLines();
+    continuar = dlgPassword->exec();
   } else {//     qDebug()<<"NO LOW security mode, NO AUTH REQUIRED...";
-  continuar=true;
+    continuar=true;
   }
   
   if (continuar) { //show input dialog to get ticket number
@@ -541,11 +480,13 @@ void lemonView::focusPayInput()
   ui_mainview.editAmount->setSelection(0, ui_mainview.editAmount->text().length());
 }
 
+//This method sends the focus to the amount to be paid only when the code input is empty.
 void lemonView::plusPressed()
 {
-  doEmitSignalQueryDb();
-  focusPayInput();
-  //NOTE: This shortcut is setting focus to the payInput... but what about PaymentMethod?
+  if ( !ui_mainview.editItemCode->text().isEmpty() )
+    doEmitSignalQueryDb();
+  else 
+    focusPayInput();
 }
 
 void lemonView::goSelectCardAuthNumber()
@@ -577,7 +518,16 @@ QString lemonView::getLoggedUserName(QString id)
   return uname;
 }
 
-unsigned int lemonView::getLoggedUserId(QString uname)
+int lemonView::getUserRole(qulonglong id)
+{
+  int role = 0;
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  role = myDb->getUserRole(id);
+  return role;
+}
+
+qulonglong lemonView::getLoggedUserId(QString uname)
 {
   unsigned int iD=0;
   Azahar *myDb = new Azahar;
@@ -593,6 +543,7 @@ void lemonView::login()
     corteDeCaja();
     loggedUser = "";
     loggedUserName ="";
+    loggedUserRole = roleBasic;
     emit signalNoLoggedUser();
   }
 
@@ -612,21 +563,27 @@ void lemonView::login()
     notify->sendEvent();
   } else {
     if ( dlgLogin->exec() ) {
-      loggedUser = dlgLogin->username();
+      loggedUser     = dlgLogin->username();
       loggedUserName = getLoggedUserName(loggedUser);
-      loggedUserId = getLoggedUserId(loggedUser);
+      loggedUserId   = getLoggedUserId(loggedUser);
+      loggedUserRole = getUserRole(loggedUserId);
       emit signalLoggedUser();
-      if (loggedUser == "admin") {
+      //Now check roles instead of names
+      if (loggedUserRole == roleAdmin) {
 	emit signalAdminLoggedOn();
 	//if (!canStartSelling()) startOperation();
       } else {
 	emit signalAdminLoggedOff();
-	slotDoStartOperation();
+        if (loggedUserRole == roleSupervisor)
+          emit signalSupervisorLoggedOn();
+	else
+          slotDoStartOperation();
       }
     } else {
       loggedUser ="";
       loggedUserName = "";
       loggedUserId = 0;
+      loggedUserRole = roleBasic;
       emit signalNoLoggedUser();
       if (dlgLogin->wantToQuit()) qApp->quit();
     }
@@ -830,7 +787,7 @@ void lemonView::insertItem(QString code)
   } else {
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
-    info = myDb->getProductInfo(codeX.toULongLong()); //includes discount and validdiscount
+    info = myDb->getProductInfo(codeX); //includes discount and validdiscount
   }
   
   if (info.units == uPiece) {
@@ -990,6 +947,8 @@ void lemonView::deleteSelectedItem()
         }//qty = 1...
       }//if canConvert
       if (reinsert) productsHash.insert(code, info); //we remove it with .take...
+      log(loggedUserId, QDate::currentDate(), QTime::currentTime(), QString("Removing an article from shopping list. Authorized by %1").
+       arg(dlgPassword->username()));
     }//continueIt
   }//there is something to delete..
   refreshTotalLabel();
@@ -1228,10 +1187,9 @@ void lemonView::finishCurrentTransaction()
     double           payWith = 0.0;
     double           payTotal = 0.0;
     double           changeGiven = 0.0;
-    QString          authnumber = "'[Not Used]'";
-    QString          cardNum = "'[Not Used]'";
+    QString          authnumber = "";
+    QString          cardNum = "";
     QString          paidStr = "'[Not Available]'";
-    QString qry;
     QStringList ilist;
     payTotal = totalSum;
     if (ui_mainview.checkCash->isChecked()) {
@@ -1240,10 +1198,12 @@ void lemonView::finishCurrentTransaction()
       changeGiven = payWith- totalSum;
     } else {
       pType = pCard;
-      if (ui_mainview.editCardNumber->hasAcceptableInput()) cardNum = ui_mainview.editCardNumber->text();
+      if (ui_mainview.editCardNumber->hasAcceptableInput()) {
+        cardNum = ui_mainview.editCardNumber->text().replace(0,15,"***************"); //FIXED: Only save last 4 digits;
+      }
       if (ui_mainview.editCardAuthNumber->hasAcceptableInput()) authnumber = ui_mainview.editCardAuthNumber->text();
-      cardNum = "'"+cardNum+"'";
-      authnumber = "'"+authnumber+"'";
+      //cardNum = "'"+cardNum+"'";
+      //authnumber = "'"+authnumber+"'";
       payWith = payTotal;
     }
 
@@ -1352,7 +1312,9 @@ void lemonView::finishCurrentTransaction()
           drawer->substractCash(changeGiven);
           drawer->incCashTransactions();
           //open drawer only if there is a printer available.
-          if (Settings::openDrawer()) drawer->open();
+          //NOTE: What about CUPS printers?
+          if (Settings::openDrawer() && Settings::smallTicketDotMatrix() && Settings::printTicket())
+            drawer->open();
         } else {
           drawer->incCardTransactions();
           drawer->addCard(payWith);
@@ -1386,6 +1348,7 @@ void lemonView::finishCurrentTransaction()
     ticket.buyPoints = buyPoints;
     ticket.clientPoints = clientInfo.points;
     ticket.lines = ticketLines;
+    ticket.clientid = clientInfo.id;
 
     if (printticket) printTicket(ticket);
     
@@ -1536,181 +1499,121 @@ void lemonView::printTicket(TicketInfo ticket)
   //Printing...
   qDebug()<< itemsForPrint.join("\n");
 
-  //FIXME:This is a test... fix it later.
+  ///Real printing... [sendind data to print-methods]
   if (Settings::printTicket()) {
-    if (Settings::smallTicket()) {
-      if (Settings::smallTicketDotMatrix()) {
-        QString printerFile=Settings::printerDevice();
-        if (printerFile.length() == 0) printerFile="/dev/lp0";
-        QString printerCodec=Settings::printerCodec();
-        PrintDEV::printSmallTicket(printerFile, printerCodec, itemsForPrint.join("\n"));
-      }
-      else if (Settings::smallTicketCUPS) { // some code taken from Daniel O'Neill contribution.
-        
-      }
-      else {
-      if (file.open(QIODevice::ReadWrite)) {
-        qDebug()<<"Printing ticket...";
-        QTextStream out(&file);
-        //out.setCodec(Utf8Codec);
-        if (printerCodec.length() != 0) out.setCodec(QTextCodec::codecForName(printerCodec.toLatin1()));
-        else out.setCodec(QTextCodec::codecForName("UTF-8"));
-        qDebug()<<"PRINTER CODEC:"<<printerCodec.toLatin1();
-        out << "\x1b\x4b\x30";              // Feed back x30 dot lines
-        out << "\x1b\x4b\x20";              // Feed back x20 dot lines
-        out << itemsForPrint.join("\n");    // Print data
-
-        out << "\x1b\x64\x06";              // Feed 6 lines
-        file.close();
-      } else qDebug()<<"ERROR: Could not open printer...";
+    if (Settings::smallTicketDotMatrix()) {
+      QString printerFile=Settings::printerDevice();
+      if (printerFile.length() == 0) printerFile="/dev/lp0";
+      QString printerCodec=Settings::printerCodec();
+      PrintDEV::printSmallTicket(printerFile, printerCodec, itemsForPrint.join("\n"));
     } //smalTicket
-    else { // some code taken from Daniel O'Neill contribution.
-      qDebug()<<"Printing big receipt";
-
-      QFont header = QFont("Impact", 30);
-      QFont sectionHeader = QFont("Bitstream Vera Sans", 14);
-      const int Margin = 50;
-      //int pageNo = 1;
+    else if (Settings::smallTicketCUPS() ) { // some code taken from Daniel O'Neill contribution.
+      qDebug()<<"Printing small receipt using CUPS";
+      PrintTicketInfo ptInfo;
       QPixmap logoPixmap;
       logoPixmap.load(Settings::storeLogo());
 
+      ptInfo.ticketInfo = ticket;
+      ptInfo.storeLogo  = logoPixmap;
+      ptInfo.storeName  = Settings::editStoreName();
+      ptInfo.storeAddr  = Settings::storeAddress();
+      ptInfo.storePhone = Settings::storePhone();
+      ptInfo.ticketMsg  = Settings::editTicketMessage();
+      ptInfo.salesPerson= loggedUserName;
+      ptInfo.terminal   = terminal;
+      ptInfo.thPhone    = i18n("Phone: ");
+      ptInfo.thDate     = KGlobal::locale()->formatDateTime(ptInfo.ticketInfo.datetime, KLocale::LongDate);
+      ptInfo.thTicket   = hTicket;
+      ptInfo.thProduct  = hProduct;
+      ptInfo.thQty      = i18n("Qty");
+      ptInfo.thPrice    = hPrice;
+      ptInfo.thDiscount = hDisc;
+      ptInfo.thTotal    = hTotal;
+      ptInfo.thTotals   = KGlobal::locale()->formatMoney(ptInfo.ticketInfo.total, QString(), 2);
+      ptInfo.thPoints   = i18n("You got %1 points, your accumulated is :%2", ptInfo.ticketInfo.buyPoints, ptInfo.ticketInfo.clientPoints);
+      ptInfo.thArticles = i18np("%1 article.", "%1 articles.", ptInfo.ticketInfo.itemcount);
+      ptInfo.thPaid     = i18n("Paid with %1, your change is %2", KGlobal::locale()->formatMoney(ptInfo.ticketInfo.paidwith, QString(), 2),KGlobal::locale()->formatMoney(ptInfo.ticketInfo.change, QString(), 2) );
+      ptInfo.tDisc      = KGlobal::locale()->formatMoney(-tDisc, QString(), 2);
+      ptInfo.thCard     = i18n("Card Number  : %1", ticket.cardnum);
+      ptInfo.thCardAuth = i18n("Authorization : %1", ticket.cardAuthNum);
+      ptInfo.totDisc    = tDisc;
+      ptInfo.logoOnTop = Settings::chLogoOnTop();
+      
+      
+      QPrinter printer;
+      printer.setFullPage( true );
+      QPrintDialog printDialog( &printer );
+      printDialog.setWindowTitle(i18n("Print Receipt"));
+      if ( printDialog.exec() ) {
+        PrintCUPS::printSmallTicket(ptInfo, printer);
+      }
+    }
+    else {
+      qDebug()<<"Printing big receipt using CUPS";
+
+      PrintTicketInfo ptInfo;
+      QPixmap logoPixmap;
+      logoPixmap.load(Settings::storeLogo());
+
+      ptInfo.ticketInfo = ticket;
+      ptInfo.storeLogo  = logoPixmap;
+      ptInfo.storeName  = Settings::editStoreName();
+      ptInfo.storeAddr  = Settings::storeAddress();
+      ptInfo.storePhone = Settings::storePhone();
+      ptInfo.ticketMsg  = Settings::editTicketMessage();
+      ptInfo.salesPerson= loggedUserName;
+      ptInfo.terminal   = terminal;
+      ptInfo.thPhone    = i18n("Phone: ");
+      ptInfo.thDate     = KGlobal::locale()->formatDateTime(ptInfo.ticketInfo.datetime, KLocale::LongDate);
+      ptInfo.thTicket   = hTicket;
+      ptInfo.thProduct  = hProduct;
+      ptInfo.thQty      = i18n("Qty");
+      ptInfo.thPrice    = hPrice;
+      ptInfo.thDiscount = hDisc;
+      ptInfo.thTotal    = hTotal;
+      ptInfo.thTotals   = KGlobal::locale()->formatMoney(ptInfo.ticketInfo.total, QString(), 2);
+      ptInfo.thPoints   = i18n("You got %1 points, your accumulated is :%2", ptInfo.ticketInfo.buyPoints, ptInfo.ticketInfo.clientPoints);
+      ptInfo.thArticles = i18np("%1 article.", "%1 articles.", ptInfo.ticketInfo.itemcount);
+      ptInfo.thPaid     = ""; //i18n("Paid with %1, your change is %2", KGlobal::locale()->formatMoney(ptInfo.ticketInfo.paidwith, QString(), 2),KGlobal::locale()->formatMoney(ptInfo.ticketInfo.change, QString(), 2) );
+      ptInfo.tDisc      = KGlobal::locale()->formatMoney(-tDisc, QString(), 2);
+      ptInfo.totDisc    = tDisc;
+      ptInfo.logoOnTop = Settings::chLogoOnTop();
 
       QPrinter printer;
       printer.setFullPage( true );
-      QPrintDialog printDialog( &printer, this );
+      QPrintDialog printDialog( &printer );
       printDialog.setWindowTitle(i18n("Print Receipt"));
-      if ( printDialog.exec() )
-      {
-        QPainter painter;
-        painter.begin( &printer );
+      if ( printDialog.exec() ) {
+        PrintCUPS::printBigTicket(ptInfo, printer);
+      }
 
 
-        int yPos        = 0;
-        QFontMetrics fm = painter.fontMetrics();
-
-        // Header: Store Name, Store Address, Store Phone, Store Logo...
-        painter.setFont(header);
-        painter.drawText(Margin,Margin, Settings::editStoreName() );
-        yPos = yPos + fm.lineSpacing();
-        // Store Address
-        painter.setFont(QFont("Bitstream Vera Sans", 10));
-        QPen normalPen = painter.pen();
-        painter.setPen(Qt::darkGray);
-        painter.drawText(Margin, Margin + yPos, printer.width(), fm.lineSpacing(), Qt::TextExpandTabs | Qt::TextDontClip, Settings::storeAddress() + ", " +i18n("Phone: ") + Settings::storePhone());
-        yPos = yPos + fm.lineSpacing();
-        // Store Logo
-        painter.drawPixmap(printer.width() - logoPixmap.width() - Margin, Margin - logoPixmap.height()/2, logoPixmap);
-        // Header line
-        painter.setPen(QPen(Qt::gray, 5, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
-        painter.drawLine(Margin, 100, printer.width()-Margin, 100);
-        yPos = yPos + 3 * fm.lineSpacing(); // 3times the height of the line
-        // Ticket Number, Date
-        painter.setPen(normalPen);
-        QString text = KGlobal::locale()->formatDateTime(ticket.datetime, KLocale::LongDate)+", "+hTicket;
-        QSize textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-        painter.drawText(printer.width()-Margin-textWidth.width()-20, Margin + yPos, text); // I think -20 is because fm is not updated.
-        yPos = yPos + fm.lineSpacing();
-        // Vendor name, terminal number
-        text = salesperson + ", " + terminal;
-        textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-        painter.drawText(printer.width()-Margin-textWidth.width()-20, Margin + yPos, text);
-        yPos = yPos + 3*fm.lineSpacing();
-        // Products Subheader
-        painter.setPen(Qt::darkBlue);
-        QFont tmpFont = QFont("Bitstream Vera Sans", 10 );
-        tmpFont.setWeight(QFont::Bold);
-        painter.setFont(tmpFont);
-        painter.drawText(Margin,Margin+yPos, hProduct);
-        text = i18n("Quantity") +QChar::fromLatin1(9)+ hPrice+ QChar::fromLatin1(9)+ hDisc +QChar::fromLatin1(9)+ hTotal;
-        painter.drawText(printer.width()/2, Margin + yPos, text);
-        yPos = yPos + fm.lineSpacing();
-        painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
-        painter.drawLine(Margin, Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
-        painter.setPen(normalPen);
-        painter.setFont(QFont("Bitstream Vera Sans", 10 ));
-        yPos = yPos + fm.lineSpacing();
-        // End of Header Information.
-
-        // Content : Each product
-        QLocale localeForPrinting;
-        for (int i = 0; i < ticket.lines.size(); ++i)
-        {
-          TicketLineInfo tLine = ticket.lines.at(i);
-          QString  idesc =  tLine.desc;
-          QString iprice =  localeForPrinting.toString(tLine.price,'f',2);
-          QString iqty   =  localeForPrinting.toString(tLine.qty, 'f', 2);
-          iqty = iqty+" "+tLine.unitStr;
-          QString idiscount =  localeForPrinting.toString(-(tLine.qty*tLine.disc),'f',2);
-          QString idue =  localeForPrinting.toString(tLine.total,'f',2);
-          while (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, idesc).width() >= ((printer.width()/2)-Margin-40)) { idesc.chop(2); qDebug()<<"Chopped:"<<idesc;}
-          painter.drawText(Margin, Margin+yPos, idesc); //first product description...
-          text = iqty+QChar::fromLatin1(9)+ iprice+QChar::fromLatin1(9)+ idiscount +QChar::fromLatin1(9)+ idue;
-          painter.drawText(printer.width()/2, Margin+yPos, text);
-          yPos = yPos + fm.lineSpacing();
-          //Check if space for the next text line
-          if ( Margin + yPos > printer.height() - Margin ) {
-            printer.newPage();             // no more room on this page
-            yPos = 0;                       // back to top of page
-          }
-        } //for each item
-
-        //now the totals...
-        //Check if space for the next text 3 lines
-        if ( (Margin + yPos +fm.lineSpacing()*3) > printer.height() - Margin ) {
-          printer.newPage();             // no more room on this page
-          yPos = 0;                       // back to top of page
-        }
-        painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
-        painter.drawLine(Margin, Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
-        painter.setPen(normalPen);
-        painter.setFont(tmpFont);
-        yPos = yPos + fm.lineSpacing();
-        painter.drawText(Margin, Margin+yPos, i18n("Totals"));
-        text = harticles + QChar::fromLatin1(9)+ localeForPrinting.toString(-tDisc, 'f', 2) +QChar::fromLatin1(9)+ KGlobal::locale()->formatMoney(ticket.total, QString(), 2);
-        painter.drawText((printer.width()/2)-15, Margin + yPos , text);
-        yPos = yPos + fm.lineSpacing();
-        // NOTE: I think its redundant to say again the savings.
-        //if (tDisc > 0) {
-        //    painter.drawText(Margin, Margin + yPos , line = i18n("You saved %1", KGlobal::locale()->formatMoney(tDisc, QString(), 2)););
-        //    yPos = yPos + fm.lineSpacing();
-        //}
-
-        //if space, the ticket message.
-        if ( (Margin + yPos +fm.lineSpacing()*4) <= printer.height() - Margin ) {
-            tmpFont = QFont("Bitstream Vera Sans", 12);
-            tmpFont.setItalic(true);
-            painter.setPen(Qt::darkGreen);
-            painter.setFont(tmpFont);
-            yPos = yPos + fm.lineSpacing()*4;
-            painter.drawText((printer.width()/2)-(fm.size(Qt::TextExpandTabs | Qt::TextDontClip, Settings::editTicketMessage()).width()/2)-Margin, Margin+yPos, Settings::editTicketMessage());
-        }
-
-        painter.end();
-        // this makes the print job start
-    } //printDialog.exec()
-  }//bigTicket
+      
+    }//bigTicket
   } //printTicket
 
-  //Using SP500 for now...
-//   StarPrinter *printer = new StarPrinter();
-//   printer->openPrinterPort();
-//   printer->setCharacterSet_toLatinamerican();
-//   if (printer->isPortOpen()) {
-//     qDebug()<<"Printer port opened, printing ticket...";
-//     printer->writeToPort(itemsForPrint.join("\n"));
-//     printer->closePrinterPort();
-//   } else { qDebug()<<"Could not open port, lastError:"<<printer->lastError(); }
-//   delete printer;
+  freezeWidgets();
 
   if (Settings::showDialogOnPrinting())
   {
     TicketPopup *popup = new TicketPopup(this, ticketHtml.join(" "), DesktopIcon("lemon-printer", 48), Settings::ticketTime()*1000);
+    connect (popup, SIGNAL(onTicketPopupClose()), this, SLOT(unfreezeWidgets()) );
     QApplication::beep();
     popup->popup();
+  } else {
+    QTimer::singleShot(Settings::ticketTime()*1000, this, SLOT(unfreezeWidgets())); //ticket time used to allow the cashier to see the change to give the user... is configurable.
   }
-  //Start Again a new transaction and clear all used widgets..
-  QTimer::singleShot(1000, this, SLOT(startAgain()));
+}
 
+void lemonView::freezeWidgets()
+{
+  emit signalDisableUI();
+}
+
+void lemonView::unfreezeWidgets()
+{
+  emit signalEnableUI();
+  startAgain();
 }
 
 void lemonView::startAgain()
@@ -1727,7 +1630,17 @@ void lemonView::startAgain()
 
 void lemonView::cancelCurrentTransaction()
 {
-  cancelTransaction(getCurrentTransaction());
+  bool continueIt = false;
+  if ( !Settings::lowSecurityMode() ) {
+    if (Settings::requiereDelAuth() ) {
+      dlgPassword->show();
+      dlgPassword->hide();
+      dlgPassword->clearLines();
+      if ( dlgPassword->exec() ) continueIt=true;
+    } else continueIt=true; //if requiereDelAuth
+  } else continueIt=true; //if no low security
+
+  if (continueIt) cancelTransaction(getCurrentTransaction());
 }
 
 
@@ -1777,7 +1690,7 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
   myDb->setDatabase(db);
   //get amount to return
   TransactionInfo tinfo = myDb->getTransactionInfo(transactionNumber);
-  if (tinfo.state == tCancelled ) transCompleted = true;
+  if (tinfo.state == tCancelled && tinfo.id >0) transCompleted = true;
   
   if (getCurrentTransaction() == transactionNumber) {
     ///this transaction is not saved yet (more than the initial data when transaction is created)
@@ -1788,7 +1701,7 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
     ///this transaction is saved (amount,products,points...)
     clearUsedWidgets();
     refreshTotalLabel();
-    if (drawer->getAvailableInCash() > tinfo.amount){ // == or >= or > ?? to dont let empty the drawer
+    if (drawer->getAvailableInCash() > tinfo.amount && tinfo.id>0){ // == or >= or > ?? to dont let empty the drawer
       enoughCashAvailable = true;
     }
   }
@@ -1796,11 +1709,13 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
   //Mark as cancelled if possible
   if  (enoughCashAvailable || transToCancelIsInProgress) {
     if (myDb->cancelTransaction(transactionNumber, transToCancelIsInProgress)) {
+      log(loggedUserId, QDate::currentDate(), QTime::currentTime(), QString("Cancelling transaction #%1. Authorized by %2").arg(transactionNumber).arg(dlgPassword->username()));
       qDebug()<<"Cancelling ticket was ok";
       if (transCompleted) {
         //if was completed, then return the money...
         drawer->substractCash(tinfo.amount);
-        if (Settings::openDrawer()) drawer->open();
+        //NOTE: What about CUPS printers?
+         if (Settings::openDrawer() && Settings::smallTicketDotMatrix() && Settings::printTicket()) drawer->open();
       }
       transactionInProgress = false; //reset
       createNewTransaction(tSell);
@@ -1808,7 +1723,11 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
     else { //myDB->cancelTransaction() returned some error...
       qDebug()<<"Not cancelled!";
       if (!transToCancelIsInProgress) {
-        KMessageBox::error(this, myDb->lastError(), i18n("Cancel Transaction: Error"));
+        KNotification *notify = new KNotification("information", this);
+        notify->setText(i18n("Error cancelling ticket: %1",myDb->lastError()));
+        QPixmap pixmap = DesktopIcon("dialog-error",32);
+        notify->setPixmap(pixmap);
+        notify->sendEvent();
       } else {
         //Reuse the transaction instead of creating a new one.
         qDebug()<<"Transaction to cancel is in progress. Clearing all to reuse transaction number...";
@@ -1821,19 +1740,23 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
       }
     }
   } else {
-    //not cash available in drawer to return money to the client
+    //not cash available in drawer to return money to the client OR transaction id does not exists
+    QString msg;
+    if (tinfo.id > 0)
+      msg = i18n("There is not enough cash available in the drawer.");
+    else
+      msg = i18n("Ticket to cancel does not exists!");
+
     KNotification *notify = new KNotification("information", this);
-    notify->setText(i18n("There is not enough cash available in the drawer."));
-    QPixmap pixmap = DesktopIcon("dialog-error",32); //NOTE: This does not works with plasma themed notification
+    notify->setText(msg);
+    QPixmap pixmap = DesktopIcon("dialog-error",32);
     notify->setPixmap(pixmap);
     notify->sendEvent();
   }
 }
 
 
-
-
-void lemonView::startOperation()
+void lemonView::startOperation(const QString &adminUser)
 {
   qDebug()<<"Starting operations...";
   bool ok=false;
@@ -1851,7 +1774,8 @@ void lemonView::startOperation()
       drawer->setPrinterDevice(Settings::printerDevice());
       drawerCreated = true;
     }
-    if (Settings::openDrawer()) drawer->open();
+    //NOTE: What about CUPS printers?
+     if (Settings::openDrawer() && Settings::smallTicketDotMatrix() && Settings::printTicket()) drawer->open();
    // Set drawer amount.
     drawer->setStartDateTime(QDateTime::currentDateTime());
     drawer->setAvailableInCash(qty);
@@ -1859,25 +1783,35 @@ void lemonView::startOperation()
     operationStarted = true;
     createNewTransaction(tSell);
     emit signalStartedOperation();
+    log(loggedUserId, QDate::currentDate(), QTime::currentTime(), QString("Operation Started by %1 at terminal %2").
+    arg(adminUser).
+    arg(Settings::editTerminalNumber()));
   }
   else {
     operationStarted = false;
-    //emit signalOperationNOTStarted();
+    emit signalEnableStartOperationAction();
     emit signalNoLoggedUser();
   }
 }
 
-void lemonView::slotDoStartOperation()
+//this method is for lemon.cpp's action connect for button, since button's trigger(bool) will cause to ask = trigger's var.
+void lemonView::_slotDoStartOperation()
 {
+  //simply call the other...
+  slotDoStartOperation(true);
+  qDebug()<<"Called startOp from lemon.cpp (ui,)";
+}
 
+void lemonView::slotDoStartOperation(const bool &ask)
+{
   //NOTE: For security reasons, we must ask for admin's password.
-  //But, can we be more flexible -for one person store- and do not ask for password?
-  // Settings::lowSecurityMode()
+  //But, can we be more flexible -for one person store- and do not ask for password in low security mode
+  // is ask is true we ask for auth, else we dont because it was previously asked for (calling method from corteDeCaja)
   
   qDebug()<<"doStartOperations..";
   if (!operationStarted) {
     bool doit = false;
-    if (Settings::lowSecurityMode()) {
+    if (Settings::lowSecurityMode() || !ask) {
       doit = true;
     } else {
         do  {
@@ -1887,7 +1821,7 @@ void lemonView::slotDoStartOperation()
           doit = dlgPassword->exec();
         } while (!doit);
     }//else lowsecurity
-    if (doit) startOperation();
+    if (doit) startOperation(dlgPassword->username());
   }
 }
 
@@ -1896,269 +1830,314 @@ void lemonView::slotDoStartOperation()
 
 void lemonView::corteDeCaja()
 {
-  qDebug()<<"Doing Balance..";
-  preCancelCurrentTransaction();
-  QStringList lines;
-  QStringList linesHTML;
-  QString line;
+  bool doit = false;
+  //ASK for security if no lowSecurityMode.
+  if (Settings::lowSecurityMode()) {
+    doit = true;
+  } else {
+    dlgPassword->show();
+    dlgPassword->clearLines();
+    dlgPassword->hide();
+    doit = dlgPassword->exec();
+  }//else lowsecurity
 
-  QString dId;
-  QString dAmount;
-  QString dHour;
-  QString dMinute;
-  QString dPaidWith;
-  QString dPayMethod;
+  if (doit) {
+    qDebug()<<"Doing Balance..";
+    preCancelCurrentTransaction();
+    QStringList lines;
+    QStringList linesHTML;
+    QString line;
 
-  saveBalance();
+    QString dId;
+    QString dAmount;
+    QString dHour;
+    QString dMinute;
+    QString dPaidWith;
+    QString dPayMethod;
 
-  ///TODO: Create balance data to send to the printerFormater (format text: bold, font, spaces,etc..)
-  
-  // Create lines to print and/or show on dialog...
+    PrintBalanceInfo pbInfo;
 
-  //----------Translated strings--------------------
-  QString strTitle      = i18n("Balance for user %1", loggedUserName);
-  QString strInitAmount = i18n("Initial Amount deposited:");
-  QString strInitAmountH= i18n("Deposit");
-  QString strInH         = i18n("In");
-  QString strOutH        = i18n("Out");
-  QString strInDrawerH   = i18n("In Drawer");
-  QString strTitlePre    = i18n("Drawer Balance");
-  QString strTitleTrans  = i18n("Transactions Details");
-  QString strTitleTransH = i18n("Transactions");
-  QString strId          = i18n("Id");
-  QString strTimeH       = i18n("Time");
-  QString strAmount      = i18n("Amount");
-  QString strPaidWith    = i18n("Paid with");
-  QString strPayMethodH =  i18n("Pay Method");
+    pbInfo.thBalanceId = i18n("Balance Id:%1",saveBalance()) ; //SAVE BALANCE and ASSIGN ID to pbInfo
 
- //TODO: Hacer el dialogo de balance mejor, con un look uniforme a los demas dialogos.
-//       Incluso insertar imagenes en el html del dialogo.
+    // Create lines to print and/or show on dialog...
 
-  //HTML
-  line = QString("<html><body><h3>%1</h3>").arg(strTitle);
-  linesHTML.append(line);
-  line = QString("<center><table border=1 cellpadding=5><tr><th colspan=4>%9</th></tr><tr><th>%1</th><th>%2</th><th>%3</th><th>%4</th></tr><tr><td>%5</td><td>%6</td><td>%7</td><td>%8</td></tr></table></ceter><br>")
-      .arg(strInitAmountH)
-      .arg(strInH)
-      .arg(strOutH)
-      .arg(strInDrawerH)
-      .arg(KGlobal::locale()->formatMoney(drawer->getInitialAmount(), QString(), 2))
-      .arg(KGlobal::locale()->formatMoney(drawer->getInAmount(), QString(), 2))
-      .arg(KGlobal::locale()->formatMoney(drawer->getOutAmount(), QString(), 2))
-      .arg(KGlobal::locale()->formatMoney(drawer->getAvailableInCash(), QString(), 2))
-      .arg(strTitlePre);
-  linesHTML.append(line);
-  line = QString("<table border=1 cellpadding=5><tr><th colspan=5>%1</th></tr><tr><th>%2</th><th>%3</th><th>%4</th><th>%5</th><th>%6</th></tr>")
-      .arg(strTitleTransH)
-      .arg(strId)
-      .arg(strTimeH)
-      .arg(strAmount)
-      .arg(strPaidWith)
-      .arg(strPayMethodH);
-  linesHTML.append(line);
+    //----------Translated strings--------------------
+    QString strTitle      = i18n("%1 at Terminal # %2", loggedUserName, Settings::editTerminalNumber());
+    QString strInitAmount = i18n("Initial Amount deposited:");
+    QString strInitAmountH= i18n("Deposit");
+    QString strInH         = i18n("In");
+    QString strOutH        = i18n("Out");
+    QString strInDrawerH   = i18n("In Drawer");
+    QString strTitlePre    = i18n("Drawer Balance");
+    QString strTitleTrans  = i18n("Transactions Details");
+    QString strTitleTransH = i18n("Transactions");
+    QString strId          = i18n("Id");
+    QString strTimeH       = i18n("Time");
+    QString strAmount      = i18n("Amount");
+    QString strPaidWith    = i18n("Paid");
+    QString strPayMethodH =  i18n("Method");
 
-  //TXT
-  lines.append(strTitle);
-  line = QString(KGlobal::locale()->formatDateTime(QDateTime::currentDateTime(), KLocale::LongDate));
-  lines.append(line);
-  lines.append("----------------------------------------");
-  line = QString("%1 %2").arg(strInitAmount).arg(KGlobal::locale()->formatMoney(drawer->getInitialAmount(), QString(), 2));
-  lines.append(line);
-  line = QString("%1 :%2, %3 :%4")
-      .arg(strInH)
-      .arg(KGlobal::locale()->formatMoney(drawer->getInAmount(), QString(), 2))
-      .arg(strOutH)
-      .arg(KGlobal::locale()->formatMoney(drawer->getOutAmount(), QString(), 2));
-  lines.append(line);
-  line = QString(" %1 %2").arg(KGlobal::locale()->formatMoney(drawer->getAvailableInCash(), QString(), 2)).arg(strInDrawerH);
-  lines.append(line);
-  //Now, add a transactions report per user and for today.
-  //At this point, drawer must be initialized and valid.
-  line = QString("----------%1----------").arg(strTitleTrans);
-  lines.append(line);
-  line = QString("%1           %2      %3").arg(strId).arg(strAmount).arg(strPaidWith);
-  lines.append(line);
-  lines.append("----------  ----------  ----------");
-  QList<qulonglong> transactionsByUser = drawer->getTransactionIds();
-  //This gets all transactions ids done since last corteDeCaja.
-  Azahar *myDb = new Azahar;
-  myDb->setDatabase(db);
-  for (int i = 0; i < transactionsByUser.size(); ++i) {
-    qulonglong idNum = transactionsByUser.at(i);
-    TransactionInfo info;
-    info = myDb->getTransactionInfo(idNum);
+    QPixmap logoPixmap;
+    logoPixmap.load(Settings::storeLogo());
 
-    dId       = QString::number(info.id);
-    dAmount   = QString::number(info.amount);
-    dHour     = info.time.toString("hh");
-    dMinute   = info.time.toString("mm");
-    dPaidWith = QString::number(info.paywith);
+    pbInfo.storeName = Settings::editStoreName();
+    pbInfo.storeAddr = Settings::storeAddress();
+    pbInfo.storeLogo = logoPixmap;
+    pbInfo.thTitle     = strTitle;
+    pbInfo.thDeposit   = strInitAmountH;
+    pbInfo.thIn        = strInH;
+    pbInfo.thOut       = strOutH;
+    pbInfo.thInDrawer  = strInDrawerH;
+    pbInfo.thTitleDetails = strTitleTrans;
+    pbInfo.thTrId      = strId;
+    pbInfo.thTrTime    = strTimeH;
+    pbInfo.thTrAmount  = strAmount;
+    pbInfo.thTrPaidW    = strPaidWith;
+    pbInfo.thTrPayMethod=strPayMethodH;
+    pbInfo.startDate   = i18n("Start: %1",KGlobal::locale()->formatDateTime(drawer->getStartDateTime(), KLocale::LongDate));
+    pbInfo.endDate     = i18n("End  : %1",KGlobal::locale()->formatDateTime(QDateTime::currentDateTime(), KLocale::LongDate));
+    //Qty's
+    pbInfo.initAmount = KGlobal::locale()->formatMoney(drawer->getInitialAmount(), QString(), 2);
+    pbInfo.inAmount   = KGlobal::locale()->formatMoney(drawer->getInAmount(), QString(), 2);
+    pbInfo.outAmount  = KGlobal::locale()->formatMoney(drawer->getOutAmount(), QString(), 2);
+    pbInfo.cashAvailable=KGlobal::locale()->formatMoney(drawer->getAvailableInCash(), QString(), 2);
+    pbInfo.logoOnTop = Settings::chLogoOnTop();
+    pbInfo.thTitleCFDetails = i18n("Cash flow Details");
+    pbInfo.thCFType    = i18n("Type");
+    pbInfo.thCFReason  = i18n("Reason");
+    pbInfo.thCFDate    = i18n("Time");
 
-    while (dId.length()<10) dId = dId.insert(dId.length(), ' ');
-    while (dAmount.length()<14) dAmount = dAmount.insert(dAmount.length(), ' ');
-    while ((dHour+dMinute).length()<6) dMinute = dMinute.insert(dMinute.length(), ' ');
-    while (dPaidWith.length()<10) dPaidWith = dPaidWith.insert(dPaidWith.length(), ' ');
 
-    //if (info.paymethod == pCash) dPayMethod = i18n("Cash");/*dPaidWith;*/
-    dPayMethod = myDb->getPayTypeStr(info.paymethod);//using payType methods
-    //else if (info.paymethod == pCard) dPayMethod = i18n("Card");  else dPayMethod = i18n("Unknown");
-    line = QString("%1 %2 %3")
-       .arg(dId)
-       //.arg(dHour)
-       //.arg(dMinute)
-       .arg(dAmount)
-       //.arg(dPaidWith);
-       .arg(dPayMethod);
-    lines.append(line);
-    line = QString("<tr><td>%1</td><td>%2:%3</td><td>%4</td><td>%5</td><td>%6</td></tr>")
-       .arg(dId)
-       .arg(dHour)
-       .arg(dMinute)
-       .arg(dAmount)
-       .arg(dPaidWith)
-       .arg(dPayMethod);
+  //TODO: Hacer el dialogo de balance mejor, con un look uniforme a los demas dialogos.
+  //       Incluso insertar imagenes en el html del dialogo.
+
+    //HTML
+    line = QString("<html><body><h3>%1</h3>").arg(strTitle);
     linesHTML.append(line);
-  }
-  line = QString("</table></body></html>");
-  linesHTML.append(line);
-  operationStarted = false;
-  showBalance(linesHTML);
-  printBalance(lines);
-  slotDoStartOperation();
-}
+    line = QString("<center><table border=1 cellpadding=5><tr><th colspan=4>%9</th></tr><tr><th>%1</th><th>%2</th><th>%3</th><th>%4</th></tr><tr><td>%5</td><td>%6</td><td>%7</td><td>%8</td></tr></table></ceter><br>")
+        .arg(strInitAmountH)
+        .arg(strInH)
+        .arg(strOutH)
+        .arg(strInDrawerH)
+        .arg(KGlobal::locale()->formatMoney(drawer->getInitialAmount(), QString(), 2))
+        .arg(KGlobal::locale()->formatMoney(drawer->getInAmount(), QString(), 2))
+        .arg(KGlobal::locale()->formatMoney(drawer->getOutAmount(), QString(), 2))
+        .arg(KGlobal::locale()->formatMoney(drawer->getAvailableInCash(), QString(), 2))
+        .arg(strTitlePre);
+    linesHTML.append(line);
+    line = QString("<table border=1 cellpadding=5><tr><th colspan=5>%1</th></tr><tr><th>%2</th><th>%3</th><th>%4</th><th>%5</th><th>%6</th></tr>")
+        .arg(strTitleTransH)
+        .arg(strId)
+        .arg(strTimeH)
+        .arg(strAmount)
+        .arg(strPaidWith)
+        .arg(strPayMethodH);
+    linesHTML.append(line);
 
+    //TXT
+    lines.append(strTitle);
+    line = QString(KGlobal::locale()->formatDateTime(QDateTime::currentDateTime(), KLocale::LongDate));
+    lines.append(line);
+    lines.append("----------------------------------------");
+    line = QString("%1 %2").arg(strInitAmount).arg(KGlobal::locale()->formatMoney(drawer->getInitialAmount(), QString(), 2));
+    lines.append(line);
+    line = QString("%1 :%2, %3 :%4")
+        .arg(strInH)
+        .arg(KGlobal::locale()->formatMoney(drawer->getInAmount(), QString(), 2))
+        .arg(strOutH)
+        .arg(KGlobal::locale()->formatMoney(drawer->getOutAmount(), QString(), 2));
+    lines.append(line);
+    line = QString(" %1 %2").arg(KGlobal::locale()->formatMoney(drawer->getAvailableInCash(), QString(), 2)).arg(strInDrawerH);
+    lines.append(line);
+    //Now, add a transactions report per user and for today.
+    //At this point, drawer must be initialized and valid.
+    line = QString("----------%1----------").arg(strTitleTrans);
+    lines.append(line);
+    line = QString("%1           %2      %3").arg(strId).arg(strAmount).arg(strPaidWith);
+    lines.append(line);
+    lines.append("----------  ----------  ----------");
+    QList<qulonglong> transactionsByUser = drawer->getTransactionIds();
+    QStringList trList;
+    //This gets all transactions ids done since last corteDeCaja.
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    for (int i = 0; i < transactionsByUser.size(); ++i) {
+      qulonglong idNum = transactionsByUser.at(i);
+      TransactionInfo info;
+      info = myDb->getTransactionInfo(idNum);
+
+      dId       = QString::number(info.id);
+      dAmount   = QString::number(info.amount);
+      dHour     = info.time.toString("hh");
+      dMinute   = info.time.toString("mm");
+      dPaidWith = QString::number(info.paywith);
+
+      QString tmp = QString("%1|%2|%3|%4")
+        .arg(dId)
+        .arg(dHour+":"+dMinute)
+        .arg(KGlobal::locale()->formatMoney(info.amount, QString(), 2))
+        .arg(KGlobal::locale()->formatMoney(info.paywith, QString(), 2));
+
+      while (dId.length()<10) dId = dId.insert(dId.length(), ' ');
+      while (dAmount.length()<14) dAmount = dAmount.insert(dAmount.length(), ' ');
+      while ((dHour+dMinute).length()<6) dMinute = dMinute.insert(dMinute.length(), ' ');
+      while (dPaidWith.length()<10) dPaidWith = dPaidWith.insert(dPaidWith.length(), ' ');
+
+      //if (info.paymethod == pCash) dPayMethod = i18n("Cash");/*dPaidWith;*/
+      dPayMethod = myDb->getPayTypeStr(info.paymethod);//using payType methods
+      //else if (info.paymethod == pCard) dPayMethod = i18n("Card");  else dPayMethod = i18n("Unknown");
+      line = QString("%1 %2 %3")
+        .arg(dId)
+        //.arg(dHour)
+        //.arg(dMinute)
+        .arg(dAmount)
+        //.arg(dPaidWith);
+        .arg(dPayMethod);
+      lines.append(line);
+      line = QString("<tr><td>%1</td><td>%2:%3</td><td>%4</td><td>%5</td><td>%6</td></tr>")
+        .arg(dId)
+        .arg(dHour)
+        .arg(dMinute)
+        .arg(dAmount)
+        .arg(dPaidWith)
+        .arg(dPayMethod);
+      linesHTML.append(line);
+      tmp += "|"+dPayMethod;
+      trList.append( tmp );
+    }
+    pbInfo.trList = trList;
+
+    //get CashOut list and its info...
+    QStringList cfList;
+    cfList.clear();
+    QList<CashFlowInfo> cashflowInfoList = myDb->getCashFlowInfoList( drawer->getCashflowIds() );
+    foreach(CashFlowInfo cfInfo, cashflowInfoList) {
+        QString amountF = KGlobal::locale()->formatMoney(cfInfo.amount);
+        //QDateTime dateTime; dateTime.setDate(cfInfo.date); dateTime.setTime(cfInfo.time);
+        QString dateF   = KGlobal::locale()->formatTime(cfInfo.time);
+        QString data = QString::number(cfInfo.id) + "|" + cfInfo.typeStr + "|" + cfInfo.reason + "|" + amountF + "|" + dateF;
+        cfList.append(data);
+    }
+    pbInfo.cfList = cfList;
+
+    line = QString("</table></body></html>");
+    linesHTML.append(line);
+    operationStarted = false;
+
+    if (Settings::smallTicketDotMatrix()) {
+      //print it on the /dev/lpXX...   send lines to print
+      showBalance(linesHTML);
+      if (Settings::printBalances()) printBalance(lines);
+    } else if (Settings::printBalances()) {
+      //print it on cups... send pbInfo instead
+      QPrinter printer;
+      printer.setFullPage( true );
+      QPrintDialog printDialog( &printer );
+      printDialog.setWindowTitle(i18n("Print Balance"));
+      if ( printDialog.exec() ) {
+        PrintCUPS::printSmallBalance(pbInfo, printer);
+      }
+    }
+    slotDoStartOperation(false);
+  }//if doit
+}
 
 void lemonView::endOfDay() {
-  // Get every transaction from all day, calculate sales, profit, and profit margin (%). From the same terminal
+  bool doit = false;
+  //ASK for security if no lowSecurityMode.
+  if (Settings::lowSecurityMode()) {
+    doit = true;
+  } else {
+    dlgPassword->show();
+    dlgPassword->clearLines();
+    dlgPassword->hide();
+    doit = dlgPassword->exec();
+  }//else lowsecurity
 
-  AmountAndProfitInfo amountProfit;
-  QList<TransactionInfo> transactionsList;
-  Azahar *myDb = new Azahar;
-  myDb->setDatabase(db);
+  if (doit) {
+    log(loggedUserId, QDate::currentDate(), QTime::currentTime(), QString("End of Day report printed by %1 at terminal %2 on %3").
+    arg(dlgPassword->username()).
+    arg(Settings::editTerminalNumber()).
+    arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm")));
 
-  amountProfit     = myDb->getDaySalesAndProfit(Settings::editTerminalNumber());
-  transactionsList = myDb->getDayTransactions(Settings::editTerminalNumber());
+    // Get every transaction from all day, calculate sales, profit, and profit margin (%). From the same terminal
+    AmountAndProfitInfo amountProfit;
+    PrintEndOfDayInfo pdInfo;
+    QList<TransactionInfo> transactionsList;
+    QPixmap logoPixmap;
+    logoPixmap.load(Settings::storeLogo());
 
-  QFont header = QFont("Impact", 30);
-  const int Margin = 50;
-  QPixmap logoPixmap;
-  logoPixmap.load(Settings::storeLogo());
-  QPrinter printer;
-  printer.setFullPage( true );
-  QPrintDialog printDialog( &printer, this );
-  printDialog.setWindowTitle(i18n("Print end of day report"));
-  if ( printDialog.exec() )
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    amountProfit     = myDb->getDaySalesAndProfit(Settings::editTerminalNumber());
+    transactionsList = myDb->getDayTransactions(Settings::editTerminalNumber());
+
+    pdInfo.storeName = Settings::editStoreName();
+    pdInfo.storeAddr = Settings::storeAddress();
+    pdInfo.storeLogo = logoPixmap;
+    pdInfo.thTitle   = i18n("End of day report");
+    pdInfo.thTicket  = i18n("Id");
+    pdInfo.salesPerson = loggedUserName;
+    pdInfo.terminal  = i18n("at terminal # %1",Settings::editTerminalNumber());
+    pdInfo.thDate    = KGlobal::locale()->formatDateTime(QDateTime::currentDateTime(), KLocale::LongDate);
+    pdInfo.thTime    = i18n("Time");
+    pdInfo.thAmount  = i18n("Amount");
+    pdInfo.thProfit  = i18n("Profit");
+    pdInfo.thPayMethod = i18n("Method");
+    pdInfo.logoOnTop = Settings::chLogoOnTop();
+    pdInfo.thTotalSales  = KGlobal::locale()->formatMoney(amountProfit.amount, QString(), 2);
+    pdInfo.thTotalProfit = KGlobal::locale()->formatMoney(amountProfit.profit, QString(), 2);
+
+    //each transaction...
+    for (int i = 0; i < transactionsList.size(); ++i)
     {
-      QPainter painter;
-      painter.begin( &printer );
+      QLocale localeForPrinting; // needed to convert double to a string better
+      TransactionInfo info = transactionsList.at(i);
+      QString tid      = QString::number(info.id);
+      QString hour     = info.time.toString("hh:mm");
+      QString amount   =  localeForPrinting.toString(info.amount,'f',2);
+      QString profit   =  localeForPrinting.toString(info.profit, 'f', 2);
+      QString payMethod;
+      payMethod        = myDb->getPayTypeStr(info.paymethod);//using payType methods
+
+      QString line     = tid +"|"+ hour +"|"+ amount +"|"+ profit +"|"+ payMethod;
+      pdInfo.trLines.append(line);
+    } //for each item
 
 
-      int yPos        = 0;
-      QFontMetrics fm = painter.fontMetrics();
-
-      // Header: REPORT, Store Name, Store Logo...
-      painter.setFont(header);
-      painter.drawText(Margin,Margin, i18n("End of day Report") );
-      yPos = yPos + fm.lineSpacing();
-      // Store Name
-      painter.setFont(QFont("Bitstream Vera Sans", 10));
-      QPen normalPen = painter.pen();
-      painter.setPen(Qt::darkGray);
-      painter.drawText(Margin, Margin + yPos, printer.width(), fm.lineSpacing(), Qt::TextExpandTabs | Qt::TextDontClip, Settings::editStoreName());
-      yPos = yPos + fm.lineSpacing();
-      // Store Logo
-      painter.drawPixmap(printer.width() - logoPixmap.width() - Margin, Margin - logoPixmap.height()/2, logoPixmap);
-      // Header line
-      painter.setPen(QPen(Qt::gray, 5, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
-      painter.drawLine(Margin, 100, printer.width()-Margin, 100);
-      yPos = yPos + 3 * fm.lineSpacing(); // 3times the height of the line
-      // Date
-      painter.setPen(normalPen);
-      QString text = KGlobal::locale()->formatDate(QDate::currentDate(), KLocale::LongDate);
-      QSize textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-      painter.drawText(printer.width()-Margin-textWidth.width()-20, Margin + yPos, text); // I think -20 is because fm is not updated.
-      yPos = yPos + fm.lineSpacing();
-      // terminal number
-      text = i18n("Terminal # ") + QString::number(Settings::editTerminalNumber());
-      textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-      painter.drawText(printer.width()-Margin-textWidth.width()-20, Margin + yPos, text);
-      yPos = yPos + 3*fm.lineSpacing();
-      // Transactions Subheader:  trans_id - time - amount - profit - paidwith - paymethod
-      QString headerTrans = i18n("Time") +QChar::fromLatin1(9)+ i18n("Amount") + QChar::fromLatin1(9)+ QChar::fromLatin1(9)+ i18n("Profit")+ QChar::fromLatin1(9)+ QChar::fromLatin1(9)+ i18n("Pay Method");
-      painter.setPen(Qt::darkBlue);
-      QFont tmpFont = QFont("Bitstream Vera Sans", 10 );
-      tmpFont.setWeight(QFont::Bold);
-      painter.setFont(tmpFont);
-      painter.drawText(Margin,Margin+yPos, i18n("Transaction Id"));
-      painter.drawText(printer.width()/4,Margin+yPos, headerTrans);
-      yPos = yPos + fm.lineSpacing();
-      painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
-      painter.drawLine(Margin, Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
-      painter.setPen(normalPen);
-      painter.setFont(QFont("Bitstream Vera Sans", 10 ));
-      yPos = yPos + fm.lineSpacing();
-      // End of Header Information.
-
-      // Content : Each Transaction
-      QLocale localeForPrinting;
-      qDebug()<<"Transactions size:"<<transactionsList.size()<<" Count"<<transactionsList.count();
-      for (int i = 0; i < transactionsList.size(); ++i)
-      {
-        TransactionInfo info = transactionsList.at(i);
-        QString amount   =  localeForPrinting.toString(info.amount,'f',2);
-        QString profit   =  localeForPrinting.toString(info.profit, 'f', 2);
-        QString payMethod;
-        //if (info.paymethod == pCash) payMethod= "Cash"; else payMethod = "Card";
-        payMethod = myDb->getPayTypeStr(info.paymethod);//using payType methods
-        QString line = info.time.toString("hh:mm")+ QChar::fromLatin1(9)+ amount+ QChar::fromLatin1(9)+ QChar::fromLatin1(9)+ profit + QChar::fromLatin1(9)+ QChar::fromLatin1(9)+ payMethod;
-        painter.drawText(Margin, Margin+yPos, QString::number(info.id));
-        painter.drawText(printer.width()/4, Margin+yPos, line);
-        yPos = yPos + fm.lineSpacing();
-        //Check if space for the next text line
-        if ( Margin + yPos > printer.height() - Margin ) {
-          printer.newPage();             // no more room on this page
-          yPos = 0;                       // back to top of page
-        }
-      } //for each item
-
-      //now the totals...
-      tmpFont = QFont("Bitstream Vera Sans", 14 );
-      tmpFont.setWeight(QFont::Bold);
-      painter.setFont(tmpFont);
-      //Check if space for the next text 6 lines --CHECK if page is about to end but space for 2 lines of info without spaces.
-      bool roomFor6Lines = false;
-      bool roomFor3Lines = false;
-      if ( (Margin + yPos +fm.lineSpacing()*6) > printer.height() - Margin ) {
-        //No room for 6 lines
-        if ( (Margin + yPos +fm.lineSpacing()*3) > printer.height() - Margin ) {
-          printer.newPage();             // no more room on this page for 3 lines
-          yPos = 0;                       // back to top of page
-        } else roomFor3Lines = true;
-      } else roomFor6Lines = true;
-
-
-      painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
-      painter.drawLine(Margin, Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
-
-      if (roomFor6Lines) yPos = yPos + fm.lineSpacing()*3; else yPos = yPos + fm.lineSpacing();
-
-      painter.setPen(Qt::blue);
-      text = i18n("Total Sales for") +  QChar::fromLatin1(9)+ QChar::fromLatin1(9)+  QChar::fromLatin1(9)+ KGlobal::locale()->formatMoney(amountProfit.amount, QString(), 2);
-      painter.drawText(Margin, Margin+yPos, text);
-      yPos = yPos + fm.lineSpacing()*2;
-      text = i18n("Total Profit for") +  QChar::fromLatin1(9)+  QChar::fromLatin1(9)+ QChar::fromLatin1(9)+ KGlobal::locale()->formatMoney(amountProfit.profit, QString(), 2);
-      painter.drawText(Margin, Margin+yPos, text);
-
-
-      painter.end();
-      // this makes the print job start
-  } //printDialog.exec()
+    if (Settings::smallTicketDotMatrix()) {
+      QString printerFile=Settings::printerDevice();
+      if (printerFile.length() == 0) printerFile="/dev/lp0";
+      QString printerCodec=Settings::printerCodec();
+      qDebug()<<"[Printing report on "<<printerFile<<"]";
+      ///TODO: Still missing the code to prepare the lines!
+      //PrintDEV::printSmallBalance(printerFile, printerCodec, lines.join("\n"));
+    } else if (Settings::smallTicketCUPS()) {
+      qDebug()<<"[Printing report on CUPS small size]";
+      QPrinter printer;
+      printer.setFullPage( true );
+      QPrintDialog printDialog( &printer );
+      printDialog.setWindowTitle(i18n("Print end of day report"));
+      if ( printDialog.exec() ) {
+        PrintCUPS::printSmallEndOfDay(pdInfo, printer);
+      }
+    } else { //big printer
+      qDebug()<<"[Printing report on CUPS big size]";
+      QPrinter printer;
+      printer.setFullPage( true );
+      QPrintDialog printDialog( &printer );
+      printDialog.setWindowTitle(i18n("Print end of day report"));
+      if ( printDialog.exec() ) {
+        PrintCUPS::printBigEndOfDay(pdInfo, printer);
+      }
+    }
+  }
 }
 
 
-void lemonView::saveBalance()
+qulonglong lemonView::saveBalance()
 {
-  
+  qulonglong result = 0;
   BalanceInfo info;
   info.id = 0;
   info.dateTimeStart = drawer->getStartDateTime();
@@ -2185,7 +2164,8 @@ void lemonView::saveBalance()
   //Save balance on Database
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
-  myDb->insertBalance(info);
+  result = myDb->insertBalance(info);
+  return result;
 }
 
 void lemonView::showBalance(QStringList lines)
@@ -2213,10 +2193,6 @@ void lemonView::printBalance(QStringList lines)
       qDebug()<<"[Printing balance on "<<printerFile<<"]";
       PrintDEV::printSmallBalance(printerFile, printerCodec, lines.join("\n"));
     } // DOT-MATRIX PRINTER on /dev/lpX
-    else if (Settings::smallTicketCUPS()) {
-      ///PrintCUPS::printSmallBalance(); ///FIXME:Send BalanceInfo data, not lines.. this must be called on this method caller..
-      ///maybe its good to move this code to where it was called...
-    } //THERMAL (CUPS) PRINTER
   }
 }
 
@@ -2550,6 +2526,9 @@ void lemonView::setupHistoryTicketsModel()
 
 void lemonView::setupTicketView()
 {
+  if (historyTicketsModel->tableName().isEmpty()) setupHistoryTicketsModel();
+  historyTicketsModel->setSort(historyTicketsModel->fieldIndex("id"),Qt::DescendingOrder);
+  historyTicketsModel->select();
   QSize tableSize = ui_mainview.ticketView->size();
   int portion = tableSize.width()/7;
   ui_mainview.ticketView->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
@@ -2570,6 +2549,8 @@ void lemonView::itemHIDoubleClicked(const QModelIndex &index){
     QModelIndex indx = model->index(row, 1); // id = columna 1
     qulonglong transactionId = model->data(indx, Qt::DisplayRole).toULongLong();
     printTicketFromTransaction(transactionId);
+    //return to selling tab
+    ui_mainview.mainPanel->setCurrentIndex(pageMain);
   }
 }
 
@@ -2584,6 +2565,8 @@ void lemonView::printSelTicket()
     qulonglong id = historyTicketsModel->record(index.row()).value("id").toULongLong();
     printTicketFromTransaction(id);
   }
+  //return to selling tab
+  ui_mainview.mainPanel->setCurrentIndex(pageMain);
 }
 
 void lemonView::printTicketFromTransaction(qulonglong transactionNumber){
@@ -2619,7 +2602,10 @@ void lemonView::printTicketFromTransaction(qulonglong transactionNumber){
   ticket.change = trInfo.changegiven;
   ticket.paidwith = trInfo.paywith;
   ticket.itemcount = trInfo.itemcount;
-  ticket.cardnum = trInfo.cardnumber;
+  if (!trInfo.cardnumber.isEmpty())
+    ticket.cardnum = trInfo.cardnumber.replace(0,15,"***************"); //FIXED: Only save last 4 digits
+  else
+    ticket.cardnum  = "";
   ticket.cardAuthNum = trInfo.cardauthnum;
   ticket.paidWithCard = (trInfo.paymethod == 2) ? true:false;
   ticket.clientDisc = 0;
@@ -2639,16 +2625,78 @@ void lemonView::showReprintTicket()
 
 void lemonView::cashOut()
 {
-  // ASK FOR ADMIN PASSWORD ??
-  double max = drawer->getAvailableInCash();
-  if (!max>0) {
-    KNotification *notify = new KNotification("information", this);
-    notify->setText(i18n("Cash not available at drawer!"));
-    QPixmap pixmap = DesktopIcon("dialog-error",32);
-    notify->setPixmap(pixmap);
-    notify->sendEvent();
+  bool doit = false;
+  //ASK for security if no lowSecurityMode.
+  if (Settings::lowSecurityMode()) {
+    doit = true;
   } else {
-    InputDialog *dlg = new InputDialog(this, false, dialogCashOut, i18n("Cash Out"), 0.001, max);
+    dlgPassword->show();
+    dlgPassword->clearLines();
+    dlgPassword->hide();
+    doit = dlgPassword->exec();
+  }//else lowsecurity
+  
+  if (doit) {
+    log(loggedUserId, QDate::currentDate(), QTime::currentTime(), QString("Cash-OUT by %1 at terminal %2 on %3").
+    arg(dlgPassword->username()).
+    arg(Settings::editTerminalNumber()).
+    arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm")));
+    
+    double max = drawer->getAvailableInCash();
+    if (!max>0) {
+      //KPassivePopup::message( i18n("Error:"),i18n("Cash not available at drawer!"),DesktopIcon("dialog-error", 48), this );
+
+      KNotification *notify = new KNotification("information", this);
+      notify->setText(i18n("Cash not available at drawer!"));
+      QPixmap pixmap = DesktopIcon("dialog-error",32);
+      notify->setPixmap(pixmap);
+      notify->sendEvent();
+
+    } else {
+      InputDialog *dlg = new InputDialog(this, false, dialogCashOut, i18n("Cash Out"), 0.001, max);
+      if (dlg->exec() ) {
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
+
+        CashFlowInfo info;
+        info.amount = dlg->dValue;
+        info.reason = dlg->reason;
+        info.date = QDate::currentDate();
+        info.time = QTime::currentTime();
+        info.terminalNum = Settings::editTerminalNumber();
+        info.userid = loggedUserId;
+        info.type   = ctCashOut; //Normal cash-out
+        qulonglong cfId = myDb->insertCashFlow(info);
+        //affect drawer
+        //NOTE: What about CUPS printers?
+        if (Settings::openDrawer() && Settings::smallTicketDotMatrix()) drawer->open();
+        drawer->substractCash(info.amount);
+        drawer->insertCashflow(cfId);
+      }
+    }
+  }
+}
+
+void lemonView::cashIn()
+{
+  bool doit = false;
+  //ASK for security if no lowSecurityMode.
+  if (Settings::lowSecurityMode()) {
+    doit = true;
+  } else {
+    dlgPassword->show();
+    dlgPassword->clearLines();
+    dlgPassword->hide();
+    doit = dlgPassword->exec();
+  }//else lowsecurity
+  
+  if (doit) {
+    log(loggedUserId, QDate::currentDate(), QTime::currentTime(), QString("Cash-IN by %1 at terminal %2 on %3").
+    arg(dlgPassword->username()).
+    arg(Settings::editTerminalNumber()).
+    arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm")));
+    
+    InputDialog *dlg = new InputDialog(this, false, dialogCashOut, i18n("Cash In"));
     if (dlg->exec() ) {
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
@@ -2660,35 +2708,14 @@ void lemonView::cashOut()
       info.time = QTime::currentTime();
       info.terminalNum = Settings::editTerminalNumber();
       info.userid = loggedUserId;
-      info.type   = ctCashOut; //Normal cash-out
-      myDb->insertCashFlow(info);
+      info.type   = ctCashIn; //normal cash-out
+      qulonglong cfId = myDb->insertCashFlow(info);
       //affect drawer
-      if (Settings::openDrawer()) drawer->open();
-      drawer->substractCash(info.amount);
+      //NOTE: What about CUPS printers?
+      if (Settings::openDrawer() && Settings::smallTicketDotMatrix()) drawer->open();
+      drawer->addCash(info.amount);
+      drawer->insertCashflow(cfId);
     }
-  }
-}
-
-void lemonView::cashIn()
-{
-  // ASK FOR ADMIN PASSWORD ??
-  InputDialog *dlg = new InputDialog(this, false, dialogCashOut, i18n("Cash In"));
-  if (dlg->exec() ) {
-    Azahar *myDb = new Azahar;
-    myDb->setDatabase(db);
-
-    CashFlowInfo info;
-    info.amount = dlg->dValue;
-    info.reason = dlg->reason;
-    info.date = QDate::currentDate();
-    info.time = QTime::currentTime();
-    info.terminalNum = Settings::editTerminalNumber();
-    info.userid = loggedUserId;
-    info.type   = ctCashIn; //normal cash-in
-    myDb->insertCashFlow(info);
-    //affect drawer
-    if (Settings::openDrawer()) drawer->open();
-    drawer->addCash(info.amount);
   }
 }
 
@@ -2700,6 +2727,13 @@ void lemonView::cashAvailable()
   QPixmap pixmap = DesktopIcon("dialog-information",32);
   notify->setPixmap(pixmap);
   notify->sendEvent();
+}
+
+void lemonView::log(const qulonglong &uid, const QDate &date, const QTime &time, const QString &text)
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  myDb->insertLog(uid, date, time, "[ LEMON ] "+text);
 }
 
 #include "lemonview.moc"

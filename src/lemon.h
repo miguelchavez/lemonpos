@@ -158,6 +158,8 @@ private slots:
 
     void showDBConfigDialog();
 
+    void enableStartOp();
+
 private:
     void setupActions();
 

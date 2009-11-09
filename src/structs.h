@@ -3,6 +3,7 @@
  *   miguel.chavez.gamboa@gmail.com                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
+
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
@@ -132,6 +133,39 @@ struct BalanceInfo
   int        terminal;
 };
 
+struct PrintBalanceInfo
+{
+  QString     thBalanceId;
+  QString     storeName;
+  QString     storeAddr;
+  QString     thTitle;
+  QString     thDeposit;
+  QString     thIn;
+  QString     thOut;
+  QString     thInDrawer;
+  QString     thTitleDetails;
+  QString     thTitleCFDetails;
+  QString     thTrId;
+  QString     thTrTime;
+  QString     thTrAmount;
+  QString     thTrPaidW;
+  QString     thTrPayMethod;
+  QPixmap     storeLogo;
+  QString     startDate;
+  QString     endDate;
+  // qtys as string - local aware / translated
+  QString     initAmount;
+  QString     inAmount;
+  QString     outAmount;
+  QString     cashAvailable;
+  bool        logoOnTop;
+  QString     thCFType;
+  QString     thCFReason;
+  QString     thCFDate;
+  QStringList trList;
+  QStringList cfList;
+};
+
 struct pieProdInfo
 {
   double count;
@@ -146,7 +180,7 @@ struct ProfitRange
 };
 
 struct TicketLineInfo {
-  double qty; //MCH: Must be double, and it was int!
+  double qty;
   QString unitStr;
   QString desc;
   double price;
@@ -178,7 +212,26 @@ struct PrintTicketInfo {
   QString    storePhone;
   QString    ticketMsg;
   QPixmap    storeLogo;
+  QString    salesPerson;
+  QString    terminal;
+  QString    thPhone;
+  QString    thDate;
+  QString    thProduct;
+  QString    thQty;
+  QString    thPrice;
+  QString    thTotal;
+  QString    thTotals;
+  QString    thDiscount;
+  QString    thArticles;
+  QString    thPoints;
+  QString    thTicket;
+  QString    thPaid;
+  QString    tDisc;
+  QString    thCard;
+  QString    thCardAuth;
+  double     totDisc;
   TicketInfo ticketInfo;
+  bool       logoOnTop;
 };
 
 struct TransactionItemInfo
@@ -207,12 +260,34 @@ struct CashFlowInfo
   QDate date;
   QTime time;
   qulonglong terminalNum;
+  //next are for cashflow into balance printing
+  QString typeStr;
 };
 
 struct AmountAndProfitInfo
 {
     double amount;
     double profit;
+};
+
+struct PrintEndOfDayInfo
+{
+  QString    storeName;
+  QString    storeAddr;
+  QPixmap    storeLogo;
+  QString    salesPerson;
+  QString    terminal;
+  QString    thTitle;
+  QString    thDate;
+  QString    thTime;
+  QString    thTicket;
+  QString    thAmount;
+  QString    thProfit;
+  QString    thPayMethod;
+  QString    thTotalSales;
+  QString    thTotalProfit;
+  QStringList trLines;
+  bool       logoOnTop;
 };
 
 struct BrandInfo

@@ -49,6 +49,8 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     QByteArray pixData = model->data(index, Qt::DisplayRole).toByteArray();
     nameIndex = model->index(row, 3);
     double stockqty = model->data(nameIndex, Qt::DisplayRole).toDouble();
+    nameIndex = model->index(row, 0);
+    QString strCode = "# " + model->data(nameIndex, Qt::DisplayRole).toString();
 
     //preparing photo to paint it...
     QPixmap pix;
@@ -87,7 +89,7 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     if (strSize > boxSize) {
       int excess = strSize-boxSize;
       int charEx = (excess/aproxPerChar)+2;
-      nameToDisplay = name.left(name.length()-charEx-5) +"...";
+      nameToDisplay = name.left(name.length()-charEx-7) +"...";
       //qDebug()<<"Text does not fit, strSize="<<strSize<<" boxSize:"
       //<<boxSize<<" excess="<<excess<<" charEx="<<charEx<<"nameToDisplay="<<nameToDisplay;
     }
@@ -116,6 +118,19 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
                       150, 20, Qt::AlignCenter, naStr);
       painter->setBackgroundMode(Qt::TransparentMode);
     }
+    
+    //painting code number
+    font = QFont("Trebuchet MS", 9);
+    font.setBold(false);
+    font.setItalic(true);
+    painter->setFont(font);
+    painter->setBackgroundMode(Qt::TransparentMode);
+    painter->setPen(Qt::white);
+    painter->setBackground(QColor(255,225,0,160));
+    painter->drawText(option.rect.x()+10,
+                      option.rect.y()+5,
+                      150, 20, Qt::AlignCenter, strCode);
+    painter->setBackgroundMode(Qt::TransparentMode);
 }
 
 

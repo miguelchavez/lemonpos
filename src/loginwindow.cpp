@@ -22,6 +22,7 @@
 #include "loginwindow.h"
 #include "hash.h"
 #include "settings.h"
+#include "enums.h"
 
 #include <QtGui>
 #include <QPixmap>
@@ -142,8 +143,8 @@ LoginWindow::LoginWindow(QWidget *parent,
       break;
     case LoginWindow::PasswordOnly:
       setObjectName("passwordDialog");
-      labelUsername->hide();
-      editUsername->hide();
+      //labelUsername->hide();
+      //editUsername->hide();
       editPassword->setMaximumSize(QSize(120, 28));
       mainImage->setPixmap(DesktopIcon("lemon-user", 128));
       imageError->setPixmap(DesktopIcon("dialog-cancel", 22));
@@ -260,18 +261,27 @@ bool LoginWindow::checkPassword()
   bool result=false;
   bool showError=false;
   QString user;
-  if (editUsername->isHidden()) user = "admin";
-  else user = username();
+  
+  // Now we use roles and username is requiered even for administrator(s).
+  user = username();
 
-  //FIXME: Update uHash from database?..
+  //NOTE: Update uHash from database?..
   if (uHash.contains(user)) {
     UserInfo uInfo = uHash.value(user);
     QString givenPass = Hash::password2hash((uInfo.salt+password()).toLocal8Bit());
-    //qDebug()<<"GivenPassword hash:"<<givenPass<<" savedPassword hash:"<<uInfo.password;
     if (givenPass == uInfo.password) {
-      result = true;
-      qDebug()<<"login::Username and password OK...";
-    }
+      // Condition #1 : USER PASSWORD satisfied!
+      // Condition #2: if FullScreen means any user can be validated else in PasswordOnly ONLY Admin/Supervisor can be validated
+      if (currentMode == PasswordOnly) { //really not only password since roles are implemented.
+        if ((uInfo.role == roleAdmin) || (uInfo.role == roleSupervisor)) {
+          result = true;
+        } else {
+          result=false;
+        }
+      } else { //any  user role
+        result = true;
+      }
+    }//if password is ok
     else {
       showError = true;
     }

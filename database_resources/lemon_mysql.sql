@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   `date` date NOT NULL,
   `time` time NOT NULL,
   `paidwith` double unsigned NOT NULL default '0.0',
-  `changegiven` double NOT NULL default '0',
+  `changegiven` double unsigned NOT NULL default '0.0',
   `paymethod` int(10) NOT NULL default '0',
   `state` int(10) NOT NULL default '0',
   `cardnumber` varchar(20) character set utf8 collate utf8_general_ci, #Card/Check
@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   `terminalnum` int(10) unsigned NOT NULL default '1',
   `providerid` int(10) unsigned NOT NULL, #for Purchase orders
   `groups` VARCHAR(50), -- to indicate there are groups sold in this transaction.
- PRIMARY KEY  (`id`, `clientid`, `type`, `date`, `time`, `state`)
+  PRIMARY KEY (`id`),
+  KEY  `SEC` (`clientid`, `type`, `date`, `time`, `state`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
@@ -47,8 +48,8 @@ CREATE TABLE IF NOT EXISTS `products` (
   `lastproviderid` int(10) unsigned NOT NULL default '1',
   `soldunits` double unsigned NOT NULL default '0',
   `datelastsold` date ,
- PRIMARY KEY  (`code`, `name`, `brandid`, `alphacode`),
- KEY `SEC` (`category`)
+ PRIMARY KEY  (`code`),
+ KEY `SEC` (`category`, `name`, `brandid`, `alphacode`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `group_elements` (
@@ -56,7 +57,8 @@ CREATE TABLE IF NOT EXISTS `group_elements` (
   `gid` bigint(20) unsigned NOT NULL,
   `product_id` bigint(20) unsigned NOT NULL,
   `qty` bigint(20) unsigned NOT NULL,
-  PRIMARY KEY  (`id`, `gid`)
+  PRIMARY KEY  (`id`),
+  KEY `SEC` (`gid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `groups` (
@@ -122,7 +124,8 @@ CREATE TABLE IF NOT EXISTS `balances` (
   `card` double NOT NULL,
   `transactions` varchar(250) collate utf8_general_ci NOT NULL,
   `terminalnum` bigint(20) unsigned NOT NULL,
-  PRIMARY KEY  (`id`, `datetime_start`, `datetime_end`, `userid`)
+  PRIMARY KEY  (`id`),
+  KEY `SEC` (`datetime_start`,`datetime_end`, `userid` )
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `invoices` (
@@ -149,7 +152,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `phone_movil` varchar(50) collate utf8_general_ci default NULL,
   `role` int(10) unsigned default '0',
   `photo` blob default NULL,
-  PRIMARY KEY (`id`,`username`)
+  PRIMARY KEY (`id`),
+  KEY `SEC` (`username`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `clients` (
@@ -163,7 +167,8 @@ CREATE TABLE IF NOT EXISTS `clients` (
   `points` bigint(20) unsigned default '0',
   `discount` double NOT NULL,
   `photo` blob default NULL,
-  PRIMARY KEY (`id`, `name`, `taxid`)
+  PRIMARY KEY (`id`),
+  KEY `SEC` (`username`, `name`, `taxid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `paytypes` (
@@ -209,7 +214,8 @@ CREATE TABLE IF NOT EXISTS `cashflow` (
   `date` date NOT NULL,
   `time` time NOT NULL,
   `terminalnum` int(10) unsigned NOT NULL default '1',
-  PRIMARY KEY  (`id`, `date`, `time`, `type`, `userid`)
+  PRIMARY KEY  (`id`),
+  KEY SEC (`date`, `time`, `type`, `userid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `cashflowtypes` (
@@ -228,6 +234,7 @@ CREATE TABLE IF NOT EXISTS `providers` (
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `products_providers` (
+  `id` bigint(20) unsigned NOT NULL auto_increment,
   `provider_id` int(10) unsigned NOT NULL,
   `product_id` bigint(20) unsigned NOT NULL,
   `price` double unsigned NOT NULL default '0.0', #price?? implement later if decided
@@ -250,6 +257,15 @@ CREATE TABLE IF NOT EXISTS `config` (
   `firstrun` varchar(30) character set utf8 collate utf8_general_ci NOT NULL,
   `taxIsIncludedInPrice` bool NOT NULL default true,
   PRIMARY KEY  (`firstrun`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `logs` (
+  `id` bigint(20) unsigned NOT NULL auto_increment,
+  `userid` bigint(20) unsigned NOT NULL,
+  `date` varchar(20) NOT NULL,
+  `time` varchar(20) NOT NULL,
+  `action` varchar(255) NOT NULL,
+  PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW `v_transactions` AS

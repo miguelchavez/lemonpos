@@ -1124,6 +1124,25 @@ unsigned int Azahar::getUserId(QString uname)
   return iD;
 }
 
+int Azahar::getUserRole(const qulonglong &userid)
+{
+  int role = 0;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery queryId(db);
+    QString qry = QString("SELECT role FROM users WHERE id=%1").arg(userid);
+    if (!queryId.exec(qry)) { setError(queryId.lastError().text()); }
+    else {
+      if (queryId.isActive() && queryId.isSelect()) { //qDebug()<<"queryId select && active.";
+        if (queryId.first()) { //qDebug()<<"queryId.first()=true";
+        role = queryId.value(0).toInt();
+        }
+      }
+    }
+  } else { setError(db.lastError().text()); }
+  return role;
+}
+
 
 //CLIENTS
 bool Azahar::insertClient(ClientInfo info)
@@ -1302,6 +1321,7 @@ unsigned int Azahar::getClientId(QString uname)
 TransactionInfo Azahar::getTransactionInfo(qulonglong id)
 {
   TransactionInfo info;
+  info.id = 0;
   QString qry = QString("SELECT * FROM transactions WHERE id=%1").arg(id);
   QSqlQuery query;
   if (!query.exec(qry)) { qDebug()<<query.lastError(); }
@@ -1339,7 +1359,7 @@ TransactionInfo Azahar::getTransactionInfo(qulonglong id)
       info.state     = query.value(fieldState).toInt();
       info.userid    = query.value(fieldUserId).toULongLong();
       info.clientid  = query.value(fieldClientId).toULongLong();
-      info.cardnumber= query.value(fieldCardNum).toString();
+      info.cardnumber= query.value(fieldCardNum).toString();//.replace(0,15,"***************"); //FIXED: Only save last 4 digits;
       info.cardauthnum=query.value(fieldCardAuth).toString();
       info.itemcount = query.value(fieldItemCount).toInt();
       info.itemlist  = query.value(fieldItemsList).toString();
@@ -1529,7 +1549,7 @@ qulonglong Azahar::insertTransaction(TransactionInfo info)
   query2.bindValue(":state", info.state);
   query2.bindValue(":userid", info.userid);
   query2.bindValue(":clientid", info.clientid);
-  query2.bindValue(":cardnumber", info.cardnumber);
+  query2.bindValue(":cardnumber", info.cardnumber); //.replace(0,15,"***************")); //FIXED: Only save last 4 digits
   query2.bindValue(":itemcount", info.itemcount);
   query2.bindValue(":itemslist", info.itemlist);
   query2.bindValue(":points", info.points);
@@ -1634,14 +1654,17 @@ bool Azahar::cancelTransaction(qulonglong id, bool inProgress)
   TransactionInfo tinfo = getTransactionInfo(id);
   bool transCompleted = false;
   bool alreadyCancelled = false;
-  if (tinfo.state == tCompleted) transCompleted = true;
-  if (tinfo.state == tCancelled) alreadyCancelled = true;
+  bool transExists = false;
+  if (tinfo.id    >  0)          transExists      = true;
+  if (tinfo.state == tCompleted && transExists) transCompleted   = true;
+  if (tinfo.state == tCancelled && transExists) alreadyCancelled = true;
+  
   
   if (ok) {
     QSqlQuery query(db);
     QString qry;
     
-    if (!inProgress && !alreadyCancelled) {
+    if (!inProgress && !alreadyCancelled && transExists) {
       qry = QString("UPDATE transactions SET  state=%1 WHERE id=%2")
       .arg(tCancelled)
       .arg(id);
@@ -1926,7 +1949,57 @@ qulonglong Azahar::insertCashFlow(CashFlowInfo info)
   return result;
 }
 
+QList<CashFlowInfo> Azahar::getCashFlowInfoList(const QList<qulonglong> &idList)
+{
+  QList<CashFlowInfo> result;
+  result.clear();
+  if (idList.count() == 0) return result;
+  QSqlQuery query(db);
 
+  foreach(qulonglong currId, idList) {
+    QString qry = QString(" \
+    SELECT CF.id as id, \
+    CF.type as type, \
+    CF.userid as userid, \
+    CF.amount as amount, \
+    CF.reason as reason, \
+    CF.date as date, \
+    CF.time as time, \
+    CF.terminalNum as terminalNum, \
+    CFT.text as typeStr \
+    FROM cashflow AS CF, cashflowtypes AS CFT \
+    WHERE id=%1 AND CFT.typeid = CF.type;").arg(currId);
+    if (query.exec(qry)) {
+      while (query.next()) {
+        CashFlowInfo info;
+        int fieldId      = query.record().indexOf("id");
+        int fieldType    = query.record().indexOf("type");
+        int fieldUserId  = query.record().indexOf("userid");
+        int fieldAmount  = query.record().indexOf("amount");
+        int fieldReason  = query.record().indexOf("reason");
+        int fieldDate    = query.record().indexOf("date");
+        int fieldTime    = query.record().indexOf("time");
+        int fieldTermNum = query.record().indexOf("terminalNum");
+        int fieldTStr    = query.record().indexOf("typeStr");
+
+        info.id          = query.value(fieldId).toULongLong();
+        info.type        = query.value(fieldType).toULongLong();
+        info.userid      = query.value(fieldUserId).toULongLong();
+        info.amount      = query.value(fieldAmount).toDouble();
+        info.reason      = query.value(fieldReason).toString();
+        info.typeStr     = query.value(fieldTStr).toString();
+        info.date        = query.value(fieldDate).toDate();
+        info.time        = query.value(fieldTime).toTime();
+        info.terminalNum = query.value(fieldTermNum).toULongLong();
+        result.append(info);
+      }
+    }
+    else {
+      setError(query.lastError().text());
+    }
+  } //foreach
+  return result;
+}
 
 //TransactionTypes
 QString  Azahar::getPayTypeStr(qulonglong type)
@@ -2003,7 +2076,6 @@ qulonglong Azahar::getBrandId(const QString &name)
   }
   return result;
 }
-
 
 bool Azahar::getConfigFirstRun()
 {
@@ -2090,6 +2162,27 @@ qulonglong Azahar::insertBrand(const QString &name)
       QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),errStr);
       setError(details);
     } else result = query.lastInsertId().toULongLong();
+  }
+  return result;
+}
+
+//LOGS
+
+bool Azahar::insertLog(const qulonglong &userid, const QDate &date, const QTime &time, const QString actionStr)
+{
+  bool result = false;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO logs (userid, date, time, action) VALUES(:userid, :date, :time, :action);");
+    query.bindValue(":userid", userid);
+    query.bindValue(":date", date.toString("yyyy-MM-dd"));
+    query.bindValue(":time", time.toString("hh:mm"));
+    query.bindValue(":action", actionStr);
+    if (!query.exec()) {
+      setError(query.lastError().text());
+      qDebug()<<"ERROR ON SAVING LOG:"<<query.lastError().text();
+    } else result = true;
   }
   return result;
 }

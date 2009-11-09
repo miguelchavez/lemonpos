@@ -34,11 +34,11 @@ class QString;
 
 class PrintCUPS {
   public:
-    static bool printSmallBalance(PrintTicketInfo pbInfo);
-    static bool printBigBalance(PrintTicketInfo pbInfo);
-    
-    static bool printSmallTicket(PrintTicketInfo ptInfo);
-    static bool printBigTicket(PrintTicketInfo ptInfo);
+    static bool printSmallBalance(const PrintBalanceInfo &pbInfo, QPrinter &printer);
+    static bool printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printer);
+    static bool printBigTicket(const PrintTicketInfo &ptInfo, QPrinter &printer); //NEEDS more work
+    static bool printSmallEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &printer);
+    static bool printBigEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &printer);
 };
 
 #endif

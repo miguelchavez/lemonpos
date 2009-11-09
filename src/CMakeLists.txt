@@ -14,6 +14,7 @@ set(lemon_SRCS
    misc.cpp
    ../dataAccess/azahar.cpp
    pricechecker.cpp
+   ticketpopup.cpp
    ../printing/print-dev.cpp
    ../printing/print-cups.cpp
    ../mibitWidgets/mibitfloatpanel.cpp

@@ -28,6 +28,7 @@
 MibitLineEdit::MibitLineEdit( QWidget *parent )
     : QLineEdit( parent )
 {
+  qDebug()<<"creating MibitLineEdit";
     drawEmptyMsg = false;
     actualColor  = 0;
     timer = new QTimer(this);
@@ -152,9 +153,11 @@ void MibitLineEdit::focusOutEvent( QFocusEvent *ev )
 
 void MibitLineEdit::keyPressEvent ( QKeyEvent * event )
 {
-    if ( event->key() == Qt::Key_Plus ) {
-        emit plusKeyPressed();
-    } else QLineEdit::keyPressEvent(event);
+  //check for our special keys +,Enter (specific for lemonPOS)
+  if ( event->key() == Qt::Key_Plus || event->key() == Qt::Key_Enter )
+      emit plusKeyPressed();
+  //anyway we must send enter and + key events...
+  QLineEdit::keyPressEvent(event);
 }
 
 

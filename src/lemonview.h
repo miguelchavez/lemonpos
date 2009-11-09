@@ -3,6 +3,7 @@
  *   miguel.chavez.gamboa@gmail.com                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
+
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
@@ -53,7 +54,9 @@ public:
 
     QString getLoggedUser();
     QString getLoggedUserName(QString id);
-    unsigned int getLoggedUserId(QString uname);
+    qulonglong getLoggedUserId(QString uname); //BUG FIXED on nov82009: it was unsigned int...
+    int getUserRole(qulonglong id);
+    int getLoggedUserRole() { return loggedUserRole; }
     QString getCurrentTransactionString();
     qulonglong     getCurrentTransaction();
     QList<int> getTheSplitterSizes();
@@ -63,14 +66,15 @@ public:
     void cancelByExit();
     bool canStartSelling() {return operationStarted;}
     bool validAdminUser();
-    void saveBalance();
+    qulonglong saveBalance();
     
   private:
     Ui::mainview ui_mainview;
     QString loggedUser;
     QString loggedUserName;
-    unsigned int loggedUserId;
-    qulonglong   currentTransaction;
+    int     loggedUserRole;
+    qulonglong loggedUserId;
+    qulonglong currentTransaction;
     double  totalSum;
     Gaveta *drawer;
     bool   drawerCreated;
@@ -111,10 +115,12 @@ public:
      * Use this signal to inform that the administrator has logged on.
      **/
     void signalAdminLoggedOn();
+    void signalSupervisorLoggedOn();
     /**
      * Use this signal to inform that the administrator has logged off.
      **/
     void signalAdminLoggedOff();
+    void signalSupervisorLoggedOff();
     /**
      * Use this signal to inform that no user has logged on.
      **/
@@ -141,6 +147,10 @@ public:
     void signalShowProdGrid();
 
     void signalShowDbConfig();
+
+    void signalEnableUI();
+    void signalDisableUI();
+    void signalEnableStartOperationAction();
 
 
   private slots:
@@ -212,8 +222,9 @@ public:
   /**
      * Slot used to start store operation, gaveta qty is set to 0.
    */
-    void startOperation();
-    void slotDoStartOperation();
+    void startOperation(const QString &adminUser);
+    void _slotDoStartOperation();
+    void slotDoStartOperation(const bool &ask = true);
   /**
      * Slot used to clear the tableWidget, totals, amount and card number.
    */
@@ -287,6 +298,11 @@ public:
     void cashIn();
     void cashAvailable();
     void modifyProductsFilterModel(); //this feature is only present on 0.7.4 - 0.8 but not in SVN. It is for search combobox - biel
+
+    void freezeWidgets();
+    void unfreezeWidgets();
+
+    void log(const qulonglong &uid, const QDate &date, const QTime &time, const QString &text);
 
 };
 
