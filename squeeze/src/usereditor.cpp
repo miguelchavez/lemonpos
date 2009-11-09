@@ -91,7 +91,6 @@ void UserEditor::setUserRole(const int &role)
       ui->chRoleBasic->setChecked(true);
       enableButtonOk(true); //for example when old db with user role=0 then we set as basic role, this change must be saved.
   }
-    
 }
 
 int UserEditor::getUserRole()
