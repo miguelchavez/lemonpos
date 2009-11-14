@@ -156,6 +156,14 @@ void squeeze::enableUI()
   action->setEnabled(true);
   action = actionCollection()->action(KStandardAction::name(KStandardAction::Preferences));
   action->setEnabled(true);
+  action = actionCollection()->action("reports");
+  action->setEnabled(true);
+  action = actionCollection()->action("quickViewPlots");
+  action->setEnabled(true);
+  action = actionCollection()->action("cashFlowBrowse");
+  action->setEnabled(true);
+  action = actionCollection()->action("stockCorrection");
+  action->setEnabled(true);
   }
 
 void squeeze::disableUI()
@@ -182,90 +190,111 @@ void squeeze::disableUI()
   action->setDisabled(true);
   action = actionCollection()->action(KStandardAction::name(KStandardAction::Preferences));
   action->setDisabled(true);
+  action = actionCollection()->action("reports");
+  action->setDisabled(true);
+  action = actionCollection()->action("quickViewPlots");
+  action->setDisabled(true);
+  action = actionCollection()->action("cashFlowBrowse");
+  action->setDisabled(true);
+  action = actionCollection()->action("stockCorrection");
+  action->setDisabled(true);
 }
 
 void squeeze::setupActions()
 {
   KStandardAction::quit(qApp, SLOT(quit()), actionCollection());
   KStandardAction::preferences(this, SLOT(optionsPreferences()), actionCollection());
-  
+
   //My actions
   QAction* loginAction =  actionCollection()->addAction( "login" );
   loginAction->setText(i18n("Login"));
   loginAction->setIcon(KIcon("office-address-book"));
   loginAction->setShortcut(Qt::CTRL+Qt::Key_L);
   connect(loginAction, SIGNAL(triggered(bool)),m_view, SLOT(login()));
-  
-  QAction* prodBrowseAction =  actionCollection()->addAction( "productsBrowse" );
-  prodBrowseAction->setText(i18n("Browse products"));
-  prodBrowseAction->setIcon(KIcon("lemon-box"));
-  prodBrowseAction->setShortcut(Qt::CTRL+Qt::Key_P);
-  connect(prodBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showProductsPage()));
-  
-  QAction* offersBrowseAction =  actionCollection()->addAction( "offersBrowse" );
-  offersBrowseAction->setText(i18n("Browse offers"));
-  offersBrowseAction->setIcon(KIcon("lemon-offers"));
-  offersBrowseAction->setShortcut(Qt::CTRL+Qt::Key_O);
-  connect(offersBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showOffersPage()));
-  
+
   QAction* usersBrowseAction =  actionCollection()->addAction( "usersBrowse" );
   usersBrowseAction->setText(i18n("Browse users"));
   usersBrowseAction->setIcon(KIcon("lemon-user"));
   usersBrowseAction->setShortcut(Qt::CTRL+Qt::Key_U);
   connect(usersBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showUsersPage()));
-  
-  QAction* measuresBrowseAction =  actionCollection()->addAction( "measuresBrowse" );
-  measuresBrowseAction->setText(i18n("Browse Measures"));
-  measuresBrowseAction->setIcon(KIcon("lemon-ruler"));
-  measuresBrowseAction->setShortcut(Qt::CTRL+Qt::Key_M);
-  connect(measuresBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showMeasuresPage()));
-  
-  QAction* categoriesBrowseAction =  actionCollection()->addAction( "categoriesBrowse" );
-  categoriesBrowseAction->setText(i18n("Browse Categories"));
-  categoriesBrowseAction->setIcon(KIcon("lemon-categories"));
-  categoriesBrowseAction->setShortcut(Qt::CTRL+Qt::Key_C);
-  connect(categoriesBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showCategoriesPage()));
-  
-  QAction* balancesBrowseAction =  actionCollection()->addAction( "balancesBrowse" );
-  balancesBrowseAction->setText(i18n("Browse Balances"));
-  balancesBrowseAction->setIcon(KIcon("lemonbalance"));
-  balancesBrowseAction->setShortcut(Qt::CTRL+Qt::Key_B);
-  connect(balancesBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showBalancesPage()));
-  
-  QAction* cashFlowBrowseAction =  actionCollection()->addAction( "cashFlowBrowse" );
-  cashFlowBrowseAction->setText(i18n("Browse Cash Flow"));
-  cashFlowBrowseAction->setIcon(KIcon("lemon-cashout"));
-  cashFlowBrowseAction->setShortcut(Qt::CTRL+Qt::Key_F);
-  connect(cashFlowBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showCashFlowPage()));
-  
-  QAction* transactionsBrowseAction =  actionCollection()->addAction( "transactionsBrowse" );
-  transactionsBrowseAction->setText(i18n("Browse Transactions"));
-  transactionsBrowseAction->setIcon(KIcon("lemon-money"));//TODO:Create an icon for this...
-  transactionsBrowseAction->setShortcut(Qt::CTRL+Qt::Key_T);
-  connect(transactionsBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showTransactionsPage()));
-  
+
   QAction* clientsBrowseAction =  actionCollection()->addAction( "clientsBrowse" );
   clientsBrowseAction->setText(i18n("Browse Clients"));
   clientsBrowseAction->setIcon(KIcon("lemon-user"));//TODO:Create an icon for this...
   clientsBrowseAction->setShortcut(Qt::CTRL+Qt::Key_I);
   connect(clientsBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showClientsPage()));
-  
+
+  QAction* prodBrowseAction =  actionCollection()->addAction( "productsBrowse" );
+  prodBrowseAction->setText(i18n("Browse products"));
+  prodBrowseAction->setIcon(KIcon("lemon-box"));
+  prodBrowseAction->setShortcut(Qt::CTRL+Qt::Key_P);
+  connect(prodBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showProductsPage()));
+
+  QAction* measuresBrowseAction =  actionCollection()->addAction( "measuresBrowse" );
+  measuresBrowseAction->setText(i18n("Browse Measures"));
+  measuresBrowseAction->setIcon(KIcon("lemon-ruler"));
+  measuresBrowseAction->setShortcut(Qt::CTRL+Qt::Key_M);
+  connect(measuresBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showMeasuresPage()));
+
+  QAction* categoriesBrowseAction =  actionCollection()->addAction( "categoriesBrowse" );
+  categoriesBrowseAction->setText(i18n("Browse Categories"));
+  categoriesBrowseAction->setIcon(KIcon("lemon-categories"));
+  categoriesBrowseAction->setShortcut(Qt::CTRL+Qt::Key_C);
+  connect(categoriesBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showCategoriesPage()));
+
+  QAction* offersBrowseAction =  actionCollection()->addAction( "offersBrowse" );
+  offersBrowseAction->setText(i18n("Browse offers"));
+  offersBrowseAction->setIcon(KIcon("lemon-offers"));
+  offersBrowseAction->setShortcut(Qt::CTRL+Qt::Key_O);
+  connect(offersBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showOffersPage()));
+
+  QAction* balancesBrowseAction =  actionCollection()->addAction( "balancesBrowse" );
+  balancesBrowseAction->setText(i18n("Browse Balances"));
+  balancesBrowseAction->setIcon(KIcon("lemonbalance"));
+  balancesBrowseAction->setShortcut(Qt::CTRL+Qt::Key_B);
+  connect(balancesBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showBalancesPage()));
+
+  QAction* cashFlowBrowseAction =  actionCollection()->addAction( "cashFlowBrowse" );
+  cashFlowBrowseAction->setText(i18n("Browse Cash Flow"));
+  cashFlowBrowseAction->setIcon(KIcon("lemon-cashout"));
+  cashFlowBrowseAction->setShortcut(Qt::CTRL+Qt::Key_F);
+  connect(cashFlowBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showCashFlowPage()));
+
+  QAction* transactionsBrowseAction =  actionCollection()->addAction( "transactionsBrowse" );
+  transactionsBrowseAction->setText(i18n("Browse Transactions"));
+  transactionsBrowseAction->setIcon(KIcon("wallet-open"));
+  transactionsBrowseAction->setShortcut(Qt::CTRL+Qt::Key_T);
+  connect(transactionsBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showTransactionsPage()));
+
+  QAction* quickViewPlotsAction =  actionCollection()->addAction( "quickViewPlots" );
+  quickViewPlotsAction->setText(i18n("Quick View Plots"));
+  quickViewPlotsAction->setIcon(KIcon("view-statistics"));
+  quickViewPlotsAction->setShortcut(Qt::CTRL+Qt::Key_W);
+  connect(quickViewPlotsAction, SIGNAL(triggered(bool)),m_view, SLOT(showWelcomeGraphs()));
+
   QAction* purchaseAction =  actionCollection()->addAction( "doPurchase" ); //Alias Check IN
   purchaseAction->setText(i18n("Purchase"));
-  purchaseAction->setIcon(KIcon("lemon-money"));//TODO:Create an icon for this...
+  purchaseAction->setIcon(KIcon("lemon-box"));
   purchaseAction->setShortcut(Qt::Key_F2);
   connect(purchaseAction, SIGNAL(triggered(bool)),m_view, SLOT(doPurchase()));
-  
-  //TODO: code the check out!
-  //FIXME: Check out could be confusing...
-  //QAction* outAction =  actionCollection()->addAction( "doCheckOut" );
-  //outAction->setText(i18n("Check Out"));
-  //outAction->setIcon(KIcon("lemon-money"));//TODO:Create an icon for this...
-  //outAction->setShortcut(Qt::Key_F3);
-  //connect(outAction, SIGNAL(triggered(bool)),m_view, SLOT(doCheckOut()));
-  
-  //     connect(m_view, SIGNAL(signalConnectActions()), this, SLOT(setupWidgetActions()) );//NOTE: Para que era??? no recuerdo
-  
+
+  QAction* checkOutAction =  actionCollection()->addAction( "checkOut" );
+  checkOutAction->setText(i18n("Check Out"));
+  checkOutAction->setIcon(KIcon("lemon-money"));//TODO:Create an icon for this...
+  checkOutAction->setShortcut(Qt::Key_F3);
+  connect(checkOutAction, SIGNAL(triggered(bool)),m_view, SLOT(doCheckOut()));
+
+  QAction* stockCorrectionAction =  actionCollection()->addAction( "stockCorrection" );
+  stockCorrectionAction->setText(i18n("Stock Correction"));
+  stockCorrectionAction->setIcon(KIcon("lemon-box"));//TODO:Create an icon for this...
+  stockCorrectionAction->setShortcut(Qt::Key_F4);
+  connect(stockCorrectionAction, SIGNAL(triggered(bool)),m_view, SLOT(stockCorrection()));
+
+  QAction* reportsAction =  actionCollection()->addAction( "reports" );
+  reportsAction->setText(i18n("Reports"));
+  reportsAction->setIcon(KIcon("lemon-reports"));
+  reportsAction->setShortcut(Qt::Key_F5);
+  connect(reportsAction, SIGNAL(triggered(bool)),m_view, SLOT(showReports()));
 }
 
 
