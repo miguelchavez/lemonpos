@@ -62,8 +62,8 @@ MibitTip::MibitTip( QWidget *parent, QWidget *partner, const QString &file, cons
     if ( m_tipPosition == tpAbove ) {
         layout->addWidget(text);
         layout->addWidget(img);
-        // a hack...
-        load("rotated_"+fileName);
+        // a hack... "rotated_"+
+        load(fileName);
     } else {
         layout->addWidget(img);
         layout->addWidget(text);
@@ -131,6 +131,7 @@ void MibitTip::morph(int newSize)
     }
     setFixedHeight(newSize);
     setFixedWidth(m_partner->width()-20);
+    //qDebug()<<"New size:"<<newSize;
 }
 
 void MibitTip::autoHide()

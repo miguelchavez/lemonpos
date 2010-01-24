@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa             *
- *   miguel@lemonpos.org                                                   *
+ *   miguel.chavez.gamboa@gmail.com                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -42,7 +42,7 @@ class QSqlDatabase;
  *  Also to have an image in the background.
  *
  * @short A Login Window
- * @author Miguel Chavez Gamboa  miguel@lemonpos.org           
+ * @author Miguel Chavez Gamboa  miguel.chavez.gamboa@gmail.com
 **/
 class LoginWindow : public QDialog
 {
@@ -87,6 +87,7 @@ class LoginWindow : public QDialog
 
     QString username();
     QString password();
+    int     getUserRole() { return userRole; }
     void clearLines();
     bool checkPassword();
     void setPrompt(QString text);
@@ -94,6 +95,9 @@ class LoginWindow : public QDialog
     void showErrorMessage(QString text);
     void setDb(QSqlDatabase database);
     bool wantToQuit();
+  private:
+    int  userRole;
+    
   protected slots:
     void acceptIt();
     void setQuit();
@@ -101,6 +105,7 @@ class LoginWindow : public QDialog
     void showAdminPhoto();
     void updateUserPhoto(const QString &);
     QHash<QString, UserInfo> getUsers();
+
   private slots:
     virtual void paintEvent(QPaintEvent*);
 };

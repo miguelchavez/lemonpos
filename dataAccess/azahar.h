@@ -70,7 +70,11 @@ class Azahar : public QObject
     double       getProductDiscount(qulonglong code);
     QList<pieProdInfo>  getTop5SoldProducts();
     QList<pieProdInfo>  getAlmostSoldOutProducts(int min, int max);
+    QList<ProductInfo>  getSoldOutProducts();
+    QList<ProductInfo>  getLowStockProducts(double min);
     double       getProductStockQty(qulonglong code);
+    qulonglong   getLastProviderId(qulonglong code);
+    bool         updateProductLastProviderId(qulonglong code, qulonglong provId);
 
     //PRODUCT STOCK CORRECTION
     bool         correctStock(qulonglong pcode, double oldStockQty, double newStockQty, const QString &reason );
@@ -97,6 +101,7 @@ class Azahar : public QObject
     //USERS
     bool         updateUser(UserInfo info);
     QString      getUserName(QString username); //gets the user name from username
+    QString      getUserName(qulonglong id);
     unsigned int getUserId(QString uname);
     QHash<QString,UserInfo> getUsersHash();
     bool         insertUser(UserInfo info);
@@ -116,8 +121,12 @@ class Azahar : public QObject
     TransactionInfo getTransactionInfo(qulonglong id);
     qulonglong  insertTransaction(TransactionInfo info);
     QList<TransactionInfo> getDayTransactions(int terminal);
+    QList<TransactionInfo> getDayTransactions();
     AmountAndProfitInfo    getDaySalesAndProfit(int terminal);
+    AmountAndProfitInfo    getDaySalesAndProfit();
+    QList<TransactionInfo> getMonthTransactionsForPie();
     QList<TransactionInfo> getMonthTransactions();
+    AmountAndProfitInfo    getMonthSalesAndProfit();
     ProfitRange getMonthProfitRange();
     ProfitRange getMonthSalesRange();
     bool        updateTransaction(TransactionInfo info);
@@ -135,6 +144,7 @@ class Azahar : public QObject
     
     //BALANCES
     qulonglong  insertBalance(BalanceInfo info);
+    BalanceInfo getBalanceInfo(qulonglong id);
 
     //CASHOUTS
     qulonglong insertCashFlow(CashFlowInfo info);
@@ -173,6 +183,21 @@ class Azahar : public QObject
     bool        getConfigTaxIsIncludedInPrice();
     void        cleanConfigFirstRun();
     void        setConfigTaxIsIncludedInPrice(bool option);
+    QPixmap     getConfigStoreLogo();
+    QString     getConfigStoreName();
+    QString     getConfigStoreAddress();
+    QString     getConfigStorePhone();
+    bool        getConfigSmallPrint();
+    bool        getConfigLogoOnTop();
+    bool        getConfigUseCUPS();
+    void        setConfigStoreLogo(const QByteArray &baPhoto);
+    void        setConfigStoreName(const QString &str);
+    void        setConfigStoreAddress(const QString &str);
+    void        setConfigStorePhone(const QString &str);
+    void        setConfigSmallPrint(bool yes);
+    void        setConfigUseCUPS(bool yes);
+    void        setConfigLogoOnTop(bool yes);
+    
 };
 
 #endif

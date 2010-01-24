@@ -163,13 +163,14 @@ CREATE TABLE IF NOT EXISTS `clients` (
   `address` varchar(255) collate utf8_general_ci default NULL,
   `phone` varchar(50) character set utf8 collate utf8_general_ci default NULL,
   `phone_movil` varchar(50) collate utf8_general_ci default NULL,
-  `taxid` varchar(100) collate utf8_general_ci default NULL, #Renombrar luego. USA:EIN/FTIN/taxid
   `points` bigint(20) unsigned default '0',
   `discount` double NOT NULL,
   `photo` blob default NULL,
   PRIMARY KEY (`id`),
-  KEY `SEC` (`username`, `name`, `taxid`)
+  KEY `SEC` (`username`, `name`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- POR QUE LO TENIA EN LOS CLIENTES? -> `taxid` varchar(100) collate utf8_general_ci default NULL, #Renombrar luego. USA:EIN/FTIN/taxid
 
 CREATE TABLE IF NOT EXISTS `paytypes` (
   `typeid` int(10) unsigned NOT NULL auto_increment,
@@ -252,10 +253,17 @@ CREATE TABLE IF NOT EXISTS `stock_corrections` (
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-#Some general config that is gonna be taken from azahar.
+--Some general config that is gonna be taken from azahar. For shared configuration
 CREATE TABLE IF NOT EXISTS `config` (
   `firstrun` varchar(30) character set utf8 collate utf8_general_ci NOT NULL,
   `taxIsIncludedInPrice` bool NOT NULL default true,
+  `storeLogo` blob default NULL,
+  `storeName` varchar(255) character set utf8 collate utf8_general_ci NULL,
+  `storeAddress` varchar(255) character set utf8 collate utf8_general_ci NULL,
+  `storePhone` varchar(100) character set utf8 collate utf8_general_ci NULL,
+  `logoOnTop` bool NOT NULL default true,
+  `useCUPS` bool NOT NULL default true,
+  `smallPrint` bool NOT NULL default true,
   PRIMARY KEY  (`firstrun`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 

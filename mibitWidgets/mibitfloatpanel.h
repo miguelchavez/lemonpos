@@ -56,11 +56,12 @@ public:
     void addWidget(QWidget * widget);
     void setPosition(const PanelPosition pos);
     void setSVG(const QString &file);
-    void setMaxHeight(const int &m)   { setMaximumHeight(m); maxHeight = m; }
-    void setMaxWidth(const int &m)   { setMaximumWidth(m); maxWidth = m; }
+    void setMaxHeight(const int &m)   { setMaximumHeight(m); maxHeight = m; reposition(); }
+    void setMaxWidth(const int &m)   { setMaximumWidth(m); maxWidth = m; reposition(); }
     void setSize( const int &w, const int &h ) { setMaxHeight(h); setMaxWidth(w); }
     void setMode(const PanelModes mode) { m_mode = mode; }
     void reParent(QWidget *newparent);
+    void setHiddenTotally(bool val) { m_hideTotally = val; }
 
 private:
     QTimeLine *timeLine;
@@ -68,22 +69,26 @@ private:
     QWidget *m_parent;
     QString m_fileName;
     bool canBeHidden;
+    bool m_hideTotally;
     int maxHeight;
     int maxWidth;
     int animRate;
     PanelPosition m_position;
     PanelModes m_mode;
-    void reposition();
+    int margin;
 signals:
     void hiddenOnUserRequest();
 public slots:
     void showPanel();
+    void showPanelDelayed();
     void hidePanel() { hideDialog(); }
+    void fixPos();
 private slots:
     void animate(const int &step);
     void hideOnUserRequest();
     void hideDialog();
     void onAnimationFinished();
+    void reposition();
 protected:
     void enterEvent ( QEvent * event );
     void leaveEvent ( QEvent * event );

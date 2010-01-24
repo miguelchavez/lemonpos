@@ -63,11 +63,15 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
     connect( ui->editTax , SIGNAL( textEdited(const QString &) ), this, SLOT( calculatePrice() ) );
     connect( ui->editExtraTaxes , SIGNAL( textEdited(const QString &) ), this, SLOT( calculatePrice() ) );
     connect( ui->editUtility , SIGNAL( textEdited(const QString &) ), this, SLOT( calculatePrice() ) );
-//     connect( ui->editCode, SIGNAL(editingFinished()), SLOT(checkIfCodeExists()));
     connect( ui->editCode, SIGNAL(textEdited(const QString &)), SLOT(checkIfCodeExists()));
     connect( ui->editCode, SIGNAL(returnPressed()), ui->editQty, SLOT(setFocus()));
     connect( ui->btnAddItem, SIGNAL( clicked() ), this, SLOT( addItemToList() ) );
     connect(ui->groupBoxedItem, SIGNAL(toggled(bool)), this, SLOT(focusItemsPerBox(bool)) );
+
+    connect(ui->btnRemoveItem, SIGNAL( clicked() ), SLOT( deleteSelectedItem() ) );
+
+    ui->btnIsAGroup->setDisabled(true);
+    
 
     status = estatusNormal;
     productExists = false;
@@ -387,25 +391,48 @@ void PurchaseEditor::addItemToList()
     info.alphaCode = "-NA-";
     info.lastProviderId = 1;
 
-    if (!productsHash.contains(info.code) && info.code>0) {
-      //insert item to productsHash
-      productsHash.insert(info.code, info);
-      //insert item to ListView
-      int rowCount = ui->tableView->rowCount();
-      ui->tableView->insertRow(rowCount);
-      ui->tableView->setItem(rowCount, 0, new QTableWidgetItem(QString::number(info.code)));
-      ui->tableView->setItem(rowCount, 1, new QTableWidgetItem(info.desc));
-      ui->tableView->setItem(rowCount, 2, new QTableWidgetItem(QString::number(info.purchaseQty)));
-      ui->tableView->setItem(rowCount, 3, new QTableWidgetItem(QString::number(finalCount)));
-
-      ui->tableView->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
-      ui->tableView->resizeRowsToContents();
-      resetEdits();
-      totalBuy = totalBuy + info.cost*info.purchaseQty;
-      itemCount = itemCount + info.purchaseQty;
-      qDebug()<<"totalBuy until now:"<<totalBuy<<" itemCount:"<<itemCount<<"info.cost:"<<info.cost<<"info.purchaseQty:"<<info.purchaseQty;
-    }  else  qDebug()<<"Item "<<info.code<<" already on hash";
+    if (ui->chIsAGroup.isChecked()) {
+      // get each product fo the group/pack
+      
+    } else insertProduct(info);
+    
     ui->editCode->setFocus();
+  }
+}
+
+void PurchaseEditor::insertProduct(ProductInfo pInfo)
+{
+  if (!productsHash.contains(info.code) && info.code>0) {
+    //insert item to productsHash
+    productsHash.insert(info.code, info);
+    //insert item to ListView
+    int rowCount = ui->tableView->rowCount();
+    ui->tableView->insertRow(rowCount);
+    ui->tableView->setItem(rowCount, 0, new QTableWidgetItem(QString::number(info.code)));
+    ui->tableView->setItem(rowCount, 1, new QTableWidgetItem(info.desc));
+    ui->tableView->setItem(rowCount, 2, new QTableWidgetItem(QString::number(info.purchaseQty)));
+    ui->tableView->setItem(rowCount, 3, new QTableWidgetItem(QString::number(finalCount)));
+    
+    ui->tableView->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
+    ui->tableView->resizeRowsToContents();
+    resetEdits();
+    totalBuy = totalBuy + info.cost*info.purchaseQty;
+    itemCount = itemCount + info.purchaseQty;
+    qDebug()<<"totalBuy until now:"<<totalBuy<<" itemCount:"<<itemCount<<"info.cost:"<<info.cost<<"info.purchaseQty:"<<info.purchaseQty;
+  }  else  qDebug()<<"Item "<<info.code<<" already on hash";
+}
+
+void PurchaseEditor::deleteSelectedItem() //added on dec 3, 2009
+{
+  if (ui->tableView->currentRow()!=-1) {
+    int row = ui->tableView->currentRow();
+    QTableWidgetItem *item = ui->tableView->item(row, colCode);
+    qulonglong code = item->data(Qt::DisplayRole).toULongLong();
+    if (productsHash.contains(code)) {
+      //delete it from hash and from view
+      productsHash.remove(code);
+      ui->tableView->removeRow(row);
+    }
   }
 }
 
@@ -434,6 +461,11 @@ double PurchaseEditor::getPurchaseQty()
     else return (ui->editQty->text().toDouble())*(ui->editItemsPerBox->text().toDouble());
   }
   else return ui->editQty->text().toDouble();
+}
+
+void PurchaseEditor::setIsAGroup(bool value)
+{
+  ui->chIsAGroup->setChecked(value);
 }
 
 #include "purchaseeditor.moc"

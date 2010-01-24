@@ -1,16 +1,3 @@
---------------------------------------------------------------------------
-Due to an importan update to database, migration/update database scripts
-are not provided. Create a new database to use 0.9 "real" release.
-
-If you want to preserve your old data, you can edit the lemon_mysql.sql and 
-replace all occurences of 'lemondb' with a new name;  you will
-get a backup database with the name lemondb, and a new one with a new name.
-This would make lemon -and squeeze- unable to connect to database,
-but  you can change the configuration for database and type the new
-database name.
-
----------------------------------------------------------------------------
-
 
 Lemon is an opensource point of sale for linux, and other unix. 
 It is a general POS, not targeted to a specific business.
@@ -22,8 +9,6 @@ reader (datalogic DLC6065-M0).
 
 More information on 
 
-http://www.lemonpos.org/
-
 http://lemonpos.sourceforge.net/
 http://lemonpos.wordpress.com/
 
@@ -33,7 +18,5 @@ http://apps.sourceforge.net/trac/lemonpos/
 Wiki:
 http://apps.sourceforge.net/mediawiki/lemonpos/
 
-
---
-Miguel Chavez Gamboa
-miguel@lemonpos.org
+Author email is:
+miguel @ lemonpos.org

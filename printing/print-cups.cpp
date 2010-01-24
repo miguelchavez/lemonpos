@@ -605,6 +605,11 @@ bool PrintCUPS::printBigTicket(const PrintTicketInfo &ptInfo, QPrinter &printer)
   QLocale localeForPrinting;
   for (int i = 0; i < ptInfo.ticketInfo.lines.size(); ++i)
   {
+    //Check if space for the next text line
+    if ( Margin + yPos > printer.height() - Margin ) {
+      printer.newPage();             // no more room on this page
+      yPos = 0;                       // back to top of page
+    }
     TicketLineInfo tLine = ptInfo.ticketInfo.lines.at(i);
     QString  idesc =  tLine.desc;
     QString iprice =  localeForPrinting.toString(tLine.price,'f',2);
@@ -632,11 +637,6 @@ bool PrintCUPS::printBigTicket(const PrintTicketInfo &ptInfo, QPrinter &printer)
     text = idue;
     painter.drawText(printer.width()/2+columnTotal, Margin+yPos, text);
     yPos = yPos + fm.lineSpacing();
-    //Check if space for the next text line
-    if ( Margin + yPos > printer.height() - Margin ) {
-      printer.newPage();             // no more room on this page
-      yPos = 0;                       // back to top of page
-    }
   } //for each item
   
   //now the totals...
@@ -1008,4 +1008,307 @@ bool PrintCUPS::printSmallEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &pr
   result = painter.end();
   return result;
 }
+
+bool PrintCUPS::printSmallLowStockReport(const PrintLowStockInfo &plInfo, QPrinter &printer)
+{
+  bool result = false;
+  QFont header = QFont("Impact", 38);
+  const int Margin = 20;
+  int yPos        = 0;
+  QPainter painter;
+  painter.begin( &printer );
+  QFontMetrics fm = painter.fontMetrics();
+  
+  //NOTE from Qt for the drawText: The y-position is used as the baseline of the font
+  
+  QFont tmpFont = QFont("Bitstream Vera Sans", 18);
+  QPen normalPen = painter.pen();
+  QString text;
+  QSize textWidth;
+  if (plInfo.logoOnTop) {
+    // Store Logo
+    painter.drawPixmap(printer.width()/2 - (plInfo.storeLogo.width()/2), Margin, plInfo.storeLogo);
+    yPos = yPos + plInfo.storeLogo.height();
+    // Store Name
+    painter.setFont(header);
+    text = plInfo.storeName;
+    fm = painter.fontMetrics();
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText((printer.width()/2)-(textWidth.width()/2),yPos+Margin+textWidth.height(), text);
+    yPos = yPos + textWidth.height()+5;
+    tmpFont = QFont("Bitstream Vera Sans", 18);
+    tmpFont.setItalic(true);
+    painter.setFont(tmpFont);
+    painter.setPen(Qt::darkGray);
+    text = plInfo.storeAddr;
+    fm = painter.fontMetrics();
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText((printer.width()/2)-(textWidth.width()/2),yPos+Margin+textWidth.height(), text);
+    yPos = yPos + textWidth.height()+20;
+  }
+  else {
+    // Store Logo
+    painter.drawPixmap(printer.width() - plInfo.storeLogo.width() - Margin, Margin+20, plInfo.storeLogo);
+    // Store Name
+    painter.setFont(header);
+    text = plInfo.storeName;
+    fm = painter.fontMetrics();
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText(Margin,Margin+textWidth.height(), text);
+    yPos = yPos + textWidth.height()+5;
+    tmpFont = QFont("Bitstream Vera Sans", 18);
+    tmpFont.setItalic(true);
+    painter.setFont(tmpFont);
+    painter.setPen(Qt::darkGray);
+    text = plInfo.storeAddr;
+    fm = painter.fontMetrics();
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText(Margin,yPos+Margin+textWidth.height(), text);
+    yPos = yPos + fm.lineSpacing()+20;
+  }
+  
+  // Header line
+  painter.setPen(QPen(Qt::gray, 5, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+  painter.drawLine(Margin, Margin+yPos, printer.width()-Margin, Margin+yPos);
+  tmpFont = QFont("Bitstream Vera Sans", 22);
+  tmpFont.setItalic(true);
+  painter.setFont(tmpFont);
+  fm = painter.fontMetrics();
+  //title
+  text = plInfo.hTitle;
+  textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  painter.drawText((printer.width()/2)-(textWidth.width()/2), Margin + yPos  +textWidth.height()+15, text);
+  yPos = yPos + 2*fm.lineSpacing();
+  //Date
+  tmpFont = QFont("Bitstream Vera Sans", 18);
+  painter.setFont(tmpFont);
+  painter.setPen(normalPen);
+  fm = painter.fontMetrics();
+  yPos = yPos + fm.lineSpacing();
+  text = plInfo.hDate;
+  textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  painter.drawText((printer.width()/2)-(textWidth.width()/2), Margin + yPos +textWidth.height(), text);
+  yPos = yPos + 2*fm.lineSpacing();
+  
+  // Content Headers
+  tmpFont = QFont("Bitstream Vera Sans", 16);
+  painter.setPen(QPen(Qt::blue, 5, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+  tmpFont.setBold(true);
+  painter.setFont(tmpFont);
+  fm = painter.fontMetrics();
+  text = plInfo.hCode;
+  textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  painter.drawText(Margin+30, Margin + yPos +textWidth.height(), text);
+  text = plInfo.hDesc;
+  textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  painter.drawText(Margin+160, Margin + yPos +textWidth.height(), text);
+  text = plInfo.hQty;
+  textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  painter.drawText(Margin+450, Margin + yPos +textWidth.height(), text);
+  //text = plInfo.hUnitStr;
+  //textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  //painter.drawText(printer.width()-textWidth.width()-Margin, Margin + yPos +textWidth.height(), text);
+  text = plInfo.hSoldU;
+  textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  painter.drawText(printer.width()-Margin-textWidth.width(), Margin + yPos +textWidth.height(), text);
+  yPos = yPos + 2*fm.lineSpacing();
+  painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+  painter.drawLine(Margin, Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
+  painter.setPen(normalPen);
+  
+  //PRODUCTS DETAILS
+  
+  tmpFont.setBold(false);
+  painter.setFont(tmpFont);
+  fm = painter.fontMetrics();
+  painter.setPen(QPen(normalPen));
+  yPos = yPos + fm.lineSpacing();
+  //Iterating each product
+  foreach(QString trStr, plInfo.pLines) {
+    QStringList data = trStr.split("|");
+    //we have 5 fields in the string  CODE, DESC, STOCK QTY, UNITSTR, SOLDUNITS
+    text = data.at(0); // CODE
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText(Margin+10, Margin + yPos +textWidth.height(), text);
+    text = data.at(1); // DESCRIPTION
+    while (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text).width() >= 270) { text.chop(2); }
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText(Margin+160, Margin + yPos +textWidth.height(), text);
+    text = data.at(2); // STOCK QTY
+    // We must be aware of the locale. europe uses ',' instead of '.' as the decimals separator.
+    if (text.endsWith(".00") || text.endsWith(",00")) { text.chop(3); text += "   ";}//we chop the trailing zeroes...
+    text = text +" "+ data.at(3); // 10 pieces
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText(Margin+450, Margin + yPos +textWidth.height(), text);
+    //text = data.at(3); // UNITSTR
+    //textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    //painter.drawText(Margin+450, Margin + yPos +textWidth.height(), text);
+    text = data.at(4); // SOLD UNITS
+    // We must be aware of the locale. europe uses ',' instead of '.' as the decimals separator.
+    if (text.endsWith(".00") || text.endsWith(",00")) { text.chop(3); text += "   ";}//we chop the trailing
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText(printer.width()-textWidth.width()-Margin, Margin + yPos +textWidth.height(), text);
+    yPos = yPos + fm.lineSpacing();
+  }
+  
+  yPos = yPos + fm.lineSpacing();
+  painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+  painter.drawLine(Margin, Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
+
+  result = painter.end();
+  return result;
+}
+
+bool PrintCUPS::printBigLowStockReport(const PrintLowStockInfo &plInfo, QPrinter &printer)
+{
+  bool result = false;
+  QFont header = QFont("Impact", 25);
+  const int Margin = 20;
+  int yPos        = 0;
+  QPainter painter;
+  painter.begin( &printer );
+  QFontMetrics fm = painter.fontMetrics();
+  
+  //NOTE from Qt for the drawText: The y-position is used as the baseline of the font
+  
+  QFont tmpFont = QFont("Bitstream Vera Sans", 14);
+  QPen normalPen = painter.pen();
+  QString text;
+  QSize textWidth;
+  if (plInfo.logoOnTop) {
+    // Store Logo
+    painter.drawPixmap(printer.width()/2 - (plInfo.storeLogo.width()/2), Margin, plInfo.storeLogo);
+    yPos = yPos + plInfo.storeLogo.height();
+    // Store Name
+    painter.setFont(header);
+    text = plInfo.storeName;
+    fm = painter.fontMetrics();
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText((printer.width()/2)-(textWidth.width()/2),yPos+Margin+textWidth.height(), text);
+    yPos = yPos + textWidth.height()+5;
+    tmpFont = QFont("Bitstream Vera Sans", 14);
+    tmpFont.setItalic(true);
+    painter.setFont(tmpFont);
+    painter.setPen(Qt::darkGray);
+    text = plInfo.storeAddr;
+    fm = painter.fontMetrics();
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText((printer.width()/2)-(textWidth.width()/2),yPos+Margin+textWidth.height(), text);
+    yPos = yPos + textWidth.height()+20;
+  }
+  else {
+    // Store Logo
+    painter.drawPixmap(printer.width() - plInfo.storeLogo.width() - Margin, Margin+20, plInfo.storeLogo);
+    // Store Name
+    painter.setFont(header);
+    text = plInfo.storeName;
+    fm = painter.fontMetrics();
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText(Margin,Margin+textWidth.height(), text);
+    yPos = yPos + textWidth.height()+5;
+    tmpFont = QFont("Bitstream Vera Sans", 14);
+    tmpFont.setItalic(true);
+    painter.setFont(tmpFont);
+    painter.setPen(Qt::darkGray);
+    text = plInfo.storeAddr;
+    fm = painter.fontMetrics();
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText(Margin,yPos+Margin+textWidth.height(), text);
+    yPos = yPos + fm.lineSpacing()+20;
+  }
+  
+  // Header line
+  painter.setPen(QPen(Qt::gray, 5, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+  painter.drawLine(Margin, Margin+yPos, printer.width()-Margin, Margin+yPos);
+  tmpFont = QFont("Bitstream Vera Sans", 18);
+  tmpFont.setItalic(true);
+  painter.setFont(tmpFont);
+  fm = painter.fontMetrics();
+  //title
+  text = plInfo.hTitle;
+  textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  painter.drawText((printer.width()/2)-(textWidth.width()/2), Margin + yPos  +textWidth.height()+15, text);
+  yPos = yPos + 2*fm.lineSpacing();
+  //Date
+  tmpFont = QFont("Bitstream Vera Sans", 13);
+  painter.setFont(tmpFont);
+  painter.setPen(normalPen);
+  fm = painter.fontMetrics();
+  yPos = yPos + fm.lineSpacing();
+  text = plInfo.hDate;
+  textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  painter.drawText((printer.width()/2)-(textWidth.width()/2), Margin + yPos +textWidth.height(), text);
+  yPos = yPos + 2*fm.lineSpacing();
+  
+  // Content Headers
+  tmpFont = QFont("Bitstream Vera Sans", 10);
+  painter.setPen(QPen(Qt::blue, 5, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+  tmpFont.setBold(true);
+  painter.setFont(tmpFont);
+  fm = painter.fontMetrics();
+  text = plInfo.hCode;
+  textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  painter.drawText(Margin+30, Margin + yPos +textWidth.height(), text);
+  text = plInfo.hDesc;
+  textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  painter.drawText(Margin+160, Margin + yPos +textWidth.height(), text);
+  text = plInfo.hQty;
+  textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  painter.drawText(Margin+450, Margin + yPos +textWidth.height(), text);
+  //text = plInfo.hUnitStr;
+  //textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  //painter.drawText(printer.width()-textWidth.width()-Margin, Margin + yPos +textWidth.height(), text);
+  text = plInfo.hSoldU;
+  textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  painter.drawText(printer.width()-Margin-textWidth.width(), Margin + yPos +textWidth.height(), text);
+  yPos = yPos + 2*fm.lineSpacing();
+  painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+  painter.drawLine(Margin, Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
+  painter.setPen(normalPen);
+  
+  //PRODUCTS DETAILS
+  
+  tmpFont.setBold(false);
+  painter.setFont(tmpFont);
+  fm = painter.fontMetrics();
+  painter.setPen(QPen(normalPen));
+  yPos = yPos + fm.lineSpacing();
+  //Iterating each product
+  foreach(QString trStr, plInfo.pLines) {
+    if ( Margin + yPos > printer.height() - Margin ) {
+      printer.newPage();                        // no more room on this page
+      yPos = 0;                                 // back to top of page
+    }
+    QStringList data = trStr.split("|");
+    //we have 5 fields in the string  CODE, DESC, STOCK QTY, UNITSTR, SOLDUNITS
+    text = data.at(0); // CODE
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText(Margin+10, Margin + yPos +textWidth.height(), text);
+    text = data.at(1); // DESCRIPTION
+    while (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text).width() >= 270) { text.chop(2); }
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText(Margin+160, Margin + yPos +textWidth.height(), text);
+    text = data.at(2); // STOCK QTY
+    // We must be aware of the locale. europe uses ',' instead of '.' as the decimals separator.
+    if (text.endsWith(".00") || text.endsWith(",00")) { text.chop(3); text += "   ";}//we chop the trailing zeroes...
+    text = text +" "+ data.at(3); // 10 pieces
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText(Margin+450, Margin + yPos +textWidth.height(), text);
+    text = data.at(4); // SOLD UNITS
+    // We must be aware of the locale. europe uses ',' instead of '.' as the decimals separator.
+    if (text.endsWith(".00") || text.endsWith(",00")) { text.chop(3); text += "   ";}//we chop the trailing
+      textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+      painter.drawText(printer.width()-textWidth.width()-Margin, Margin + yPos +textWidth.height(), text);
+      yPos = yPos + fm.lineSpacing();
+  }
+        
+  yPos = yPos + fm.lineSpacing();
+  painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+  painter.drawLine(Margin, Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
+  
+  result = painter.end();
+  return result;
+}
+
+
 

@@ -30,8 +30,8 @@
   </entry>
   </group>
   <group name="Security">
-   <entry name="askAdminPassword" type="Bool">
-    <label>Ask for admin password</label>
+   <entry name="lowSecurityMode" type="Bool">
+    <label>Low security mode</label>
     <default>false</default>
    </entry>
   </group>
@@ -51,6 +51,48 @@
     <entry name="editDBName" type="String">
       <label>DB Name</label>
       <default>lemondb</default>
+    </entry>
+  </group>
+  <group name="Printer">
+    <entry name="showDialogOnPrinting" type="Bool">
+     <label>Show a dialog when printing the ticket</label>
+     <default>true</default>
+    </entry>
+    <entry name="ticketTime" type="Int">
+     <label>Time showing the ticket dialog</label>
+     <default>3</default>
+    </entry>
+    <entry name="smallTicketDotMatrix" type="Bool">
+      <label>Print a small receipt using a ticket printer -dot matrix-.</label>
+      <default>false</default>
+    </entry>
+    <entry name="smallTicketCUPS" type="Bool">
+      <label>Print a small receipt using a thermal ticket printer -CUPS-</label>
+      <default>true</default>
+    </entry>
+    <entry name="bigReceipt" type="Bool">
+      <label>Print a big receipt using a normal printer</label>
+      <default>false</default>
+    </entry>
+    <entry name="printBalances" type="Bool">
+      <label>Print balances using ticket printer</label>
+      <default>false</default>
+    </entry>
+    <entry name="printTicket" type="Bool">
+      <label>Print Ticket (dou you have a ticket printer?)</label>
+      <default>false</default>
+    </entry>
+    <entry name="printChangedDateTicket" type="Bool">
+      <label>Print Date Changed Ticket</label>
+      <default>false</default>
+    </entry>
+    <entry name="printerDevice" type="String">
+      <label>Get printer device to use for printing</label>
+      <default>/dev/lp0</default>
+    </entry>
+    <entry name="printerCodec" type="String">
+      <label>Get Printer Codec to use</label>
+      <default>UTF-8</default>
     </entry>
   </group>
 </kcfg>

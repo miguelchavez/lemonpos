@@ -1,20 +1,36 @@
 <!DOCTYPE kpartgui SYSTEM "kpartgui.dtd">
 <kpartgui name="squeeze" version="1">
-<!--<ToolBar name="aBasicToolBar">
-  <text>Main Toolbar</text>
-  <Action name="login" />
-</ToolBar>
-<ToolBar name="aDatabaseToolBar">
-  <text>Database ToolBar</text>
+<ToolBar name="aGeneral">
+  <text>General ToolBar</text>
+  <Action name="quickViewPlots" />
   <Action name="productsBrowse" />
   <Action name="offersBrowse" />
   <Action name="usersBrowse" />
   <Action name="measuresBrowse" />
   <Action name="categoriesBrowse" />
-  <Action name="BalancesBrowse" />
-  <Action name="TransactionsBrowse" />
   <Action name="clientsBrowse" />
-  <Action name="doPurchase" />
-  <Action name="cashFlowBrowse" />
-  </ToolBar>-->
+</ToolBar>
+
+<ToolBar name="bStockMovement">
+ <text>Stock Movement</text>
+ <Action name="doPurchase" />
+ <Action name="checkOut" />
+ <Action name="stockCorrection" />
+</ToolBar>
+
+<ToolBar name="cReports">
+  <text>Reports</text>
+  <Action name="reports" />
+</ToolBar>
+
+<ToolBar name="dOther">
+ <text>Other Actions</text>
+ <Action name="login" />
+ <Action name="quit" />
+ <Action name="configure squeeze" />
+</ToolBar>
+
+<!-- MENU -->
+
+
 </kpartgui>

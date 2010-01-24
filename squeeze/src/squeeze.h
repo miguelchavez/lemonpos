@@ -24,6 +24,7 @@
 
 #include "ui_prefs_base.h"
 #include "ui_prefs_db.h"
+#include "ui_pref_printers.h"
 
 #include <kxmlguiwindow.h>
 
@@ -97,6 +98,8 @@ private:
     squeezeView *m_view;
     Ui::prefs_base ui_prefs_base ;
     Ui::prefs_db ui_prefs_db;
+    Ui::pref_printers ui_pref_printers;
+    
     KLed *led;
 
     QPrinter   *m_printer;

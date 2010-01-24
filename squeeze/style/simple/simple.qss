@@ -67,7 +67,19 @@ QLabel#lblGraphSales,QLabel#lblGraphProfit,QLabel#lblGraphSoldItems,QLabel#lblGr
 /** Table **/
 /* Including the listviews.. :O.
    Theming the ScrollArea gives same result but, with a strange behavoir, the headers are black...*/
-QTableView, QListView
+QTableView#productsViewAlt, QTableView#tableBrowseOffers, QTableView#tableMeasures, QTableView#tableCategories, QTableView#cashFlowTable, QTableView#transactionsTable, QTableView#balancesTable, QTableView#balancesTable
+{
+  background-position: top left;
+  background-repeat: no-repeat;
+  selection-background-color: #94f2b4;
+  selection-color: blue;
+  background-image: url([STYLE_PATH]backg.png);
+  background-position: center center;
+  background-attachment: fixed;
+  background-repeat:no-repeat;
+}
+
+QListView#usersView, QListView#clientsView, QListView#productsView
 {
   background-position: top left;
   background-repeat: no-repeat;

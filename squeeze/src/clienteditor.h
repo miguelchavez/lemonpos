@@ -46,6 +46,7 @@ class ClientEditor : public KDialog
     void setDiscount(double d) {ui->editClientDiscount->setText(QString::number(d)); };
     void setPhoto(QPixmap photo) { ui->labelClientPhoto->setPixmap(photo); pix = photo; };
     void setId(long int id) { clientId = id; };
+    void setSinceDate(QDate date) { ui->sinceDatePicker->setDate(date); }
 
     QString getName(){ return ui->editClientName->text();};
     QString getAddress(){ return ui->editClientAddress->toPlainText();};
@@ -54,6 +55,7 @@ class ClientEditor : public KDialog
     qulonglong getPoints() { return ui->editClientPoints->text().toULongLong(); };
     double  getDiscount() {return ui->editClientDiscount->text().toDouble(); }
     QPixmap getPhoto(){ return pix;};
+    QDate   getSinceDate() { return ui->sinceDatePicker->date(); }
 
 
   private slots:

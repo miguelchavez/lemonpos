@@ -53,6 +53,7 @@ struct ProductInfo {
   qulonglong taxmodelid;
   QString taxElements;
   qulonglong brandid;
+  double soldUnits; // mch 21Nov09 FOR PRINTED REPORT - LOW STOCK
 };
 
 
@@ -287,6 +288,22 @@ struct PrintEndOfDayInfo
   QString    thTotalSales;
   QString    thTotalProfit;
   QStringList trLines;
+  bool       logoOnTop;
+};
+
+struct PrintLowStockInfo
+{
+  QString    storeName;
+  QString    storeAddr;
+  QPixmap    storeLogo;
+  QString    hTitle;
+  QString    hDate; //and time
+  QString    hDesc;
+  QString    hCode;
+  QString    hQty;
+  QString    hUnitStr;
+  QString    hSoldU;
+  QStringList pLines;
   bool       logoOnTop;
 };
 

@@ -735,7 +735,7 @@ bool lemonView::incrementTableItemQty(QString code, double q)
       }
       if (ui_mainview.mainPanel->currentIndex() == pageSearch) {
          ui_mainview.labelSearchMsg->setText(msg);
-         ui_mainview.labelInsertCodeMsg->show();
+         ui_mainview.labelSearchMsg->show();
          QTimer::singleShot(3000, this, SLOT(clearLabelSearchMsg()) );
       }
     }
@@ -831,7 +831,7 @@ void lemonView::insertItem(QString code)
         }
         if (ui_mainview.mainPanel->currentIndex() == pageSearch) {
           ui_mainview.labelSearchMsg->setText(msg);
-          ui_mainview.labelInsertCodeMsg->show();
+          ui_mainview.labelSearchMsg->show();
           QTimer::singleShot(3000, this, SLOT(clearLabelSearchMsg()) );
         }
     ui_mainview.editItemCode->clear();
@@ -1149,7 +1149,9 @@ void lemonView::finishCurrentTransaction()
     }
   }
   else {
-    if (!ui_mainview.editCardNumber->hasAcceptableInput()) {
+    QString cn =  ui_mainview.editCardNumber->text();
+    QString cna = ui_mainview.editCardAuthNumber->text();
+    if (!ui_mainview.editCardNumber->hasAcceptableInput() || cn.isEmpty() || cn == "---") {
       canfinish = false;
       ui_mainview.editCardNumber->setFocus();
       ui_mainview.editCardNumber->setStyleSheet("background-color: rgb(255,100,0); color:white; font-weight:bold; selection-color: white;");
@@ -1157,7 +1159,7 @@ void lemonView::finishCurrentTransaction()
       ui_mainview.editCardNumber->setSelection(0, ui_mainview.editCardNumber->text().length());
       msg = i18n("<html><font color=red><b>Please enter the card number.</b></font></html>");
     }
-    else if (!ui_mainview.editCardAuthNumber->hasAcceptableInput()) {
+    else if (!ui_mainview.editCardAuthNumber->hasAcceptableInput() || cna.isEmpty() || cna.length()<4) {
       canfinish = false;
       ui_mainview.editCardAuthNumber->setFocus();
       ui_mainview.editCardAuthNumber->setStyleSheet("background-color: rgb(255,100,0); color:white; font-weight:bold; selection-color: white;");
@@ -1165,8 +1167,10 @@ void lemonView::finishCurrentTransaction()
       ui_mainview.editCardAuthNumber->setSelection(0, ui_mainview.editCardAuthNumber->text().length());
       msg = i18n("<html><font color=red><b>Please enter the Authorisation number from the bank voucher.</b></font></html>");
     }
-    ui_mainview.labelPayMsg->setText(msg);
-    QTimer::singleShot(3000, this, SLOT(clearLabelPayMsg()));
+    if (!msg.isEmpty()) {
+      ui_mainview.labelPayMsg->setText(msg);
+      QTimer::singleShot(3000, this, SLOT(clearLabelPayMsg()));
+    }
   }
   if (ui_mainview.tableWidget->rowCount() == 0) canfinish = false;
   if (!canStartSelling()) {
@@ -1707,15 +1711,27 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
   }
   
   //Mark as cancelled if possible
+
+  //Check if payment was with cash.
+  if (tinfo.paymethod != 1 ) {
+    KNotification *notify = new KNotification("information", this);
+    notify->setText(i18n("The ticket cannot be cancelled because it was paid with a credit/debit card."));
+    QPixmap pixmap = DesktopIcon("dialog-error",32);
+    notify->setPixmap(pixmap);
+    notify->sendEvent();
+    return;
+  }
+  
   if  (enoughCashAvailable || transToCancelIsInProgress) {
     if (myDb->cancelTransaction(transactionNumber, transToCancelIsInProgress)) {
       log(loggedUserId, QDate::currentDate(), QTime::currentTime(), QString("Cancelling transaction #%1. Authorized by %2").arg(transactionNumber).arg(dlgPassword->username()));
       qDebug()<<"Cancelling ticket was ok";
       if (transCompleted) {
         //if was completed, then return the money...
-        drawer->substractCash(tinfo.amount);
-        //NOTE: What about CUPS printers?
-         if (Settings::openDrawer() && Settings::smallTicketDotMatrix() && Settings::printTicket()) drawer->open();
+        if (tinfo.paymethod == 1 ) {//1 is cash
+          drawer->substractCash(tinfo.amount);
+          if (Settings::openDrawer() && Settings::smallTicketDotMatrix() && Settings::printTicket()) drawer->open();
+        }
       }
       transactionInProgress = false; //reset
       createNewTransaction(tSell);
@@ -2352,8 +2368,8 @@ void lemonView::setFilter()
   QRegExp regexp = QRegExp(ui_mainview.editFilterByDesc->text());
   
   if (ui_mainview.rbFilterByDesc->isChecked()) {//by description
-    if (!regexp.isValid() || ui_mainview.editFilterByDesc->text().isEmpty())  ui_mainview.editFilterByDesc->setText("*");
-    if (ui_mainview.editFilterByDesc->text()=="*") productsModel->setFilter("");
+    if (!regexp.isValid() )  ui_mainview.editFilterByDesc->setText("");
+    if (ui_mainview.editFilterByDesc->text()=="*" || ui_mainview.editFilterByDesc->text()=="") productsModel->setFilter("");
     else  productsModel->setFilter(QString("products.name REGEXP '%1'").arg(ui_mainview.editFilterByDesc->text().split("(").at(0).trimmed()));
     // BFB: If the user choose a product from the completer, this product is added to the list.
     modifyProductsFilterModel();

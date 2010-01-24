@@ -1,53 +1,43 @@
-CHANGELOG FOR LEMONPOS VERSION 0.7 (SVN revision 260)
+CHANGELOG FOR LEMONPOS VERSION 0.9 
 -----------------------------------------------------
 
-Important fix:
-  - In 0.6.1 version, there is an error on the lemon_mysql.sql script. The database name is changed from 'lemondb' to 'lemontest'
-    The SVN has not been affected. This release fixes that. [Thanks to Dave Plater whose reported the bug and the fix].
+  - BUGFIX: The weird crash is gone.
+  - BUGFIX: Availability check when incrementing a product on the list
+  - BUGFIX: Invalid Transaction's providerid caused not to be shown on squeeze. Fixed with the db script (fix and new)
+  - BUGFIX: Added a check for payment amount. The user by mistake can enter a barcode there.
+  - BUGFIX: Security procedures reviewd and improved. Some bugs caused malfunction of low security mode.
+  - BUGFIX: Product code input not accepted when qty starts with 0, for example 0.5x123456 .
+  - BUGFIX: Pie chart removed and replaced by a plot and labels.
+  - BUGFIX: Balance do not force login. Now balance = login. A balance does the balance and force login.
 
-General:
-  - Added Catalan translation (ca.po).
+  - Improvement: Allow to remove items from the purchase list (check-in).
+  - Improvement: Disable Drawer openning when using a CUPS driver printer. CUPS-printer can open it each time it prints.
+  - Improvement: Print Client name and id on ticket when a client is selected.
+  - Improvement: Cash-in/Cash-out needs authorization (ask for password when not in a low security mode).
+  - Improvement: Squeeze has a populated menu bar. Removed the left buttons-menu, replaced by toolbar buttons.
+  - Improvement: Some dialogs where redesigned. Product Editor...
+  - Improvement: Some new fancy message ballons, floating bars and dialogs were added. They are animated.
+  - Improvement: Added cash-out/cash-in information on printed balances.
+  - Improvement: A shortcut key '+' is added to the product code inputbox for going to payment amount inputbox.
 
-Lemon:
-  - BUGFIX: regexp for payment input (1...20, now only one '.' is allowed)
-  - BUGFIX: ticket Alignment done (printTicket) [patch by Biel Frontera]
-  - BUGFIX: added a missing i18n at line 1392   [patch by Biel Frontera]
-  - BUGFIX: At search items, when doubleclicked on an already inserted product, the search panel is not closed.
-  - BUGFIX: Double clicking on any product in shopping list that is sold by pieces is not incremented.
-  - Improvement: ENABLED Drawer openning.  Added an option to enable at configuration.
-    Can someone test this? I dont have a cash drawer.
-  - Improvement: Transaction cancel now saves cashout, substract client points, restore stockqty for sold products.
-    Also does not allow ticket cancelation on already canecelled tickets, and when there is not enough cash in drawer.
-  - Improvement: Changed the way to search items with the priceChecker; now an 'enter' is requiered, resulting an improved
-    usability when using a barcode reader.
-  - Improvement: Dont close purchase dialog on return pressed on any widget to improve usability for barcode reader.
-  - Added Feature: support for item qty in code input. Example: 10x123456 means 10 units of the product which code is 123456.
-  - Added Feature: Now in every transaction items and its price/discount are saved in the database
-    to preserve the data at which they were sold. [patch by Biel Frontera]
-  - Added feature: one more filter to product grid filters: most sold products [by Biel Frontera]
-  - Added feature: Reprint Ticket [Adapted from Biel Frontera code ]
-  - Added feature: Change sale date (to register old sales that were not registered before) [Adapted from Biel Frontera code ].
-  - Added feature: Cash-Out. To take out money for payments at the POS.
-  - Added Feature: Now lemon does not quit if not connected to mysql, a config dialog for database is shown.
-  - Added Feature: A low level cash in drawer alarm. A config option for showing the alert and minimum value.
-  - Added Icons:   Cash-Out, reprint-ticket, balance.
+  - Added Feature: Correcting Stock. This is to track stock changes. On product editor, in order to change stockqty, it must be corrected.
+  - Added Feature: Printing using CUPS printers. Now tickets looks elegant on thermal printers. Two modes for this: big and small.
+  - Added Feature: LOGS on Administrative task. This are keept on database.
+  - Added Feature: User ROLES. Now is possible to have many administrators and supervisors.
+  - Added Feature: Added a config option for the ticket time on screen. it also can be closed by pressing 'ESC' key.
+  - Added Feature: New kind of products: Raw Products, Group Products. Raw are for custom/special orders.
+  - Added feature: Product GROUOPS/PACKS. An article can be a group, its stockqty is not used for anything, instead its contents stockqty.
+  - Added feature: Special Orders. Custom Products to be 'manufactured'. Like a cake or a custom computer..
+                   If a special order is completely paid when ordering, when completing the order [delivered] it will not generate a ticket.
+  - Added feature: On Special Orders, the order is printed in addintion to the ticket.
+  - Added feature: The user can change Special Order's status.
+  - Added feature: New Printed Reports on Squeeze: Balances, Sales, End of day, General end of day, End of month, Low stock products, Sold out products.
+  - Added Feature: Ticket Messages based on the date.
+  - Added Feature: New way of applying a discount. Occassional discount: this cannot coexists with client discount (client discount will be ignored)
+  - Added Feature: Lock Screen. To let the user take breaks.
+  - Added Feature: Suspend and Resume sales. To let the user start a new sale without loosing the current sale.
+  - Added Feature: Some config options in lemon are saved on database to share it with squeeze.
+  - Added Feature: A config option to do not print GROUP contents on the ticket.
 
-Squeeze:
-  - BUGFIX: Preferences disabled/enabled when requiered.
-  - BUGFIX: Spanish Translation fixed for the filter 'show only not empty balances'.
-  - BUGFIX: PurchaseEditor changed focus to empty fields when entering 'Items Per Box' qty. This is giving the
-    impression of not allowing more than 1 digit at the qty. [thanks for the report to Dave Plater]
-  - Added Feature: New report for cash-outs.
-  - Added Feature: New field in the offers editor to allow calculation of offer-percentage with the price entered
-     So now offers can be calculated with price or percentage [by Biel Frontera]
-  - Added Feature: Now squeeze does not quit if not connected to mysql, a config dialog for database is shown.
-     
-
-Database:
-  - New TransactionItems table, adapted code at finishCurrentTransaction() and others [ by Biel Frontera ]
-  - Changed collates from 'utf8_spanish_ci' and 'latin1_general_ci' to 'utf8_general_ci'.
-
-
-Azahar:
-  - BUG FIX: at SQL queries: getAlmostSoldOutProducts,getTop5SoldProducts...
-  - Added some methods for future use at squeeze, regarding new tables and fields. [by Biel Frontera]
+  A script to upgrade/fix from lemonPOS 0.8 database to 0.9 is provided.
+  

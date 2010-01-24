@@ -31,13 +31,12 @@ class QPainter;
 class PieChart;
 class LoginWindow;
 class KPlotObject;
+class MibitFloatPanel;
 
 /**
  * This is the main view class for squeeze.  Most of the non-menu,
  * non-toolbar, and non-statusbar (e.g., non frame) GUI code should go
  * here.
- *
- * This squeeze uses an HTML component as an example.
  *
  * @short Main view
  * @author Miguel Chavez Gamboa <miguel@lemonpos.org>
@@ -53,6 +52,7 @@ public:
     bool modelsAreCreated() { return modelsCreated; };
     void closeDB();
     void openDB();
+    bool isAdminUser() { return adminIsLogged; }
 
   private:
     Ui::squeezeview_base ui_mainview;
@@ -86,6 +86,17 @@ public:
     bool modelsCreated,graphSoldItemsCreated;
     PieChart *pieSoldItems, *pieAlmostSoldOutItems;
     KPlotObject *objProfit, *objSales;
+    MibitFloatPanel *fpFilterTrans, *fpFilterProducts, *fpFilterBalances, *fpFilterOffers;
+
+    QListWidgetItem *itmEndOfMonth;
+    QListWidgetItem *itmGralEndOfDay;
+    QListWidgetItem *itmEndOfDay;
+
+    QListWidgetItem *itmPrintSoldOutProducts;
+    QListWidgetItem *itmPrintLowStockProducts;
+    QListWidgetItem *itmPrintBalance;
+
+
 
 
 signals:
@@ -96,6 +107,7 @@ signals:
     void signalConnectActions();
     void signalShowPrefs();
     void signalAdminLoggedOn();
+    void signalSupervisorLoggedOn();
     void signalAdminLoggedOff();
     void signalSalir();
     void signalShowDbConfig();
@@ -116,6 +128,7 @@ signals:
    void showCategoriesPage();
    void showClientsPage();
    void showTransactionsPage();
+   void showReports();
    void usersViewOnSelected(const QModelIndex & index);
    void productsViewOnSelected(const QModelIndex &index);
    void clientsViewOnSelected(const QModelIndex &index);
@@ -138,9 +151,14 @@ signals:
    void setupBalancesModel();
    void showCashFlowPage();
    void setupCashFlowModel();
-   void hideShowFilterProductsGroup();
 
-   void correctStock(qulonglong code, double oldStock, double newStock, const QString &reason);
+   void reportActivated(QListWidgetItem *);
+   void printGralEndOfDay();
+   void printEndOfDay();
+   void printEndOfMonth();
+   void printLowStockProducts();
+   void printSoldOutProducts();
+   void printSelectedBalance();
 
     /* DB slots */
    void createUser();
@@ -160,6 +178,8 @@ signals:
    void setTransactionsFilter();
    void setBalancesFilter();
 
+   void correctStock(qulonglong code, double oldStock, double newStock, const QString &reason);
+
    void setupDb();
    void setupUsersModel();
    void setupOffersModel();
@@ -170,12 +190,13 @@ signals:
    void setupTransactionsModel();
    void checkDBStatus();
    void connectToDb();
-   void freeze();
 
    //Biel - export products
    void exportTable();
    void exportQTableView(QAbstractItemView *tableview);
 
+   //LOGS
+   void log(const qulonglong &uid, const QDate &date, const QTime &time, const QString &text);
 
    void updateCategoriesModel() { categoriesModel->select(); populateCategoriesHash(); }
    void updateMeasuresModel() { measuresModel->select(); }

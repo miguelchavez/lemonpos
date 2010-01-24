@@ -21,12 +21,15 @@ set(squeeze_SRCS
    ../../mibitWidgets/mibittip.cpp
    ../../mibitWidgets/mibitfloatpanel.cpp
    ../../mibitWidgets/mibitlineedit.cpp
+   ../../printing/print-dev.cpp
+   ../../printing/print-cups.cpp
  )
 
 kde4_add_ui_files( squeeze_SRCS
   ui/squeezeview_base.ui
   ui/prefs_base.ui
   ui/prefs_db.ui
+  ui/pref_printers.ui
   ui/edituser_widget.ui
   ui/editclient_widget.ui
   ui/editpromo_widget.ui

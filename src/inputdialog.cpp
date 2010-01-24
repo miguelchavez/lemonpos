@@ -49,6 +49,7 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
   else if (type==dialogCashOut) lPixmap->setPixmap(DesktopIcon("lemon-cashout", 48));
   else if (type == dialogTicket) lPixmap->setPixmap(DesktopIcon("lemon-ticket-cancel", 48));
   else if (type == dialogStockCorrection) lPixmap->setPixmap(DesktopIcon("squeeze-stock-correction", 48));
+  else if (type == dialogTerminalNum) lPixmap->setPixmap(DesktopIcon("lemon-money", 48)); //FIXME: add an icon
 
   //labels
   titleLayout->addWidget(lPixmap);
@@ -93,6 +94,14 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
     reasonLabel->show();
     reasonEdit->show();
   }
+  else if (type == dialogTerminalNum) {
+   qLabel->setText("Terminal Number:");
+   lineEdit->setClickMessage(i18n("Enter the terminal number here..."));
+   productCodeEdit->hide();
+   productCodeLabel->hide();
+   reasonLabel->hide();
+   reasonEdit->hide();
+  }
   else {
     reasonLabel->hide();
     reasonEdit->hide();
@@ -109,6 +118,7 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
     //FIXME: El valor pasado a max es un DOUBLE, y es mas chico que qulonglong. en mi compu ambos son de 8 bytes.
     //qDebug()<<"Size of qulonglong is "<<sizeof(qulonglong);
     //qDebug()<<"Size of a double is   "<<sizeof(double);
+    //NOTE: Nov 21 2009. Returned value is a qulonglong, so integer validator is not good!
     QIntValidator *validator = new QIntValidator(imin, imax,this);
     lineEdit->setValidator(validator);
     //qintvalidator range is in int (not qlonglong)
@@ -160,7 +170,7 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
   //geom = geometry();
   //qDebug()<<"Geometry after resize:"<<geom;
   QString path = KStandardDirs::locate("appdata", "styles/");
-  QPixmap pixm = QPixmap(path + Settings::styleName() + "/dialog_mask.png");
+  QPixmap pixm = QPixmap(path + Settings::styleName() + "/dialog.png");
   setMask( pixm.mask() );
   
   connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(acceptIt()));
@@ -214,7 +224,7 @@ void InputDialog::acceptIt()
       }
     }
   }
-  else { //Money-Measures-Ticket needs only the amount...
+  else { //Money-Measures-Ticket-TerminalNum needs only the amount/terminalNum...
     if (lineEdit->hasAcceptableInput())
       QDialog::accept();
   }

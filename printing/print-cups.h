@@ -36,9 +36,12 @@ class PrintCUPS {
   public:
     static bool printSmallBalance(const PrintBalanceInfo &pbInfo, QPrinter &printer);
     static bool printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printer);
-    static bool printBigTicket(const PrintTicketInfo &ptInfo, QPrinter &printer); //NEEDS more work
+    static bool printBigTicket(const PrintTicketInfo &ptInfo, QPrinter &printer);
     static bool printSmallEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &printer);
     static bool printBigEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &printer);
+
+    static bool printSmallLowStockReport(const PrintLowStockInfo &plInfo, QPrinter &printer);
+    static bool printBigLowStockReport(const PrintLowStockInfo &plInfo, QPrinter &printer);
 };
 
 #endif

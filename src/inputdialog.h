@@ -24,7 +24,7 @@
 #include <QtGui>
 #include <klineedit.h>
 
-enum DialogType       {dialogMoney=0, dialogMeasures=1, dialogTicket=3, dialogCashOut=4, dialogStockCorrection};
+enum DialogType       {dialogMoney=0, dialogMeasures=1, dialogTicket=3, dialogCashOut=4, dialogStockCorrection=5, dialogTerminalNum=6 };
 
 class InputDialog : public QDialog
 {

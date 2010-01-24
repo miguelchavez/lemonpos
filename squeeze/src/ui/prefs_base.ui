@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>prefs_base</class>
- <widget class="QWidget" name="prefs_base" >
-  <property name="geometry" >
+ <widget class="QWidget" name="prefs_base">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,22 +10,22 @@
     <height>305</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3" >
+  <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" >
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="label" >
-       <property name="text" >
+      <widget class="QLabel" name="label">
+       <property name="text">
         <string>Style:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="kcfg_styleName" >
-       <property name="text" >
+      <widget class="QLineEdit" name="kcfg_styleName">
+       <property name="text">
         <string>simple</string>
        </property>
-       <property name="readOnly" >
+       <property name="readOnly">
         <bool>true</bool>
        </property>
       </widget>
@@ -32,32 +33,32 @@
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox" >
-     <property name="title" >
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
       <string>Most Sold Products, Alert Range</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout" >
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2" >
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QLabel" name="label_3" >
-          <property name="text" >
+         <widget class="QLabel" name="label_3">
+          <property name="text">
            <string>Min Value:</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QSpinBox" name="kcfg_mostSoldMinValue" >
-          <property name="minimum" >
+         <widget class="QSpinBox" name="kcfg_mostSoldMinValue">
+          <property name="minimum">
            <number>0</number>
           </property>
-          <property name="maximum" >
+          <property name="maximum">
            <number>9999</number>
           </property>
-          <property name="singleStep" >
+          <property name="singleStep">
            <number>1</number>
           </property>
-          <property name="value" >
+          <property name="value">
            <number>0</number>
           </property>
          </widget>
@@ -65,23 +66,23 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3" >
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <widget class="QLabel" name="label_2" >
-          <property name="text" >
+         <widget class="QLabel" name="label_2">
+          <property name="text">
            <string>Max Value:</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QSpinBox" name="kcfg_mostSoldMaxValue" >
-          <property name="minimum" >
+         <widget class="QSpinBox" name="kcfg_mostSoldMaxValue">
+          <property name="minimum">
            <number>1</number>
           </property>
-          <property name="maximum" >
+          <property name="maximum">
            <number>9999</number>
           </property>
-          <property name="value" >
+          <property name="value">
            <number>10</number>
           </property>
          </widget>
@@ -92,25 +93,25 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="kcfg_askAdminPassword" >
-     <property name="text" >
-      <string>Ask for Administrator's password</string>
+    <widget class="QCheckBox" name="kcfg_lowSecurityMode">
+     <property name="text">
+      <string>Low security mode</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="kcfg_isProductsGridDefault" >
-     <property name="text" >
+    <widget class="QCheckBox" name="kcfg_isProductsGridDefault">
+     <property name="text">
       <string>Grid is the default view for products</string>
      </property>
     </widget>
    </item>
    <item>
-    <spacer name="verticalSpacer" >
-     <property name="orientation" >
+    <spacer name="verticalSpacer">
+     <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeHint" stdset="0" >
+     <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
        <height>40</height>
@@ -120,10 +121,10 @@
    </item>
   </layout>
  </widget>
- <layoutdefault spacing="6" margin="11" />
+ <layoutdefault spacing="6" margin="11"/>
  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
  <includes>
-  <include location="local" >kcolorbutton.h</include>
+  <include location="local">kcolorbutton.h</include>
  </includes>
  <resources/>
  <connections/>

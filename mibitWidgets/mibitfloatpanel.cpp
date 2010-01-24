@@ -33,6 +33,8 @@ MibitFloatPanel::MibitFloatPanel(QWidget *parent, const QString &file, PanelPosi
         : QSvgWidget( parent )
 {
     //setMouseTracking(true);
+    m_hideTotally = false;
+    margin  = 7;
 
     if (file != 0) setSVG(file);
 
@@ -52,7 +54,7 @@ MibitFloatPanel::MibitFloatPanel(QWidget *parent, const QString &file, PanelPosi
     setLayout(hLayout);
 
     //Postition it on its place
-    reposition();
+    QTimer::singleShot(100,this,SLOT(reposition()));
 
     timeLine  = new QTimeLine(animRate, this);
     connect(timeLine, SIGNAL(frameChanged(int)), this, SLOT(animate(int)));
@@ -69,18 +71,20 @@ void MibitFloatPanel::reposition()
     if ((midPointX-(maxWidth/2)) < 0) newX = 0; else newX = midPointX - (maxWidth/2);
     if ((midPointY-(maxHeight/2)) < 0) newY = 0; else newY = midPointY - (maxHeight/2);
 
+    //qDebug()<<"parent geometry:"<<windowGeom;
+
     switch (m_position) {
         case Top:
-            newY = 10-maxHeight;
+            newY = margin-maxHeight;
         break;
         case Bottom:
-            newY = m_parent->height()+height()-10;
+            newY = m_parent->height()+height()-margin;
         break;
         case Left:
-            newX = 10-maxWidth;
+            newX = margin-maxWidth;
         break;
         case Right:
-            newX = m_parent->width()-10;
+            newX = m_parent->width()-margin;
         break;
     }
 
@@ -106,19 +110,19 @@ void MibitFloatPanel::showPanel()
 
         switch (m_position) {
             case Top :
-                minStep = -maxHeight+10;
+                minStep = -maxHeight+margin;
                 maxStep =  -6;
             break;
             case Bottom:
                 maxStep = m_parent->geometry().height()-maxHeight;
-                minStep = m_parent->geometry().height()-10;
+                minStep = m_parent->geometry().height()-margin;
             break;
             case Left:
-                minStep = -maxWidth+10;
+                minStep = -maxWidth+margin;
                 maxStep = -6;
             break;
             case Right:
-                minStep = m_parent->geometry().width()-10;
+                minStep = m_parent->geometry().width()-margin;
                 maxStep = m_parent->geometry().width()-maxWidth;
             break;
             default:
@@ -184,7 +188,10 @@ void MibitFloatPanel::onAnimationFinished()
 {
     if (timeLine->direction() == QTimeLine::Forward) {
         canBeHidden = true;
-    } else canBeHidden = false;
+    } else { //Backward
+        canBeHidden = false;
+        if (m_hideTotally) hide();
+    }
 }
 
 void MibitFloatPanel::setPosition(const PanelPosition pos)
@@ -207,7 +214,17 @@ void MibitFloatPanel::setSVG(const QString &file)
 
 void MibitFloatPanel::enterEvent ( QEvent * )
 {
-    if (m_mode == pmAuto) QTimer::singleShot(100,this,SLOT(showPanel()));
+    if (m_mode == pmAuto) QTimer::singleShot(300,this,SLOT(showPanelDelayed()));
+}
+
+//This is to delay the panel showing, for those inconvenient times where you dont want to
+//get the floatingpanel to appear because you are only passing above the 10pixes of the panel
+//to arrive to another widget.
+void MibitFloatPanel::showPanelDelayed()
+{
+    if (underMouse()) {
+        QTimer::singleShot(100,this,SLOT(showPanel()));
+    }
 }
 
 void MibitFloatPanel::leaveEvent( QEvent * )
@@ -229,6 +246,17 @@ void MibitFloatPanel::reParent(QWidget *newparent)
   setParent(newparent);
   //update
   reposition();
+}
+
+//HACK:
+//This is to fix position, the bad position is because when positioned if
+//the parent is not showing, the parent size is small (100,30).
+//Calling this method when the parent is showing ensures the position is correct.
+void MibitFloatPanel::fixPos()
+{
+    hide();
+    reposition();
+    QTimer::singleShot(100, this, SLOT(show()));
 }
 
 MibitFloatPanel::~MibitFloatPanel() {}

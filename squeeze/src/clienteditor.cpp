@@ -25,6 +25,7 @@
 #include <QByteArray>
 
 #include "clienteditor.h"
+#include "../../mibitWidgets/mibitlineedit.h"
 
 ClientEditorUI::ClientEditorUI( QWidget *parent )
 : QFrame( parent )
@@ -48,6 +49,15 @@ ClientEditor::ClientEditor( QWidget *parent )
     ui->editClientPoints->setValidator(validator);
     ui->editClientDiscount->setValidator((new QDoubleValidator(0.00, 100.000, 3,ui->editClientDiscount)));
 
+    ui->editClientName->setEmptyMessage(i18n("Enter client full name"));
+    ui->editClientPhone->setEmptyMessage(i18n("Phone number"));
+    ui->editClientCell->setEmptyMessage(i18n("Cell phone number"));
+    ui->editClientPoints->setEmptyMessage(i18n("Accumulated points"));
+    ui->editClientDiscount->setEmptyMessage(i18n("Personal discount"));
+
+    //since date picker
+    ui->sinceDatePicker->setDate(QDate::currentDate());
+    
     QTimer::singleShot(750, this, SLOT(checkName()));
 }
 

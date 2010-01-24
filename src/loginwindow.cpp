@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                  *
- *   miguel@lemonpos.org                                                   *
+ *   miguel.chavez.gamboa@gmail.com                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
 
@@ -268,6 +268,7 @@ bool LoginWindow::checkPassword()
   //NOTE: Update uHash from database?..
   if (uHash.contains(user)) {
     UserInfo uInfo = uHash.value(user);
+    userRole = uInfo.role;
     QString givenPass = Hash::password2hash((uInfo.salt+password()).toLocal8Bit());
     if (givenPass == uInfo.password) {
       // Condition #1 : USER PASSWORD satisfied!

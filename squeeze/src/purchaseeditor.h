@@ -83,6 +83,7 @@ class PurchaseEditor : public KDialog
     void    setPrice(double p)         {ui->editFinalPrice->setText(QString::number(p)); };
     void    setPoints(qulonglong p)    {ui->editPoints->setText(QString::number(p)); };
     void    setPhoto(QPixmap p)        {ui->labelPhoto->setPixmap(p); pix=p; };
+    void    setIsAGroup(bool value);
     
     void    disableCode()              { ui->editCode->setReadOnly(true); };
     void    enableCode()               { ui->editCode->setReadOnly(false); };
@@ -95,6 +96,8 @@ private slots:
     void    addItemToList();
     void    setupTable();
     void    focusItemsPerBox(bool set);
+    void    deleteSelectedItem();
+    void    insertProduct(ProductInfo pInfo);
 protected slots:
     virtual void slotButtonClicked(int button);
   private:
