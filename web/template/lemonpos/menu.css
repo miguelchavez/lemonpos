@@ -7,26 +7,28 @@
 #ajaxmenu ul li {
 	position: relative;
 	float: left;
-	width:70px;
+	width: 70px; /*70*/
 	display: block;
 	text-decoration: none;
 	text-align: center;
 	font-weight: normal;
+        /*background-color:blue;*/
 }
 	
 #ajaxmenu ul li ul {
 	position: absolute;
-	left: 1; /* Set 1px less than menu width */
+	left: 1px; /* Set 1px less than menu width */
 	top:21px;
 	line-height: 16px;
-
+        width:120px; /* This is the width for the submenu (dropdown) to let it be bigger that the menu entry MCH*/
+        margin:5px;
 	}
+
 #ajaxmenu ul li a {
 	color: white;
 	font-weight: bold;
         font-size:14px;
 }
-
 
 
 /* Styles for Menu Items */
@@ -74,16 +76,17 @@
 
 #ajaxmenu ul li.firstcategory:hover, #ajaxmenu ul li.firstcategory.over {
 	color: yellow;
-	background-image: url(images/array_332x28_roll.jpg);
+        background-color:transparent;
+	/*background-image: url(images/array_332x28_roll.jpg);*/
 }
 
 #ajaxmenu ul li.category:hover, #ajaxmenu ul li.category.over {
 	color: yellow;
-	background-image: url(images/array_332x28_roll.jpg);
+	/*background-image: url(images/array_332x28_roll.jpg);*/
 }
 #ajaxmenu ul li.lastcategory:hover, #ajaxmenu ul li.lastcategory.over {
 	color: yellow;
-	background-image: url(images/array_332x28_roll.jpg);
+	/*background-image: url(images/array_332x28_roll.jpg);*/
 }
 
 /* commented backslash \*/ 
@@ -96,15 +99,16 @@
 /* hovered lists */
 #ajaxmenu li a, #ajaxmenu li.over a {
 	color: white;
-	width: 70px;
+	width: 70px; /*70px;*/
 	display: block;
 
 }
 
 
 #ajaxmenu li li a:hover, #ajaxmenu li.over li a:hover {
-	background-image: url(images/bullet-11x9_roll.png)  !important;
+	/*background-image: url(images/bullet-11x9_roll.png)  !important;*/
 	color: yellow;
+        font-weight:bold;
 	background-repeat: no-repeat;
         background-color: #8dc15e; /*#8dbc00;*/
 	background-position: left center;
@@ -118,7 +122,7 @@
 	background-repeat: no-repeat !important;
 	text-align: left;
 	font-weight: normal;
-	width: 172px;
+	width: 120px;
         background-color: #72b338;
 	background-position: left center;
 	text-indent: 8pt;
@@ -133,7 +137,7 @@
 } /* Sub Menu Styles */
 
 #ajaxmenu li ul, #ajaxmenu li.over ul { 
-	display: block; 
+	display: block;
 } /* The pop */
 #ajaxmenu {
         position:relative;
@@ -141,20 +145,9 @@
 	margin-left: 0px;
 	width: 450px;
         height:22px;
-        top:38px;
+        top:32px;
         float:right;
-/*         background:red; */
 }
-
-#myajaxmenu {
-	position: absolute;
-	top:1px;
-	left: 7px;
-	display: block;
-	z-index: 1000;
-}
-
-
 
 .B_currentCrumb {
       font-style:italic;
