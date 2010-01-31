@@ -2123,7 +2123,7 @@ qulonglong Azahar::insertBalance(BalanceInfo info)
   if (db.isOpen())
   {
     QSqlQuery queryBalance(db);
-    queryBalance.prepare("INSERT INTO balances (balances.datetime_start, balances.datetime_end, balances.userid, balances.usern, balances.initamount, balances.in, balances.out, balances.cash, balances.card, balances.transactions, balances.terminalnum) VALUES (:date_start, :date_end, :userid, :user, :initA, :in, :out, :cash, :card, :transactions, :terminalNum)");
+    queryBalance.prepare("INSERT INTO balances (balances.datetime_start, balances.datetime_end, balances.userid, balances.usern, balances.initamount, balances.in, balances.out, balances.cash, balances.card, balances.transactions, balances.terminalnum, balances.cashflows, balances.done) VALUES (:date_start, :date_end, :userid, :user, :initA, :in, :out, :cash, :card, :transactions, :terminalNum, :cashflows, :isDone)");
     queryBalance.bindValue(":date_start", info.dateTimeStart.toString("yyyy-MM-dd hh:mm:ss"));
     queryBalance.bindValue(":date_end", info.dateTimeEnd.toString("yyyy-MM-dd hh:mm:ss"));
     queryBalance.bindValue(":userid", info.userid);
@@ -2135,7 +2135,9 @@ qulonglong Azahar::insertBalance(BalanceInfo info)
     queryBalance.bindValue(":card", info.card);
     queryBalance.bindValue(":transactions", info.transactions);
     queryBalance.bindValue(":terminalNum", info.terminal);
-
+    queryBalance.bindValue(":cashflows", info.cashflows);
+    queryBalance.bindValue(":isDone", info.done);
+    
     if (!queryBalance.exec() ) {
       int errNum = queryBalance.lastError().number();
       QSqlError::ErrorType errType = queryBalance.lastError().type();
@@ -2146,6 +2148,7 @@ qulonglong Azahar::insertBalance(BalanceInfo info)
   }
   return result;
 }
+
 
 BalanceInfo Azahar::getBalanceInfo(qulonglong id)
 {
@@ -2162,24 +2165,28 @@ BalanceInfo Azahar::getBalanceInfo(qulonglong id)
       int fieldUserId  = query.record().indexOf("userid");
       int fieldUsername= query.record().indexOf("usern");
       int fieldInitAmount = query.record().indexOf("initamount");
-      int fieldType      = query.record().indexOf("in");
-      int fieldChange    = query.record().indexOf("out");
-      int fieldState     = query.record().indexOf("cash");
-      int fieldUserId    = query.record().indexOf("transactions");
-      int fieldClientId  = query.record().indexOf("card");
-      int fieldCardNum   = query.record().indexOf("terminalnum");
+      int fieldIn      = query.record().indexOf("in");
+      int fieldOut     = query.record().indexOf("out");
+      int fieldCash    = query.record().indexOf("cash");
+      int fieldTransactions    = query.record().indexOf("transactions");
+      int fieldCard    = query.record().indexOf("card");
+      int fieldTerminalNum   = query.record().indexOf("terminalnum");
+      int fieldCashFlows     = query.record().indexOf("cashflows");
+      int fieldDone    = query.record().indexOf("done");
       info.id     = query.value(fieldId).toULongLong();
-      info.dateTimeStart = query.value(fieldAmount).toDateTime();
-      info.dateTimeEnd   = query.value(fieldDate).toDateTime();
-      info.userid   = query.value(fieldTime).toULongLong();
-      info.username= query.value(fieldPaidWith).toString();
-      info.initamount = query.value(fieldPayMethod).toDouble();
-      info.in      = query.value(fieldType).toDouble();
-      info.out = query.value(fieldChange).toDouble();
-      info.cash   = query.value(fieldDate).toDouble();
-      info.card   = query.value(fieldTime).toDouble();
-      info.transactions= query.value(fieldPaidWith).toString();
-      info.terminal = query.value(fieldPayMethod).toInt();
+      info.dateTimeStart = query.value(fieldDtStart).toDateTime();
+      info.dateTimeEnd   = query.value(fieldDtEnd).toDateTime();
+      info.userid   = query.value(fieldUserId).toULongLong();
+      info.username= query.value(fieldUsername).toString();
+      info.initamount = query.value(fieldInitAmount).toDouble();
+      info.in      = query.value(fieldIn).toDouble();
+      info.out = query.value(fieldOut).toDouble();
+      info.cash   = query.value(fieldCash).toDouble();
+      info.card   = query.value(fieldCard).toDouble();
+      info.transactions= query.value(fieldTransactions).toString();
+      info.terminal = query.value(fieldTerminalNum).toInt();
+      info.cashflows= query.value(fieldCashFlows).toString();
+      info.done = query.value(fieldDone).toBool();
     }
   }
   return info;
