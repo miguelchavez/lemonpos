@@ -1213,22 +1213,9 @@ p, li { white-space: pre-wrap; }
        <item row="6" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout_8">
          <item>
-          <spacer name="horizontalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <widget class="QCheckBox" name="chIsAGroup">
            <property name="text">
-            <string>It's a Group/Pack</string>
+            <string>Group. There will be added all its grouped products to the purchase.</string>
            </property>
           </widget>
          </item>
@@ -1708,23 +1695,24 @@ p, li { white-space: pre-wrap; }
   <tabstop>editCode</tabstop>
   <tabstop>editQty</tabstop>
   <tabstop>editDesc</tabstop>
-  <tabstop>editPoints</tabstop>
-  <tabstop>measuresCombo</tabstop>
   <tabstop>categoriesCombo</tabstop>
+  <tabstop>measuresCombo</tabstop>
+  <tabstop>editPoints</tabstop>
   <tabstop>editCost</tabstop>
-  <tabstop>editUtility</tabstop>
   <tabstop>editTax</tabstop>
   <tabstop>editExtraTaxes</tabstop>
+  <tabstop>editUtility</tabstop>
   <tabstop>editFinalPrice</tabstop>
   <tabstop>btnCalculatePrice</tabstop>
   <tabstop>groupBoxedItem</tabstop>
   <tabstop>editItemsPerBox</tabstop>
   <tabstop>editPricePerBox</tabstop>
-  <tabstop>btnPhoto</tabstop>
   <tabstop>btnAddItem</tabstop>
+  <tabstop>btnPhoto</tabstop>
   <tabstop>tableView</tabstop>
   <tabstop>btnRemoveItem</tabstop>
   <tabstop>tabWidget</tabstop>
+  <tabstop>chIsAGroup</tabstop>
  </tabstops>
  <resources/>
  <connections/>

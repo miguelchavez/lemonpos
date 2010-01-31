@@ -97,7 +97,7 @@ private slots:
     void    setupTable();
     void    focusItemsPerBox(bool set);
     void    deleteSelectedItem();
-    void    insertProduct(ProductInfo pInfo);
+    void    insertProduct(ProductInfo info);
 protected slots:
     virtual void slotButtonClicked(int button);
   private:
@@ -109,6 +109,7 @@ protected slots:
     bool productExists;
     double totalBuy;
     double itemCount;
+    QString gelem;
     QHash<qulonglong, ProductInfo> productsHash;
 };
 

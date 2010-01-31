@@ -41,6 +41,8 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
     setMainWidget( ui );
     setCaption( i18n("Purchase") );
     setButtons( KDialog::Ok|KDialog::Cancel );
+    setDefaultButton(KDialog::None);
+    ui->btnAddItem->setDefault(true);
 
     //Set Validators for input boxes
     QRegExp regexpC("[0-9]{1,13}"); //(EAN-13 y EAN-8) .. y productos sin codigo de barras?
@@ -70,7 +72,7 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
 
     connect(ui->btnRemoveItem, SIGNAL( clicked() ), SLOT( deleteSelectedItem() ) );
 
-    ui->btnIsAGroup->setDisabled(true);
+    ui->chIsAGroup->setDisabled(true);
     
 
     status = estatusNormal;
@@ -296,6 +298,7 @@ void PurchaseEditor::checkIfCodeExists()
 {
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
+  gelem = "";
   QString codeStr = ui->editCode->text();
   if (codeStr.isEmpty()) codeStr = "0";
   ProductInfo pInfo = myDb->getProductInfo(codeStr);
@@ -314,6 +317,8 @@ void PurchaseEditor::checkIfCodeExists()
     //ui->editExtraTaxes->setText(QString::number(pInfo.extratax));
     ui->editFinalPrice->setText(QString::number(pInfo.price));
     ui->editPoints->setText(QString::number(pInfo.points));
+    ui->chIsAGroup->setChecked(pInfo.isAGroup);
+    gelem = pInfo.groupElementsStr;
     if (!(pInfo.photo).isEmpty()) {
       QPixmap photo;
       photo.loadFromData(pInfo.photo);
@@ -356,7 +361,11 @@ void PurchaseEditor::setupTable() {
 
 void PurchaseEditor::addItemToList()
 {
+  ProductInfo pInfo;
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
   bool ok=false;
+
   if (ui->editCode->text().isEmpty()) ui->editCode->setFocus();
   else if (ui->editDesc->text().isEmpty()) ui->editDesc->setFocus();
   else if (ui->editPoints->text().isEmpty()) ui->editPoints->setFocus();
@@ -370,8 +379,13 @@ void PurchaseEditor::addItemToList()
   else ok = true;
 
   if (ok) {
-    ProductInfo info;
-    info.code    = getCode();
+    ProductInfo info = myDb->getProductInfo(getCode());
+    //FIX BUG: dont allow enter new products.. dont know why? new code on 'continue' statement.
+    if (info.code == 0) {
+      info.code = getCode();
+      info.lastProviderId=1; //for now.. fixme in the future
+    }
+    //update p.info from the dialog
     info.desc    = getDescription();
     info.price   = getPrice();
     info.cost    = getCost();
@@ -391,33 +405,82 @@ void PurchaseEditor::addItemToList()
     info.alphaCode = "-NA-";
     info.lastProviderId = 1;
 
-    if (ui->chIsAGroup.isChecked()) {
+    if (info.isAGroup) {
       // get each product fo the group/pack
-      
+      QStringList list = gelem.split(",");
+      for (int i=0; i<list.count(); ++i) {
+        QStringList tmp = list.at(i).split("/");
+        if (tmp.count() == 2) { //ok 2 fields
+          qulonglong  code  = tmp.at(0).toULongLong();
+          pInfo = myDb->getProductInfo(code);
+          pInfo.purchaseQty = getPurchaseQty();
+          pInfo.validDiscount = true; // all grouped products exists
+          insertProduct(pInfo); ///inserting each product of the group
+        } // correct fields
+      }//for each element
     } else insertProduct(info);
-    
+
+    resetEdits();
     ui->editCode->setFocus();
   }
 }
 
-void PurchaseEditor::insertProduct(ProductInfo pInfo)
+void PurchaseEditor::insertProduct(ProductInfo info)
 {
-  if (!productsHash.contains(info.code) && info.code>0) {
+  //When a product is already on list, increment qty.
+  bool existed = false;
+  if (info.code>0) {
+    if (productsHash.contains(info.code)) {
+      info = productsHash.take(info.code); //re get it from hash
+      info.purchaseQty += getPurchaseQty();
+      itemCount += getPurchaseQty();
+      totalBuy = totalBuy + info.cost*getPurchaseQty();
+      existed = true;
+    } else {
+      itemCount += info.purchaseQty;
+      totalBuy = totalBuy + info.cost*info.purchaseQty;
+    }
+    
+    double finalCount = info.purchaseQty + info.stockqty;
+    info.groupElementsStr=""; //grouped products cannot be a group.
     //insert item to productsHash
     productsHash.insert(info.code, info);
     //insert item to ListView
-    int rowCount = ui->tableView->rowCount();
-    ui->tableView->insertRow(rowCount);
-    ui->tableView->setItem(rowCount, 0, new QTableWidgetItem(QString::number(info.code)));
-    ui->tableView->setItem(rowCount, 1, new QTableWidgetItem(info.desc));
-    ui->tableView->setItem(rowCount, 2, new QTableWidgetItem(QString::number(info.purchaseQty)));
-    ui->tableView->setItem(rowCount, 3, new QTableWidgetItem(QString::number(finalCount)));
+
+    if (!existed) {
+      int rowCount = ui->tableView->rowCount();
+      ui->tableView->insertRow(rowCount);
+      ui->tableView->setItem(rowCount, 0, new QTableWidgetItem(QString::number(info.code)));
+      ui->tableView->setItem(rowCount, 1, new QTableWidgetItem(info.desc));
+      ui->tableView->setItem(rowCount, 2, new QTableWidgetItem(QString::number(info.purchaseQty)));
+      ui->tableView->setItem(rowCount, 3, new QTableWidgetItem(QString::number(finalCount)));
+    } else {
+      //simply update the groupView with the new qty
+      for (int ri=0; ri<ui->tableView->rowCount(); ++ri)
+      {
+        QTableWidgetItem * item = ui->tableView->item(ri, 1);
+        QString name = item->data(Qt::DisplayRole).toString();
+        if (name == info.desc) {
+          //update
+          QTableWidgetItem *itemQ = ui->tableView->item(ri, 2);
+          itemQ->setData(Qt::EditRole, QVariant(QString::number(info.purchaseQty)));
+          itemQ = ui->tableView->item(ri, 3);
+          itemQ->setData(Qt::EditRole, QVariant(QString::number(finalCount)));
+          continue; //HEY PURIST, WHEN I GOT SOME TIME I WILL CLEAN IT
+        }
+      }
+    }
     
     ui->tableView->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
     ui->tableView->resizeRowsToContents();
-    resetEdits();
-    totalBuy = totalBuy + info.cost*info.purchaseQty;
-    itemCount = itemCount + info.purchaseQty;
+    //totalBuy = totalBuy + info.cost*info.purchaseQty;
+    //itemCount = itemCount + info.purchaseQty;
+
+    //update info on group caption
+    ui->groupBox->setTitle( i18n("Items in this purchase [ %1  items,  %2 ]",itemCount,
+                                 KGlobal::locale()->formatMoney(totalBuy, QString(), 2)
+                                 ) );
+    
     qDebug()<<"totalBuy until now:"<<totalBuy<<" itemCount:"<<itemCount<<"info.cost:"<<info.cost<<"info.purchaseQty:"<<info.purchaseQty;
   }  else  qDebug()<<"Item "<<info.code<<" already on hash";
 }
@@ -430,8 +493,14 @@ void PurchaseEditor::deleteSelectedItem() //added on dec 3, 2009
     qulonglong code = item->data(Qt::DisplayRole).toULongLong();
     if (productsHash.contains(code)) {
       //delete it from hash and from view
-      productsHash.remove(code);
+      ProductInfo info = productsHash.take(code);
       ui->tableView->removeRow(row);
+      //update qty and $ of the purchase
+      totalBuy  -= (info.cost*info.purchaseQty);
+      itemCount -= info.purchaseQty;
+      ui->groupBox->setTitle( i18n("Items in this purchase [ %1  items,  %2 ]",itemCount,
+                                   KGlobal::locale()->formatMoney(totalBuy, QString(), 2)
+                                   ) );
     }
   }
 }
@@ -452,6 +521,8 @@ void PurchaseEditor::resetEdits()
   ui->editItemsPerBox->setText("");
   ui->editPricePerBox->setText("");
   ui->editQty->setText("");
+  ui->chIsAGroup->setChecked(false);
+  gelem = "";
 }
 
 double PurchaseEditor::getPurchaseQty()
