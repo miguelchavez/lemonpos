@@ -1,4 +1,4 @@
-# (C) 2007-2009, Miguel Chavez Gamboa
+# (C) 2007-2010, Miguel Chavez Gamboa [GPL v2 or later]
 # run this as: cat lemon_mysql.sql | mysql -u root -p
 
 CREATE DATABASE lemonposdb;
@@ -7,16 +7,16 @@ USE lemonposdb;
 CREATE TABLE IF NOT EXISTS `transactions` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
   `clientid` int(10) unsigned NOT NULL,
-  `userid` int(10) NOT NULL default '0',
   `type` smallint(5) unsigned default NULL,
   `amount` double unsigned NOT NULL default '0',
-  `date` date NOT NULL,
-  `time` time NOT NULL,
+  `date` date NOT NULL default '2009-01-01',
+  `time` time NOT NULL default '00:00',
   `paidwith` double unsigned NOT NULL default '0.0',
   `changegiven` double unsigned NOT NULL default '0.0',
   `paymethod` int(10) NOT NULL default '0',
   `state` int(10) NOT NULL default '0',
-  `cardnumber` varchar(20) character set utf8 collate utf8_general_ci, #Card/Check
+  `userid` int(10) NOT NULL default '0',
+  `cardnumber` varchar(20) character set utf8 collate utf8_general_ci,
   `itemcount` int(10) unsigned NOT NULL default '0',
   `itemslist` varchar(250) character set utf8 collate utf8_general_ci NOT NULL,
   `points` bigint(20) unsigned NOT NULL default '0',
@@ -25,8 +25,10 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   `cardauthnumber` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
   `profit` double NOT NULL default '0', #RENAMED
   `terminalnum` int(10) unsigned NOT NULL default '1',
-  `providerid` int(10) unsigned NOT NULL, #for Purchase orders
-  `groups` VARCHAR(50), -- to indicate there are groups sold in this transaction.
+  `providerid` int(10) unsigned NOT NULL default 1 , #for Purchase orders
+  `specialOrders` varchar(255) collate utf8_general_ci default '',
+  `balanceId` bigint(20) unsigned NOT NULL default '1',
+  `totalTax` double NOT NULL default '0',
   PRIMARY KEY (`id`),
   KEY  `SEC` (`clientid`, `type`, `date`, `time`, `state`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -36,9 +38,10 @@ CREATE TABLE IF NOT EXISTS `products` (
   `code` bigint(20) unsigned NOT NULL default '0',
   `name` varchar(255) NOT NULL collate utf8_general_ci default 'unknown',
   `price` double unsigned NOT NULL default '0.0',
-  `cost` double unsigned NOT NULL default '0',
   `stockqty` double unsigned NOT NULL default '0',
-  `brandid` bigint(20) unsigned NOT NULL default '0',
+  `cost` double unsigned NOT NULL default '0',
+  `soldunits` double unsigned NOT NULL default '0',
+  `datelastsold` date default '2009-01-01', 
   `units` int(10) unsigned collate utf8_general_ci NOT NULL default '0',
   `taxmodel` bigint(20) unsigned NOT NULL default 1,
   `photo` blob default NULL,
@@ -46,34 +49,45 @@ CREATE TABLE IF NOT EXISTS `products` (
   `points` INT(10) UNSIGNED NOT NULL DEFAULT 0,
   `alphacode` VARCHAR( 30 ) NULL,
   `lastproviderid` int(10) unsigned NOT NULL default '1',
-  `soldunits` double unsigned NOT NULL default '0',
-  `datelastsold` date ,
- PRIMARY KEY  (`code`),
- KEY `SEC` (`category`, `name`, `brandid`, `alphacode`)
+  # for grouped and on-demand-made products (special orders)
+  `isARawProduct` bool NOT NULL default false,
+  `isAGroup` bool NOT NULL default false, #this is not necesary, with groupElements we can know if its a group
+  `groupElements` varchar(255) collate utf8_general_ci default '',
+  PRIMARY KEY  (`code`),
+  KEY `SEC` (`category`, `name`, `brandid`, `alphacode`)                                       
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-CREATE TABLE IF NOT EXISTS `group_elements` (
-  `id` bigint(20) unsigned NOT NULL auto_increment,
-  `gid` bigint(20) unsigned NOT NULL,
-  `product_id` bigint(20) unsigned NOT NULL,
-  `qty` bigint(20) unsigned NOT NULL,
-  PRIMARY KEY  (`id`),
-  KEY `SEC` (`gid`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+# special orders are special products, each order is a product containing one or more rawProducts
+# each time its sold one, it is created. If you want predefined products use instead grouped product.
+# TODO: Implement offers for special orders
 
-CREATE TABLE IF NOT EXISTS `groups` (
-  `groupid` bigint(20) unsigned NOT NULL auto_increment,
-  `gname` VARCHAR(50) NOT NULL,
-  `discount` double unsigned NOT NULL DEFAULT '0',
-  `soldunits` int(10) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY  (`groupid`)
+CREATE TABLE IF NOT EXISTS `special_orders` (
+  `orderid` bigint(20) unsigned NOT NULL auto_increment,
+  `name` varchar(255) NOT NULL collate utf8_general_ci default 'unknown',
+  # group elements are each products code/qty ['1/3,9/1']
+  `groupElements` varchar(255) collate utf8_general_ci default '',
+  `qty` double unsigned NOT NULL default 1,
+  `price` double unsigned NOT NULL default '0.0',
+  `cost` double unsigned NOT NULL default '0',
+  `units` int(10) unsigned collate utf8_general_ci NOT NULL default '0',
+  `status` int(10) default 0, # 0: pending, 1: inprogress, 2:ready, 3:delivered, 4: cancelled
+  `saleid` bigint(20) unsigned NOT NULL default 1,
+  `notes` varchar(255) collate utf8_general_ci default '',
+  `payment` double unsigned NOT NULL default '0',
+  `completePayment` bool default false,
+  `dateTime` datetime NOT NULL default '2009-01-01',
+  `deliveryDateTime` datetime NOT NULL default '2009-01-01',
+  `clientId` bigint(20) unsigned NOT NULL default 1,
+  `userId` bigint(20) unsigned NOT NULL default 1,
+  PRIMARY KEY  (`orderid`),
+  KEY `SEC` (`saleid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `offers` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
   `discount` double NOT NULL,
-  `datestart` date NOT NULL,
-  `dateend` date NOT NULL,
+  `datestart` date NOT NULL default '2009-01-01',
+  `dateend` date NOT NULL default '2009-01-01',
   `product_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY  (`id`, `product_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -113,8 +127,8 @@ CREATE TABLE IF NOT EXISTS `taxelements` (
 
 CREATE TABLE IF NOT EXISTS `balances` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
-  `datetime_start` datetime NOT NULL,
-  `datetime_end` datetime NOT NULL,
+  `datetime_start` datetime NOT NULL default '2009-01-01',
+  `datetime_end` datetime NOT NULL default '2009-01-01',
   `userid` bigint(20) unsigned NOT NULL,
   `usern` varchar(50) collate utf8_general_ci NOT NULL,
   `initamount` double NOT NULL,
@@ -122,8 +136,10 @@ CREATE TABLE IF NOT EXISTS `balances` (
   `out` double NOT NULL,
   `cash` double NOT NULL,
   `card` double NOT NULL,
-  `transactions` varchar(250) collate utf8_general_ci NOT NULL,
+  `transactions` varchar(250) collate utf8_general_ci NOT NULL default "",
   `terminalnum` bigint(20) unsigned NOT NULL,
+  `cashflows` varchar(250) collate utf8_general_ci default "",
+  `done` bool NOT NULL default false,
   PRIMARY KEY  (`id`),
   KEY `SEC` (`datetime_start`,`datetime_end`, `userid` )
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -159,7 +175,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 CREATE TABLE IF NOT EXISTS `clients` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
   `name` varchar(100) collate utf8_general_ci default NULL,
-  `since` date NOT NULL,
+  `since` date NOT NULL default '2009-01-01',
   `address` varchar(255) collate utf8_general_ci default NULL,
   `phone` varchar(50) character set utf8 collate utf8_general_ci default NULL,
   `phone_movil` varchar(50) collate utf8_general_ci default NULL,
@@ -169,8 +185,6 @@ CREATE TABLE IF NOT EXISTS `clients` (
   PRIMARY KEY (`id`),
   KEY `SEC` (`username`, `name`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
--- POR QUE LO TENIA EN LOS CLIENTES? -> `taxid` varchar(100) collate utf8_general_ci default NULL, #Renombrar luego. USA:EIN/FTIN/taxid
 
 CREATE TABLE IF NOT EXISTS `paytypes` (
   `typeid` int(10) unsigned NOT NULL auto_increment,
@@ -190,6 +204,19 @@ CREATE TABLE IF NOT EXISTS `transactiontypes` (
   PRIMARY KEY  (`ttypeid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+CREATE TABLE IF NOT EXISTS `so_status` (
+  `id` int(10) unsigned NOT NULL default 0,
+  `text` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `bool_values` (
+  `id` int(10) unsigned NOT NULL default 0,
+  `text` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+
 CREATE TABLE IF NOT EXISTS `transactionitems` (
  `transaction_id` bigint(20) unsigned NOT NULL,
  `position` int(10) unsigned NOT NULL,
@@ -202,6 +229,12 @@ CREATE TABLE IF NOT EXISTS `transactionitems` (
  `disc` double default NULL,
  `total` double default NULL,
  `name` varchar(255) default NULL,
+ `payment` double default 0,
+ `completePayment` bool default false,
+ `soId` varchar(255) default "",
+ `isGroup` bool default false,
+ `deliveryDateTime` datetime default '2009-01-01',
+ `tax` double default 0,
  UNIQUE KEY `transaction_id` (`transaction_id`,`position`),
  KEY `product_id` (`product_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -210,10 +243,10 @@ CREATE TABLE IF NOT EXISTS `cashflow` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
   `type` smallint(5) unsigned NOT NULL default '1',
   `userid` bigint(20) NOT NULL default '1',
-  `reason` varchar(100) default NULL,
+  `reason` varchar(100) default NULL,                                     
   `amount` double unsigned NOT NULL default '0',
-  `date` date NOT NULL,
-  `time` time NOT NULL,
+  `date` date NOT NULL default '2009-01-01',
+  `time` time NOT NULL default '00:00',
   `terminalnum` int(10) unsigned NOT NULL default '1',
   PRIMARY KEY  (`id`),
   KEY SEC (`date`, `time`, `type`, `userid`)
@@ -225,13 +258,15 @@ CREATE TABLE IF NOT EXISTS `cashflowtypes` (
   PRIMARY KEY  (`typeid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+
+
 CREATE TABLE IF NOT EXISTS `providers` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `provname` VARCHAR( 20 ) NULL,
+  `name` VARCHAR( 20 ) NULL,
   `address` varchar(255) collate utf8_general_ci default NULL,
   `phone` varchar(50) character set utf8 collate utf8_general_ci default NULL,
   `cellphone` varchar(50) collate utf8_general_ci default NULL,
-  PRIMARY KEY  (`id`, `provname`)
+  PRIMARY KEY  (`id`, `name`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `products_providers` (
@@ -239,21 +274,22 @@ CREATE TABLE IF NOT EXISTS `products_providers` (
   `provider_id` int(10) unsigned NOT NULL,
   `product_id` bigint(20) unsigned NOT NULL,
   `price` double unsigned NOT NULL default '0.0', #price?? implement later if decided
-  PRIMARY KEY  (`product_id`, `provider_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+# Introduced on Sept 7 2009.
 CREATE TABLE IF NOT EXISTS `stock_corrections` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `product_id` bigint(20) unsigned NOT NULL,
   `new_stock_qty` bigint(20) unsigned NOT NULL,
   `old_stock_qty` bigint(20) unsigned NOT NULL,
   `reason` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
-  `date` varchar(20) NOT NULL,
-  `time` varchar(20) NOT NULL,
+  `date` varchar(20) NOT NULL default '2009-01-01',
+  `time` varchar(20) NOT NULL default '00:00',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
---Some general config that is gonna be taken from azahar. For shared configuration
+# Some general config that is gonna be taken from azahar. For shared configuration
 CREATE TABLE IF NOT EXISTS `config` (
   `firstrun` varchar(30) character set utf8 collate utf8_general_ci NOT NULL,
   `taxIsIncludedInPrice` bool NOT NULL default true,
@@ -270,11 +306,20 @@ CREATE TABLE IF NOT EXISTS `config` (
 CREATE TABLE IF NOT EXISTS `logs` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
   `userid` bigint(20) unsigned NOT NULL,
-  `date` varchar(20) NOT NULL,
-  `time` varchar(20) NOT NULL,
-  `action` varchar(255) NOT NULL,
+  `date` varchar(20) NOT NULL default '2009-01-01',
+  `time` varchar(20) NOT NULL default '00:00',
+  `action` varchar(512) NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `random_msgs` (
+  `id` bigint(20) unsigned NOT NULL auto_increment,
+  `message` varchar(512),
+  `season` int(10) unsigned NOT NULL default 1,
+  `count` bigint(20) unsigned NOT NULL default 0,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
 
 CREATE OR REPLACE VIEW `v_transactions` AS
 select
@@ -317,6 +362,22 @@ sum(`transactions`.`amount`) AS `total`
 from `transactions`
 where ((`transactions`.`type` = 1) and (`transactions`.`itemcount` > 0) and (`transactions`.`state`=2))
 group by `transactions`.`date`;
+
+CREATE OR REPLACE VIEW `v_groupedSO` AS
+select * from `special_orders`
+group by `special_orders`.`saleid`;
+
+CREATE OR REPLACE VIEW `v_transS` AS
+select `transactions`.`id`,
+ `transactions`.`userid`,
+ `transactions`.`clientid`,
+ `transactions`.`date`,
+ `transactions`.`time`,
+ `transactions`.`state`,
+ `transactions`.`itemslist`,
+ `transactions`.`terminalnum`
+ from `transactions` WHERE (`transactions`.`state`= 1) AND (`transactions`.`type` = 1)
+order by `transactions`.`id`;
 
 # ---------------------------------------------
 # -- Create the database user for lemon...   --
@@ -368,7 +429,16 @@ INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(2, 'Money return on t
 INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(3, 'Money return on product return');
 INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(4, 'Normal Cash IN');
 #Insert default provider
-INSERT INTO lemonposdb.providers (id,provname,address,phone,cellphone) VALUES(1,'No provider', '-NA-', '-NA-', '-NA-');
+INSERT INTO lemonposdb.providers (id,name,address,phone,cellphone) VALUES(1,'No provider', '-NA-', '-NA-', '-NA-');
+
+INSERT INTO lemondb.so_status (id, text) VALUES(0, 'Pending');
+INSERT INTO lemondb.so_status (id, text) VALUES(1, 'In Progress');
+INSERT INTO lemondb.so_status (id, text) VALUES(2, 'Ready');
+INSERT INTO lemondb.so_status (id, text) VALUES(3, 'Delivered');
+INSERT INTO lemondb.so_status (id, text) VALUES(4, 'Cancelled');
+
+INSERT INTO lemondb.bool_values (id, text) VALUES(0, 'NO');
+INSERT INTO lemondb.bool_values (id, text) VALUES(1, 'YES');
 
 #brands
 INSERT INTO lemonposdb.brands (brandid, bname) VALUES(1,"Unbranded");
@@ -378,4 +448,4 @@ INSERT INTO lemonposdb.brands (brandid, bname) VALUES(1,"Unbranded");
 INSERT INTO lemonposdb.taxmodels (modelid,tname,appway,elementsid) VALUES(1,"Default", "*.15","1");
 INSERT INTO lemonposdb.taxelements (elementid, ename, amount) VALUES (1,"Simple 15%", 15);
 
-INSERT INTO lemonposdb.config (firstrun, taxIsIncludedInPrice) VALUES('yes, it is February 6 1978', true);
+INSERT INTO lemonposdb.config (firstrun, taxIsIncludedInPrice, storeLogo, storeName, storeAddress, storePhone, logoOnTop, useCUPS, smallPrint) VALUES ('yes, it is February 6 1978', true, '', '', '', '', true, true, true);

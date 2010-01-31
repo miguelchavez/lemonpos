@@ -179,7 +179,7 @@ ProductInfo Azahar::getProductInfo(QString code)
     U.text as UNITSDESC, \
     C.text as CATEGORY, \
     B.bname  as BRAND, \
-    PR.provname as LASTPROVIDER ,\
+    PR.name as LASTPROVIDER ,\
     T.tname as TAXNAME, \
     T.appway as TAXAPP , \
     T.elementsid as TAXELEM \
@@ -821,9 +821,9 @@ QStringList Azahar::getProvidersList()
   if (!db.isOpen()) db.open();
   if (db.isOpen()) {
     QSqlQuery myQuery(db);
-    if (myQuery.exec("select provname from providers;")) {
+    if (myQuery.exec("select name from providers;")) {
       while (myQuery.next()) {
-        int fieldText = myQuery.record().indexOf("provname");
+        int fieldText = myQuery.record().indexOf("name");
         QString text = myQuery.value(fieldText).toString();
         result.append(text);
       }
@@ -842,9 +842,9 @@ QString Azahar::getProviderName(const qulonglong &id)
   if (!db.isOpen()) db.open();
   if (db.isOpen()) {
     QSqlQuery myQuery(db);
-    if (myQuery.exec(QString("select provname from providers where id=%1;").arg(id))) {
+    if (myQuery.exec(QString("select name from providers where id=%1;").arg(id))) {
       while (myQuery.next()) {
-        int fieldText = myQuery.record().indexOf("provname");
+        int fieldText = myQuery.record().indexOf("name");
         result = myQuery.value(fieldText).toString();
       }
     }
@@ -861,7 +861,7 @@ qulonglong Azahar::getProviderId(const QString &name)
   if (!db.isOpen()) db.open();
   if (db.isOpen()) {
     QSqlQuery myQuery(db);
-    if (myQuery.exec(QString("select id from providers where provname='%1';").arg(name))) {
+    if (myQuery.exec(QString("select id from providers where name='%1';").arg(name))) {
       while (myQuery.next()) {
         int fieldText = myQuery.record().indexOf("id");
         result = myQuery.value(fieldText).toULongLong();
