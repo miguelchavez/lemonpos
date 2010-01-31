@@ -27,6 +27,7 @@
 #include <QPixmap>
 #include <QDateTime>
 #include <QDate>
+#include <QHash>
 
 struct ProductInfo {
   qulonglong code;
@@ -54,8 +55,11 @@ struct ProductInfo {
   QString taxElements;
   qulonglong brandid;
   double soldUnits; // mch 21Nov09 FOR PRINTED REPORT - LOW STOCK
+  // for grouped products and special orders
+  bool isAGroup;
+  bool isARawProduct;
+  QString groupElementsStr;
 };
-
 
 struct UserInfo
 {
@@ -87,7 +91,7 @@ struct ClientInfo
 struct OfferInfo
 {
   qulonglong productCode;
-  double     discount; //in percentage
+  double     discount;
   QDate      dateStart;
   QDate      dateEnd;
 };
@@ -114,8 +118,11 @@ struct TransactionInfo
   qulonglong points;
   double     profit; 
   int        terminalnum;
-  QString    groups;
+  //QString    groups;  //DEPRECATED
+  QString    specialOrders;
   qulonglong providerid;
+  qulonglong balanceId; //to store balance where it was sold. For SESSIONS.
+  double     totalTax; //in money.
 };
 
 struct BalanceInfo
@@ -132,6 +139,8 @@ struct BalanceInfo
   double     card;
   QString    transactions;
   int        terminal;
+  QString    cashflows;//28DIC09
+  bool       done;
 };
 
 struct PrintBalanceInfo
@@ -172,6 +181,7 @@ struct pieProdInfo
   double count;
   QString name;
   QString unitStr;
+  qulonglong code;
 };
 
 struct ProfitRange
@@ -187,6 +197,12 @@ struct TicketLineInfo {
   double price;
   double disc;
   double total;
+  QString geForPrint;
+  bool   completePayment;
+  bool   isGroup;
+  double payment;
+  QDateTime  deliveryDateTime;
+  double tax; //total tax in Percentage.
 };
 
 struct TicketInfo {
@@ -205,6 +221,9 @@ struct TicketInfo {
   qulonglong clientid; // 14 Abril 08
   QList<TicketLineInfo> lines;
   QDateTime datetime;
+  bool hasSpecialOrders;
+  bool completingSpecialOrder;
+  double totalTax;
 };
 
 struct PrintTicketInfo {
@@ -233,8 +252,21 @@ struct PrintTicketInfo {
   double     totDisc;
   TicketInfo ticketInfo;
   bool       logoOnTop;
+  QString    paymentStrComplete;
+  QString    paymentStrPrePayment;
+  QString    nextPaymentStr;
+  QString    lastPaymentStr;
+  QString    deliveryDateStr;
+  QString    clientDiscountStr;
+  double     clientDiscMoney;
+  QString    randomMsg;
+  QString    taxes;
+  QString    thTax;
 };
 
+//TODO: add grouped products and special orders
+//      is it convenient? in case a pack of 6 water botles is not convenient, but a combo "My burger package"
+//      consisting of one burger, one soda and one fried potatoes.
 struct TransactionItemInfo
 {
   qulonglong transactionid;
@@ -248,6 +280,13 @@ struct TransactionItemInfo
   double     disc;
   double     total;
   QString    name;
+  //for special orders, also productCode will be 0 for special orders
+  QString    soId;
+  double     payment;
+  bool       completePayment;
+  bool       isGroup;
+  QDateTime  deliveryDateTime;
+  double     tax; // total tax in percentage.
 };
 
 
@@ -305,6 +344,41 @@ struct PrintLowStockInfo
   QString    hSoldU;
   QStringList pLines;
   bool       logoOnTop;
+};
+
+struct SpecialOrderInfo
+{
+  qulonglong orderid;
+  qulonglong saleid;
+  QString    name;
+  double     qty;
+  double     price;
+  double     cost;
+  int        status;
+  int        units;
+  QString    unitStr;
+  QString    groupElements;
+  QString    notes;
+  int        insertedAtRow;
+  QString    geForPrint;
+  double     payment; //anticipos
+  bool       completePayment;
+  QDateTime  dateTime;
+  qulonglong completedOnTrNum;
+  QDateTime  deliveryDateTime;
+  qulonglong userId;
+  qulonglong clientId;
+  double     averageTax;
+};
+
+struct GroupInfo
+{
+  QString name;
+  double  cost;
+  double  price;
+  double  count; // total of items in the group
+  bool    isAvailable; //based on stockqty for each product (and its qtys).
+  QHash<qulonglong, ProductInfo> productsList;
 };
 
 struct BrandInfo
