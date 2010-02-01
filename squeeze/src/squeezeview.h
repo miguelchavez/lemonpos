@@ -158,7 +158,7 @@ signals:
    void printEndOfMonth();
    void printLowStockProducts();
    void printSoldOutProducts();
-   void printSelectedBalance();
+   //void printSelectedBalance();
 
     /* DB slots */
    void createUser();
