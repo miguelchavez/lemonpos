@@ -379,8 +379,7 @@ void PurchaseEditor::addItemToList()
   else ok = true;
 
   if (ok) {
-    ProductInfo info = myDb->getProductInfo(getCode());
-    //FIX BUG: dont allow enter new products.. dont know why? new code on 'continue' statement.
+    ProductInfo info = myDb->getProductInfo(QString::number(getCode()));
     if (info.code == 0) {
       info.code = getCode();
       info.lastProviderId=1; //for now.. fixme in the future
@@ -399,7 +398,7 @@ void PurchaseEditor::addItemToList()
     info.points  = getPoints();
     info.stockqty= getQtyOnDb();
     info.purchaseQty = getPurchaseQty();
-    double finalCount = info.purchaseQty + info.stockqty;
+    double finalCount = info.purchaseQty + info.stockqty; // WHAT FOR??
     info.validDiscount = productExists; //used to check if product is already on db.
     //FIXME: NEXT 2 lines are temporal remove on 0.8 version
     info.alphaCode = "-NA-";
@@ -412,7 +411,7 @@ void PurchaseEditor::addItemToList()
         QStringList tmp = list.at(i).split("/");
         if (tmp.count() == 2) { //ok 2 fields
           qulonglong  code  = tmp.at(0).toULongLong();
-          pInfo = myDb->getProductInfo(code);
+          pInfo = myDb->getProductInfo(QString::number(code));
           pInfo.purchaseQty = getPurchaseQty();
           pInfo.validDiscount = true; // all grouped products exists
           insertProduct(pInfo); ///inserting each product of the group
