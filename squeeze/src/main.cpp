@@ -29,14 +29,15 @@
 static const char description[] =
     I18N_NOOP("Squeeze your lemon!");
 
-static const char version[] = "0.9";
+static const char version[] = "0.98";
 
 int main(int argc, char **argv)
 {
-    KAboutData about("squeeze", 0, ki18n("squeeze"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2007-2009 Miguel Chavez Gamboa"), KLocalizedString(), 0, "miguel@lemonpos.org           ");
-    about.addAuthor( ki18n("Miguel Chavez Gamboa"), KLocalizedString(), "miguel@lemonpos.org           " );
+    KAboutData about("squeeze", 0, ki18n("squeeze"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2007-2010 Miguel Chavez Gamboa"), KLocalizedString(), 0, "miguel@lemonpos.org           ");
+    about.addAuthor( ki18n("Miguel Chávez Gamboa"), KLocalizedString(), "miguel@lemonpos.org           " );
     KCmdLineArgs::init(argc, argv, &about);
 
+    about.addCredit(ki18n("Roberto Aceves"), ki18n("Many ideas and general help"));
     about.addCredit(ki18n("Biel Frontera"), ki18n("Code contributor"));
     
     KCmdLineOptions options;
