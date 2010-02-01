@@ -1442,7 +1442,6 @@ TransactionInfo Azahar::getTransactionInfo(qulonglong id)
       int fieldPoints    = query.record().indexOf("points");
       int fieldUtility   = query.record().indexOf("profit");
       int fieldTerminal  = query.record().indexOf("terminalnum");
-      int fieldGroups    = query.record().indexOf("groups");
       info.id     = query.value(fieldId).toULongLong();
       info.amount = query.value(fieldAmount).toDouble();
       info.date   = query.value(fieldDate).toDate();
@@ -1463,7 +1462,6 @@ TransactionInfo Azahar::getTransactionInfo(qulonglong id)
       info.points    = query.value(fieldPoints).toULongLong();
       info.profit    = query.value(fieldUtility).toDouble();
       info.terminalnum=query.value(fieldTerminal).toInt();
-      info.groups    = query.value(fieldGroups).toString();
     }
   }
   return info;
@@ -1782,7 +1780,6 @@ qulonglong Azahar::insertTransaction(TransactionInfo info)
   query2.bindValue(":utility", info.profit);
   query2.bindValue(":terminalnum", info.terminalnum);
   query2.bindValue(":providerid", info.providerid);
-  query2.bindValue(":groups", info.groups);
   if (!query2.exec() ) {
     int errNum = query2.lastError().number();
     QSqlError::ErrorType errType = query2.lastError().type();
@@ -1816,7 +1813,6 @@ bool Azahar::updateTransaction(TransactionInfo info)
   query2.bindValue(":terminalnum", info.terminalnum);
   query2.bindValue(":points", info.points);
   query2.bindValue(":clientid", info.clientid);
-  query2.bindValue(":groups", info.groups);
   if (!query2.exec() ) {
     int errNum = query2.lastError().number();
     QSqlError::ErrorType errType = query2.lastError().type();
@@ -1969,7 +1965,6 @@ QList<TransactionInfo> Azahar::getLastTransactions(int pageNumber,int numItems,Q
       int fieldPoints    = query.record().indexOf("points");
       int fieldUtility   = query.record().indexOf("profit");
       int fieldTerminal  = query.record().indexOf("terminalnum");
-      int fieldGroups    = query.record().indexOf("groups");
       info.id     = query.value(fieldId).toULongLong();
       info.amount = query.value(fieldAmount).toDouble();
       info.date   = query.value(fieldDate).toDate();
@@ -1990,7 +1985,6 @@ QList<TransactionInfo> Azahar::getLastTransactions(int pageNumber,int numItems,Q
       info.points    = query.value(fieldPoints).toULongLong();
       info.profit    = query.value(fieldUtility).toDouble();
       info.terminalnum=query.value(fieldTerminal).toInt();
-      info.groups    = query.value(fieldGroups).toString();
       result.append(info);
     }
   }
