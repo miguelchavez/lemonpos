@@ -10,7 +10,6 @@ set(squeeze_SRCS
    producteditor.cpp
    purchaseeditor.cpp
    offersdelegate.cpp
-   piechart.cpp
    ../../src/inputdialog.cpp
    ../../src/loginwindow.cpp
    ../../src/misc.cpp
@@ -18,9 +17,9 @@ set(squeeze_SRCS
    ../../src/sha1.cc
    ../../src/productdelegate.cpp
    ../../dataAccess/azahar.cpp
-   ../../mibitWidgets/mibittip.cpp
    ../../mibitWidgets/mibitfloatpanel.cpp
    ../../mibitWidgets/mibitlineedit.cpp
+   ../../mibitWidgets/mibittip.cpp
    ../../printing/print-dev.cpp
    ../../printing/print-cups.cpp
  )
@@ -85,3 +84,4 @@ install( FILES squeezeui.rc  DESTINATION  ${DATA_INSTALL_DIR}/squeeze )
 install( FILES squeeze.kcfg  DESTINATION  ${KCFG_INSTALL_DIR} )
 #For KNotifications
 install( FILES squeeze.notifyrc DESTINATION ${DATA_INSTALL_DIR}/squeeze)
+
