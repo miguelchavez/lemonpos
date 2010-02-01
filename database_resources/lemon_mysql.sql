@@ -7,6 +7,7 @@ USE lemonposdb;
 CREATE TABLE IF NOT EXISTS `transactions` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
   `clientid` int(10) unsigned NOT NULL,
+  `userid` int(10) NOT NULL default '0',
   `type` smallint(5) unsigned default NULL,
   `amount` double unsigned NOT NULL default '0',
   `date` date NOT NULL default '2009-01-01',
@@ -15,7 +16,6 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   `changegiven` double unsigned NOT NULL default '0.0',
   `paymethod` int(10) NOT NULL default '0',
   `state` int(10) NOT NULL default '0',
-  `userid` int(10) NOT NULL default '0',
   `cardnumber` varchar(20) character set utf8 collate utf8_general_ci,
   `itemcount` int(10) unsigned NOT NULL default '0',
   `itemslist` varchar(250) character set utf8 collate utf8_general_ci NOT NULL,
@@ -38,10 +38,9 @@ CREATE TABLE IF NOT EXISTS `products` (
   `code` bigint(20) unsigned NOT NULL default '0',
   `name` varchar(255) NOT NULL collate utf8_general_ci default 'unknown',
   `price` double unsigned NOT NULL default '0.0',
-  `stockqty` double unsigned NOT NULL default '0',
   `cost` double unsigned NOT NULL default '0',
-  `soldunits` double unsigned NOT NULL default '0',
-  `datelastsold` date default '2009-01-01', 
+  `stockqty` double unsigned NOT NULL default '0',
+  `brandid` bigint(20) unsigned NOT NULL default '0',
   `units` int(10) unsigned collate utf8_general_ci NOT NULL default '0',
   `taxmodel` bigint(20) unsigned NOT NULL default 1,
   `photo` blob default NULL,
@@ -49,17 +48,17 @@ CREATE TABLE IF NOT EXISTS `products` (
   `points` INT(10) UNSIGNED NOT NULL DEFAULT 0,
   `alphacode` VARCHAR( 30 ) NULL,
   `lastproviderid` int(10) unsigned NOT NULL default '1',
-  # for grouped and on-demand-made products (special orders)
+  `soldunits` double unsigned NOT NULL default '0',
+  `datelastsold` date default '2009-01-01',
   `isARawProduct` bool NOT NULL default false,
-  `isAGroup` bool NOT NULL default false, #this is not necesary, with groupElements we can know if its a group
+  `isAGroup` bool NOT NULL default false, 
   `groupElements` varchar(255) collate utf8_general_ci default '',
   PRIMARY KEY  (`code`),
   KEY `SEC` (`category`, `name`, `brandid`, `alphacode`)                                       
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-# special orders are special products, each order is a product containing one or more rawProducts
+# special orders are custom products, each order is a product containing one or more rawProducts
 # each time its sold one, it is created. If you want predefined products use instead grouped product.
-# TODO: Implement offers for special orders
 
 CREATE TABLE IF NOT EXISTS `special_orders` (
   `orderid` bigint(20) unsigned NOT NULL auto_increment,
@@ -110,10 +109,13 @@ CREATE TABLE IF NOT EXISTS `brands` (
   PRIMARY KEY  (`brandid`, `bname`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+#For the way to manage taxes, the config option "taxIsIncludedInPrice" is taken into account.
+#If this option is TRUE, the tax is going to be added to the product price, like in the USA.
+#If this option is FALSE, the tax is not added, just calculated for informative use. Like in Mexico.
+
 CREATE TABLE IF NOT EXISTS `taxmodels` (
   `modelid` bigint(20) unsigned NOT NULL auto_increment,
   `tname` VARCHAR(50) NOT NULL,
-  `appway` VARCHAR(50) NOT NULL,
   `elementsid` VARCHAR(50) NOT NULL,
   PRIMARY KEY  (`modelid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -183,7 +185,7 @@ CREATE TABLE IF NOT EXISTS `clients` (
   `discount` double NOT NULL,
   `photo` blob default NULL,
   PRIMARY KEY (`id`),
-  KEY `SEC` (`username`, `name`)
+  KEY `SEC` (`name`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `paytypes` (
@@ -290,6 +292,10 @@ CREATE TABLE IF NOT EXISTS `stock_corrections` (
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 # Some general config that is gonna be taken from azahar. For shared configuration
+#For the way to manage taxes, the config option "taxIsIncludedInPrice" is taken into account.
+#If this option is TRUE, the tax is going to be added to the product price, like in the USA.
+#If this option is FALSE, the tax is not added, just calculated for informative use.
+
 CREATE TABLE IF NOT EXISTS `config` (
   `firstrun` varchar(30) character set utf8 collate utf8_general_ci NOT NULL,
   `taxIsIncludedInPrice` bool NOT NULL default true,
@@ -431,21 +437,22 @@ INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(4, 'Normal Cash IN');
 #Insert default provider
 INSERT INTO lemonposdb.providers (id,name,address,phone,cellphone) VALUES(1,'No provider', '-NA-', '-NA-', '-NA-');
 
-INSERT INTO lemondb.so_status (id, text) VALUES(0, 'Pending');
-INSERT INTO lemondb.so_status (id, text) VALUES(1, 'In Progress');
-INSERT INTO lemondb.so_status (id, text) VALUES(2, 'Ready');
-INSERT INTO lemondb.so_status (id, text) VALUES(3, 'Delivered');
-INSERT INTO lemondb.so_status (id, text) VALUES(4, 'Cancelled');
+INSERT INTO lemonposdb.so_status (id, text) VALUES(0, 'Pending');
+INSERT INTO lemonposdb.so_status (id, text) VALUES(1, 'In Progress');
+INSERT INTO lemonposdb.so_status (id, text) VALUES(2, 'Ready');
+INSERT INTO lemonposdb.so_status (id, text) VALUES(3, 'Delivered');
+INSERT INTO lemonposdb.so_status (id, text) VALUES(4, 'Cancelled');
 
-INSERT INTO lemondb.bool_values (id, text) VALUES(0, 'NO');
-INSERT INTO lemondb.bool_values (id, text) VALUES(1, 'YES');
+INSERT INTO lemonposdb.bool_values (id, text) VALUES(0, 'NO');
+INSERT INTO lemonposdb.bool_values (id, text) VALUES(1, 'YES');
 
 #brands
 INSERT INTO lemonposdb.brands (brandid, bname) VALUES(1,"Unbranded");
 
 #Insert default tax model and elements
---COMMENT  THIS LINES IF YOU RUN YOUR COUNTRY SCRIPT.
-INSERT INTO lemonposdb.taxmodels (modelid,tname,appway,elementsid) VALUES(1,"Default", "*.15","1");
-INSERT INTO lemonposdb.taxelements (elementid, ename, amount) VALUES (1,"Simple 15%", 15);
+#--COMMENT  THIS LINES IF YOU RUN YOUR COUNTRY SCRIPT.
+#INSERT INTO lemonposdb.taxmodels (modelid,tname,appway,elementsid) VALUES(1,"Default", "*.15","1");
+#INSERT INTO lemonposdb.taxelements (elementid, ename, amount) VALUES (1,"Simple 15%", 15);
 
 INSERT INTO lemonposdb.config (firstrun, taxIsIncludedInPrice, storeLogo, storeName, storeAddress, storePhone, logoOnTop, useCUPS, smallPrint) VALUES ('yes, it is February 6 1978', true, '', '', '', '', true, true, true);
+
