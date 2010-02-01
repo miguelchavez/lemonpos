@@ -149,6 +149,7 @@ void ProductEditor::populateCategoriesCombo()
 {
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
+  ui->categoriesCombo->clear();
   ui->categoriesCombo->addItems(myDb->getCategoriesList());
 }
 
@@ -156,6 +157,7 @@ void ProductEditor::populateProvidersCombo()
 {
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
+  ui->providerCombo->clear();
   ui->providerCombo->addItems(myDb->getProvidersList());
 }
 
@@ -163,6 +165,7 @@ void ProductEditor::populateBrandsCombo()
 {
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
+  ui->brandCombo->clear();
   ui->brandCombo->addItems(myDb->getBrandsList());
 }
 
@@ -170,6 +173,7 @@ void ProductEditor::populateTaxModelsCombo()
 {
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
+  ui->taxModelCombo->clear();
   ui->taxModelCombo->addItems(myDb->getTaxModelsList());
 }
 
@@ -177,6 +181,7 @@ void ProductEditor::populateMeasuresCombo()
 {
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
+  ui->measuresCombo->clear();
   ui->measuresCombo->addItems(myDb->getMeasuresList());
 }
 
@@ -514,6 +519,7 @@ void ProductEditor::updateBtn()
       panel->hidePanel();
       enableButtonOk(true);
       enableButtonCancel(true);
+      ui->editNewStock->clear();
     } else ui->editNewStock->setFocus();
   } else if (ui->groupFloatPanel->title().contains("Brand", Qt::CaseInsensitive)) {
     ///creating new brand
@@ -534,6 +540,8 @@ void ProductEditor::updateBtn()
       panel->hidePanel();
       enableButtonOk(true);
       enableButtonCancel(true);
+      //and clear the edits.
+      ui->editNewStock->clear();
     }
   } else if (ui->groupFloatPanel->title().contains("Category", Qt::CaseInsensitive)) {
     ///creating new category
@@ -554,6 +562,7 @@ void ProductEditor::updateBtn()
       panel->hidePanel();
       enableButtonOk(true);
       enableButtonCancel(true);
+      ui->editNewStock->clear();
     }
   }
   else if (ui->groupFloatPanel->title().contains("Measure", Qt::CaseInsensitive)) {
@@ -575,6 +584,7 @@ void ProductEditor::updateBtn()
       panel->hidePanel();
       enableButtonOk(true);
       enableButtonCancel(true);
+      ui->editNewStock->clear();
     }
   }
 }
