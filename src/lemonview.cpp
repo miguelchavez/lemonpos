@@ -1110,7 +1110,6 @@ void lemonView::createNewTransaction(TransactionType type)
     info.points = 0;
     info.profit = 0;
     info.providerid = 0;
-    info.groups = "";
     info.terminalnum=Settings::editTerminalNumber();
 
     Azahar *myDb = new Azahar;

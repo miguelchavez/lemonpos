@@ -19,7 +19,6 @@ set(lemon_SRCS
    ../printing/print-cups.cpp
    ../mibitWidgets/mibitfloatpanel.cpp
    ../mibitWidgets/mibitlineedit.cpp
-   #printers/sp500.cpp
  )
 
 #qt4_add_dbus_adaptor(lemon_SRCS org.kde.lemon.lemon.xml lemon.h lemon)

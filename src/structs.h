@@ -118,7 +118,6 @@ struct TransactionInfo
   qulonglong points;
   double     profit; 
   int        terminalnum;
-  //QString    groups;  //DEPRECATED
   QString    specialOrders;
   qulonglong providerid;
   qulonglong balanceId; //to store balance where it was sold. For SESSIONS.
