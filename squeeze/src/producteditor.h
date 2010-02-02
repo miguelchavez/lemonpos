@@ -26,11 +26,12 @@
 #include <QtGui>
 #include <QPixmap>
 #include <QtSql>
-#include "ui_producteditor.h"
-#include "../../src/structs.h"
 
-class MibitTip;
+#include "ui_producteditor.h"
+
 class MibitFloatPanel;
+class MibitTip;
+#include "../../src/structs.h"
 
 enum returnType {statusNormal=998, statusMod=999};
 
@@ -54,11 +55,24 @@ class ProductEditor : public KDialog
     void    disableCode()              { ui->editCode->setReadOnly(true); modifyCode=false; };
     void    enableCode()               { ui->editCode->setReadOnly(false); modifyCode=true; };
     void    disableStockCorrection()   { ui->btnStockCorrect->hide(); }
+    int     getCategoryId();
+    int     getMeasureId();
     QString getReason()      { return reason; };
     bool    isCorrectingStock() {return correctingStockOk;};
     double  getOldStock()    { return oldStockQty; };
     double  getGRoupStockMax();
     void    setStockQtyReadOnly(bool enabled) { ui->editStockQty->setReadOnly(enabled); };
+
+    void    setModel(QSqlRelationalTableModel *model);
+    void    setIsAGroup(bool value);
+    void    setIsARaw(bool value);
+    void    setGroupElements(QString e);
+    
+    GroupInfo getGroupHash();
+    QString getGroupElementsStr();
+    QString getSpecialOrdersStr();
+    bool    isGroup();
+    bool    isRaw();
     
   signals:
     void    updateCategoriesModel();
@@ -67,14 +81,6 @@ class ProductEditor : public KDialog
     void    updateTaxModels();
     void    updateProvidersModel();
     void    updateProductsModel();
-    
-
-    void    setModel(QSqlRelationalTableModel *model);
-    GroupInfo getGroupHash();
-    QString getGroupElementsStr();
-    QString getSpecialOrdersStr();
-    bool    isGroup();
-    bool    isRaw();
     
 private slots:
     void    changePhoto();
@@ -100,6 +106,13 @@ private slots:
     void    showPanelCategory();
     void    showPanelMeasures();
     void    showBtns();
+    void    toggleGroup(bool checked);
+    void    toggleRaw(bool checked);
+    void    applyFilter(const QString &text);
+    void    addItem();
+    void    removeItem();
+    void    modifyStock();
+    void    itemDoubleClicked(QTableWidgetItem* item);
   protected slots:
     virtual void slotButtonClicked(int button);
   private:

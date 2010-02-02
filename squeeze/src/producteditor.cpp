@@ -32,6 +32,7 @@
 #include "../../src/inputdialog.h"
 #include "../../mibitWidgets/mibittip.h"
 #include "../../mibitWidgets/mibitfloatpanel.h"
+#include "../../src/misc.h"
 
 
 ProductEditorUI::ProductEditorUI( QWidget *parent )
@@ -61,8 +62,8 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct, const QSqlDataba
     
     QString path = KStandardDirs::locate("appdata", "styles/");
     path = path+"tip.svg";
-    errorPanel = new MibitTip(this, ui->editCode, path, DesktopIcon("dialog-warning", 32));
-    errorPanel->setMaxHeight(65);
+    codeTip = new MibitTip(this, ui->editCode, path, DesktopIcon("dialog-warning", 32));
+    codeTip->setMaxHeight(65);
     path = KStandardDirs::locate("appdata", "styles/");
     path = path+"floating_bottom.svg";
     groupPanel = new MibitFloatPanel(this, path, Bottom);
@@ -74,7 +75,7 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct, const QSqlDataba
 
     ui->btnChangeCode->setIcon(QIcon(DesktopIcon("edit-clear", 32)));
     //Locate SVG for the tip.
-    QString path = KStandardDirs::locate("appdata", "styles/");
+    path = KStandardDirs::locate("appdata", "styles/");
     path = path+"tip.svg";
     codeTip = new MibitTip(this, ui->editCode, path, DesktopIcon("dialog-information", 22));
     codeTip->setSize(100,100);
@@ -647,6 +648,31 @@ void ProductEditor::showBtns()
   enableButtonCancel(true);
 }
 
+void ProductEditor::modifyStock()
+{
+  if (isGroup()) {
+    //simply dont allow or show a message?
+    return;
+  }
+  double newStockQty=0;
+  oldStockQty = ui->editStockQty->text().toDouble();
+  bool ok = false;
+  InputDialog *dlg = new InputDialog(this, true, dialogStockCorrection, i18n("Enter the quantity and reason for the change, then press <ENTER> to accept, <ESC> to cancel"));
+  dlg->setProductCode(ui->editCode->text().toULongLong());
+  dlg->setAmount(ui->editStockQty->text().toDouble());
+  dlg->setProductCodeReadOnly();
+  if (dlg->exec())
+  {
+    newStockQty = dlg->dValue;
+    reason = dlg->reason;
+    ok = true;
+  }
+  if (ok) { //send data to database...
+    ui->editStockQty->setText( QString::number(newStockQty) ); //update this info on producteditor
+    correctingStockOk = ok;
+  }
+}
+
 void ProductEditor::checkIfCodeExists()
 {
   enableButtonOk( false );
@@ -804,7 +830,7 @@ void ProductEditor::addItem()
       pInfo.qtyOnList += 1; //increment it
       exists = true;
     } else {
-      pInfo = myDb->getProductInfo(code);
+      pInfo = myDb->getProductInfo(QString::number(code));
       pInfo.qtyOnList = 1;
     }
     
@@ -1020,7 +1046,7 @@ void ProductEditor::setGroupElements(QString e)
     if (tmp.count() == 2) { //ok 2 fields
       qulonglong  code  = tmp.at(0).toULongLong();
       double      qty   = tmp.at(1).toDouble();
-      pInfo = myDb->getProductInfo(code);
+      pInfo = myDb->getProductInfo(QString::number(code));
       pInfo.qtyOnList = qty;
       
       //Insert it to the hash
