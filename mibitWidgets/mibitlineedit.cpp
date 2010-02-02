@@ -1,24 +1,22 @@
-/***************************************************************************
- *   Copyright (C) 2009 by Miguel Chavez Gamboa                            *
- *   miguel@lemonpos.org                                                   *
- *                                                                         *
- *   This is based on the KLineEdit class                                  *
- *                                                                         *
- *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General  Public           *
- *   License as published by the Free Software Foundation; either          *
- *   version 2 of the License, or (at your option) any later version.      *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU Lesser General  Public License for more details.                  *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General  Public     *
- *   License along with this program; if not, write to the                 *
- *   Free Software Foundation, Inc.,                                       *
- *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
- ***************************************************************************/
+/**************************************************************************
+*   Copyright © 2009-2010 by Miguel Chavez Gamboa                         *
+*   miguel@lemonpos.org                                                   *
+*                                                                         *
+*   This program is free software; you can redistribute it and/or modify  *
+*   it under the terms of the GNU General Public License as published by  *
+*   the Free Software Foundation; either version 2 of the License, or     *
+*   (at your option) any later version.                                   *
+*                                                                         *
+*   This program is distributed in the hope that it will be useful,       *
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+*   GNU General Public License for more details.                          *
+*                                                                         *
+*   You should have received a copy of the GNU General Public License     *
+*   along with this program; if not, write to the                         *
+*   Free Software Foundation, Inc.,                                       *
+*   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+***************************************************************************/
 
 #include "mibitlineedit.h"
 
@@ -153,7 +151,8 @@ void MibitLineEdit::focusOutEvent( QFocusEvent *ev )
 
 void MibitLineEdit::keyPressEvent ( QKeyEvent * event )
 {
-  //check for our special keys +,Enter (specific for lemonPOS)
+  // Check for our special keys +,Enter (specific for lemonPOS)
+  // The Enter key is the one located at the numeric pad. The other is called RETURN.
   if ( event->key() == Qt::Key_Plus || event->key() == Qt::Key_Enter )
       emit plusKeyPressed();
   //anyway we must send enter and + key events...

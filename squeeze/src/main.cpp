@@ -1,9 +1,8 @@
 /***************************************************************************
- *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
+ *   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
  *   miguel@lemonpos.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
-
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
@@ -33,7 +32,7 @@ static const char version[] = "1.0 Preview / 2010.Jan.02";
 
 int main(int argc, char **argv)
 {
-    KAboutData about("squeeze", 0, ki18n("squeeze"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2007-2010 Miguel Chavez Gamboa"), KLocalizedString(), 0, "miguel@lemonpos.org           ");
+  KAboutData about("squeeze", 0, ki18n("squeeze"), version, ki18n(description), KAboutData::License_GPL, ki18n("© 2007-2010 Miguel Chavez Gamboa"), KLocalizedString(), 0, "miguel@lemonpos.org           ");
     about.addAuthor( ki18n("Miguel Chávez Gamboa"), KLocalizedString(), "miguel@lemonpos.org           " );
     KCmdLineArgs::init(argc, argv, &about);
 

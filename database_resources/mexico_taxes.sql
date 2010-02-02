@@ -1,6 +1,7 @@
 -- This are Mexico tax models.
 -- LemonPOS version 1.0 preview
--- Miguel Chavez Gamboa
+-- Miguel Chavez Gamboa (C) 2010
+-- Licensed as GPL v2 or later.
 
 USE lemonposdb;
 
