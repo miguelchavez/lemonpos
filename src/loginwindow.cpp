@@ -43,6 +43,7 @@ LoginWindow::LoginWindow(QWidget *parent,
   setWindowFlags(Qt::Dialog|Qt::FramelessWindowHint);
   setWindowModality(Qt::ApplicationModal);
   currentMode = mode;
+  userId = 0;
 
   //controls
   vLayout       = new QVBoxLayout(this);
@@ -269,6 +270,7 @@ bool LoginWindow::checkPassword()
   if (uHash.contains(user)) {
     UserInfo uInfo = uHash.value(user);
     userRole = uInfo.role;
+    userId   = uInfo.id;
     QString givenPass = Hash::password2hash((uInfo.salt+password()).toLocal8Bit());
     if (givenPass == uInfo.password) {
       // Condition #1 : USER PASSWORD satisfied!
@@ -325,6 +327,7 @@ void LoginWindow::updateUserPhoto(const QString &text)
   if (uHash.isEmpty()) uHash = getUsers();
   if (uHash.contains(text)) {
     UserInfo info = uHash.value(text);
+    userId = info.id;
     QPixmap pix;
     pix.loadFromData(info.photo); //Photos are saved as 128x128 pngs or jpgs...
     if (!pix.isNull()) mainImage->setPixmap(pix);
@@ -350,11 +353,13 @@ QHash<QString, UserInfo> LoginWindow::getUsers()
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   hash = myDb->getUsersHash();
+  delete myDb;
   return hash;
 }
 
 void LoginWindow::setQuit()
 {
+  qDebug()<<"SetQuit..";
   wantQuit = true;
   QDialog::reject();
 }
@@ -362,6 +367,28 @@ void LoginWindow::setQuit()
 bool LoginWindow::wantToQuit()
 {
   return wantQuit;
+  qDebug()<<"Wants to quit!";
+}
+
+void LoginWindow::setUsername(QString un)
+{
+  editUsername->setText(un);
+  editUsername->setReadOnly(true);
+}
+
+void LoginWindow::setUsernameReadOnly(bool val)
+{
+  editUsername->setReadOnly(val);
+}
+
+void LoginWindow::focusPassword()
+{
+  editPassword->setFocus();
+}
+
+qulonglong LoginWindow::getUserId()
+{
+  return userId;
 }
 
 #include "loginwindow.moc"

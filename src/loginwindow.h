@@ -71,6 +71,7 @@ class LoginWindow : public QDialog
     QHash<QString, UserInfo> uHash;
     QSqlDatabase db;
     bool wantQuit;
+    qulonglong userId;
 
   public:
     enum Mode
@@ -88,6 +89,7 @@ class LoginWindow : public QDialog
     QString username();
     QString password();
     int     getUserRole() { return userRole; }
+    qulonglong getUserId();
     void clearLines();
     bool checkPassword();
     void setPrompt(QString text);
@@ -95,6 +97,9 @@ class LoginWindow : public QDialog
     void showErrorMessage(QString text);
     void setDb(QSqlDatabase database);
     bool wantToQuit();
+    void setUsername(QString un);
+    void setUsernameReadOnly(bool val);
+    void focusPassword();
   private:
     int  userRole;
     
