@@ -7,6 +7,5 @@ install( FILES
          pricechecker.png
          priceCheckerBack.png
          dialog.png
-	 dialog_mask.png
          simple.qss
         DESTINATION  ${DATA_INSTALL_DIR}/lemon/styles/simple/ )

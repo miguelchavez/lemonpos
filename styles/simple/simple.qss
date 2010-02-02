@@ -1,5 +1,5 @@
 /**  Simple Style for Lemon (Default style).
- **  Miguel Chavez Gamboa 2007-2009
+ **  Miguel Chavez Gamboa © 2007-2010. Licensed as GPL v2 or later.
  **  miguel@lemonpos.org           
  **
  **  This style themes only certain objects, such as login&passowrd dialog some labels, and
@@ -63,18 +63,32 @@ LoginWindow#loginDialog > QLabel#labelPrompt {
   font-size:18px;
 }
 
+QLabel#lblSaleTaxes
+{
+ color: darkGray;
+ font-weight: bold;
+ font-size:30px;
+}
+
+QLabel#lblSaleTaxesPre
+{
+ color: darkGray;
+ font-weight: bold;
+ font-size: 30px;
+}
+
 QLabel#labelTotal, QLabel#labelChange
 {
  color: #0b69fd;
  font-weight: bold;
- font-size:40px;
+ font-size:30px;
 }
 
 QLabel#labelTotalpre , QLabel#labelChangepre
 {
  color: black;
  font-weight: bold;
- font-size: 40px;
+ font-size: 30px;
 }
 
 QLabel#labelDetailDesc, QLabel#labelPayment
@@ -97,6 +111,19 @@ QLabel#totaltitle, QLabel#totaltitle2
  background-position: top left;
  background-repeat: no-repeat;
 }
+
+/** Special Orders **/
+QLabel#lblPriceLabel {
+  color: black;
+  font-weight: bold;
+  font-size:22px;
+}
+QLabel#lblPrice {
+  color: #0b69fd;;
+  font-weight: bold;
+  font-size:22px;
+}
+
 
 /** the price checker **/
 QLabel#titleTop, #titleBottom {
@@ -136,14 +163,21 @@ QLabel#labelPCName {
 /** dialog - cancelar ticket, corte de caja **/
 QLabel#titleLabelInputDialog {
   color: #e6ce21;
-  color: white;
-  font-size:13px;
+  font-size:12px;
+  font-weight: bold;
+}
+
+/** dialog sostatus **/
+QLabel#lblNewStatus {
+  color: red;
+  font-size:14px;
+  font-weight: bold;
 }
 
 /** Table **/
 /* Including the listviews.. :O.
    Theming the ScrollArea gives same result but, with a strange behavoir, the headers are black...*/
-QTableWidget
+QTableWidget#tableReturnProducts, QListView#listView, QTableWidget#tableWidget,QTableWidget#tableSearch,QTableView#ticketView
 {
   background-position: top left;
   background-repeat: no-repeat;
