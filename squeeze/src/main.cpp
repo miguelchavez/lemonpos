@@ -29,7 +29,7 @@
 static const char description[] =
     I18N_NOOP("Squeeze your lemon!");
 
-static const char version[] = "0.98";
+static const char version[] = "1.0 / 2010.Jan.02";
 
 int main(int argc, char **argv)
 {
@@ -39,6 +39,7 @@ int main(int argc, char **argv)
 
     about.addCredit(ki18n("Roberto Aceves"), ki18n("Many ideas and general help"));
     about.addCredit(ki18n("Biel Frontera"), ki18n("Code contributor"));
+    about.addCredit(ki18n("Jose Nivar"), ki18n("Many ideas and sponsorship"));
     
     KCmdLineOptions options;
     options.add("+[URL]", ki18n( "Document to open" ));
