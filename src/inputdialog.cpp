@@ -48,8 +48,11 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
   else if (type == dialogMoney) lPixmap->setPixmap(DesktopIcon("lemon-money", 48));
   else if (type==dialogCashOut) lPixmap->setPixmap(DesktopIcon("lemon-cashout", 48));
   else if (type == dialogTicket) lPixmap->setPixmap(DesktopIcon("lemon-ticket-cancel", 48));
+  else if (type == dialogSpecialOrder) lPixmap->setPixmap(DesktopIcon("lemon-ticket", 48));
   else if (type == dialogStockCorrection) lPixmap->setPixmap(DesktopIcon("squeeze-stock-correction", 48));
   else if (type == dialogTerminalNum) lPixmap->setPixmap(DesktopIcon("lemon-money", 48)); //FIXME: add an icon
+  else if (type == dialogTicketMsg)   lPixmap->setPixmap(DesktopIcon("lemon-ticket", 48));
+
 
   //labels
   titleLayout->addWidget(lPixmap);
@@ -64,10 +67,14 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
   lineEdit = new KLineEdit(this);
   productCodeLabel = new QLabel("Product Code:", this);
 
-  if (type == dialogStockCorrection) qLabel = new QLabel(i18n("New Stock Qty:"));
+  if (type == dialogTicketMsg) qLabel = new QLabel(i18n("Month or Season:"));
+  else if (type == dialogStockCorrection) qLabel = new QLabel(i18n("New Stock Qty:"));
   else qLabel = new QLabel(i18n("Amount:"));
-  reasonLabel = new QLabel(i18n("Reason:"), this);
-  if (type == dialogTicket) qLabel->setText(i18n("Ticket #:"));
+
+  if (type == dialogTicketMsg) reasonLabel = new QLabel(i18n("New Message:"), this);
+  else reasonLabel = new QLabel(i18n("Reason:"), this);
+
+  if (type == dialogTicket || type == dialogSpecialOrder) qLabel->setText(i18n("Ticket #:"));
 
 
   //layout
@@ -101,6 +108,11 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
    productCodeLabel->hide();
    reasonLabel->hide();
    reasonEdit->hide();
+  }
+  else if (type == dialogTicketMsg) {
+   lineEdit->setClickMessage(i18n("Enter the number of the month or season here..."));
+   productCodeEdit->hide();
+   productCodeLabel->hide();
   }
   else {
     reasonLabel->hide();
@@ -222,6 +234,12 @@ void InputDialog::acceptIt()
           lineEdit->selectAll();
         }
       }
+    }
+  }
+  else if (dialogType == dialogTicketMsg) {
+    if (lineEdit->hasAcceptableInput() && !reasonEdit->text().isEmpty()) {
+      //The user is responsible for the correct month/season number... depending on what is based.
+      QDialog::accept();
     }
   }
   else { //Money-Measures-Ticket-TerminalNum needs only the amount/terminalNum...
