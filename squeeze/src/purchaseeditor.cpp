@@ -361,6 +361,7 @@ void PurchaseEditor::setupTable() {
 
 void PurchaseEditor::addItemToList()
 {
+  ProductInfo pInfo;
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   bool ok=false;
