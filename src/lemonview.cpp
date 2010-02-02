@@ -64,8 +64,6 @@
 /* Widgets zone                                                                                                         */
 /*======================================================================================================================*/
 
-///NOTE: Testing with KDE 4.2, this TicketPopup dialog was not shown. So it was changed.
-
 class BalanceDialog : public QDialog
 {
   private:
