@@ -1,2 +1,0 @@
-MMMMM
-../../src/productdelegate.cpp
