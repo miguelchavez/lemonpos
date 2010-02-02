@@ -361,7 +361,6 @@ void PurchaseEditor::setupTable() {
 
 void PurchaseEditor::addItemToList()
 {
-  ProductInfo pInfo;
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   bool ok=false;
@@ -401,8 +400,9 @@ void PurchaseEditor::addItemToList()
     double finalCount = info.purchaseQty + info.stockqty; // WHAT FOR??
     info.validDiscount = productExists; //used to check if product is already on db.
     //FIXME: NEXT 2 lines are temporal remove on 0.8 version
-    info.alphaCode = "-NA-";
-    info.lastProviderId = 1;
+    //info.alphaCode = "-NA-";
+    //FIXME: last providerId for an existent must be gotten from db since we dont have that field here. Provide a combobox to select one and a button to add a new one.
+    //info.lastProviderId = 1;
 
     if (info.isAGroup) {
       // get each product fo the group/pack
