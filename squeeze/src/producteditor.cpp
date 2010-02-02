@@ -24,14 +24,15 @@
 
 #include <QByteArray>
 #include <QRegExpValidator>
+#include <QRegExp>
+#include <QtSql>
 
 #include "producteditor.h"
 #include "../../dataAccess/azahar.h"
-#include "../../src/misc.h"
+#include "../../src/inputdialog.h"
 #include "../../mibitWidgets/mibittip.h"
 #include "../../mibitWidgets/mibitfloatpanel.h"
-#include "../../mibitWidgets/mibitlineedit.h"
-#include "../../src/inputdialog.h"
+
 
 ProductEditorUI::ProductEditorUI( QWidget *parent )
 : QFrame( parent )
@@ -42,12 +43,34 @@ ProductEditorUI::ProductEditorUI( QWidget *parent )
 ProductEditor::ProductEditor( QWidget *parent, bool newProduct, const QSqlDatabase& database )
 : KDialog( parent )
 {
+    oldStockQty = 0;
+    correctingStockOk = false;
+    m_modelAssigned = false;
+
+    db = database;
+    
+    groupInfo.isAvailable = true;
+    groupInfo.cost  = 0;
+    groupInfo.price = 0;
+    groupInfo.name  = "";
+    
     ui = new ProductEditorUI( this );
     setMainWidget( ui );
     setCaption( i18n("Product Editor") );
     setButtons( KDialog::Ok|KDialog::Cancel );
-
-    db = database;
+    
+    QString path = KStandardDirs::locate("appdata", "styles/");
+    path = path+"tip.svg";
+    errorPanel = new MibitTip(this, ui->editCode, path, DesktopIcon("dialog-warning", 32));
+    errorPanel->setMaxHeight(65);
+    path = KStandardDirs::locate("appdata", "styles/");
+    path = path+"floating_bottom.svg";
+    groupPanel = new MibitFloatPanel(this, path, Bottom);
+    groupPanel->setSize(550,250);
+    groupPanel->addWidget(ui->groupsPanel);
+    groupPanel->setMode(pmManual);
+    groupPanel->setHiddenTotally(true);
+    ui->btnShowGroup->setDisabled(true);
 
     ui->btnChangeCode->setIcon(QIcon(DesktopIcon("edit-clear", 32)));
     //Locate SVG for the tip.
@@ -87,6 +110,7 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct, const QSqlDataba
     connect( ui->btnChangeCode,      SIGNAL( clicked() ), this, SLOT( changeCode() ) );
     connect( ui->editCode, SIGNAL(textEdited(const QString &)), SLOT(checkIfCodeExists()));
     connect( ui->editCode, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
+    connect( ui->editCode, SIGNAL(returnPressed()), SLOT(checkFieldsState()));
     connect( ui->btnStockCorrect, SIGNAL( clicked() ), this, SLOT( showPanelStock() ) );
     connect( ui->btnAddBrand, SIGNAL( clicked() ), this, SLOT( showPanelBrand() ) );
     connect( ui->btnAddCategory, SIGNAL( clicked() ), this, SLOT( showPanelCategory() ) );
@@ -98,6 +122,15 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct, const QSqlDataba
     connect( ui->editCost, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
     connect( ui->editFinalPrice, SIGNAL(textEdited(const QString &)), this, SLOT(checkFieldsState()));
 
+    connect( ui->chIsAGroup, SIGNAL(clicked(bool)), SLOT(toggleGroup(bool)) );
+    connect( ui->chIsARaw, SIGNAL(clicked(bool)), SLOT(toggleRaw(bool)) );
+    connect( ui->btnCloseGroup, SIGNAL(clicked()), groupPanel, SLOT(hidePanel()) );
+    connect( ui->btnShowGroup, SIGNAL(clicked()),  groupPanel, SLOT(showPanel()) );
+    connect( ui->editFilter, SIGNAL(textEdited ( const QString &)), SLOT(applyFilter(const QString &)) );
+    connect( ui->btnAdd,    SIGNAL(clicked()), SLOT(addItem()) );
+    connect( ui->btnRemove, SIGNAL(clicked()), SLOT(removeItem()) );
+    connect( ui->groupView, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(itemDoubleClicked(QTableWidgetItem*)) );
+    
     connect(ui->taxModelCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateTax(int)));
     connect(ui->brandCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateBrand(int)));
     connect(ui->providerCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateProvider(int)));
@@ -114,11 +147,13 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct, const QSqlDataba
 
     status = statusNormal;
     modifyCode = false;
-    creatingNewProduct = newProduct;
-    
-    if (newProduct) ui->labelStockQty->setText(i18n("Purchase Qty:")); else ui->labelStockQty->setText(i18n("Stock Qty:"));
-    
-    QTimer::singleShot(350, this, SLOT(checkIfCodeExists()));
+
+    if (newProduct) {
+      ui->labelStockQty->setText(i18n("Purchase Qty:"));
+      disableStockCorrection();
+    } else ui->labelStockQty->setText(i18n("Stock Qty:"));
+
+    QTimer::singleShot(750, this, SLOT(checkIfCodeExists()));
 
     ui->editStockQty->setText("0.0");
     ui->editPoints->setText("0.0");
@@ -131,7 +166,22 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct, const QSqlDataba
 
 ProductEditor::~ProductEditor()
 {
+    //remove products filter
+    m_model->setFilter("");
+    m_model->select();
+
+    
     delete ui;
+}
+
+void ProductEditor::applyFilter(const QString &text)
+{
+  QRegExp regexp = QRegExp(text);
+  if (!regexp.isValid())  ui->editFilter->setText("");
+  if (text == "*" || text == "") m_model->setFilter("");
+  else  m_model->setFilter(QString("products.name REGEXP '%1'").arg(text));
+  
+  m_model->select();
 }
 
 void ProductEditor::setDb(QSqlDatabase database)
@@ -151,30 +201,7 @@ void ProductEditor::populateCategoriesCombo()
   myDb->setDatabase(db);
   ui->categoriesCombo->clear();
   ui->categoriesCombo->addItems(myDb->getCategoriesList());
-}
-
-void ProductEditor::populateProvidersCombo()
-{
-  Azahar *myDb = new Azahar;
-  myDb->setDatabase(db);
-  ui->providerCombo->clear();
-  ui->providerCombo->addItems(myDb->getProvidersList());
-}
-
-void ProductEditor::populateBrandsCombo()
-{
-  Azahar *myDb = new Azahar;
-  myDb->setDatabase(db);
-  ui->brandCombo->clear();
-  ui->brandCombo->addItems(myDb->getBrandsList());
-}
-
-void ProductEditor::populateTaxModelsCombo()
-{
-  Azahar *myDb = new Azahar;
-  myDb->setDatabase(db);
-  ui->taxModelCombo->clear();
-  ui->taxModelCombo->addItems(myDb->getTaxModelsList());
+  delete myDb;
 }
 
 void ProductEditor::populateMeasuresCombo()
@@ -183,8 +210,31 @@ void ProductEditor::populateMeasuresCombo()
   myDb->setDatabase(db);
   ui->measuresCombo->clear();
   ui->measuresCombo->addItems(myDb->getMeasuresList());
+  delete myDb;
 }
 
+int ProductEditor::getCategoryId()
+{
+  int code=-1;
+  QString currentText = ui->categoriesCombo->currentText();
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  code = myDb->getCategoryId(currentText);
+  delete myDb;
+  return code;
+}
+
+
+int ProductEditor::getMeasureId()
+{
+  int code=-1;
+  QString currentText = ui->measuresCombo->currentText();
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  code = myDb->getMeasureId(currentText);
+  delete myDb;
+  return code;
+}
 
 void ProductEditor::setCode(qulonglong c)
 {
@@ -378,6 +428,7 @@ QString ProductEditor::getCategoryStr(int c)
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   QString str = myDb->getCategoryStr(c);
+  delete myDb;
   return str;
 }
 
@@ -386,6 +437,7 @@ QString ProductEditor::getMeasureStr(int c)
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   QString str = myDb->getMeasureStr(c);
+  delete myDb;
   return str;
 }
 
@@ -609,7 +661,7 @@ void ProductEditor::checkIfCodeExists()
 
   if (pInfo.code > 0) { //code exists...
     status = statusMod;
-    if (!creatingNewProduct){ //only populate product info if there is not a new product.
+    if (!modifyCode){
       //Prepopulate dialog...
       ui->editDesc->setText(pInfo.desc);
       ui->editAlphacode->setText(pInfo.alphaCode);
@@ -627,7 +679,7 @@ void ProductEditor::checkIfCodeExists()
         photo.loadFromData(pInfo.photo);
         setPhoto(photo);
       }
-    }//if !creatingNewProduct
+    }//if !modifyCode
     else {
       codeTip->showTip(i18n("This code is for product named %1",pInfo.desc), 4000);
       enableButtonOk( false );
@@ -653,6 +705,7 @@ void ProductEditor::checkIfCodeExists()
       }
       //qDebug()<< "no product found with code "<<codeStr<<" .query.size()=="<<query.size();
   }
+  delete myDb;
 }
 
 void ProductEditor::checkFieldsState()
@@ -663,8 +716,6 @@ void ProductEditor::checkFieldsState()
     //!ui->editStockQty->text().isEmpty()   &&   Comment: This requirement was removed in order to use check-in/check-out procedures.
     !ui->editPoints->text().isEmpty()     &&
     !ui->editCost->text().isEmpty()       &&
-    //!ui->editTax->text().isEmpty()        &&
-    //!ui->editExtraTaxes->text().isEmpty() &&
     !ui->editFinalPrice->text().isEmpty()
     )  {
     ready = true;
@@ -721,4 +772,306 @@ void ProductEditor::slotButtonClicked(int button)
   else QDialog::reject();
 }
 
+void ProductEditor::setModel(QSqlRelationalTableModel *model)
+{
+  ui->sourcePView->setModel(model);
+  ui->sourcePView->setModelColumn(1);
+  m_model = model;
+  m_modelAssigned = true;
+
+  //clear any filter
+  m_model->setFilter("");
+  m_model->select();
+}
+
+///TODO: Need to decide how to select the qty for each product of the group
+void ProductEditor::addItem()
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  
+  //get selected items from source view
+  QItemSelectionModel *selectionModel = ui->sourcePView->selectionModel();
+  QModelIndexList indexList = selectionModel->selectedRows(); // pasar el indice que quiera (0=code, 1=name)
+  foreach(QModelIndex index, indexList) {
+    qulonglong code = index.data().toULongLong();
+    
+    bool exists = false;
+    ProductInfo pInfo;
+    //get product info from hash or db
+    if (groupInfo.productsList.contains(code)) {
+      pInfo = groupInfo.productsList.take(code);
+      pInfo.qtyOnList += 1; //increment it
+      exists = true;
+    } else {
+      pInfo = myDb->getProductInfo(code);
+      pInfo.qtyOnList = 1;
+    }
+    
+    //check if the product to be added is not the same of the pack product
+    if (pInfo.code == ui->editCode->text().toULongLong()) continue; //HEY PURIST, WHEN I GOT SOME TIME I WILL CLEAN IT
+      
+      // Insert/Update GroupView
+      if (!exists) {
+        // Insert into the groupView
+        int rowCount = ui->groupView->rowCount();
+        ui->groupView->insertRow(rowCount);
+        ui->groupView->setItem(rowCount, 0, new QTableWidgetItem(QString::number(1)));
+        ui->groupView->setItem(rowCount, 1, new QTableWidgetItem(pInfo.desc));
+      } else {
+        //simply update the groupView with the new qty
+        for (int ri=0; ri<ui->groupView->rowCount(); ++ri)
+        {
+          QTableWidgetItem * item = ui->groupView->item(ri, 1);
+          QString name = item->data(Qt::DisplayRole).toString();
+          if (name == pInfo.desc) {
+            //update
+            QTableWidgetItem *itemQ = ui->groupView->item(ri, 0);//item qty
+            itemQ->setData(Qt::EditRole, QVariant(pInfo.qtyOnList));
+            continue; //HEY PURIST, WHEN I GOT SOME TIME I WILL CLEAN IT
+          }
+        }
+      }
+      // update info of the group
+      groupInfo.count = groupInfo.count+1;
+      groupInfo.cost  += pInfo.cost;
+      groupInfo.price += pInfo.price;
+      //NOTE:group price is not affected by any product discount, it takes normal price.
+      bool yes = false;
+      if (pInfo.stockqty > 0 )
+        yes = true;
+      groupInfo.isAvailable = (groupInfo.isAvailable && yes );
+      // Insert product to the group hash
+      groupInfo.productsList.insert(code, pInfo);
+  }
+  ui->groupView->resizeRowsToContents();
+  ui->groupView->resizeColumnsToContents();
+  ui->groupView->clearSelection();
+  ui->sourcePView->clearSelection();
+  
+  //update cost and price on the form
+  ui->editCost->setText(QString::number(groupInfo.cost));
+  ui->editFinalPrice->setText(QString::number(groupInfo.price));
+  
+  //qDebug()<<"There are "<<groupInfo.count<<" items in group. The cost is:"<<groupInfo.cost<<", The price is:"<<groupInfo.price<<" And is available="<<groupInfo.isAvailable;
+  
+  delete myDb;
+}
+
+void ProductEditor::removeItem()
+{
+  if (ui->groupView->currentRow() != -1 ){
+    //get selected item from group view
+    int row = ui->groupView->currentRow();
+    QTableWidgetItem *item = ui->groupView->item(row, 1);
+    QString name = item->data(Qt::DisplayRole).toString();
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    //get code from db
+    qulonglong code = myDb->getProductCode(name);
+    ProductInfo pInfo = groupInfo.productsList.take(code); //insert it later...
+    double qty = pInfo.qtyOnList; //from hash | must be the same on groupView
+    if (qty>1) {
+      qty--;
+      item = ui->groupView->item(row, 0);
+      item->setData(Qt::EditRole, QVariant(qty));
+      pInfo.qtyOnList = qty;
+      groupInfo.productsList.insert(code, pInfo);
+    } else {
+      //delete it from groupView, already removed from hash
+      ui->groupView->removeRow(row);
+    }
+    // update info of the group
+    groupInfo.count -= 1;
+    groupInfo.cost  -= pInfo.cost;
+    groupInfo.price -= pInfo.price;
+    bool yes = false;
+    if (pInfo.stockqty > 0 ) //TODO:Falta checar la cantidad que se desea en elgrupo de cada producto
+      yes = true;
+    groupInfo.isAvailable = (groupInfo.isAvailable && yes );
+    delete myDb;
+  } //there is something selected
+  
+  //update cost and price on the form
+  ui->editCost->setText(QString::number(groupInfo.cost));
+  ui->editFinalPrice->setText(QString::number(groupInfo.price));
+  
+  qDebug()<<"There are "<<groupInfo.count<<" items in group. The cost is:"<<groupInfo.cost<<", The price is:"<<groupInfo.price<<" And is available="<<groupInfo.isAvailable;
+}
+
+void ProductEditor::itemDoubleClicked(QTableWidgetItem* item)
+{
+  int row = item->row();
+  QTableWidgetItem *itm = ui->groupView->item(row, 1);
+  QString name = itm->data(Qt::DisplayRole).toString();
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  //get code from db
+  qulonglong code = myDb->getProductCode(name);
+  ProductInfo pInfo = groupInfo.productsList.take(code); //insert it later...
+  double qty = pInfo.qtyOnList+1; //from hash | must be the same on groupView
+  
+  //modify pInfo
+  pInfo.qtyOnList = qty; //increment it one by one
+  //reinsert it to the hash
+  groupInfo.productsList.insert(code, pInfo);
+  //modify groupView
+  itm = ui->groupView->item(row, 0);
+  itm->setData(Qt::EditRole, QVariant(qty));
+  // update info of the group
+  groupInfo.count += 1;
+  groupInfo.cost  += pInfo.cost;
+  groupInfo.price += pInfo.price;
+  bool yes = false;
+  if (pInfo.stockqty > 0 ) //TODO:Falta checar la cantidad que se desea en elgrupo de cada producto
+    yes = true;
+  groupInfo.isAvailable = (groupInfo.isAvailable && yes );
+  
+  //update cost and price on the form
+  ui->editCost->setText(QString::number(groupInfo.cost));
+  ui->editFinalPrice->setText(QString::number(groupInfo.price));
+  
+  //qDebug()<<"There are "<<groupInfo.count<<" items in group. The cost is:"<<groupInfo.cost<<", The price is:"<<groupInfo.price<<" And is available="<<groupInfo.isAvailable;
+  delete myDb;
+}
+
+QString ProductEditor::getGroupElementsStr()
+{
+  QStringList list;
+  foreach(ProductInfo info, groupInfo.productsList) {
+    list.append(QString::number(info.code)+"/"+QString::number(info.qtyOnList));
+  }
+  return list.join(",");
+}
+
+///FIXME: Still need to code this method!!!!!!   UNUSED.
+QString ProductEditor::getSpecialOrdersStr()
+{
+  QStringList list;
+  
+  return list.join(",");
+}
+
+bool ProductEditor::isGroup()
+{
+  bool result=false;
+  if (groupInfo.count>0 && ui->chIsAGroup->isChecked())
+    result = true;
+  return result;
+}
+
+bool ProductEditor::isRaw()
+{
+  return ui->chIsARaw->isChecked();
+}
+
+GroupInfo ProductEditor::getGroupHash()
+{
+  return groupInfo;
+}
+
+void ProductEditor::toggleGroup(bool checked)
+{
+  if (checked) {
+    groupPanel->showPanel();
+    ui->btnStockCorrect->setDisabled(true);
+    ui->chIsARaw->setDisabled(true);
+    ui->chIsARaw->setChecked(false);
+    ui->btnShowGroup->setEnabled(true);
+  } else {
+    groupPanel->hidePanel();
+    ui->btnStockCorrect->setEnabled(true);
+    ui->btnShowGroup->setDisabled(true);
+    ui->chIsARaw->setEnabled(true);
+  }
+}
+
+void ProductEditor::toggleRaw(bool checked)
+{
+  if (checked){
+    ui->chIsAGroup->setDisabled(true);
+    ui->chIsAGroup->setChecked(false);
+    ui->btnShowGroup->setDisabled(true);
+  } else {
+    ui->chIsAGroup->setEnabled(true);
+  }
+}
+
+void ProductEditor::setIsAGroup(bool value)
+{
+  ui->chIsAGroup->setChecked(value);
+  ui->btnShowGroup->setEnabled(value);
+  ui->btnStockCorrect->setDisabled(value); //dont allow grouped products to make stock correction
+}
+
+void ProductEditor::setIsARaw(bool value)
+{
+  ui->chIsARaw->setChecked(value);
+}
+
+void ProductEditor::setGroupElements(QString e)
+{
+  QStringList list = e.split(",");
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  ProductInfo pInfo;
+  for (int i=0; i<list.count(); ++i) {
+    QStringList tmp = list.at(i).split("/");
+    if (tmp.count() == 2) { //ok 2 fields
+      qulonglong  code  = tmp.at(0).toULongLong();
+      double      qty   = tmp.at(1).toDouble();
+      pInfo = myDb->getProductInfo(code);
+      pInfo.qtyOnList = qty;
+      
+      //Insert it to the hash
+      groupInfo.productsList.insert(code, pInfo);
+      //update groupInfo
+      groupInfo.count += qty;
+      groupInfo.cost  += pInfo.cost;
+      groupInfo.price += pInfo.price;
+      bool yes = false;
+      if (pInfo.stockqty >= qty ) yes = true;
+      groupInfo.isAvailable = (groupInfo.isAvailable && yes );
+      //insert it to the groupView
+      int rowCount = ui->groupView->rowCount();
+      ui->groupView->insertRow(rowCount);
+      ui->groupView->setItem(rowCount, 0, new QTableWidgetItem(QString::number(qty)));
+      ui->groupView->setItem(rowCount, 1, new QTableWidgetItem(pInfo.desc));
+    }
+  }
+  ui->groupView->resizeRowsToContents();
+  ui->groupView->resizeColumnsToContents();
+  delete myDb;
+}
+
+double ProductEditor::getGRoupStockMax()
+{
+  //get each content stockqty, then get the max of them.
+  //maybe in the future, now return 1
+  return 1; // stockqty on grouped products will not be stored, only check for contents availability
+}
+
+void ProductEditor::populateProvidersCombo()
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  ui->providerCombo->clear();
+  ui->providerCombo->addItems(myDb->getProvidersList());
+}
+
+void ProductEditor::populateBrandsCombo()
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  ui->brandCombo->clear();
+  ui->brandCombo->addItems(myDb->getBrandsList());
+}
+
+void ProductEditor::populateTaxModelsCombo()
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  ui->taxModelCombo->clear();
+  ui->taxModelCombo->addItems(myDb->getTaxModelsList());
+}
 #include "producteditor.moc"

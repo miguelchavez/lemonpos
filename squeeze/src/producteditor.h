@@ -45,24 +45,19 @@ class ProductEditor : public KDialog
 {
   Q_OBJECT
   public:
-    bool correctingStockOk;
-
     ProductEditor( QWidget *parent=0, bool newProduct = false, const QSqlDatabase& database=QSqlDatabase()  );
     ~ProductEditor();
+
     ProductInfo getProductInfo() { return m_pInfo; };
     void    setDb(QSqlDatabase database);
     void    setCode(qulonglong c);
-    void    setPhoto(QPixmap p);
-    void    setProviderId(qulonglong id) { m_pInfo.lastProviderId = id; };
-    void    setBrandId(qulonglong id) { m_pInfo.brandid = id; };
-    void    setTaxModel(qulonglong id);
-    void    setCategory(int i);
-    void    setMeasure(int i);
     void    disableCode()              { ui->editCode->setReadOnly(true); modifyCode=false; };
     void    enableCode()               { ui->editCode->setReadOnly(false); modifyCode=true; };
+    void    disableStockCorrection()   { ui->btnStockCorrect->hide(); }
     QString getReason()      { return reason; };
     bool    isCorrectingStock() {return correctingStockOk;};
     double  getOldStock()    { return oldStockQty; };
+    double  getGRoupStockMax();
     void    setStockQtyReadOnly(bool enabled) { ui->editStockQty->setReadOnly(enabled); };
     
   signals:
@@ -74,7 +69,14 @@ class ProductEditor : public KDialog
     void    updateProductsModel();
     
 
-  private slots:
+    void    setModel(QSqlRelationalTableModel *model);
+    GroupInfo getGroupHash();
+    QString getGroupElementsStr();
+    QString getSpecialOrdersStr();
+    bool    isGroup();
+    bool    isRaw();
+    
+private slots:
     void    changePhoto();
     void    changeCode();
     void    calculatePrice();
@@ -106,32 +108,44 @@ class ProductEditor : public KDialog
     QPixmap pix;
     returnType status;
     bool modifyCode;
-    bool creatingNewProduct;
     ProductInfo m_pInfo;
     MibitTip *codeTip;
     MibitFloatPanel *panel;
+    MibitFloatPanel *groupPanel;
     QString reason;
+    bool correctingStockOk;
     double oldStockQty;
     QSqlDatabase database;
+    GroupInfo groupInfo;
+    bool m_modelAssigned;
+    QSqlRelationalTableModel *m_model;
 
     QString getCategoryStr(int c);
     QString getMeasureStr(int c);
     QString getBrandStr(int c);
     QString getProviderStr(int c);
     QString getTaxModelStr(int c);
+
     void    setCategory(QString str);
+    void    setCategory(int i);
     void    setMeasure(QString str);
+    void    setMeasure(int i);
     void    setTax(const QString &str);
     void    setTax(const int &i);
+    void    setTaxModel(qulonglong id);
     void    setBrand(const QString &str);
     void    setBrand(const int &i);
     void    setProvider(const QString &str);
     void    setProvider(const int &i);
+    void    setPhoto(QPixmap p);
     void    populateCategoriesCombo();
     void    populateMeasuresCombo();
     void    populateBrandsCombo();
     void    populateProvidersCombo();
     void    populateTaxModelsCombo();
+    //void    setProviderId(qulonglong id) { m_pInfo.lastProviderId = id; };
+    //void    setBrandId(qulonglong id) { m_pInfo.brandid = id; };
+    
 };
 
 #endif
