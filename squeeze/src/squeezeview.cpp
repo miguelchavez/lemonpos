@@ -195,7 +195,7 @@ void squeezeView::login(){
     QString details = db.lastError().text();
 
     //testing knotification: seems not to work.
-    KPassivePopup::message( i18n("Error:"),details, DesktopIcon("dialog-error", 48), this );
+    //KPassivePopup::message( i18n("Error:"),details, DesktopIcon("dialog-error", 48), this );
     KNotification *notify = new KNotification(i18n("Unable to connect to the database"), this);
     notify->setText(details);
     QPixmap pixmap = DesktopIcon("dialog-error",32); //NOTE: This does not works
@@ -1772,7 +1772,7 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     //Launch dialog, and if dialog is accepted...
     if (productEditorDlg->exec() ) {
       //get changed|unchanged values
-      pInfo = productEditorDlg->getProductInfo();
+      ProductInfo pInfo = productEditorDlg->getProductInfo();
       newcode = pInfo.code; //to check if code change...
       //Update database
       Azahar *myDb = new Azahar;
@@ -1946,7 +1946,7 @@ void squeezeView::stockCorrection()
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
     oldStockQty = myDb->getProductStockQty(pcode);
-    bool isAGroup = myDb->getProductInfo(pcode).isAGroup;
+    bool isAGroup = myDb->getProductInfo(QString::number(pcode)).isAGroup;
     if (isAGroup) {
       //Notify to the user that this product's stock cannot be modified.
       //This is because if we modify each content's stock, all items will be at the same stock level, and it may not be desired.

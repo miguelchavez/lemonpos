@@ -78,7 +78,7 @@ public:
     productPhotoIndex, productCategoryIndex, productPointsIndex, productLastProviderIndex, productAlphaCodeIndex, productIsAGroupIndex, productIsARawIndex, productGEIndex;
     int offerIdIndex, offerDiscountIndex, offerDateStartIndex, offerDateEndIndex,offerProdIdIndex;
     int userIdIndex, usernameIndex, nameIndex, passwordIndex, saltIndex, addressIndex, phoneIndex, cellIndex, roleIndex,
-    photoIndex;
+    photoIndex, productBrandIndex, productTaxModelIndex;
     int transIdIndex, transClientidIndex, transTypeIndex,transAmountIndex,transDateIndex,transTimeIndex,transPaidWithIndex,
     transChangeGivenIndex,transPayMethodIndex,transStateIndex,transUseridIndex,transCardNumIndex,transItemCountIndex,transPointsIndex,
     transDiscMoneyIndex,transDiscIndex,transCardAuthNumberIndex,transUtilityIndex,transTerminalNumIndex,transItemsListIndex,  transSOIndex, transProvIdIndex;
