@@ -23,7 +23,6 @@
 
 #include "lemon.h"
 #include <kapplication.h>
-//#include <dcopclient.h>
 #include <kaboutdata.h>
 #include <kcmdlineargs.h>
 #include <klocale.h>
