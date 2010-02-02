@@ -23,7 +23,7 @@
 #include "azahar.h"
 #include <klocale.h>
 
-Azahar::Azahar(): QObject()
+Azahar::Azahar(QWidget * parent): QObject(parent)
 {
   errorStr = "";
   m_mainClient = "undefined";
@@ -31,6 +31,7 @@ Azahar::Azahar(): QObject()
 
 Azahar::~Azahar()
 {
+  //qDebug()<<"*** AZAHAR DESTROYED ***";
 }
 
 void Azahar::initDatabase(QString user, QString server, QString password, QString dbname)
@@ -72,6 +73,10 @@ bool  Azahar::correctStock(qulonglong pcode, double oldStockQty, double newStock
   bool result1, result2;
   result1 = result2 = false;
   if (!db.isOpen()) db.open();
+
+  //Check if the desired product is a a group.
+  if ( getProductInfo(QString::number(pcode)).isAGroup ) return false;
+
   QSqlQuery query(db);
   QDate date = QDate::currentDate();
   QTime time = QTime::currentTime();
@@ -145,9 +150,10 @@ qulonglong Azahar::getProductOfferCode(qulonglong code)
 ProductInfo Azahar::getProductInfo(QString code)
 {
   ProductInfo info;
-  info.desc="Ninguno";
   info.code=0;
+  info.desc="Ninguno";
   info.price=0;
+  info.disc=0;
   info.cost=0;
   info.lastProviderId = 0;
   info.category=0;
@@ -159,6 +165,9 @@ ProductInfo Azahar::getProductInfo(QString code)
   info.validDiscount=false;
   info.alphaCode = "-NA-";
   info.lastProviderId = 0;
+  info.isAGroup = false;
+  info.isARawProduct = false;
+  QString rawCondition;
 
   if (!db.isOpen()) db.open();
   if (db.isOpen()) {
@@ -176,12 +185,15 @@ ProductInfo Azahar::getProductInfo(QString code)
     P.brandid as BRANDID, \
     P.lastproviderid as PROVIDERID, \
     P.taxmodel as TAXMODELID, \
+    P.isARawProduct as ISRAW, \
+    P.isAGroup as ISGROUP, \
+    P.groupElements as GE, \
+    P.soldunits as SOLDUNITS, \
     U.text as UNITSDESC, \
     C.text as CATEGORY, \
     B.bname  as BRAND, \
     PR.name as LASTPROVIDER ,\
     T.tname as TAXNAME, \
-    T.appway as TAXAPP , \
     T.elementsid as TAXELEM \
     FROM products AS P, brands as B, taxmodels as T, providers as PR, categories as C, measures as U \
     WHERE B.brandid=P.brandid AND PR.id=P.lastproviderid AND T.modelid=P.taxmodel \
@@ -215,11 +227,14 @@ ProductInfo Azahar::getProductInfo(QString code)
         int fieldAlphaCode = query.record().indexOf("ALPHACODE");
         //int fieldBrandName = query.record().indexOf("BRAND");
         int fieldBrandId = query.record().indexOf("BRANDID");
-        //int fieldTaxApp = query.record().indexOf("TAXAPP");
         int fieldTaxElem = query.record().indexOf("TAXELEM");
         int fieldStock= query.record().indexOf("STOCKQTY");
+        int fieldIsGroup = query.record().indexOf("ISGROUP");
+        int fieldIsRaw = query.record().indexOf("ISRAW");
+        int fieldGE = query.record().indexOf("GE");
+        int fieldSoldU = query.record().indexOf("SOLDUNITS");
 
-        info.code     = query.value(fieldCODE).toULongLong(); //code entry now is QString because could be the alphacode.
+        info.code     = query.value(fieldCODE).toULongLong();
         info.desc     = query.value(fieldDesc).toString();
         info.price    = query.value(fieldPrice).toDouble();
         info.photo    = query.value(fieldPhoto).toByteArray();
@@ -235,6 +250,10 @@ ProductInfo Azahar::getProductInfo(QString code)
         info.taxElements = query.value(fieldTaxElem).toString();
         info.profit  = info.price - info.cost;
         info.stockqty  = query.value(fieldStock).toDouble();
+        info.isAGroup  = query.value(fieldIsGroup).toBool();
+        info.isARawProduct = query.value(fieldIsRaw).toBool();
+        info.groupElementsStr = query.value(fieldGE).toString();
+        info.soldUnits = query.value(fieldSoldU).toDouble();
       }
       //get missing stuff - tax,offers for the requested product
       info.tax = getTotalTaxPercent(info.taxElements);
@@ -282,6 +301,20 @@ ProductInfo Azahar::getProductInfo(QString code)
   }
   return info;
 }
+
+// QList<ProductInfo> Azahar::getTransactionGroupsList(qulonglong tid)
+// {
+//   QList<ProductInfo> list;
+//   QStringList groupsList = getTransactionInfo(tid).groups.split(",");
+//   foreach(QString ea, groupsList) {
+//     qulonglong c = ea.section('/',0,0).toULongLong();
+//     double     q = ea.section('/',1,1).toDouble();
+//     ProductInfo pi = getProductInfo(c);
+//     pi.qtyOnList = q;
+//     list.append(pi);
+//   }
+//   return list;
+// }
 
 qulonglong Azahar::getProductCode(QString text)
 {
@@ -345,7 +378,16 @@ bool Azahar::insertProduct(ProductInfo info)
   bool result = false;
   if (!db.isOpen()) db.open();
   QSqlQuery query(db);
-  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, brandid, taxmodel, photo, category, points, alphacode, lastproviderid) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastsold, :units, :brand, :taxmodel, :photo, :category, :points, :alphacode, :lastproviderid);");
+
+  //some buggy info can cause troubles.
+  bool groupValueOK = false;
+  bool rawValueOK = false;
+  if (info.isAGroup == 0 || info.isAGroup == 1) groupValueOK=true;
+  if (info.isARawProduct == 0 || info.isARawProduct == 1) rawValueOK=true;
+  if (!groupValueOK) info.isAGroup = 0;
+  if (!rawValueOK) info.isARawProduct = 0;
+  
+  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, brandid, taxmodel, photo, category, points, alphacode, lastproviderid, isARawProduct,isAGroup, groupElements ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastsold, :units, :brand, :taxmodel, :photo, :category, :points, :alphacode, :lastproviderid, :isARaw, :isAGroup, :groupE);");
   query.bindValue(":code", info.code);
   query.bindValue(":name", info.desc);
   query.bindValue(":price", info.price);
@@ -361,6 +403,9 @@ bool Azahar::insertProduct(ProductInfo info)
   query.bindValue(":points", info.points);
   query.bindValue(":alphacode", info.alphaCode);
   query.bindValue(":lastproviderid", info.lastProviderId);
+  query.bindValue(":isAGroup", info.isAGroup);
+  query.bindValue(":isARaw", info.isARawProduct);
+  query.bindValue(":groupE", info.groupElementsStr);
 
   if (!query.exec()) setError(query.lastError().text()); else result=true;
   return result;
@@ -368,12 +413,21 @@ bool Azahar::insertProduct(ProductInfo info)
 }
 
 
-
+//NOTE: not updated: soldunits, datelastsold
 bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
 {
   bool result = false;
   if (!db.isOpen()) db.open();
   QSqlQuery query(db);
+
+  //some buggy info can cause troubles.
+  bool groupValueOK = false;
+  bool rawValueOK = false;
+  if (info.isAGroup == 0 || info.isAGroup == 1) groupValueOK=true;
+  if (info.isARawProduct == 0 || info.isARawProduct == 1) rawValueOK=true;
+  if (!groupValueOK) info.isAGroup = 0;
+  if (!rawValueOK) info.isARawProduct = 0;
+
   query.prepare("UPDATE products SET \
   code=:newcode, \
   name=:name, \
@@ -387,7 +441,10 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   category=:category, \
   points=:points, \
   alphacode=:alphacode, \
-  lastproviderid=:lastproviderid \
+  lastproviderid=:lastproviderid, \
+  isARawProduct=:isRaw, \
+  isAGroup=:isGroup, \
+  groupElements=:ge \
   WHERE code=:id;");
   query.bindValue(":newcode", info.code);
   query.bindValue(":name", info.desc);
@@ -403,6 +460,9 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   query.bindValue(":id", oldcode);
   query.bindValue(":alphacode", info.alphaCode);
   query.bindValue(":lastproviderid", info.lastProviderId);
+  query.bindValue(":isGroup", info.isAGroup);
+  query.bindValue(":isRaw", info.isARawProduct);
+  query.bindValue(":ge", info.groupElementsStr);
 
   if (!query.exec()) {
     setError(query.lastError().text());
@@ -428,6 +488,25 @@ bool Azahar::decrementProductStock(qulonglong code, double qty, QDate date)
   return result;
 }
 
+bool Azahar::decrementGroupStock(qulonglong code, double qty, QDate date)
+{
+  bool result = true;
+  if (!db.isOpen()) db.open();
+  QSqlQuery query(db);
+
+  ProductInfo info = getProductInfo(QString::number(code));
+  QStringList lelem = info.groupElementsStr.split(",");
+  foreach(QString ea, lelem) {
+    qulonglong c = ea.section('/',0,0).toULongLong();
+    double     q = ea.section('/',1,1).toDouble();
+    ProductInfo pi = getProductInfo(QString::number(c));
+    //FOR EACH ELEMENT, DECREMENT PRODUCT STOCK
+    result = result && decrementProductStock(c, q*qty, date);
+  }
+  
+  return result;
+}
+
 ///NOTE or FIXME: increment is used only when returning a product? or also on purchases??
 ///               Because this method is decrementing soldunits... not used in lemonview.cpp nor squeezeview !!!!!
 bool Azahar::incrementProductStock(qulonglong code, double qty)
@@ -444,6 +523,26 @@ bool Azahar::incrementProductStock(qulonglong code, double qty)
   //qDebug()<<"Increment Stock - Rows:"<<query.numRowsAffected();
   return result;
 }
+
+bool Azahar::incrementGroupStock(qulonglong code, double qty)
+{
+  bool result = true;
+  if (!db.isOpen()) db.open();
+  QSqlQuery query(db);
+  
+  ProductInfo info = getProductInfo(QString::number(code));
+  QStringList lelem = info.groupElementsStr.split(",");
+  foreach(QString ea, lelem) {
+    qulonglong c = ea.section('/',0,0).toULongLong();
+    double     q = ea.section('/',1,1).toDouble();
+    ProductInfo pi = getProductInfo(QString::number(c));
+    //FOR EACH ELEMENT, DECREMENT PRODUCT STOCK
+    result = result && incrementProductStock(c, q*qty);
+  }
+  
+  return result;
+}
+
 
 bool Azahar::deleteProduct(qulonglong code)
 {
@@ -496,15 +595,17 @@ QList<pieProdInfo> Azahar::getTop5SoldProducts()
   QList<pieProdInfo> products; products.clear();
   pieProdInfo info;
   QSqlQuery query(db);
-  if (query.exec("SELECT name,soldunits,units FROM products WHERE soldunits>0 ORDER BY soldunits DESC LIMIT 5")) {
+  if (query.exec("SELECT name,soldunits,units,code FROM products WHERE (soldunits>0 AND isARawProduct=false) ORDER BY soldunits DESC LIMIT 5")) {
     while (query.next()) {
       int fieldName  = query.record().indexOf("name");
       int fieldUnits = query.record().indexOf("units");
       int fieldSoldU = query.record().indexOf("soldunits");
+      int fieldCode  = query.record().indexOf("code");
       int unit       = query.value(fieldUnits).toInt();
       info.name    = query.value(fieldName).toString();
       info.count   = query.value(fieldSoldU).toDouble();
       info.unitStr = getMeasureStr(unit);
+      info.code    = query.value(fieldCode).toULongLong();
       products.append(info);
     }
   }
@@ -514,13 +615,45 @@ QList<pieProdInfo> Azahar::getTop5SoldProducts()
   return products;
 }
 
+double Azahar::getTopFiveMaximum()
+{
+  double result = 0;
+  QSqlQuery query(db);
+  if (query.exec("SELECT soldunits FROM products WHERE (soldunits>0 AND isARawProduct=false) ORDER BY soldunits DESC LIMIT 5")) {
+    if (query.first()) {
+      int fieldSoldU = query.record().indexOf("soldunits");
+      result   = query.value(fieldSoldU).toDouble();
+    }
+  }
+  else {
+    setError(query.lastError().text());
+  }
+  return result;
+}
+
+double Azahar::getAlmostSoldOutMaximum(int max)
+{
+double result = 0;
+  QSqlQuery query(db);
+  if (query.exec(QString("SELECT stockqty FROM products WHERE (isARawProduct=false  AND isAGroup=false AND stockqty<=%1) ORDER BY stockqty DESC LIMIT 5").arg(max))) {
+    if (query.first()) {
+      int fieldSoldU = query.record().indexOf("stockqty");
+      result   = query.value(fieldSoldU).toDouble();
+    }
+  }
+  else {
+    setError(query.lastError().text());
+  }
+  return result;
+}
+
 QList<pieProdInfo> Azahar::getAlmostSoldOutProducts(int min, int max)
 {
   QList<pieProdInfo> products; products.clear();
   pieProdInfo info;
   QSqlQuery query(db);
   //NOTE: Check lower limit for the soldunits range...
-  query.prepare("SELECT name,stockqty,units FROM products WHERE stockqty<=:maxV ORDER BY stockqty ASC LIMIT 5");
+  query.prepare("SELECT name,stockqty,units,code FROM products WHERE (isARawProduct=false AND isAGroup=false AND stockqty<=:maxV) ORDER BY stockqty ASC LIMIT 5");
   query.bindValue(":maxV", max);
 //   query.bindValue(":minV", min);
   if (query.exec()) {
@@ -528,9 +661,11 @@ QList<pieProdInfo> Azahar::getAlmostSoldOutProducts(int min, int max)
       int fieldName  = query.record().indexOf("name");
       int fieldUnits = query.record().indexOf("units");
       int fieldStock = query.record().indexOf("stockqty");
+      int fieldCode  = query.record().indexOf("code");
       int unit       = query.value(fieldUnits).toInt();
       info.name    = query.value(fieldName).toString();
       info.count   = query.value(fieldStock).toDouble();
+      info.code    = query.value(fieldCode).toULongLong();
       info.unitStr = getMeasureStr(unit);
       products.append(info);
     }
@@ -542,12 +677,13 @@ QList<pieProdInfo> Azahar::getAlmostSoldOutProducts(int min, int max)
   return products;
 }
 
+//returns soldout products only if the product is NOT a group.
 QList<ProductInfo> Azahar::getSoldOutProducts()
 {
   QList<ProductInfo> products; products.clear();
   ProductInfo info;
   QSqlQuery query(db);
-  query.prepare("SELECT code FROM products WHERE stockqty=0 ORDER BY code ASC;");
+  query.prepare("SELECT code FROM products WHERE stockqty=0 and isAgroup=false ORDER BY code ASC;");
   if (query.exec()) {
     while (query.next()) {
       int fieldCode  = query.record().indexOf("code");
@@ -562,12 +698,13 @@ QList<ProductInfo> Azahar::getSoldOutProducts()
   return products;
 }
 
+//also discard group products.
 QList<ProductInfo> Azahar::getLowStockProducts(double min)
 {
   QList<ProductInfo> products; products.clear();
   ProductInfo info;
   QSqlQuery query(db);
-  query.prepare("SELECT code FROM products WHERE stockqty<=:minV ORDER BY code,stockqty ASC;");
+  query.prepare("SELECT code FROM products WHERE (stockqty<=:minV and stockqty>1 and isAGroup=false) ORDER BY code,stockqty ASC;");
   query.bindValue(":minV", min);
   if (query.exec()) {
     while (query.next()) {
@@ -1100,6 +1237,7 @@ bool Azahar::insertUser(UserInfo info)
     query.bindValue(":salt", info.salt);
     query.bindValue(":rol", info.role);
     if (!query.exec()) setError(query.lastError().text()); else result = true;
+    qDebug()<<"USER insert:"<<query.lastError();
     //FIXME: We must see error types, which ones are for duplicate KEYS (codes) to advertise the user.
   }//db open
   return result;
@@ -1139,6 +1277,40 @@ QHash<QString,UserInfo> Azahar::getUsersHash()
     }
   }
  return result;
+}
+
+UserInfo Azahar::getUserInfo(const qulonglong &userid)
+{
+  UserInfo info;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery query(db);
+    QString qry = QString("SELECT * FROM users where id=%1;").arg(userid);
+    if (query.exec(qry)) {
+      while (query.next()) {
+        int fielduId       = query.record().indexOf("id");
+        int fieldUsername  = query.record().indexOf("username");
+        int fieldPassword  = query.record().indexOf("password");
+        int fieldSalt      = query.record().indexOf("salt");
+        int fieldName      = query.record().indexOf("name");
+        int fieldRole      = query.record().indexOf("role"); // see role numbers at enums.h
+        int fieldPhoto     = query.record().indexOf("photo");
+        //more fields, now im not interested in that...
+        info.id       = query.value(fielduId).toInt();
+        info.username = query.value(fieldUsername).toString();
+        info.password = query.value(fieldPassword).toString();
+        info.salt     = query.value(fieldSalt).toString();
+        info.name     = query.value(fieldName).toString();
+        info.photo    = query.value(fieldPhoto).toByteArray();
+        info.role     = query.value(fieldRole).toInt();
+        //qDebug()<<"got user:"<<info.username;
+      }
+    }
+    else {
+      qDebug()<<"**Error** :"<<query.lastError();
+    }
+  }
+  return info; 
 }
 
 bool Azahar::updateUser(UserInfo info)
@@ -1199,6 +1371,27 @@ QString Azahar::getUserName(qulonglong id)
   return name;
 }
 
+QStringList Azahar::getUsersList()
+{
+  QStringList result;
+  result.clear();
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec("select name from users;")) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("name");
+        QString text = myQuery.value(fieldText).toString();
+        result.append(text);
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
 unsigned int Azahar::getUserId(QString uname)
 {
   unsigned int iD = 0;
@@ -1212,6 +1405,25 @@ unsigned int Azahar::getUserId(QString uname)
         if (queryId.first()) { //qDebug()<<"queryId.first()=true";
         iD = queryId.value(0).toUInt();
         }
+      }
+    }
+  } else { setError(db.lastError().text()); }
+  return iD;
+}
+
+unsigned int Azahar::getUserIdFromName(QString uname)
+{
+  unsigned int iD = 0;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery queryId(db);
+    QString qry = QString("SELECT id FROM users WHERE name='%1'").arg(uname);
+    if (!queryId.exec(qry)) { setError(queryId.lastError().text()); }
+    else {
+      if (queryId.isActive() && queryId.isSelect()) { //qDebug()<<"queryId select && active.";
+      if (queryId.first()) { //qDebug()<<"queryId.first()=true";
+      iD = queryId.value(0).toUInt();
+      }
       }
     }
   } else { setError(db.lastError().text()); }
@@ -1317,6 +1529,9 @@ ClientInfo Azahar::getClientInfo(qulonglong clientId) //NOTE:FALTA PROBAR ESTE M
           int fieldPhoto  = qC.record().indexOf("photo");
           int fieldDisc   = qC.record().indexOf("discount");
           int fieldSince  = qC.record().indexOf("since");
+          int fieldPhone  = qC.record().indexOf("phone");
+          int fieldCell   = qC.record().indexOf("phone_movil");
+          int fieldAdd    = qC.record().indexOf("address");
           if (qC.value(fieldId).toUInt() == clientId) {
             info.id = qC.value(fieldId).toUInt();
             info.name       = qC.value(fieldName).toString();
@@ -1324,6 +1539,9 @@ ClientInfo Azahar::getClientInfo(qulonglong clientId) //NOTE:FALTA PROBAR ESTE M
             info.discount   = qC.value(fieldDisc).toDouble();
             info.photo      = qC.value(fieldPhoto).toByteArray();
             info.since      = qC.value(fieldSince).toDate();
+            info.phone      = qC.value(fieldPhone).toString();
+            info.cell       = qC.value(fieldCell).toString();
+            info.address    = qC.value(fieldAdd).toString();
             break;
           }
         }
@@ -1343,7 +1561,7 @@ QString Azahar::getMainClient()
     if (!db.isOpen()) db.open();
     if (db.isOpen()) {
       QSqlQuery qC(db);
-      if (qC.exec("select * from clients where clientid=1;")) {
+      if (qC.exec("select * from clients where id=1;")) {
         while (qC.next()) {
           int fieldName   = qC.record().indexOf("name");
           info.name       = qC.value(fieldName).toString();
@@ -1386,6 +1604,27 @@ QHash<QString, ClientInfo> Azahar::getClientsHash()
     }
     else {
       qDebug()<<"ERROR: "<<qC.lastError();
+    }
+  }
+  return result;
+}
+
+QStringList Azahar::getClientsList()
+{
+  QStringList result;
+  result.clear();
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec("select name from clients;")) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("name");
+        QString text = myQuery.value(fieldText).toString();
+        result.append(text);
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
     }
   }
   return result;
@@ -1442,6 +1681,9 @@ TransactionInfo Azahar::getTransactionInfo(qulonglong id)
       int fieldPoints    = query.record().indexOf("points");
       int fieldUtility   = query.record().indexOf("profit");
       int fieldTerminal  = query.record().indexOf("terminalnum");
+      int fieldTax       = query.record().indexOf("totalTax");
+      int fieldSpecialOrders = query.record().indexOf("specialOrders");
+      
       info.id     = query.value(fieldId).toULongLong();
       info.amount = query.value(fieldAmount).toDouble();
       info.date   = query.value(fieldDate).toDate();
@@ -1462,6 +1704,8 @@ TransactionInfo Azahar::getTransactionInfo(qulonglong id)
       info.points    = query.value(fieldPoints).toULongLong();
       info.profit    = query.value(fieldUtility).toDouble();
       info.terminalnum=query.value(fieldTerminal).toInt();
+      info.totalTax   = query.value(fieldTax).toDouble();
+      info.specialOrders = query.value(fieldSpecialOrders).toString();
     }
   }
   return info;
@@ -1469,7 +1713,7 @@ TransactionInfo Azahar::getTransactionInfo(qulonglong id)
 
 ProfitRange Azahar::getMonthProfitRange()
 {
-  QList<TransactionInfo> monthTrans = getMonthTransactions();
+  QList<TransactionInfo> monthTrans = getMonthTransactionsForPie();
   ProfitRange range;
   QList<double> profitList;
   TransactionInfo info;
@@ -1489,7 +1733,7 @@ ProfitRange Azahar::getMonthProfitRange()
 
 ProfitRange Azahar::getMonthSalesRange()
 {
-  QList<TransactionInfo> monthTrans = getMonthTransactions();
+  QList<TransactionInfo> monthTrans = getMonthTransactionsForPie();
   ProfitRange range;
   QList<double> salesList;
   TransactionInfo info;
@@ -1552,7 +1796,7 @@ QList<TransactionInfo> Azahar::getMonthTransactions()
   QDate today = QDate::currentDate();
   QDate startDate = QDate(today.year(), today.month(), 1); //get the 1st of the month.
   //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-  qryTrans.prepare("SELECT id,date from transactions where (date BETWEEN :dateSTART AND :dateEND ) AND (type=1) AND (state=2) ORDER BY date ASC;");
+  qryTrans.prepare("SELECT id,date from transactions where (date BETWEEN :dateSTART AND :dateEND ) AND (type=1) AND (state=2) ORDER BY date,id ASC;");
   qryTrans.bindValue("dateSTART", startDate.toString("yyyy-MM-dd"));
   qryTrans.bindValue("dateEND", today.toString("yyyy-MM-dd"));
   //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
@@ -1603,6 +1847,7 @@ QList<TransactionInfo> Azahar::getDayTransactions(int terminal)
         info.paymethod = qryTrans.value(qryTrans.record().indexOf("paymethod")).toInt();
         info.paywith = qryTrans.value(qryTrans.record().indexOf("paidwith")).toDouble();
         info.time = qryTrans.value(qryTrans.record().indexOf("time")).toTime();
+        info.totalTax = qryTrans.value(qryTrans.record().indexOf("totalTax")).toDouble();
         result.append(info);
         //qDebug()<<"APPENDING:"<<info.id<< " Sales:"<<info.amount<<" Profit:"<<info.profit;
       }
@@ -1639,6 +1884,7 @@ QList<TransactionInfo> Azahar::getDayTransactions()
       info.paymethod = qryTrans.value(qryTrans.record().indexOf("paymethod")).toInt();
       info.paywith = qryTrans.value(qryTrans.record().indexOf("paidwith")).toDouble();
       info.time = qryTrans.value(qryTrans.record().indexOf("time")).toTime();
+      info.totalTax = qryTrans.value(qryTrans.record().indexOf("totalTax")).toDouble();
       result.append(info);
       //qDebug()<<"APPENDING:"<<info.id<< " Sales:"<<info.amount<<" Profit:"<<info.profit;
     }
@@ -1743,6 +1989,7 @@ AmountAndProfitInfo  Azahar::getMonthSalesAndProfit()
   return result;
 }
 
+//TRANSACTIONS
 qulonglong Azahar::insertTransaction(TransactionInfo info)
 {
   qulonglong result=0;
@@ -1751,14 +1998,14 @@ qulonglong Azahar::insertTransaction(TransactionInfo info)
   clientid, userid, type, amount, date,  time, \
   paidwith,  paymethod, changegiven, state,    \
   cardnumber, itemcount, itemslist, points, \
-  discmoney, disc, cardauthnumber, profit,  \
-  terminalnum, providerid, groups) \
+  discmoney, disc, discmoney, cardauthnumber, profit,  \
+  terminalnum, providerid, specialOrders, balanceId, totalTax) \
   VALUES ( \
   :clientid, :userid, :type, :amount, :date, :time, \
   :paidwith, :paymethod, :changegiven, :state,  \
   :cardnumber, :itemcount, :itemslist, :points, \
-  :discmoney, :disc, :cardauthnumber, :utility, \
-  :terminalnum, :providerid, :groups)");
+  :discmoney, :disc, :discm, :cardauthnumber, :utility, \
+  :terminalnum, :providerid, :specialOrders, :balanceId, :totalTax)");
   
   query2.bindValue(":type", info.type);
   query2.bindValue(":amount", info.amount);
@@ -1780,6 +2027,10 @@ qulonglong Azahar::insertTransaction(TransactionInfo info)
   query2.bindValue(":utility", info.profit);
   query2.bindValue(":terminalnum", info.terminalnum);
   query2.bindValue(":providerid", info.providerid);
+  query2.bindValue(":totalTax", info.totalTax);
+  query2.bindValue(":specialOrders", info.specialOrders);
+  query2.bindValue(":balanceId", info.balanceId);
+  query2.bindValue(":discm", info.discmoney);
   if (!query2.exec() ) {
     int errNum = query2.lastError().number();
     QSqlError::ErrorType errType = query2.lastError().type();
@@ -1794,7 +2045,7 @@ bool Azahar::updateTransaction(TransactionInfo info)
 {
   bool result=false;
   QSqlQuery query2(db);
-  query2.prepare("UPDATE transactions SET disc=:disc, discmoney=:discMoney, amount=:amount, date=:date,  time=:time, paidwith=:paidw, changegiven=:change, paymethod=:paymethod, state=:state, cardnumber=:cardnumber, itemcount=:itemcount, itemslist=:itemlist, cardauthnumber=:cardauthnumber, profit=:utility, terminalnum=:terminalnum, points=:points, clientid=:clientid, groups=:groups WHERE id=:code");
+  query2.prepare("UPDATE transactions SET disc=:disc, discmoney=:discMoney, amount=:amount, date=:date,  time=:time, paidwith=:paidw, changegiven=:change, paymethod=:paymethod, state=:state, cardnumber=:cardnumber, itemcount=:itemcount, itemslist=:itemlist, cardauthnumber=:cardauthnumber, utility=:utility, terminalnum=:terminalnum, points=:points, clientid=:clientid, specialOrders=:sorders, balanceId=:balance, totalTax=:tax WHERE id=:code");
   query2.bindValue(":disc", info.disc);
   query2.bindValue(":discMoney", info.discmoney);
   query2.bindValue(":code", info.id);
@@ -1813,6 +2064,9 @@ bool Azahar::updateTransaction(TransactionInfo info)
   query2.bindValue(":terminalnum", info.terminalnum);
   query2.bindValue(":points", info.points);
   query2.bindValue(":clientid", info.clientid);
+  query2.bindValue(":tax", info.totalTax);
+  query2.bindValue(":sorders", info.specialOrders);
+  query2.bindValue(":balance", info.balanceId);
   if (!query2.exec() ) {
     int errNum = query2.lastError().number();
     QSqlError::ErrorType errType = query2.lastError().type();
@@ -1844,6 +2098,8 @@ bool Azahar::deleteTransaction(qulonglong id)
   return result;
 }
 
+
+//NOTE: Is it convenient to reuse empty transactions or simply delete them?
 bool Azahar::deleteEmptyTransactions()
 {
   bool result = false;
@@ -1864,7 +2120,30 @@ bool Azahar::deleteEmptyTransactions()
   return result;
 }
 
-//TODO: when cancelling a transacion, take into account the groups sold to be returned
+qulonglong Azahar::getEmptyTransactionId()
+{
+  qulonglong result = 0;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery query(db);
+    QString qry = QString("SELECT id from transactions WHERE itemcount<=0 and amount<=0");
+    if (!query.exec(qry)) {
+      int errNum = query.lastError().number();
+      QSqlError::ErrorType errType = query.lastError().type();
+      QString errStr = query.lastError().text();
+      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),errStr);
+      setError(details);
+    } else {
+      while (query.next()) {
+        int fieldId = query.record().indexOf("id");
+        result      = query.value(fieldId).toULongLong();
+        return result;
+      }
+    }
+  }
+  return result;
+}
+
 bool Azahar::cancelTransaction(qulonglong id, bool inProgress)
 {
   bool result=false;
@@ -1901,13 +2180,37 @@ bool Azahar::cancelTransaction(qulonglong id, bool inProgress)
       ///not in progress, it means stockqty,points... are affected.
       if (transCompleted) {
         if (tinfo.points >0) decrementClientPoints(tinfo.clientid,tinfo.points);
-        ///increment stock for each product.
-        //TODO: when cancelling a transacion, take into account the groups sold to be returned new feature
-        QStringList plist = tinfo.itemlist.split(",");
+        //TODO: when cancelling a transacion, take into account the groups sold to be returned. new feature
+        QStringList soProducts;
+        ///if there is any special order (product)
+        if ( !tinfo.specialOrders.isEmpty() ) {
+          //get each special order
+          QStringList pSoList = tinfo.specialOrders.split(",");
+          for (int i = 0; i < pSoList.size(); ++i) {
+            QStringList l = pSoList.at(i).split("/");
+            if ( l.count()==2 ) { //==2 means its complete, having product and qty
+              qulonglong soid = l.at(0).toULongLong();
+              //set as cancelled
+              specialOrderSetStatus(soid, 4); //4 == cancelled
+              //get each product of the special order to increment its stock later
+              soProducts.append( getSpecialOrderProductsStr(soid) ); //are normal products (raw or not)
+            } //if count
+          } //for
+        }//if there are special orders
+        QString soProductsStr = soProducts.join(",");
+        ///increment stock for each product. including special orders and groups
+        QStringList plist = (tinfo.itemlist.split(",") + soProductsStr.split(","));
+        qDebug()<<"[*****] plist: "<< plist;
         for (int i = 0; i < plist.size(); ++i) {
           QStringList l = plist.at(i).split("/");
           if ( l.count()==2 ) { //==2 means its complete, having product and qty
-            incrementProductStock(l.at(0).toULongLong(), l.at(1).toDouble()); //code at 0, qty at 1
+            //check if the product is a group
+            //NOTE: rawProducts ? affect stock when cancelling = YES but only if affected when sold one of its parents (specialOrders) and stockqty is set. But they would not be here, if not at specialOrders List
+            ProductInfo pi = getProductInfo(l.at(0));
+            if ( pi.isAGroup ) 
+              incrementGroupStock(l.at(0).toULongLong(), l.at(1).toDouble()); //code at 0, qty at 1
+            else //there is a normal product
+              incrementProductStock(l.at(0).toULongLong(), l.at(1).toDouble()); //code at 0, qty at 1
           }
         }//for each product
         ///save cashout for the money return
@@ -1965,6 +2268,9 @@ QList<TransactionInfo> Azahar::getLastTransactions(int pageNumber,int numItems,Q
       int fieldPoints    = query.record().indexOf("points");
       int fieldUtility   = query.record().indexOf("profit");
       int fieldTerminal  = query.record().indexOf("terminalnum");
+      int fieldTax    = query.record().indexOf("totalTax");
+      int fieldSOrd      = query.record().indexOf("specialOrders");
+      int fieldBalance   = query.record().indexOf("balanceId");
       info.id     = query.value(fieldId).toULongLong();
       info.amount = query.value(fieldAmount).toDouble();
       info.date   = query.value(fieldDate).toDate();
@@ -1985,6 +2291,9 @@ QList<TransactionInfo> Azahar::getLastTransactions(int pageNumber,int numItems,Q
       info.points    = query.value(fieldPoints).toULongLong();
       info.profit    = query.value(fieldUtility).toDouble();
       info.terminalnum=query.value(fieldTerminal).toInt();
+      info.totalTax  = query.value(fieldTax).toDouble();
+      info.specialOrders  = query.value(fieldSOrd).toString();
+      info.balanceId = query.value(fieldBalance).toULongLong();
       result.append(info);
     }
   }
@@ -1994,7 +2303,7 @@ QList<TransactionInfo> Azahar::getLastTransactions(int pageNumber,int numItems,Q
   return result;
 }
 
-//NOTE: The next method is not used... Also, for what pourpose? is it missing the STATE condition?... Biel?
+//NOTE: The next method is not used... Also, for what pourpose? is it missing the STATE condition?
 QList<TransactionInfo> Azahar::getTransactionsPerDay(int pageNumber,int numItems, QDate beforeDate)
 {
   QList<TransactionInfo> result;
@@ -2022,14 +2331,15 @@ QList<TransactionInfo> Azahar::getTransactionsPerDay(int pageNumber,int numItems
   return result;
 }
 
-// TRANSACTIONITEMS  ///FIXME: Falta tomar en cuenta el nuevo campo 'groups'
+
+// TRANSACTIONITEMS
 bool Azahar::insertTransactionItem(TransactionItemInfo info)
 {
   bool result = false;
   if (!db.isOpen()) db.open();
   if (db.isOpen()) {
     QSqlQuery query(db);
-    query.prepare("INSERT INTO transactionitems (transaction_id, position, product_id, qty, points, unitstr, cost, price, disc, total, name) VALUES(:transactionid, :position, :productCode, :qty, :points, :unitStr, :cost, :price, :disc, :total, :name)");
+    query.prepare("INSERT INTO transactionitems (transaction_id, position, product_id, qty, points, unitstr, cost, price, disc, total, name, payment, completePayment, soId, isGroup, deliveryDateTime, tax) VALUES(:transactionid, :position, :productCode, :qty, :points, :unitStr, :cost, :price, :disc, :total, :name, :payment, :completeP, :soid, :isGroup, :deliveryDT, :tax)");
     query.bindValue(":transactionid", info.transactionid);
     query.bindValue(":position", info.position);
     query.bindValue(":productCode", info.productCode);
@@ -2041,7 +2351,16 @@ bool Azahar::insertTransactionItem(TransactionItemInfo info)
     query.bindValue(":disc", info.disc);
     query.bindValue(":total", info.total);
     query.bindValue(":name", info.name);
-    if (!query.exec()) setError(query.lastError().text()); else result = true;
+    query.bindValue(":payment", info.payment);
+    query.bindValue(":completeP", info.completePayment);
+    query.bindValue(":soid", info.soId);
+    query.bindValue(":isGroup", info.isGroup);
+    query.bindValue(":deliveryDT", info.deliveryDateTime);
+    query.bindValue(":tax", info.tax);
+    if (!query.exec()) {
+      setError(query.lastError().text());
+      qDebug()<<"Insert TransactionItems error:"<<query.lastError().text();
+    } else result = true;
   }
   return result;
 }
@@ -2067,7 +2386,6 @@ bool Azahar::deleteAllTransactionItem(qulonglong id)
   return result;
 }
 
-//FIXME: tomer en cuenta groups de las transacciones...
 QList<TransactionItemInfo> Azahar::getTransactionItems(qulonglong id)
 {
   QList<TransactionItemInfo> result;
@@ -2087,6 +2405,12 @@ QList<TransactionItemInfo> Azahar::getTransactionItems(qulonglong id)
       int fieldTotal   = query.record().indexOf("total");
       int fieldName    = query.record().indexOf("name");
       int fieldUStr    = query.record().indexOf("unitstr");
+      int fieldPayment = query.record().indexOf("payment");
+      int fieldCPayment = query.record().indexOf("completePayment");
+      int fieldSoid = query.record().indexOf("soId");
+      int fieldIsG = query.record().indexOf("isGroup");
+      int fieldDDT = query.record().indexOf("deliveryDateTime");
+      int fieldTax = query.record().indexOf("tax");
       
       info.transactionid     = id;
       info.position      = query.value(fieldPosition).toInt();
@@ -2099,11 +2423,18 @@ QList<TransactionItemInfo> Azahar::getTransactionItems(qulonglong id)
       info.disc          = query.value(fieldDisc).toDouble();
       info.total         = query.value(fieldTotal).toDouble();
       info.name          = query.value(fieldName).toString();
+      info.payment       = query.value(fieldPayment).toDouble();
+      info.completePayment  = query.value(fieldCPayment).toBool();
+      info.soId          = query.value(fieldSoid).toString();
+      info.isGroup       = query.value(fieldIsG).toBool();
+      info.deliveryDateTime=query.value(fieldDDT).toDateTime();
+      info.tax           = query.value(fieldTax).toDouble();
       result.append(info);
     }
   }
   else {
     setError(query.lastError().text());
+    qDebug()<<"Get TransactionItems error:"<<query.lastError().text();
   }
   return result;
 }
@@ -2186,6 +2517,40 @@ BalanceInfo Azahar::getBalanceInfo(qulonglong id)
   return info;
 }
 
+bool Azahar::updateBalance(BalanceInfo info)
+{
+  bool result = false;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen())
+  {
+    QSqlQuery queryBalance(db);
+    queryBalance.prepare("UPDATE balances SET balances.datetime_start=:date_start, balances.datetime_end=:date_end, balances.userid=:userid, balances.usern=:user, balances.initamount=:initA, balances.in=:in, balances.out=:out, balances.cash=:cash, balances.card=:card, balances.transactions=:transactions, balances.terminalnum=:terminalNum, cashflows=:cashflows, done=:isDone WHERE balances.id=:bid");
+    queryBalance.bindValue(":date_start", info.dateTimeStart.toString("yyyy-MM-dd hh:mm:ss"));
+    queryBalance.bindValue(":date_end", info.dateTimeEnd.toString("yyyy-MM-dd hh:mm:ss"));
+    queryBalance.bindValue(":userid", info.userid);
+    queryBalance.bindValue(":user", info.username);
+    queryBalance.bindValue(":initA", info.initamount);
+    queryBalance.bindValue(":in", info.in);
+    queryBalance.bindValue(":out", info.out);
+    queryBalance.bindValue(":cash", info.cash);
+    queryBalance.bindValue(":card", info.card);
+    queryBalance.bindValue(":transactions", info.transactions);
+    queryBalance.bindValue(":terminalNum", info.terminal);
+    queryBalance.bindValue(":cashflows", info.cashflows);
+    queryBalance.bindValue(":bid", info.id);
+    queryBalance.bindValue(":isDone", info.done);
+    
+    if (!queryBalance.exec() ) {
+      int errNum = queryBalance.lastError().number();
+      QSqlError::ErrorType errType = queryBalance.lastError().type();
+      QString errStr = queryBalance.lastError().text();
+      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),errStr);
+      setError(details);
+    } else result = true;
+  }
+  return result;
+}
+
 qulonglong Azahar::insertCashFlow(CashFlowInfo info)
 {
   qulonglong result =0;
@@ -2232,7 +2597,7 @@ QList<CashFlowInfo> Azahar::getCashFlowInfoList(const QList<qulonglong> &idList)
     CF.terminalNum as terminalNum, \
     CFT.text as typeStr \
     FROM cashflow AS CF, cashflowtypes AS CFT \
-    WHERE id=%1 AND CFT.typeid = CF.type;").arg(currId);
+    WHERE id=%1 AND (CFT.typeid = CF.type) ORDER BY CF.id;").arg(currId);
     if (query.exec(qry)) {
       while (query.next()) {
         CashFlowInfo info;
@@ -2262,6 +2627,61 @@ QList<CashFlowInfo> Azahar::getCashFlowInfoList(const QList<qulonglong> &idList)
       setError(query.lastError().text());
     }
   } //foreach
+  return result;
+}
+
+QList<CashFlowInfo> Azahar::getCashFlowInfoList(const QDateTime &start, const QDateTime &end)
+{
+  QList<CashFlowInfo> result;
+  result.clear();
+  QSqlQuery query(db);
+
+  query.prepare(" \
+  SELECT CF.id as id, \
+  CF.type as type, \
+  CF.userid as userid, \
+  CF.amount as amount, \
+  CF.reason as reason, \
+  CF.date as date, \
+  CF.time as time, \
+  CF.terminalNum as terminalNum, \
+  CFT.text as typeStr \
+  FROM cashflow AS CF, cashflowtypes AS CFT \
+  WHERE (date BETWEEN :dateSTART AND :dateEND) AND (CFT.typeid = CF.type) ORDER BY CF.id");
+  query.bindValue(":dateSTART", start.date());
+  query.bindValue(":dateEND", end.date());
+  if (query.exec()) {
+    while (query.next()) {
+      QTime ttime = query.value(query.record().indexOf("time")).toTime();
+      if ( (ttime >= start.time()) &&  (ttime <= end.time()) ) {
+        //its inside the requested time period.
+        CashFlowInfo info;
+        int fieldId      = query.record().indexOf("id");
+        int fieldType    = query.record().indexOf("type");
+        int fieldUserId  = query.record().indexOf("userid");
+        int fieldAmount  = query.record().indexOf("amount");
+        int fieldReason  = query.record().indexOf("reason");
+        int fieldDate    = query.record().indexOf("date");
+        int fieldTime    = query.record().indexOf("time");
+        int fieldTermNum = query.record().indexOf("terminalNum");
+        int fieldTStr    = query.record().indexOf("typeStr");
+        
+        info.id          = query.value(fieldId).toULongLong();
+        info.type        = query.value(fieldType).toULongLong();
+        info.userid      = query.value(fieldUserId).toULongLong();
+        info.amount      = query.value(fieldAmount).toDouble();
+        info.reason      = query.value(fieldReason).toString();
+        info.typeStr     = query.value(fieldTStr).toString();
+        info.date        = query.value(fieldDate).toDate();
+        info.time        = query.value(fieldTime).toTime();
+        info.terminalNum = query.value(fieldTermNum).toULongLong();
+        result.append(info);
+      } //if time...
+    } //while
+  }// if query
+  else {
+    setError(query.lastError().text());
+  }
   return result;
 }
 
@@ -2684,4 +3104,453 @@ void   Azahar::setConfigLogoOnTop(bool yes)
     }
   }
 }
+
+
+//SPECIAL ORDERS
+QList<SpecialOrderInfo> Azahar::getAllSOforSale(qulonglong saleId)
+{
+  QList<SpecialOrderInfo> list;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QString qry = QString("SELECT orderid,saleid from special_orders where saleid=%1").arg(saleId);
+    QSqlQuery query(db);
+    if (!query.exec(qry)) {
+      int errNum = query.lastError().number();
+      QSqlError::ErrorType errType = query.lastError().type();
+      QString error = query.lastError().text();
+      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),error);
+      setError(i18n("Error getting special Order information, id: %1, Rows affected: %2", saleId,query.size()));
+    }
+    else {
+      while (query.next()) {
+        int fieldId  = query.record().indexOf("orderid");
+        qulonglong num = query.value(fieldId).toULongLong();
+        SpecialOrderInfo soInfo = getSpecialOrderInfo(num);
+        list.append(soInfo);
+      }
+    }
+  }
+  return list;
+}
+
+//NOTE: Here the question is, what status to take into account? pending,inprogress,ready...
+//      We will return all with status < 3 .
+QList<SpecialOrderInfo> Azahar::getAllReadySOforSale(qulonglong saleId)
+{
+  QList<SpecialOrderInfo> list;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QString qry = QString("SELECT orderid,saleid from special_orders where saleid=%1 and status<3").arg(saleId);
+    QSqlQuery query(db);
+    if (!query.exec(qry)) {
+      int errNum = query.lastError().number();
+      QSqlError::ErrorType errType = query.lastError().type();
+      QString error = query.lastError().text();
+      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),error);
+      setError(i18n("Error getting special Order information, id: %1, Rows affected: %2", saleId,query.size()));
+    }
+    else {
+      while (query.next()) {
+        int fieldId  = query.record().indexOf("orderid");
+        qulonglong num = query.value(fieldId).toULongLong();
+        SpecialOrderInfo soInfo = getSpecialOrderInfo(num);
+        list.append(soInfo);
+      }
+    }
+  }
+  return list;
+}
+
+int  Azahar::getReadySOCountforSale(qulonglong saleId)
+{
+  int count=0;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QString qry = QString("SELECT orderid from special_orders where saleid=%1 and status<3").arg(saleId);
+    QSqlQuery query(db);
+    if (!query.exec(qry)) {
+      int errNum = query.lastError().number();
+      QSqlError::ErrorType errType = query.lastError().type();
+      QString error = query.lastError().text();
+      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),error);
+      setError(i18n("Error getting special Order information, id: %1, Rows affected: %2", saleId,query.size()));
+    }
+    else {
+//       while (query.next()) {
+//         count++;
+//       }
+    count = query.size();
+    }
+  }
+  return count;
+}
+
+void Azahar::specialOrderSetStatus(qulonglong id, int status)
+{
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("update special_orders set status=%1 where orderid=%2;").arg(status).arg(id))) {
+      qDebug()<<"Status Order updated";
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+}
+
+void Azahar::soTicketSetStatus(qulonglong ticketId, int status)
+{
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("update special_orders set status=%1 where saleid=%2;").arg(status).arg(ticketId))) {
+      qDebug()<<"Status Order updated";
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+}
+
+QString Azahar::getSpecialOrderProductsStr(qulonglong id)
+{
+  QString result = "";
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("select groupElements from special_orders where orderid=%1;").arg(id))) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("groupElements");
+        result = myQuery.value(fieldText).toString();
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
+QList<ProductInfo> Azahar::getSpecialOrderProductsList(qulonglong id)
+{
+  QList<ProductInfo> pList;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QString ge = getSpecialOrderProductsStr(id);
+    QStringList pq = ge.split(",");
+    foreach(QString str, pq) {
+      qulonglong c = str.section('/',0,0).toULongLong();
+      double     q = str.section('/',1,1).toDouble();
+      //get info
+      ProductInfo pi = getProductInfo(QString::number(c));
+      pi.qtyOnList = q;
+      pList.append(pi);
+    }
+  }
+  return pList;
+}
+
+QString  Azahar::getSONotes(qulonglong id)
+{
+  QString result = "";
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("select notes from special_orders where orderid=%1;").arg(id))) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("notes");
+        result = myQuery.value(fieldText).toString();
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
+qulonglong Azahar::insertSpecialOrder(SpecialOrderInfo info)
+{
+  qulonglong result = 0;
+  if (!db.isOpen()) db.open();
+  QSqlQuery query(db);
+  query.prepare("INSERT INTO special_orders (name, price, qty, cost, units, groupElements, status, saleid, notes, payment, completePayment, dateTime, deliveryDateTime,clientId,userId) VALUES (:name, :price, :qty, :cost, :units,  :groupE, :status, :saleId, :notes, :payment, :completeP, :dateTime, :deliveryDT, :client, :user);");
+  query.bindValue(":name", info.name);
+  query.bindValue(":price", info.price);
+  query.bindValue(":qty", info.qty);
+  query.bindValue(":cost", info.cost);
+  query.bindValue(":status", info.status);
+  query.bindValue(":units", info.units);
+  query.bindValue(":groupE", info.groupElements);
+  query.bindValue(":saleId", info.saleid);
+  query.bindValue(":notes", info.notes);
+  query.bindValue(":payment", info.payment);
+  query.bindValue(":completeP", info.completePayment);
+  query.bindValue(":dateTime", info.dateTime);
+  query.bindValue(":deliveryDT", info.deliveryDateTime);
+  query.bindValue(":user", info.userId);
+  query.bindValue(":client", info.clientId);
+  
+  if (!query.exec()) setError(query.lastError().text()); else {
+    result=query.lastInsertId().toULongLong();
+  }
+  
+  return result;
+}
+
+//saleid, dateTime/userid/clientid are not updated.
+bool Azahar::updateSpecialOrder(SpecialOrderInfo info)
+{
+  bool result = false;
+  if (!db.isOpen()) db.open();
+  QSqlQuery query(db);
+  query.prepare("UPDATE special_orders SET  name=:name, price=:price, qty=:qty, cost=:cost, units=:units,  groupElements=:groupE, status=:status, notes=:notes, payment=:payment, completePayment=:completeP, deliveryDateTime=:deliveryDT WHERE orderid=:code;");
+  query.bindValue(":code", info.orderid);
+  query.bindValue(":name", info.name);
+  query.bindValue(":price", info.price);
+  query.bindValue(":qty", info.qty);
+  query.bindValue(":cost", info.cost);
+  query.bindValue(":status", info.status);
+  query.bindValue(":units", info.units);
+  query.bindValue(":groupE", info.groupElements);
+  query.bindValue(":notes", info.notes);
+  query.bindValue(":payment", info.payment);
+  query.bindValue(":completeP", info.completePayment);
+  query.bindValue(":deliveryDT", info.deliveryDateTime);
+  
+  if (!query.exec()) setError(query.lastError().text()); else result=true;
+  return result;
+}
+
+bool Azahar::deleteSpecialOrder(qulonglong id)
+{
+  bool result = false;
+  if (!db.isOpen()) db.open();
+  QSqlQuery query(db);
+  query = QString("DELETE FROM special_orders WHERE orderid=%1").arg(id);
+  if (!query.exec()) setError(query.lastError().text()); else result=true;
+  return result;
+}
+
+SpecialOrderInfo Azahar::getSpecialOrderInfo(qulonglong id)
+{
+  SpecialOrderInfo info;
+  info.orderid=0;
+  info.name="Ninguno";
+  info.price=0;
+
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QString qry = QString("SELECT * from special_orders where orderid=%1").arg(id);
+    QSqlQuery query(db);
+    if (!query.exec(qry)) {
+      int errNum = query.lastError().number();
+      QSqlError::ErrorType errType = query.lastError().type();
+      QString error = query.lastError().text();
+      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),error);
+      setError(i18n("Error getting special Order information, id: %1, Rows affected: %2", id,query.size()));
+    }
+    else {
+      while (query.next()) {
+        int fieldDesc = query.record().indexOf("name");
+        int fieldPrice= query.record().indexOf("price");
+        int fieldQty= query.record().indexOf("qty");
+        int fieldCost= query.record().indexOf("cost");
+        int fieldUnits= query.record().indexOf("units");
+        int fieldStatus= query.record().indexOf("status");
+        int fieldSaleId= query.record().indexOf("saleid");
+        int fieldGroupE = query.record().indexOf("groupElements");
+        int fieldPayment = query.record().indexOf("payment");
+        int fieldCPayment = query.record().indexOf("completePayment");
+        int fieldDateT   = query.record().indexOf("dateTime");
+        int fieldDDT     = query.record().indexOf("deliveryDateTime");
+        int fieldNotes   = query.record().indexOf("notes");
+        int fieldClientId = query.record().indexOf("clientId");
+        int fieldUserId = query.record().indexOf("userId");
+        
+        info.orderid=id;
+        info.name      = query.value(fieldDesc).toString();
+        info.price    = query.value(fieldPrice).toDouble();
+        info.qty      = query.value(fieldQty).toDouble();
+        info.cost     = query.value(fieldCost).toDouble();
+        info.units    = query.value(fieldUnits).toInt();
+        info.status   = query.value(fieldStatus).toInt();
+        info.saleid   = query.value(fieldSaleId).toULongLong();
+        info.groupElements = query.value(fieldGroupE).toString();
+        info.payment  = query.value(fieldPayment).toDouble();
+        info.completePayment  = query.value(fieldCPayment).toBool();
+        info.dateTime = query.value(fieldDateT).toDateTime();
+        info.deliveryDateTime = query.value(fieldDDT).toDateTime();
+        info.notes = query.value(fieldNotes).toString();
+        info.clientId = query.value(fieldClientId).toULongLong();
+        info.userId = query.value(fieldUserId).toULongLong();
+      }
+      //get units descriptions
+      qry = QString("SELECT * from measures WHERE id=%1").arg(info.units);
+      QSqlQuery query3(db);
+      if (query3.exec(qry)) {
+        while (query3.next()) {
+          int fieldUD = query3.record().indexOf("text");
+          info.unitStr=query3.value(fieldUD).toString();
+        }//query3 - get descritptions
+      }
+    }
+  }
+  return info;
+}
+
+double Azahar::getSpecialOrderAverageTax(qulonglong id)
+{
+  double result = 0;
+  double sum = 0;
+  QList<ProductInfo> pList = getSpecialOrderProductsList(id);
+  foreach( ProductInfo info, pList) {
+    sum += info.tax;
+  }
+
+  result = sum/pList.count();
+  qDebug()<<"SO average tax: "<<result <<" sum:"<<sum<<" count:"<<pList.count();
+
+  return result;
+}
+
+QStringList Azahar::getStatusList()
+{
+  QStringList result;
+  result.clear();
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec("select text from so_status;")) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("text");
+        QString text = myQuery.value(fieldText).toString();
+        result.append(text);
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
+QStringList Azahar::getStatusListExceptDelivered()
+{
+  QStringList result;
+  result.clear();
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("select text from so_status where id!=%1;").arg(stDelivered))) {
+      while (myQuery.next()) {
+        int fieldText = myQuery.record().indexOf("text");
+        QString text = myQuery.value(fieldText).toString();
+        result.append(text);
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
+int Azahar::getStatusId(QString texto)
+{
+  qulonglong result=0;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    QString qryStr = QString("SELECT so_status.id FROM so_status WHERE text='%1';").arg(texto);
+    if (myQuery.exec(qryStr) ) {
+      while (myQuery.next()) {
+        int fieldId   = myQuery.record().indexOf("id");
+        qulonglong id= myQuery.value(fieldId).toULongLong();
+        result = id;
+      }
+    }
+    else {
+      setError(myQuery.lastError().text());
+    }
+  }
+  return result;
+}
+
+QString Azahar::getRandomMessage(QList<qulonglong> &excluded, const int &season)
+{
+  QString result;
+  QString firstMsg;
+  qulonglong firstId = 0;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    QString qryStr = QString("SELECT message,id FROM random_msgs WHERE season=%1 order by count ASC;").arg(season);
+    if (myQuery.exec(qryStr) ) {
+      while (myQuery.next()) {
+        int fieldId      = myQuery.record().indexOf("id");
+        int fieldMsg     = myQuery.record().indexOf("message");
+        qulonglong id    = myQuery.value(fieldId).toULongLong();
+        if ( firstMsg.isEmpty() ) {
+          firstMsg = myQuery.value(fieldMsg).toString(); //get the first msg.
+          firstId  = myQuery.value(fieldId).toULongLong();
+        }
+        qDebug()<<"Examining msg Id: "<<id;
+        //check if its not on the excluded list.
+        if ( !excluded.contains(id) ) {
+          //ok, return the msg, increment count.
+          result = myQuery.value(fieldMsg).toString();
+          randomMsgIncrementCount(id);
+          //modify the excluded list, insert this one.
+          excluded.append(id);
+          //we exit from the while loop.
+          qDebug()<<" We got msg:"<<result;
+          break;
+        }
+      }
+    }
+    else {
+      setError(myQuery.lastError().text());
+    }
+  }
+  if (result.isEmpty() && firstId > 0) {
+    result = firstMsg;
+    randomMsgIncrementCount(firstId);
+    excluded << firstId;
+    qDebug()<<"Returning the fist message!";
+  }
+  return result;
+}
+
+void Azahar::randomMsgIncrementCount(qulonglong id)
+{
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec(QString("update random_msgs set count=count+1 where id=%1;").arg(id))) {
+      qDebug()<<"Random Messages Count updated";
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+}
+
+bool Azahar::insertRandomMessage(const QString &msg, const int &season)
+{
+  bool result = false;
+  if (!db.isOpen()) db.open();
+  QSqlQuery query(db);
+  query.prepare("INSERT INTO random_msgs (message, season, count) VALUES (:message, :season, :count);");
+  query.bindValue(":msg", msg);
+  query.bindValue(":season", season);
+  query.bindValue(":count", 0);
+  if (!query.exec()) {
+    setError(query.lastError().text());
+  }
+  else result=true;
+  return result;
+}
+
 #include "azahar.moc"

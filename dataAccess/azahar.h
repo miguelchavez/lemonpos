@@ -47,7 +47,7 @@ class Azahar : public QObject
     void setError(QString err);
     QString m_mainClient;
   public:
-    Azahar();
+    Azahar(QWidget * parent = 0);
     ~ Azahar();
     bool isConnected();
     QString lastError();
@@ -65,11 +65,15 @@ class Azahar : public QObject
     bool         insertProduct(ProductInfo info);
     bool         updateProduct(ProductInfo info, qulonglong oldcode);
     bool         decrementProductStock(qulonglong code, double qty, QDate date);
+    bool         decrementGroupStock(qulonglong code, double qty, QDate date);
+    bool         incrementGroupStock(qulonglong code, double qty);
     bool         incrementProductStock(qulonglong code, double qty);
     bool         deleteProduct(qulonglong code);
     double       getProductDiscount(qulonglong code);
     QList<pieProdInfo>  getTop5SoldProducts();
+    double       getTopFiveMaximum();
     QList<pieProdInfo>  getAlmostSoldOutProducts(int min, int max);
+    double       getAlmostSoldOutMaximum(int max);
     QList<ProductInfo>  getSoldOutProducts();
     QList<ProductInfo>  getLowStockProducts(double min);
     double       getProductStockQty(qulonglong code);
@@ -103,9 +107,12 @@ class Azahar : public QObject
     QString      getUserName(QString username); //gets the user name from username
     QString      getUserName(qulonglong id);
     unsigned int getUserId(QString uname);
+    unsigned int getUserIdFromName(QString uname);
     QHash<QString,UserInfo> getUsersHash();
+    QStringList  getUsersList();
     bool         insertUser(UserInfo info);
     int          getUserRole(const qulonglong &userid);
+    UserInfo     getUserInfo(const qulonglong &userid);
 
     //CLIENTS
     bool         insertClient(ClientInfo info);
@@ -114,12 +121,14 @@ class Azahar : public QObject
     bool         decrementClientPoints(qulonglong id, qulonglong points);
     ClientInfo   getClientInfo(qulonglong clientId);
     QHash<QString, ClientInfo> getClientsHash();
+    QStringList  getClientsList();
     QString      getMainClient();
     unsigned int getClientId(QString uname);
 
     //TRANSACTIONS
     TransactionInfo getTransactionInfo(qulonglong id);
     qulonglong  insertTransaction(TransactionInfo info);
+    //QList<ProductInfo>     getTransactionGroupsList(qulonglong tid);
     QList<TransactionInfo> getDayTransactions(int terminal);
     QList<TransactionInfo> getDayTransactions();
     AmountAndProfitInfo    getDaySalesAndProfit(int terminal);
@@ -135,6 +144,7 @@ class Azahar : public QObject
     bool        deleteEmptyTransactions();
     QList<TransactionInfo> getLastTransactions(int pageNumber=1,int numItems=20,QDate beforeDate=QDate::currentDate ());
     QList<TransactionInfo> getTransactionsPerDay(int pageNumber=1,int numItems=20,QDate beforeDate=QDate::currentDate ());
+    qulonglong  getEmptyTransactionId();
     
     // TRANSACTIONITEMS
     bool        insertTransactionItem(TransactionItemInfo info);
@@ -144,11 +154,13 @@ class Azahar : public QObject
     
     //BALANCES
     qulonglong  insertBalance(BalanceInfo info);
+    bool        updateBalance(BalanceInfo info);
     BalanceInfo getBalanceInfo(qulonglong id);
 
     //CASHOUTS
     qulonglong insertCashFlow(CashFlowInfo info);
     QList<CashFlowInfo> getCashFlowInfoList(const QList<qulonglong> &idList);
+    QList<CashFlowInfo> getCashFlowInfoList(const QDateTime &start, const QDateTime &end);
 
     //PayTypes
     QString     getPayTypeStr(qulonglong type);
@@ -197,7 +209,31 @@ class Azahar : public QObject
     void        setConfigSmallPrint(bool yes);
     void        setConfigUseCUPS(bool yes);
     void        setConfigLogoOnTop(bool yes);
-    
+
+    //Special Orders
+    void                    specialOrderSetStatus(qulonglong id, int status);
+    void                    soTicketSetStatus(qulonglong ticketId, int status);
+    qulonglong              insertSpecialOrder(SpecialOrderInfo info);
+    bool                    updateSpecialOrder(SpecialOrderInfo info);
+    bool                    deleteSpecialOrder(qulonglong id);
+    SpecialOrderInfo        getSpecialOrderInfo(qulonglong id);
+    QList<ProductInfo>      getSpecialOrderProductsList(qulonglong id);
+    QString                 getSpecialOrderProductsStr(qulonglong id);
+    QList<SpecialOrderInfo> getAllSOforSale(qulonglong saleId);
+    QList<SpecialOrderInfo> getAllReadySOforSale(qulonglong saleId);
+    int                     getReadySOCountforSale(qulonglong saleId);
+    QString                 getSONotes(qulonglong id);
+    QStringList             getStatusList();
+    QStringList             getStatusListExceptDelivered();
+    int                     getStatusId(QString texto);
+    double                  getSpecialOrderAverageTax(qulonglong id);
+
+    //Random Msgs
+    QString   getRandomMessage(QList<qulonglong> &excluded, const int &season);
+              //NOTE:We will modify excluded list.. SO do not make const the List.
+    void      randomMsgIncrementCount(qulonglong id);
+    bool      insertRandomMessage(const QString &msg, const int &season);
+
 };
 
 #endif
