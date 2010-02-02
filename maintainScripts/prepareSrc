@@ -1,12 +1,21 @@
 
 # delete backup files (.*)
 echo "Deleting backup files..."
-find trunk/ -depth -type f -name .\* -exec rm {} \;
+find lemonpos/ -depth -type f -name .\* -exec rm {} \;
+find lemonpos/ -depth -type f -name \*.\*~ -exec rm {} \;
+find lemonpos/ -depth -type f -name \*~ -exec rm {} \;
+find lemonpos/ -depth -type f -name  CMakeLists.txt.user -exec rm {} \;
+find lemonpos/ -depth -type f -name .directory -exec rm {} \;
 
 echo "Deleting .svn directories"
-find trunk/ -depth -type d -name .svn -exec rm -rf {} \;
+find lemonpos/ -depth -type d -name .svn -exec rm -rf {} \;
 
-#change owner
-#sudo chown -R mich:users squeezeNEW/
+echo deleting BUILD folder...
+#rm -rf lemonpos/build/
+rm lemonpos/notas.txt
+
+echo "MAKING A TAR BALL"
+tar -jcf real-last.tar.bz2 lemonpos/
 
 echo "Done, you can sync now..."
+

@@ -1,5 +1,5 @@
 /**************************************************************************
-*   Copyright © 2009-2010 by Miguel Chavez Gamboa                         *
+*   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
 *   miguel@lemonpos.org                                                   *
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
@@ -42,6 +42,8 @@ class PrintCUPS {
 
     static bool printSmallLowStockReport(const PrintLowStockInfo &plInfo, QPrinter &printer);
     static bool printBigLowStockReport(const PrintLowStockInfo &plInfo, QPrinter &printer);
+
+    static bool printSmallSOTicket(const PrintTicketInfo &ptInfo, QPrinter &printer);
 };
 
 #endif
