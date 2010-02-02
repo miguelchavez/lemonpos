@@ -1,5 +1,5 @@
 <!DOCTYPE kpartgui SYSTEM "kpartgui.dtd">
-<kpartgui name="squeeze" version="1">
+<kpartgui name="squeeze" version="10">
 <ToolBar name="aGeneral">
   <text>General ToolBar</text>
   <Action name="quickViewPlots" />
@@ -9,6 +9,8 @@
   <Action name="measuresBrowse" />
   <Action name="categoriesBrowse" />
   <Action name="clientsBrowse" />
+  <Action name="randomMsgsBrowse" />
+  <Action name="viewLog" />
 </ToolBar>
 
 <ToolBar name="bStockMovement">
@@ -26,11 +28,34 @@
 <ToolBar name="dOther">
  <text>Other Actions</text>
  <Action name="login" />
- <Action name="quit" />
- <Action name="configure squeeze" />
+ <Action name="file_quit" />
+ <Action name="options_configure" />
 </ToolBar>
 
 <!-- MENU -->
-
+<MenuBar>
+    <Menu noMerge="1" name="Data"><text>&amp;Data</text>
+      <Action name="productsBrowse" />
+      <Action name="offersBrowse" />
+      <Action name="usersBrowse" />
+      <Action name="measuresBrowse" />
+      <Action name="categoriesBrowse" />
+      <Action name="clientsBrowse" />
+      <Action name="randomMsgsBrowse" />
+      <Action name="viewLog" />
+    </Menu>
+    <Menu name="Reports"><text>&amp;Reports</text>
+      <Action name="cashFlowBrowse" />
+      <Action name="transactionsBrowse" />
+      <Action name="showSpecialOrders" />
+      <Action name="balancesBrowse" />
+      <Separator/>
+      <Action name="printEndOfDay" />
+      <Action name="printEndOfDayGral" />
+      <Action name="printEndOfMonth" />
+      <Action name="printLowStock" />
+      <Action name="printSoldOut" />
+    </Menu>
+</MenuBar>
 
 </kpartgui>
