@@ -660,32 +660,6 @@ void ProductEditor::showBtns()
   enableButtonCancel(true);
 }
 
-void ProductEditor::modifyStock()
-{
-  if (isGroup()) {
-    //simply dont allow or show a message?
-    return;
-  }
-  double newStockQty=0;
-  oldStockQty = ui->editStockQty->text().toDouble();
-  bool ok = false;
-  InputDialog *dlg = new InputDialog(this, true, dialogStockCorrection, i18n("Enter the quantity and reason for the change, then press <ENTER> to accept, <ESC> to cancel"));
-  dlg->setProductCode(ui->editCode->text().toULongLong());
-  dlg->setAmount(ui->editStockQty->text().toDouble());
-  dlg->setProductCodeReadOnly();
-  if (dlg->exec())
-  {
-    newStockQty = dlg->dValue;
-    reason = dlg->reason;
-    ok = true;
-  }
-  if (ok) { //send data to database...
-    ui->editStockQty->setText( QString::number(newStockQty) ); //update this info on producteditor
-    correctingStockOk = ok;
-    m_pInfo.stockqty = newStockQty;
-  }
-}
-
 void ProductEditor::checkIfCodeExists()
 {
   qDebug()<<"Checking if code exists:"<<ui->editCode->text();

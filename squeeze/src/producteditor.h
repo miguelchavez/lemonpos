@@ -111,7 +111,6 @@ private slots:
     void    applyFilter(const QString &text);
     void    addItem();
     void    removeItem();
-    void    modifyStock();
     void    itemDoubleClicked(QTableWidgetItem* item);
   protected slots:
     virtual void slotButtonClicked(int button);

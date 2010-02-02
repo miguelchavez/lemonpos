@@ -1767,7 +1767,7 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     productEditorDlg->disableCode(); //On Edit product, code cannot be changed.
     productEditorDlg->setStockQtyReadOnly(true); //on edit, cannot change qty to force use stockCorrection
     productEditorDlg->setDb(db);
-    productEditorDlg->setCode(id); //this method get all data for such product code.
+    productEditorDlg->setCode(id); //this method gets all data for such product code.
     qulonglong newcode=0;
 
     connect ( productEditorDlg, SIGNAL(updateCategoriesModel()), this, SLOT(updateCategoriesModel()) );
@@ -1788,6 +1788,7 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
       }
       if (productEditorDlg->isCorrectingStock()) {
         correctStock(pInfo.code, productEditorDlg->getOldStock(), pInfo.stockqty, productEditorDlg->getReason());
+        log(loggedUserId,QDate::currentDate(), QTime::currentTime(), i18n("Stock Correction: [%1] from %2 to %3. Reason:%4",pInfo.code,productEditorDlg->getOldStock(),pInfo.stockqty, productEditorDlg->getReason()));
       }
       //FIXME: We must see error types, which ones are for duplicate KEYS (codes) to advertise the user.
       productsModel->select();
