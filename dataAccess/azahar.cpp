@@ -379,6 +379,11 @@ bool Azahar::insertProduct(ProductInfo info)
   if (!db.isOpen()) db.open();
   QSqlQuery query(db);
 
+  int g=0; int r=0;
+  g = info.isAGroup;
+  r = info.isARawProduct;
+  qDebug()<<"BEFORE FIX  |  isAGroup:"<<g<<" isARaw:"<<r<<" gElements:"<<info.groupElementsStr;
+
   //some buggy info can cause troubles.
   bool groupValueOK = false;
   bool rawValueOK = false;
@@ -386,8 +391,10 @@ bool Azahar::insertProduct(ProductInfo info)
   if (info.isARawProduct == 0 || info.isARawProduct == 1) rawValueOK=true;
   if (!groupValueOK) info.isAGroup = 0;
   if (!rawValueOK) info.isARawProduct = 0;
+
+  qDebug()<<"AFTER FIX  |  isAGroup:"<<info.isAGroup<<" isARaw:"<<info.isARawProduct<<" gElements:"<<info.groupElementsStr;
   
-  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, brandid, taxmodel, photo, category, points, alphacode, lastproviderid, isARawProduct,isAGroup, groupElements ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastsold, :units, :brand, :taxmodel, :photo, :category, :points, :alphacode, :lastproviderid, :isARaw, :isAGroup, :groupE);");
+  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, brandid, taxmodel, photo, category, points, alphacode, lastproviderid, isARawProduct, isAGroup, groupElements ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastsold, :units, :brand, :taxmodel, :photo, :category, :points, :alphacode, :lastproviderid, :isARaw, :isAGroup, :groupE);");
   query.bindValue(":code", info.code);
   query.bindValue(":name", info.desc);
   query.bindValue(":price", info.price);

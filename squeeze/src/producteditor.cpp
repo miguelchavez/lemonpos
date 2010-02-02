@@ -154,7 +154,7 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct, const QSqlDataba
       disableStockCorrection();
     } else ui->labelStockQty->setText(i18n("Stock Qty:"));
 
-    QTimer::singleShot(750, this, SLOT(checkIfCodeExists()));
+    //QTimer::singleShot(750, this, SLOT(checkIfCodeExists()));
 
     ui->editStockQty->setText("0.0");
     ui->editPoints->setText("0.0");
@@ -163,6 +163,8 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct, const QSqlDataba
     m_pInfo.taxmodelid = 0;
     m_pInfo.brandid = 0;
     m_pInfo.lastProviderId = 0;
+    m_pInfo.isAGroup = false;
+    m_pInfo.isARawProduct = false;
 }
 
 ProductEditor::~ProductEditor()
@@ -244,6 +246,8 @@ void ProductEditor::setCode(qulonglong c)
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   m_pInfo = myDb->getProductInfo(QString::number(c));
+  //update form with product data
+  checkIfCodeExists();
 }
 
 void ProductEditor::setCategory(QString str)
@@ -335,6 +339,13 @@ void ProductEditor::setTaxModel(qulonglong id)
     qDebug()<<"TaxModel Str not found:"<<str;
   }
   updateTax(0);
+}
+
+void ProductEditor::updateGroupNRaw()
+{
+  m_pInfo.isAGroup = isGroup();
+  m_pInfo.isARawProduct = isRaw();
+  m_pInfo.groupElementsStr = getGroupElementsStr();
 }
 
 void ProductEditor::updateTax(int)
@@ -498,6 +509,7 @@ void ProductEditor::calculatePrice()
   ui->editFinalPrice->setText(QString::number(finalPrice,'f',2));
   ui->editFinalPrice->selectAll();
   ui->editFinalPrice->setFocus();
+  m_pInfo.price = finalPrice;
   }
 }
 
@@ -670,11 +682,13 @@ void ProductEditor::modifyStock()
   if (ok) { //send data to database...
     ui->editStockQty->setText( QString::number(newStockQty) ); //update this info on producteditor
     correctingStockOk = ok;
+    m_pInfo.stockqty = newStockQty;
   }
 }
 
 void ProductEditor::checkIfCodeExists()
 {
+  qDebug()<<"Checking if code exists:"<<ui->editCode->text();
   enableButtonOk( false );
   QString codeStr = ui->editCode->text();
   if (codeStr.isEmpty()) {
@@ -700,6 +714,13 @@ void ProductEditor::checkIfCodeExists()
       setTax(pInfo.taxmodelid);
       setBrand(pInfo.brandid);
       setProvider(pInfo.lastProviderId);
+      setIsAGroup(pInfo.isAGroup);
+      setGroupElements(pInfo.groupElementsStr);
+      setIsARaw(pInfo.isARawProduct);
+      if (!pInfo.isAGroup && !pInfo.isARawProduct) {
+        ui->chIsAGroup->setEnabled(true);
+        ui->chIsARaw->setEnabled(true);
+      }
       if (!pInfo.photo.isEmpty()) {
         QPixmap photo;
         photo.loadFromData(pInfo.photo);
@@ -787,6 +808,8 @@ void ProductEditor::slotButtonClicked(int button)
   updatePoints(ui->editPoints->text());
   updatePrice(ui->editFinalPrice->text());
   updateStockQty(ui->editStockQty->text());
+  updateGroupNRaw();
+  
   
   if (button == KDialog::Ok) {
     if (status == statusNormal) QDialog::accept();
@@ -878,6 +901,9 @@ void ProductEditor::addItem()
   //update cost and price on the form
   ui->editCost->setText(QString::number(groupInfo.cost));
   ui->editFinalPrice->setText(QString::number(groupInfo.price));
+
+  //update m_pInfo
+  m_pInfo.groupElementsStr = getGroupElementsStr();
   
   //qDebug()<<"There are "<<groupInfo.count<<" items in group. The cost is:"<<groupInfo.cost<<", The price is:"<<groupInfo.price<<" And is available="<<groupInfo.isAvailable;
   
@@ -922,6 +948,9 @@ void ProductEditor::removeItem()
   ui->editCost->setText(QString::number(groupInfo.cost));
   ui->editFinalPrice->setText(QString::number(groupInfo.price));
   
+  //update m_pInfo
+  m_pInfo.groupElementsStr = getGroupElementsStr();
+  
   qDebug()<<"There are "<<groupInfo.count<<" items in group. The cost is:"<<groupInfo.cost<<", The price is:"<<groupInfo.price<<" And is available="<<groupInfo.isAvailable;
 }
 
@@ -956,6 +985,9 @@ void ProductEditor::itemDoubleClicked(QTableWidgetItem* item)
   //update cost and price on the form
   ui->editCost->setText(QString::number(groupInfo.cost));
   ui->editFinalPrice->setText(QString::number(groupInfo.price));
+
+  //update m_pInfo
+  m_pInfo.groupElementsStr = getGroupElementsStr();
   
   //qDebug()<<"There are "<<groupInfo.count<<" items in group. The cost is:"<<groupInfo.cost<<", The price is:"<<groupInfo.price<<" And is available="<<groupInfo.isAvailable;
   delete myDb;
@@ -1010,6 +1042,9 @@ void ProductEditor::toggleGroup(bool checked)
     ui->btnShowGroup->setDisabled(true);
     ui->chIsARaw->setEnabled(true);
   }
+  //update m_pInfo
+  m_pInfo.isAGroup      = ui->chIsAGroup->isChecked();
+  m_pInfo.isARawProduct = ui->chIsARaw->isChecked();
 }
 
 void ProductEditor::toggleRaw(bool checked)
@@ -1021,18 +1056,29 @@ void ProductEditor::toggleRaw(bool checked)
   } else {
     ui->chIsAGroup->setEnabled(true);
   }
+  //update m_pInfo
+  m_pInfo.isAGroup      = ui->chIsAGroup->isChecked();
+  m_pInfo.isARawProduct = ui->chIsARaw->isChecked();
 }
 
 void ProductEditor::setIsAGroup(bool value)
 {
   ui->chIsAGroup->setChecked(value);
+  ui->chIsAGroup->setEnabled(value);
   ui->btnShowGroup->setEnabled(value);
   ui->btnStockCorrect->setDisabled(value); //dont allow grouped products to make stock correction
+  ui->chIsARaw->setEnabled(!value);
+  //update m_pInfo
+  m_pInfo.isAGroup = value;
 }
 
 void ProductEditor::setIsARaw(bool value)
 {
   ui->chIsARaw->setChecked(value);
+  ui->chIsARaw->setEnabled(value);
+  ui->btnShowGroup->setEnabled(!value);
+  //update m_pInfo
+  m_pInfo.isARawProduct = value;
 }
 
 void ProductEditor::setGroupElements(QString e)
@@ -1067,6 +1113,8 @@ void ProductEditor::setGroupElements(QString e)
   }
   ui->groupView->resizeRowsToContents();
   ui->groupView->resizeColumnsToContents();
+  //update m_pInfo
+  m_pInfo.groupElementsStr = e;
   delete myDb;
 }
 
@@ -1100,4 +1148,5 @@ void ProductEditor::populateTaxModelsCombo()
   ui->taxModelCombo->clear();
   ui->taxModelCombo->addItems(myDb->getTaxModelsList());
 }
+
 #include "producteditor.moc"

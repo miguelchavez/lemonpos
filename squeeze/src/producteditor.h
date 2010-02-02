@@ -99,6 +99,7 @@ private slots:
     void    updateStockQty(const QString &str);
     void    updateCategory(int);
     void    updateMeasure(int);
+    void    updateGroupNRaw();
     void    updateBtn(); //for floatpanel - ok button
     void    showPanelBrand();
     void    showPanelStock();

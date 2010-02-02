@@ -970,6 +970,8 @@ void squeezeView::setupProductsModel()
     productsModel->setRelation(productLastProviderIndex, QSqlRelation("providers", "id", "name"));
     productsModel->setRelation(productBrandIndex, QSqlRelation("brands", "brandid", "bname"));
     productsModel->setRelation(productTaxModelIndex, QSqlRelation("taxmodels", "modelid", "tname"));
+    productsModel->setRelation(productIsARawIndex, QSqlRelation("bool_values", "id", "text"));
+    productsModel->setRelation(productIsAGroupIndex, QSqlRelation("bool_values", "id", "text"));
 
     productsModel->setHeaderData(productCodeIndex, Qt::Horizontal, i18n("Code"));
     productsModel->setHeaderData(productDescIndex, Qt::Horizontal, i18n("Name"));
@@ -983,6 +985,8 @@ void squeezeView::setupProductsModel()
     productsModel->setHeaderData(productAlphaCodeIndex, Qt::Horizontal, i18n("Alpha Code") );
     productsModel->setHeaderData(productTaxModelIndex, Qt::Horizontal, i18n("Tax Model") );
     productsModel->setHeaderData(productBrandIndex, Qt::Horizontal, i18n("Brand") );
+    productsModel->setHeaderData(productIsAGroupIndex, Qt::Horizontal, i18n("Is Group") );
+    productsModel->setHeaderData(productIsARawIndex, Qt::Horizontal, i18n("Is Raw Product") );
     
     ProductDelegate *delegate = new ProductDelegate(ui_mainview.productsView);
     ui_mainview.productsView->setItemDelegate(delegate);
@@ -2067,6 +2071,7 @@ void squeezeView::createProduct()
     }
    delete myDb;
   }
+  delete prodEditorDlg;
  }
  setProductsFilter();
 }

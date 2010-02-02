@@ -158,3 +158,4 @@ void MibitTip::mousePressEvent ( QMouseEvent * )
     autoHide(); //we simply want to close the tip on any mouse click
     closedByUser = true;
 }
+
