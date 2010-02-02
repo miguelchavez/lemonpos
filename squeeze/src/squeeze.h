@@ -35,6 +35,7 @@ class KLed;
 class KToggleAction;
 class squeezeView;
 class QPrinter;
+class QTimer;
 
 
 /**
@@ -90,6 +91,7 @@ private slots:
     void salir();
     void loadStyle();
     void showDBConfigDialog();
+    void fixGeom();
 
 private:
     void setupActions();
@@ -101,6 +103,7 @@ private:
     Ui::pref_printers ui_pref_printers;
     
     KLed *led;
+    QTimer *timer;
 
     QPrinter   *m_printer;
 

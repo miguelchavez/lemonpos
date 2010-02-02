@@ -28,6 +28,8 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QPrinter>
+#include <QTimer>
+#include <QDesktopWidget>
 
 #include <kdeversion.h>
 #include <kglobal.h>
@@ -87,12 +89,31 @@ squeeze::squeeze()
     connect(m_view, SIGNAL(signalAdminLoggedOff()), this, SLOT(disableUI()));
     connect(m_view, SIGNAL(signalSupervisorLoggedOn()), this, SLOT(enableUI()));
 
+
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(fixGeom()));
+    timer->setInterval(5000);
+    timer->start();
+    
+
     loadStyle();
 }
 
 squeeze::~squeeze()
 {
     delete m_printer;
+}
+
+void squeeze::fixGeom()
+{
+  //qDebug()<<"Window Size:"<<geometry()<<"desktop size:"<<QApplication::desktop()->screenGeometry(this);
+  if (geometry().height() > (QApplication::desktop()->screenGeometry(this).height()-115)) {
+    QRect geom = geometry();
+    geom.setHeight(QApplication::desktop()->screenGeometry(this).height()-145);
+    geom.setWidth(QApplication::desktop()->screenGeometry(this).width()-5);
+    m_view->setMaximumSize(geom.width(),geom.height());
+    //setMaximumSize(geom.width()+5,geom.height()+10);
+  }
 }
 
 void squeeze::loadStyle()
@@ -159,8 +180,8 @@ void squeeze::enableUI()
     action->setEnabled(true);
     action = actionCollection()->action(KStandardAction::name(KStandardAction::Preferences));
     action->setEnabled(true);
-    action = actionCollection()->action("checkOut");
-    action->setEnabled(true);
+    //action = actionCollection()->action("checkOut");
+    //action->setEnabled(true);
     action = actionCollection()->action("reports");
     action->setEnabled(true);
     action = actionCollection()->action("quickViewPlots");
@@ -336,6 +357,25 @@ void squeeze::setupActions()
     action->setIcon(KIcon("lemon-reports"));
     action->setShortcut(Qt::Key_F10);
     connect(action, SIGNAL(triggered(bool)),m_view, SLOT(printSoldOutProducts()));
+
+    action = actionCollection()->addAction( "showSpecialOrders" );
+    action->setText(i18n("Show Special Orders"));
+    action->setIcon(KIcon("lemon-box")); //FIXME: Create an ICON
+    action->setShortcut(Qt::Key_Insert);
+    connect(action, SIGNAL(triggered(bool)),m_view, SLOT(showSpecialOrders()));
+
+    action = actionCollection()->addAction( "randomMsgsBrowse" );
+    action->setText(i18n("Ticket Messages"));
+    action->setIcon(KIcon("lemon-ticket"));
+    action->setShortcut(Qt::CTRL+Qt::Key_M);
+    connect(action, SIGNAL(triggered(bool)),m_view, SLOT(showRandomMsgs()));
+
+    action = actionCollection()->addAction( "viewLog" );
+    action->setText(i18n("View Events Log"));
+    action->setIcon(KIcon("view-pim-tasks-pending"));
+    action->setShortcut(Qt::CTRL+Qt::Key_G);
+    connect(action, SIGNAL(triggered(bool)),m_view, SLOT(showLogs()));
+
 }
 
 

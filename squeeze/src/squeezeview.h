@@ -28,7 +28,6 @@
 #include "../../src/loginwindow.h"
 
 class QPainter;
-class PieChart;
 class LoginWindow;
 class KPlotObject;
 class MibitFloatPanel;
@@ -55,6 +54,7 @@ public:
     bool isAdminUser() { return adminIsLogged; }
 
   private:
+    QTimer *rmTimer;
     Ui::squeezeview_base ui_mainview;
     QString activeDb;
     QSqlDatabase db;
@@ -64,29 +64,31 @@ public:
     QSqlRelationalTableModel *productsModel;
     QSqlRelationalTableModel *offersModel;
     QSqlRelationalTableModel *cashflowModel;
+    QSqlRelationalTableModel *specialOrdersModel;
     QSqlTableModel *usersModel;
     QSqlTableModel *measuresModel;
     QSqlTableModel *categoriesModel;
     QSqlTableModel *balancesModel;
     QSqlTableModel *clientsModel;
+    QSqlTableModel *randomMsgModel;
+    QSqlRelationalTableModel *logsModel;
     QSqlRelationalTableModel *transactionsModel;
     int productCodeIndex, productDescIndex, productPriceIndex, productStockIndex, productCostIndex,
-    productSoldUnitsIndex, productLastSoldIndex, productUnitsIndex, productBrandIndex,productTaxModelIndex,
-    productPhotoIndex, productCategoryIndex, productPointsIndex, productLastProviderIndex, productAlphaCodeIndex;
+    productSoldUnitsIndex, productLastSoldIndex, productUnitsIndex, productTaxIndex, productETaxIndex,
+    productPhotoIndex, productCategoryIndex, productPointsIndex, productLastProviderIndex, productAlphaCodeIndex, productIsAGroupIndex, productIsARawIndex, productGEIndex;
     int offerIdIndex, offerDiscountIndex, offerDateStartIndex, offerDateEndIndex,offerProdIdIndex;
     int userIdIndex, usernameIndex, nameIndex, passwordIndex, saltIndex, addressIndex, phoneIndex, cellIndex, roleIndex,
     photoIndex;
     int transIdIndex, transClientidIndex, transTypeIndex,transAmountIndex,transDateIndex,transTimeIndex,transPaidWithIndex,
     transChangeGivenIndex,transPayMethodIndex,transStateIndex,transUseridIndex,transCardNumIndex,transItemCountIndex,transPointsIndex,
-    transDiscMoneyIndex,transDiscIndex,transCardAuthNumberIndex,transUtilityIndex,transTerminalNumIndex,transItemsListIndex;
+    transDiscMoneyIndex,transDiscIndex,transCardAuthNumberIndex,transUtilityIndex,transTerminalNumIndex,transItemsListIndex,  transSOIndex, transProvIdIndex;
     QTimer *timerCheckDb, *timerUpdateGraphs;
     int balanceIdIndex, balanceDateEndIndex, balanceUserNameIndex, balanceInitAmountIndex, balanceInIndex, balanceOutIndex, balanceCashIndex, balanceCardIndex,balanceTransIndex, balanceTerminalNumIndex, balanceDateStartIndex, balanceUseridIndex;
     int cashflowIdIndex, cashflowDateIndex, cashflowTimeIndex, cashflowUseridIndex, cashflowReasonIndex, cashflowAmountIndex,    cashflowTerminalNumIndex, cashflowTypeIndex;
     int counter;
     bool modelsCreated,graphSoldItemsCreated;
-    PieChart *pieSoldItems, *pieAlmostSoldOutItems;
-    KPlotObject *objProfit, *objSales;
-    MibitFloatPanel *fpFilterTrans, *fpFilterProducts, *fpFilterBalances, *fpFilterOffers;
+    KPlotObject *objProfit, *objSales, *objMostSold, *objMostSoldB;
+    MibitFloatPanel *fpFilterTrans, *fpFilterProducts, *fpFilterBalances, *fpFilterOffers, *fpFilterSpecialOrders;
 
     QListWidgetItem *itmEndOfMonth;
     QListWidgetItem *itmGralEndOfDay;
@@ -94,8 +96,9 @@ public:
 
     QListWidgetItem *itmPrintSoldOutProducts;
     QListWidgetItem *itmPrintLowStockProducts;
-    QListWidgetItem *itmPrintBalance;
+    //QListWidgetItem *itmPrintBalance;
 
+    qulonglong loggedUserId;
 
 
 
@@ -111,7 +114,6 @@ signals:
     void signalAdminLoggedOff();
     void signalSalir();
     void signalShowDbConfig();
-
 
  private slots:
    /* Ui related slot */
@@ -129,6 +131,7 @@ signals:
    void showClientsPage();
    void showTransactionsPage();
    void showReports();
+   void showRandomMsgs();
    void usersViewOnSelected(const QModelIndex & index);
    void productsViewOnSelected(const QModelIndex &index);
    void clientsViewOnSelected(const QModelIndex &index);
@@ -150,7 +153,11 @@ signals:
    void showBalancesPage();
    void setupBalancesModel();
    void showCashFlowPage();
+   void showSpecialOrders();
    void setupCashFlowModel();
+   void setupSpecialOrdersModel();
+   void setSpecialOrdersFilter();
+   void setupRandomMsgModel();
 
    void reportActivated(QListWidgetItem *);
    void printGralEndOfDay();
@@ -158,7 +165,7 @@ signals:
    void printEndOfMonth();
    void printLowStockProducts();
    void printSoldOutProducts();
-   //void printSelectedBalance();
+   void printSelectedBalance();
 
     /* DB slots */
    void createUser();
@@ -167,6 +174,7 @@ signals:
    void createMeasure();
    void createCategory();
    void createClient();
+   void createRandomMsg();
    void deleteSelectedOffer();
    void deleteSelectedUser();
    void deleteSelectedProduct();
@@ -191,12 +199,18 @@ signals:
    void checkDBStatus();
    void connectToDb();
 
+
    //Biel - export products
    void exportTable();
    void exportQTableView(QAbstractItemView *tableview);
 
    //LOGS
    void log(const qulonglong &uid, const QDate &date, const QTime &time, const QString &text);
+   void showLogs();
+   void setupLogsModel();
+
+   void createFloatingPanels();
+   void reSelectModels();
 
    void updateCategoriesModel() { categoriesModel->select(); populateCategoriesHash(); }
    void updateMeasuresModel() { measuresModel->select(); }

@@ -42,9 +42,6 @@
 #include "../../printing/print-dev.h"
 #include "../../printing/print-cups.h"
 
-// Pie Chart by EresLibre
-#include "piechart.h"
-
 #include <QLabel>
 #include <QPixmap>
 #include <QByteArray>
@@ -75,26 +72,27 @@
 #include <kplotaxis.h>
 #include <kplotpoint.h>
 
-#include <kpassivepopup.h>
 #include <KNotification>
 
 //TODO: Change all qDebug to errorDialogs or remove them.
 //NOTE: Common configuration fields need to be shared between lemon and squeeze (low stock alarm value).
 
-enum {pWelcome=0, pBrowseProduct=1, pBrowseOffers=2, pBrowseUsers=3, pBrowseMeasures=4, pBrowseCategories=5, pBrowseClients=6, pBrowseTransactions=7, pBrowseBalances=8, pBrowseCashFlow=9, pReports=10};
+enum {pWelcome=0, pBrowseProduct=1, pBrowseOffers=2, pBrowseUsers=3, pBrowseMeasures=4, pBrowseCategories=5, pBrowseClients=6, pBrowseRandomMessages=7, pBrowseLogs=8, pBrowseSO=9, pReports=10};
 
 
 squeezeView::squeezeView(QWidget *parent)
     : QWidget(parent)//,
       //m_toolBar(0)
 {
+  qDebug()<<"===STARTING SQUEEZE AT "<<QDateTime::currentDateTime().toString()<<" ===";
   adminIsLogged = false;
   ui_mainview.setupUi(this);
   setAutoFillBackground(true);
 
+  // The db = QSqlDatabase called multiple times is causing a crash on certain installations (Not on kubuntu 8.10).
   QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
   db = QSqlDatabase::addDatabase("QMYSQL");
-  
+
   ///Login dialog
   dlgPassword = new LoginWindow(this,
                                  i18n("Authorisation Required"),
@@ -121,6 +119,9 @@ squeezeView::squeezeView(QWidget *parent)
   QTimer::singleShot(20000, timerUpdateGraphs, SLOT(start()));
   QTimer::singleShot(2010, this, SLOT(showWelcomeGraphs()));
   QTimer::singleShot(2000, this, SLOT(login()));
+  rmTimer = new QTimer(this);
+  connect(rmTimer, SIGNAL(timeout()), SLOT(reSelectModels()) );
+  rmTimer->start(5000);
 
   ui_mainview.stackedWidget->setCurrentIndex(pWelcome);
   ui_mainview.errLabel->hide();
@@ -139,6 +140,7 @@ squeezeView::squeezeView(QWidget *parent)
   ui_mainview.btnBalances->setIcon(DesktopIcon("lemonbalance", 32));
   ui_mainview.btnCashFlow->setIcon(DesktopIcon("lemon-cashout", 32));
   ui_mainview.btnTransactions->setIcon(DesktopIcon("wallet-open", 32));
+  ui_mainview.btnSO->setIcon(DesktopIcon("lemon-box", 32));
 
   if (Settings::isProductsGridDefault()) {
     ui_mainview.productsView->show();
@@ -152,17 +154,24 @@ squeezeView::squeezeView(QWidget *parent)
     ui_mainview.chViewProductsListAsTable->setChecked(true);
   }
 
-  //Floating panels
+  QTimer::singleShot(500,this, SLOT(createFloatingPanels()) );
+}
+
+
+void squeezeView::createFloatingPanels()
+{
   QString path = KStandardDirs::locate("appdata", "styles/");
-  path = path+"tip.svg";
-  fpFilterTrans    = new MibitFloatPanel(ui_mainview.transactionsTable, path, Top,800,240);
+  path = path+"floating_top.svg";
+  fpFilterTrans    = new MibitFloatPanel(ui_mainview.transactionsTable, path, Top,700,300);
   fpFilterProducts = new MibitFloatPanel(ui_mainview.productsView, path, Top,700,200);
   fpFilterOffers   = new MibitFloatPanel(ui_mainview.tableBrowseOffers, path, Top,500,200);
-  fpFilterBalances = new MibitFloatPanel(ui_mainview.balancesTable, path, Top,800,200);
+  fpFilterBalances = new MibitFloatPanel(ui_mainview.balancesTable, path, Top,700,240);
+  fpFilterSpecialOrders = new MibitFloatPanel(ui_mainview.tableSO, path, Top,700,240);
   fpFilterTrans->addWidget(ui_mainview.groupFilterTransactions);
   fpFilterProducts->addWidget(ui_mainview.groupFilterProducts);
   fpFilterBalances->addWidget(ui_mainview.groupFilterBalances);
   fpFilterOffers->addWidget(ui_mainview.groupFilterOffers);
+  fpFilterSpecialOrders->addWidget(ui_mainview.groupSOFilter);
 }
 
 void squeezeView::cleanErrorLabel()
@@ -174,6 +183,8 @@ void squeezeView::cleanErrorLabel()
 void squeezeView::login(){
   qDebug()<<"Login()";
   adminIsLogged = false;
+  loggedUserId = 0;
+  disableUI();
   emit signalAdminLoggedOff();
   dlgPassword->clearLines();
   if (!db.isOpen()) {
@@ -198,12 +209,14 @@ void squeezeView::login(){
         doit = dlgPassword->exec();
       } else { //this is a low security mode!
         adminIsLogged = true;
+        loggedUserId  = 1; //default admin.
         emit signalAdminLoggedOn();
         enableUI();
       }
     
     if ( doit ) {
       int role = dlgPassword->getUserRole();
+      loggedUserId = dlgPassword->getUserId();
       if ( role == roleAdmin) {
         adminIsLogged = true;
         emit signalAdminLoggedOn();
@@ -223,6 +236,7 @@ void squeezeView::login(){
       //restrict only if NOT low sec mode
       if (!Settings::lowSecurityMode()) {
         emit signalAdminLoggedOff();
+        loggedUserId = 0;
         disableUI();
         qDebug()<<"login cancelled...";
       }
@@ -258,6 +272,8 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.btnDeleteClient, SIGNAL(clicked()), SLOT(deleteSelectedClient()));
   //connect(ui_mainview.btnConfigure, SIGNAL(clicked()),  SLOT( showPrefs()));
 
+  connect(ui_mainview.btnAddRandomMsg, SIGNAL(clicked()), SLOT(createRandomMsg()));
+
   connect(timerCheckDb, SIGNAL(timeout()), this, SLOT(checkDBStatus()));
   connect(timerUpdateGraphs, SIGNAL(timeout()), this, SLOT(updateGraphs()));
   connect(ui_mainview.offersDateEditor, SIGNAL(changed(const QDate &)), this, SLOT(setOffersFilter()));
@@ -278,9 +294,9 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.rbTransFilterByDate, SIGNAL(toggled(bool)), this, SLOT( setTransactionsFilter()) );
   connect(ui_mainview.transactionsDateEditor, SIGNAL( changed(const QDate &) ), SLOT(setTransactionsFilter()));
   connect(ui_mainview.rbTransFilterByUser, SIGNAL(toggled(bool)), this, SLOT( setTransactionsFilter()) );
-  connect(ui_mainview.editTransUsersFilter,SIGNAL(returnPressed()), this, SLOT( setTransactionsFilter()) );
+  connect(ui_mainview.editTransUsersFilter,SIGNAL(textEdited( const QString &)), this, SLOT( setTransactionsFilter()) );
   connect(ui_mainview.rbTransFilterByClient, SIGNAL(toggled(bool)), this, SLOT( setTransactionsFilter()) );
-  connect(ui_mainview.editTransClientsFilter,SIGNAL(returnPressed()), this, SLOT( setTransactionsFilter()) );
+  connect(ui_mainview.editTransClientsFilter,SIGNAL(textEdited( const QString &)), this, SLOT( setTransactionsFilter()) );
   connect(ui_mainview.rbTransFilterByAmountLess, SIGNAL(toggled(bool)), this, SLOT( setTransactionsFilter()) );
   connect(ui_mainview.rbTransFilterByAmountGreater, SIGNAL(toggled(bool)), this, SLOT( setTransactionsFilter()) );
   connect(ui_mainview.editTransAmountLess ,SIGNAL(valueChanged ( double ) ), this, SLOT( setTransactionsFilter()) );
@@ -301,13 +317,14 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.rbBalancesFilterByCashInGrater, SIGNAL(toggled(bool)), this, SLOT( setBalancesFilter()) );
   connect(ui_mainview.editBalancesFilterByDate, SIGNAL( changed(const QDate &) ), SLOT(setBalancesFilter()));
   connect(ui_mainview.rbBalancesFilgerByTerminalNum, SIGNAL(toggled(bool)), this, SLOT( setBalancesFilter()) );
-  connect(ui_mainview.editBalancesFilterByVendor,SIGNAL(returnPressed()), this, SLOT( setBalancesFilter()) );
+  connect(ui_mainview.editBalancesFilterByVendor,SIGNAL(textEdited( const QString &)), this, SLOT( setBalancesFilter()) );
   connect(ui_mainview.editBalancesFilterByCasInLess ,SIGNAL(valueChanged ( double ) ), this, SLOT( setBalancesFilter()) );
   connect(ui_mainview.editBalancesFilterByCashInGrater,SIGNAL(valueChanged ( double ) ), this, SLOT( setBalancesFilter()) );
   connect(ui_mainview.editBalancesFilterByTermNum,SIGNAL(valueChanged ( int ) ), this, SLOT( setBalancesFilter()) );
 
+  connect(ui_mainview.btnPrintBalance, SIGNAL(clicked()) ,SLOT(printSelectedBalance()) );
+
   connect(ui_mainview.comboProductsFilterByCategory,SIGNAL(currentIndexChanged(int)), this, SLOT( setProductsFilter()) );
-  //connect(ui_mainview.editProductsFilterByDesc,SIGNAL(returnPressed()), this, SLOT( setProductsFilter()) );
   connect(ui_mainview.editProductsFilterByDesc,SIGNAL(textEdited(const QString &)), this, SLOT( setProductsFilter()) );
   connect(ui_mainview.rbProductsFilterByDesc, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
   connect(ui_mainview.rbProductsFilterByCategory, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
@@ -315,6 +332,9 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.rbProductsFilterByNotAvailable, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
   connect(ui_mainview.rbProductsFilterByMostSold, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
   connect(ui_mainview.rbProductsFilterByLessSold, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
+  connect(ui_mainview.rbProductsFilterByAlmostSoldOut, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
+  connect(ui_mainview.rbProductsFilterByRaw, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
+  connect(ui_mainview.rbProductsFilterByGroup, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
   connect(ui_mainview.groupFilterProducts, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
   
   // BFB: New, export qtableview
@@ -332,9 +352,20 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.btnBalances, SIGNAL(clicked()),  SLOT(showBalancesPage()));
   connect(ui_mainview.btnTransactions, SIGNAL(clicked()),  SLOT(showTransactionsPage()));
   connect(ui_mainview.btnCashFlow, SIGNAL(clicked()),  SLOT(showCashFlowPage()));
+  connect(ui_mainview.btnSO, SIGNAL(clicked()),  SLOT(showSpecialOrders()));
 
   connect(ui_mainview.reportsList, SIGNAL(itemActivated(QListWidgetItem *)), SLOT(reportActivated(QListWidgetItem *)));
 
+  //connect actions for special orders filters
+  connect(ui_mainview.groupSOFilter, SIGNAL(toggled(bool)), this, SLOT( setSpecialOrdersFilter()) );
+  connect(ui_mainview.rbSOByDate, SIGNAL(toggled(bool)), this, SLOT( setSpecialOrdersFilter()) );
+  connect(ui_mainview.rbSOByThisWeek, SIGNAL(toggled(bool)), this, SLOT( setSpecialOrdersFilter()) );
+  connect(ui_mainview.rbSOByThisMonth, SIGNAL(toggled(bool)), this, SLOT( setSpecialOrdersFilter()) );
+  connect(ui_mainview.rbSOByStatusPending, SIGNAL(toggled(bool)), this, SLOT( setSpecialOrdersFilter()) );
+  connect(ui_mainview.rbSOByStatusReady, SIGNAL(toggled(bool)), this, SLOT( setSpecialOrdersFilter()) );
+  connect(ui_mainview.rbSOByStatusDelivered, SIGNAL( toggled(bool) ), SLOT(setSpecialOrdersFilter()));
+  connect(ui_mainview.rbSOByStatusCancelled, SIGNAL(toggled(bool)), this, SLOT( setSpecialOrdersFilter()) );
+  connect(ui_mainview.datePicker,SIGNAL(changed(const QDate &)), this, SLOT( setSpecialOrdersFilter()) );
 }
 
 void squeezeView::doEmitSignalSalir()
@@ -358,6 +389,7 @@ void squeezeView::showWelcomeGraphs()
   ui_mainview.stackedWidget->setCurrentIndex(pWelcome);
   ui_mainview.headerLabel->setText(i18n("Quick Information"));
   ui_mainview.headerImg->setPixmap((DesktopIcon("view-statistics",48)));
+  ui_mainview.btnPrintBalance->hide();
 }
 
 
@@ -372,6 +404,8 @@ void squeezeView::showProductsPage()
   if (productsModel->tableName().isEmpty()) setupProductsModel();
   ui_mainview.headerLabel->setText(i18n("Products"));
   ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-box",48)));
+  ui_mainview.btnPrintBalance->hide();
+  QTimer::singleShot(200,fpFilterProducts, SLOT(fixPos()));
 }
 
 void squeezeView::showOffersPage()
@@ -382,6 +416,8 @@ void squeezeView::showOffersPage()
   ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-offers",48)));
   ui_mainview.offersDateEditor->setDate(QDate::currentDate());
   QTimer::singleShot(500,this, SLOT(adjustOffersTable()));
+  ui_mainview.btnPrintBalance->hide();
+  QTimer::singleShot(200,fpFilterOffers, SLOT(fixPos()));
 
   //FIXME & NOTE: Offers that does not have existing products are ignored (hidden) on the view, but still exists on Database.
   //              This happens when an offer exists for a product, but the product code is changed or deleted later.
@@ -393,6 +429,7 @@ void squeezeView::showUsersPage()
   if (usersModel->tableName().isEmpty()) setupUsersModel();
   ui_mainview.headerLabel->setText(i18n("Vendors"));
   ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-user",48)));
+  ui_mainview.btnPrintBalance->hide();
 }
 
 void squeezeView::showMeasuresPage()
@@ -401,6 +438,7 @@ void squeezeView::showMeasuresPage()
   if (measuresModel->tableName().isEmpty()) setupMeasuresModel();
   ui_mainview.headerLabel->setText(i18n("Weight and Measures"));
   ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-ruler",48)));
+  ui_mainview.btnPrintBalance->hide();
 }
 
 void squeezeView::showCategoriesPage()
@@ -409,6 +447,7 @@ void squeezeView::showCategoriesPage()
   if (categoriesModel->tableName().isEmpty()) setupCategoriesModel();
   ui_mainview.headerLabel->setText(i18n("Categories"));
   ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-categories",48)));
+  ui_mainview.btnPrintBalance->hide();
 }
 
 void squeezeView::showClientsPage()
@@ -417,6 +456,7 @@ void squeezeView::showClientsPage()
   if (clientsModel->tableName().isEmpty()) setupClientsModel();
   ui_mainview.headerLabel->setText(i18n("Clients"));
   ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-user",48)));
+  ui_mainview.btnPrintBalance->hide();
 }
 
 void squeezeView::showTransactionsPage()
@@ -427,6 +467,8 @@ void squeezeView::showTransactionsPage()
   ui_mainview.headerLabel->setText(i18n("Transactions"));
   ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-reports",48)));
   ui_mainview.transactionsDateEditor->setDate(QDate::currentDate());
+  ui_mainview.btnPrintBalance->hide();
+  QTimer::singleShot(200,fpFilterTrans, SLOT(fixPos()));
 }
 
 void squeezeView::showBalancesPage()
@@ -436,6 +478,19 @@ void squeezeView::showBalancesPage()
   if (balancesModel->tableName().isEmpty()) setupBalancesModel();
   ui_mainview.headerLabel->setText(i18n("Balances"));
   ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-balance",48)));
+  ui_mainview.btnPrintBalance->show();
+  QTimer::singleShot(200,fpFilterBalances, SLOT(fixPos()));
+}
+
+void squeezeView::showSpecialOrders()
+{
+  ui_mainview.stackedWidget->setCurrentIndex(pReports);
+  ui_mainview.stackedWidget2->setCurrentIndex(3);
+  if (specialOrdersModel->tableName().isEmpty()) setupSpecialOrdersModel();
+  ui_mainview.headerLabel->setText(i18n("Special Orders"));
+  ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-box",48))); //FIXME: Create an icon
+  QTimer::singleShot(200,fpFilterSpecialOrders, SLOT(fixPos()));
+  ui_mainview.datePicker->setDate(QDate::currentDate());
 }
 
 
@@ -447,6 +502,7 @@ void squeezeView::showCashFlowPage()
   ui_mainview.headerLabel->setText(i18n("Cash Flow"));
   ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-cashout",48)));
   ui_mainview.cashFlowTable->resizeColumnsToContents();
+  ui_mainview.btnPrintBalance->hide();
 }
 
 void squeezeView::showReports()
@@ -454,6 +510,19 @@ void squeezeView::showReports()
   ui_mainview.stackedWidget->setCurrentIndex(pReports);
   ui_mainview.headerLabel->setText(i18n("Reports"));
   ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-reports",48)));
+
+  if (ui_mainview.stackedWidget2->currentIndex() == 2)
+    ui_mainview.btnPrintBalance->show();
+  else
+    ui_mainview.btnPrintBalance->hide();
+}
+
+void squeezeView::showRandomMsgs()
+{
+  ui_mainview.stackedWidget->setCurrentIndex(pBrowseRandomMessages);
+  ui_mainview.headerLabel->setText(i18n("Ticket Messages"));
+  ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-ticket",48)));
+  if (randomMsgModel->tableName().isEmpty()) setupRandomMsgModel();
 }
 
 void squeezeView::toggleFilterBox(bool show)
@@ -496,7 +565,6 @@ void squeezeView::adjustProductsTable()
 
 void squeezeView::adjustOffersTable()
 {
-  qDebug()<<"adjusting table size...";
   QSize size = ui_mainview.tableBrowseOffers->size();
   int portion = size.width()/6;
   ui_mainview.tableBrowseOffers->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
@@ -512,7 +580,7 @@ void squeezeView::showProdListAsGrid()
  ui_mainview.productsViewAlt->hide();
  //reparent the filter panel
  fpFilterProducts->reParent(ui_mainview.productsView);
- QTimer::singleShot(200,fpFilterProducts, SLOT(show()));
+ QTimer::singleShot(200,fpFilterProducts, SLOT(fixPos()));
 }
 
 void squeezeView::showProdListAsTable()
@@ -523,7 +591,7 @@ void squeezeView::showProdListAsTable()
   QTimer::singleShot(200,this, SLOT(adjustProductsTable()));
   //reparent the filter panel
   fpFilterProducts->setParent(ui_mainview.productsViewAlt);
-  QTimer::singleShot(200,fpFilterProducts, SLOT(show()));
+  QTimer::singleShot(200,fpFilterProducts, SLOT(fixPos()));
 }
 
 squeezeView::~squeezeView()
@@ -532,38 +600,48 @@ squeezeView::~squeezeView()
 
 void squeezeView::setupGraphs()
 {
-  //Pie-chart
-  pieSoldItems    = ui_mainview.widgetGraphMostSoldItems;
-  pieAlmostSoldOutItems = ui_mainview.widgetGraphAlmostSoldOutItems;
-  
-  pieSoldItems->setKeysPosition(PieChart::Bottom);
-  pieSoldItems->setShowKeys(true);
-
-  pieAlmostSoldOutItems->setKeysPosition(PieChart::Bottom);
-  pieAlmostSoldOutItems->setShowKeys(true);
-
   //plots...
-
-  ///TODO: How to get lemon's settings?? We need shared settings, to get the currency string to display at: Month Sales (%1)
   QString mes = (QDate::longMonthName(QDate::currentDate().month())).toUpper();
   ui_mainview.plotSales->setMinimumSize( 200, 200 );
   ui_mainview.plotSales->setAntialiasing( true );
-  objSales = new KPlotObject( Qt::red, KPlotObject::Bars);
+  objSales = new KPlotObject( Qt::yellow, KPlotObject::Bars, KPlotObject::Star);
   ui_mainview.plotSales->addPlotObject( objSales );
   ui_mainview.plotSales->axis( KPlotWidget::BottomAxis )->setLabel( i18n("%1", mes) );
   ui_mainview.plotSales->axis( KPlotWidget::LeftAxis )->setLabel( i18n("Month Sales (%1)", KGlobal::locale()->currencySymbol()) );
   ui_mainview.plotProfit->setMinimumSize( 200, 200 );
   ui_mainview.plotProfit->setAntialiasing( true );
-  objProfit = new KPlotObject( Qt::red, KPlotObject::Bars);
+  objProfit = new KPlotObject( Qt::yellow, KPlotObject::Bars, KPlotObject::Star);
   ui_mainview.plotProfit->addPlotObject( objProfit );
   ui_mainview.plotProfit->axis( KPlotWidget::BottomAxis )->setLabel( i18n("%1", mes) );
   ui_mainview.plotProfit->axis( KPlotWidget::LeftAxis )->setLabel( i18n("Month Profit (%1)", KGlobal::locale()->currencySymbol()) );
+
+  ui_mainview.plotMostSold->setMinimumSize( 200, 200 );
+  ui_mainview.plotMostSold->setAntialiasing( true );
+  objMostSold  = new KPlotObject( Qt::white, KPlotObject::Bars, KPlotObject::Star);
+  objMostSoldB = new KPlotObject( Qt::green, KPlotObject::Bars, KPlotObject::Star);
+  ui_mainview.plotMostSold->addPlotObject( objMostSold  );
+  ui_mainview.plotMostSold->addPlotObject( objMostSoldB );
+  ui_mainview.plotMostSold->axis( KPlotWidget::BottomAxis )->setLabel( i18n("Products") );
+  ui_mainview.plotMostSold->axis( KPlotWidget::LeftAxis )->setLabel( i18n("Sold Units") );
+  objMostSold->setShowBars(true);
+  objMostSold->setShowPoints(true);
+  objMostSold->setShowLines(false);
+  objMostSoldB->setShowBars(true);
+  objMostSoldB->setShowPoints(true);
+  objMostSoldB->setShowLines(false);
+  ui_mainview.plotMostSold->setShowGrid(false);
+  objMostSold->setBarBrush( QBrush( Qt::blue, Qt::SolidPattern ) );
+  objMostSold->setBarPen(QPen(Qt::white));
+  objMostSold->setPointStyle(KPlotObject::Star);
+  objMostSoldB->setBarBrush( QBrush( Qt::darkYellow, Qt::SolidPattern ) );
+  objMostSoldB->setBarPen(QPen(Qt::white));
+  objMostSoldB->setPointStyle(KPlotObject::Star);
 
   objSales->setShowBars(true);
   objSales->setShowPoints(true);
   objSales->setShowLines(true);
   objSales->setLinePen( QPen( Qt::blue, 1.5, Qt::DashDotLine ) );
-  objSales->setBarBrush( QBrush( Qt::lightGray, Qt::BDiagPattern ) );
+  objSales->setBarBrush( QBrush( Qt::lightGray, Qt::Dense6Pattern ) );
   objSales->setBarPen(QPen(Qt::lightGray));
   objSales->setPointStyle(KPlotObject::Star);
 
@@ -571,7 +649,7 @@ void squeezeView::setupGraphs()
   objProfit->setShowPoints(true);
   objProfit->setShowLines(true);
   objProfit->setLinePen( QPen( Qt::blue, 1.5, Qt::DashDotLine ) );
-  objProfit->setBarBrush( QBrush( Qt::lightGray, Qt::BDiagPattern ) );
+  objProfit->setBarBrush( QBrush( Qt::lightGray, Qt::Dense7Pattern ) );
   objProfit->setBarPen(QPen(Qt::lightGray));
   objProfit->setPointStyle(KPlotObject::Star);
   
@@ -587,14 +665,13 @@ void squeezeView::updateGraphs()
   if (db.isOpen()) {
     if (!graphSoldItemsCreated ) setupGraphs();
     else {
-      Azahar *myDb = new Azahar;
+      Azahar *myDb = new Azahar(this);
       myDb->setDatabase(db);
       ///First we need to get data for the plots
       QList<TransactionInfo> monthTrans = myDb->getMonthTransactionsForPie();
       ProfitRange rangeP = myDb->getMonthProfitRange();
       ProfitRange rangeS = myDb->getMonthSalesRange();
       TransactionInfo info;
-
       ///plots
       //clear data
       objSales->clearPoints();
@@ -605,8 +682,8 @@ void squeezeView::updateGraphs()
       if (hoy==1) hoy=2;//si es el unico dia, exapndir a 2 para los limites
 
       //NOTE:Set the same scale for both plots?? to compare.. or his own range to each one. if profit>sales?
-      ui_mainview.plotSales->setLimits(1, hoy, rangeS.min, rangeS.max);
-      ui_mainview.plotProfit->setLimits(1, hoy, rangeP.min, rangeP.max);
+      ui_mainview.plotSales->setLimits(1, hoy, rangeS.min, rangeS.max+rangeS.max*.10);
+      ui_mainview.plotProfit->setLimits(1, hoy, rangeP.min, rangeP.max+rangeP.max*.10);
       //insert each day's sales and profit.
       int day=0; double AccSales=0.0; double AccProfit=0.0;
       for (int i = 0; i < monthTrans.size(); ++i) {
@@ -625,86 +702,67 @@ void squeezeView::updateGraphs()
       ui_mainview.plotSales->update();
       ui_mainview.plotProfit->update();
 
-//       foreach( KPlotObject *po, ui_mainview.plotSales->plotObjects() ) {
-//         foreach( KPlotPoint *p, po->points() ) {
-//           // Do stuff to each KPlotPoint
-//           qDebug()<<"x:"<<p->x()<<" y:"<<p->y();
-//         }
-//      }
-      
-
-      /// PieCharts
-      //FIRST MOST SOLD PRODUCTS
+      //MOST SOLD PRODUCTS
+      objMostSold->clearPoints();
+      objMostSoldB->clearPoints();
       QList<pieProdInfo> plist = myDb->getTop5SoldProducts();
-      
-      if (!plist.isEmpty()) {
-        double suma = 0;
-        pieProdInfo prod1, prod2, prod3, prod4, prod5;
-        if (!graphSoldItemsCreated) setupGraphs();
-        else {
-          pieSoldItems->deleteSlices();
-          for (int i = 0; i < plist.size(); ++i) {
-             //qDebug()<<"(1) Insertando "<<plist.at(i).name;
-            if (i==0) prod1 = plist.at(i);
-            else if (i==1) prod2 = plist.at(i);
-            else if (i==2) prod3 = plist.at(i);
-              else if (i==3) prod4 = plist.at(i);
-              else if (i==4) prod5 = plist.at(i);
-                else qDebug()<<"NO DEBO ENTRAR AQUI! i=="<<i;
-            suma = suma + plist.at(i).count;
-          }
+      double maxPoint = myDb->getTopFiveMaximum();
+      if (maxPoint < 4 ) maxPoint = maxPoint+1;
+      ui_mainview.plotMostSold->setLimits(0, 7, 0, maxPoint+maxPoint*.10);
 
-          //for (int i = 0; i < plist.size(); ++i) {
-          //  qDebug()<<"1|"<<plist.at(i).name<<" count:="<<plist.at(i).count<<" %:="<<plist.at(i).count/suma<<" Suma:="<<suma;
-          //}
-          
-          //INSERT the 5 products to the graph
-          
-          if (plist.count()>0) pieSoldItems->addSlice(QString("%1 [%2 %3]").arg( prod1.name.remove(20, prod1.name.size()) ).arg(prod1.count).arg(prod1.unitStr),(prod1.count/suma)*100, QColor(50, 255,255,255));
-          if (plist.count()>1) pieSoldItems->addSlice(QString("%1 [%2 %3]").arg( prod2.name.remove(20, prod2.name.size()) ).arg(prod2.count).arg(prod2.unitStr),(prod2.count/suma)*100, QColor(75, 125,255,255));
-          if (plist.count()>2) pieSoldItems->addSlice(QString("%1 [%2 %3]").arg( prod3.name.remove(20, prod3.name.size()) ).arg(prod3.count).arg(prod3.unitStr),(prod3.count/suma)*100, QColor(50, 0,255,255));
-          if (plist.count()>3) pieSoldItems->addSlice(QString("%1 [%2 %3]").arg( prod4.name.remove(20, prod4.name.size()) ).arg(prod4.count).arg(prod4.unitStr),(prod4.count/suma)*100, QColor(200, 25,25,255));
-          if (plist.count()>4) pieSoldItems->addSlice(QString("%1 [%2 %3]").arg(prod5.name.remove(20, prod5.name.size())).arg(prod5.count).arg(prod5.unitStr),(prod5.count/suma)*100, QColor(255, 120,120,255));
+       if (!plist.isEmpty()) {
+         if (!graphSoldItemsCreated) setupGraphs();
+         else {
+           int count = 0;
+           foreach(pieProdInfo ppInfo, plist) {
+             count++;
+             objMostSold->addPoint(count, ppInfo.count, ppInfo.name);
+             //if (count==2) objMostSoldB->addPoint(count, ppInfo.count, ppInfo.name);
+             //qDebug()<<"# "<<count<<"product Count:"<<ppInfo.count<<" Name:"<<ppInfo.name;
+           } //foreach
+           objMostSold->addPoint(6,0,""); // workaround!
+         }//else
+       }
 
-        }//else pupulate graphic slices
-      }
       //NOW ALMOST SOLD OUT PRODUCTS (top 5)
-      plist = myDb->getAlmostSoldOutProducts(Settings::mostSoldMinValue(),Settings::mostSoldMaxValue());
+      maxPoint = myDb->getAlmostSoldOutMaximum(Settings::mostSoldMaxValue());
+      plist    = myDb->getAlmostSoldOutProducts(Settings::mostSoldMinValue(),Settings::mostSoldMaxValue());
+
       if (!plist.isEmpty()) {
-        double suma = 0;
-        pieProdInfo prod1, prod2, prod3, prod4, prod5; //up to five slices.
         if (!graphSoldItemsCreated) setupGraphs();
         else {
-          pieAlmostSoldOutItems->deleteSlices();
-          int numProd = plist.size();
-          for (int i = 0; i < numProd; ++i) {
-            //qDebug()<<"(2) Insertando "<<plist.at(i).name;
-            if (i==0) prod1 = plist.at(i);
-            else if (i==1) prod2 = plist.at(i);
-            else if (i==2) prod3 = plist.at(i);
-            else if (i==3) prod4 = plist.at(i);
-            else if (i==4) prod5 = plist.at(i);
-            else qDebug()<<"NO DEBO ENTRAR AQUI! i=="<<i;
-            suma = suma + plist.at(i).count;
-          }
+          int count = 0;
+          foreach(pieProdInfo ppInfo, plist) {
+            count++;
+            switch (count) {
+             case 1:
+              ui_mainview.lblProd1->setText(ppInfo.name+QString(" [%1]").arg(ppInfo.code));
+               ui_mainview.counter1->setText(QString::number(ppInfo.count)+" "+ppInfo.unitStr);
+               break;
+             case 2:
+               ui_mainview.lblProd2->setText(ppInfo.name+QString(" [%1]").arg(ppInfo.code));
+               ui_mainview.counter2->setText(QString::number(ppInfo.count)+" "+ppInfo.unitStr);
+               break;
+             case 3:
+               ui_mainview.lblProd3->setText(ppInfo.name+QString(" [%1]").arg(ppInfo.code));
+               ui_mainview.counter3->setText(QString::number(ppInfo.count)+" "+ppInfo.unitStr);
+               break;
+             case 4:
+               ui_mainview.lblProd4->setText(ppInfo.name+QString(" [%1]").arg(ppInfo.code));
+               ui_mainview.counter4->setText(QString::number(ppInfo.count)+" "+ppInfo.unitStr);
+               break;
+             case 5:
+               ui_mainview.lblProd5->setText(ppInfo.name+QString(" [%1]").arg(ppInfo.code));
+               ui_mainview.counter5->setText(QString::number(ppInfo.count)+" "+ppInfo.unitStr);
+               break;
+             }
+          } //foreach
+        }//else
+      } //if not empty
 
-          //for (int i = 0; i < plist.size(); ++i) {
-          //  qDebug()<<"2|"<<plist.at(i).name<<" count:="<<plist.at(i).count<<" %:="<<plist.at(i).count/suma<<" Suma:="<<suma;
-          //}
-          
-          //INSERT the 5 products to the graph
-          if (numProd>0) pieAlmostSoldOutItems->addSlice(QString("%1 [%2 %3]").arg(  prod1.name.remove(20, prod1.name.size()) ).arg(prod1.count).arg(prod1.unitStr),(prod1.count/suma)*100, QColor(50, 255,255,255));
-          if (numProd>1) pieAlmostSoldOutItems->addSlice(QString("%1 [%2 %3]").arg(prod2.name.remove(20, prod2.name.size())).arg(prod2.count).arg(prod2.unitStr),(prod2.count/suma)*100, QColor(75, 125,255,255));
-          if (numProd>2) pieAlmostSoldOutItems->addSlice(QString("%1 [%2 %3]").arg(prod3.name.remove(20, prod3.name.size())).arg(prod3.count).arg(prod3.unitStr),(prod3.count/suma)*100, QColor(50, 0,255,255));
-          if (numProd>3) pieAlmostSoldOutItems->addSlice(QString("%1 [%2 %3]").arg(prod4.name.remove(20, prod4.name.size())).arg(prod4.count).arg(prod4.unitStr),(prod4.count/suma)*100, QColor(200, 25,25,255));
-          if (numProd>4) pieAlmostSoldOutItems->addSlice(QString("%1 [%2 %3]").arg(prod5.name.remove(20, prod5.name.size())).arg(prod5.count).arg(prod5.unitStr),(prod5.count/suma)*100, QColor(255, 120,120,255));
-
-          //         pieSoldItems->addSlice(pname, pcount.toInt(), QColor(color,255,255,255)); //pieChart uses integers...
-          //         color=color*2;
-        }//else pupulate graphic slices
-      }
+      delete myDb;
     }
-  }// if connected to db
+  } // if connected to db
 }
 
 
@@ -720,7 +778,7 @@ void squeezeView::setupDb()
   dlgPassword->setDb(db);
   if (db.isOpen()) {
     emit signalConnected();
-    if (adminIsLogged)  enableUI(); //enable until logged in...
+    enableUI(); //enable until logged in...
     productsModel   = new QSqlRelationalTableModel();
     offersModel     = new QSqlRelationalTableModel();
     usersModel      = new QSqlTableModel();
@@ -730,6 +788,9 @@ void squeezeView::setupDb()
     transactionsModel = new QSqlRelationalTableModel();
     balancesModel   = new QSqlTableModel();
     cashflowModel   = new QSqlRelationalTableModel();
+    specialOrdersModel   = new QSqlRelationalTableModel();
+    randomMsgModel  = new QSqlTableModel();
+    logsModel       = new QSqlRelationalTableModel();
     modelsCreated   = true;
     setupProductsModel();
     setupMeasuresModel();
@@ -740,12 +801,14 @@ void squeezeView::setupDb()
     setupOffersModel();
     setupBalancesModel();
     setupCashFlowModel();
+    setupSpecialOrdersModel();
+    setupRandomMsgModel();
+    setupLogsModel();
   } else {
     emit signalDisconnected();
     disableUI();
   }
 }
-
 
 void squeezeView::openDB()
 {
@@ -787,11 +850,14 @@ void squeezeView::connectToDb()
       transactionsModel = new QSqlRelationalTableModel();
       balancesModel   = new QSqlTableModel();
       cashflowModel   = new QSqlRelationalTableModel();
+      specialOrdersModel   = new QSqlRelationalTableModel();
+      randomMsgModel  = new QSqlTableModel();
+      logsModel       = new QSqlRelationalTableModel();
       modelsCreated = true;
     }
     dlgPassword->setDb(db);
     emit signalConnected();
-    if (adminIsLogged) enableUI();
+    enableUI();
     setupProductsModel();
     setupMeasuresModel();
     setupClientsModel();
@@ -801,7 +867,9 @@ void squeezeView::connectToDb()
     setupOffersModel();
     setupBalancesModel();
     setupCashFlowModel();
-    
+    setupSpecialOrdersModel();
+    setupRandomMsgModel();
+    setupLogsModel();
   }
 }
 
@@ -875,6 +943,9 @@ void squeezeView::setupProductsModel()
     productPointsIndex=productsModel->fieldIndex("points");
     productLastProviderIndex = productsModel->fieldIndex("lastproviderid");
     productAlphaCodeIndex = productsModel->fieldIndex("alphacode");
+    productIsAGroupIndex  = productsModel->fieldIndex("isAGroup");
+    productIsARawIndex    = productsModel->fieldIndex("isARawProduct");
+    productGEIndex        = productsModel->fieldIndex("groupElements");
     productBrandIndex = productsModel->fieldIndex("brandid");
     productTaxModelIndex = productsModel->fieldIndex("taxmodel");
 
@@ -893,9 +964,10 @@ void squeezeView::setupProductsModel()
     ui_mainview.productsViewAlt->setColumnHidden(productPhotoIndex, true);
     ui_mainview.productsViewAlt->setColumnHidden(productUnitsIndex, true);
     ui_mainview.productsViewAlt->setColumnHidden(productPointsIndex, true);
+    ui_mainview.productsViewAlt->setColumnHidden(productGEIndex, true);
 
     productsModel->setRelation(productCategoryIndex, QSqlRelation("categories", "catid", "text"));
-    productsModel->setRelation(productLastProviderIndex, QSqlRelation("providers", "id", "provname"));
+    productsModel->setRelation(productLastProviderIndex, QSqlRelation("providers", "id", "name"));
     productsModel->setRelation(productBrandIndex, QSqlRelation("brands", "brandid", "bname"));
     productsModel->setRelation(productTaxModelIndex, QSqlRelation("taxmodels", "modelid", "tname"));
 
@@ -942,6 +1014,7 @@ void squeezeView::populateCategoriesHash()
   myDb->setDatabase(db);
   categoriesHash.clear();
   categoriesHash = myDb->getCategoriesHash();
+  delete myDb;
 }
 
 void squeezeView::setProductsFilter()
@@ -989,6 +1062,16 @@ else {
     //6th if: filter by ALMOST sold-out items
     productsModel->setFilter(QString("products.stockqty<%1 AND products.stockqty>0").arg(Settings::mostSoldMaxValue()));
     productsModel->setSort(productSoldUnitsIndex, Qt::AscendingOrder);
+  }
+  else if (ui_mainview.rbProductsFilterByRaw->isChecked()) {
+    //7th if: filter by raw products
+    productsModel->setFilter(QString("products.isARawProduct=true"));
+    productsModel->setSort(productCodeIndex, Qt::AscendingOrder);
+  }
+  else if (ui_mainview.rbProductsFilterByGroup->isChecked()) {
+    //8th if: filter by GROUPS
+    productsModel->setFilter(QString("products.isAGroup=true"));
+    productsModel->setSort(productCodeIndex, Qt::AscendingOrder);
   }
   else {
   //else: filter by less sold items
@@ -1139,25 +1222,29 @@ void squeezeView::setupTransactionsModel()
     transStateIndex= transactionsModel->fieldIndex("state");
     transUseridIndex=transactionsModel->fieldIndex("userid");
     transCardNumIndex=transactionsModel->fieldIndex("cardnumber");
+    transItemCountIndex=transactionsModel->fieldIndex("itemcount");
+    transItemsListIndex=transactionsModel->fieldIndex("itemslist");
     transPointsIndex=transactionsModel->fieldIndex("points");
     transDiscMoneyIndex=transactionsModel->fieldIndex("discmoney");
     transDiscIndex=transactionsModel->fieldIndex("disc");
     transCardAuthNumberIndex=transactionsModel->fieldIndex("cardauthnumber");
     transUtilityIndex=transactionsModel->fieldIndex("utility");
     transTerminalNumIndex=transactionsModel->fieldIndex("terminalnum");
-    transItemsListIndex=transactionsModel->fieldIndex("itemslist");
-    transItemCountIndex=transactionsModel->fieldIndex("itemcount");
-    
+    transProvIdIndex = transactionsModel->fieldIndex("providerid");
+    transSOIndex = transactionsModel->fieldIndex("specialOrders");
+
     
     ui_mainview.transactionsTable->setModel(transactionsModel);
     ui_mainview.transactionsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui_mainview.transactionsTable->setColumnHidden(transItemsListIndex, true);
+    ui_mainview.transactionsTable->setColumnHidden(transSOIndex, true);
 
     transactionsModel->setRelation(transTypeIndex, QSqlRelation("transactiontypes", "ttypeid", "text"));
     transactionsModel->setRelation(transStateIndex, QSqlRelation("transactionstates", "stateid", "text"));
     transactionsModel->setRelation(transPayMethodIndex, QSqlRelation("paytypes", "typeid", "text"));
     transactionsModel->setRelation(transClientidIndex, QSqlRelation("clients", "id", "name"));
     transactionsModel->setRelation(transUseridIndex, QSqlRelation("users", "id", "username"));
+    transactionsModel->setRelation(transProvIdIndex, QSqlRelation("providers", "id", "name"));
     
     transactionsModel->setHeaderData(transIdIndex, Qt::Horizontal, i18n("Id"));
     transactionsModel->setHeaderData(transClientidIndex, Qt::Horizontal, i18n("Client"));
@@ -1178,11 +1265,10 @@ void squeezeView::setupTransactionsModel()
     transactionsModel->setHeaderData(transCardAuthNumberIndex, Qt::Horizontal, i18n("Card Authorization #") );
     transactionsModel->setHeaderData(transUtilityIndex, Qt::Horizontal, i18n("Profit") );
     transactionsModel->setHeaderData(transTerminalNumIndex, Qt::Horizontal, i18n("Terminal #") );
+    transactionsModel->setHeaderData(transProvIdIndex, Qt::Horizontal, i18n("Provider") );
     
     
     ui_mainview.transactionsTable->setSelectionMode(QAbstractItemView::SingleSelection);
-//     ProductDelegate *delegate = new ProductDelegate(ui_mainview.productsView);
-//     ui_mainview.productsView->setItemDelegate(delegate);
     
     transactionsModel->select();
     
@@ -1216,8 +1302,8 @@ void squeezeView::setTransactionsFilter()
     else if (ui_mainview.rbTransFilterByClient->isChecked()) {
       //2nd if: Filter by CLIENTS
       regexp = QRegExp(ui_mainview.editTransClientsFilter->text());
-      if (!regexp.isValid() || ui_mainview.editTransClientsFilter->text().isEmpty())  ui_mainview.editTransClientsFilter->setText("*");
-      if (ui_mainview.editTransClientsFilter->text()=="*") transactionsModel->setFilter("");
+      if (!regexp.isValid() || ui_mainview.editTransClientsFilter->text().isEmpty())  ui_mainview.editTransClientsFilter->setText("");
+      if (ui_mainview.editTransClientsFilter->text()=="") transactionsModel->setFilter("");
       else {
         unsigned int cid = myDb->getClientId(ui_mainview.editTransClientsFilter->text());
         transactionsModel->setFilter(QString("transactions.clientid=%1").arg(cid));
@@ -1285,6 +1371,7 @@ void squeezeView::setTransactionsFilter()
     
     transactionsModel->select();
   }
+  delete myDb;
 }
 
 
@@ -1395,26 +1482,134 @@ void squeezeView::setBalancesFilter()
 }
 
 
+// Special Orders
+
+void squeezeView::setupSpecialOrdersModel()
+{
+  openDB();
+  qDebug()<<"setup special orders.. after openDB";
+  if (db.isOpen()) {
+    specialOrdersModel->setTable("special_orders");
+
+    ///NOTE: Here we can use the v_groupedSO table instead, to group them by saleid
+    ///      I dont know how convenient is this.
+    
+   int soIdIndex = specialOrdersModel->fieldIndex("orderid");
+   int soDateIndex = specialOrdersModel->fieldIndex("dateTime");
+   int soNameIndex= specialOrdersModel->fieldIndex("name");
+   int soGroupElemIndex= specialOrdersModel->fieldIndex("groupElements");
+   int soQtyIndex = specialOrdersModel->fieldIndex("qty");
+   int soPriceIndex= specialOrdersModel->fieldIndex("price");
+   int soCostIndex= specialOrdersModel->fieldIndex("cost");
+   int soUnitsIndex= specialOrdersModel->fieldIndex("units");
+   int soStatusIndex = specialOrdersModel->fieldIndex("status");
+   int soSaleIdIndex= specialOrdersModel->fieldIndex("saleid");
+   int soNotesIndex=specialOrdersModel->fieldIndex("notes");
+   int soPaymentIndex=specialOrdersModel->fieldIndex("payment");
+   int soCompletePaymentIndex=specialOrdersModel->fieldIndex("completePayment");
+    
+    
+    ui_mainview.tableSO->setModel(specialOrdersModel);
+    ui_mainview.tableSO->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui_mainview.tableSO->setColumnHidden(soGroupElemIndex, true);
+    ui_mainview.tableSO->setColumnHidden(soUnitsIndex, true);
+
+    specialOrdersModel->setHeaderData(soIdIndex, Qt::Horizontal, i18n("Order #"));
+    specialOrdersModel->setHeaderData(soNameIndex, Qt::Horizontal, i18n("Name"));
+    specialOrdersModel->setHeaderData(soDateIndex, Qt::Horizontal, i18n("Date") );
+    specialOrdersModel->setHeaderData(soQtyIndex, Qt::Horizontal, i18n("Qty") );
+    specialOrdersModel->setHeaderData(soPriceIndex, Qt::Horizontal, i18n("Price") );
+    specialOrdersModel->setHeaderData(soCostIndex, Qt::Horizontal, i18n("Cost") );
+    specialOrdersModel->setHeaderData(soUnitsIndex, Qt::Horizontal, i18n("Sold by") );
+    specialOrdersModel->setHeaderData(soStatusIndex, Qt::Horizontal, i18n("Status") );
+    specialOrdersModel->setHeaderData(soSaleIdIndex, Qt::Horizontal, i18n("Tr. Id") );
+    specialOrdersModel->setHeaderData(soNotesIndex, Qt::Horizontal, i18n("Notes") );
+    specialOrdersModel->setHeaderData(soPaymentIndex, Qt::Horizontal, i18n("Payment") );
+    specialOrdersModel->setHeaderData(soCompletePaymentIndex, Qt::Horizontal, i18n("Payment Complete") );
+
+    //relations
+    specialOrdersModel->setRelation(soUnitsIndex, QSqlRelation("measures", "id", "text"));
+    specialOrdersModel->setRelation(soStatusIndex, QSqlRelation("so_status", "id", "text"));
+    specialOrdersModel->setRelation(soCompletePaymentIndex, QSqlRelation("bool_values", "id", "text"));
+    
+    ui_mainview.tableSO->setSelectionMode(QAbstractItemView::SingleSelection);
+    specialOrdersModel->select();
+  }
+  qDebug()<<"setup special orders.. done.";
+}
+
+void squeezeView::setSpecialOrdersFilter()
+{
+  if (!ui_mainview.groupSOFilter->isChecked()) specialOrdersModel->setFilter("");
+  else {
+    if (ui_mainview.rbSOByDate->isChecked()) {
+      //1st if: Filter by date
+      QDate d = ui_mainview.datePicker->date();
+      QDateTime dt = QDateTime(d);
+      QString dtStr = dt.toString("yyyy-MM-dd hh:mm:ss");
+      QString dtStr2= d.toString("yyyy-MM-dd")+" 23:59:59";
+      specialOrdersModel->setFilter(QString("special_orders.dateTime>='%1' and special_orders.dateTime<='%2'").arg(dtStr).arg(dtStr2));
+      specialOrdersModel->setSort(12, Qt::DescendingOrder); //by date
+    }
+    else if (ui_mainview.rbSOByThisWeek->isChecked()) {
+      //2nd if: Filter by one week
+      specialOrdersModel->setFilter(QString("special_orders.dateTime > ADDDATE(sysdate( ), INTERVAL -8 DAY )"));
+      specialOrdersModel->setSort(0, Qt::DescendingOrder); //orderid
+    }
+    else if (ui_mainview.rbSOByThisMonth->isChecked()) {
+      //3rd if: filter by ONE Month
+      specialOrdersModel->setFilter(QString("special_orders.dateTime > ADDDATE(sysdate( ), INTERVAL -31 DAY )"));
+      specialOrdersModel->setSort(0, Qt::DescendingOrder); //orderid
+    }
+    else if (ui_mainview.rbSOByStatusPending->isChecked()) {
+      //4th if: filter by STATUS PENDING
+      specialOrdersModel->setFilter(QString("special_orders.status=0"));
+      specialOrdersModel->setSort(0, Qt::DescendingOrder);
+    }
+    else if (ui_mainview.rbSOByStatusInProgress->isChecked()) {
+      //4th if: filter by STATUS IN PROGRESS
+      specialOrdersModel->setFilter(QString("special_orders.status=1"));
+      specialOrdersModel->setSort(0, Qt::DescendingOrder);
+    }
+    else if (ui_mainview.rbSOByStatusReady->isChecked()) {
+      //4th if: filter by STATUS READY
+      specialOrdersModel->setFilter(QString("special_orders.status=2"));
+      specialOrdersModel->setSort(0, Qt::DescendingOrder);
+    }
+    else if (ui_mainview.rbSOByStatusDelivered->isChecked()) {
+      //4th if: filter by STATUS DELIVERED
+      specialOrdersModel->setFilter(QString("special_orders.status=3"));
+      specialOrdersModel->setSort(0, Qt::DescendingOrder);
+    }
+    else {
+      //4th if: filter by STATUS CANCELLED
+      specialOrdersModel->setFilter(QString("special_orders.status=4"));
+      specialOrdersModel->setSort(0, Qt::DescendingOrder);
+    }
+    
+    specialOrdersModel->select();
+  }
+}
+
 /* widgets */
 
 void squeezeView::settingsChanged()
 {
   emit signalChangeStatusbar( i18n("Settings changed") );
-  
+
   db.setHostName(Settings::editDBServer());
   db.setDatabaseName(Settings::editDBName());
   db.setUserName(Settings::editDBUsername());
   db.setPassword(Settings::editDBPassword());
-  
-  //setupDb();
+
   connectToDb();
+
+  updateGraphs();
 }
 
 void squeezeView::settingsChangedOnInitConfig()
 {
   qDebug()<<"==> Initial Config Changed- connecting to database and calling login...";
-  //QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-  //db = QSqlDatabase::addDatabase("QMYSQL");
   db.setHostName(Settings::editDBServer());
   db.setDatabaseName(Settings::editDBName());
   db.setUserName(Settings::editDBUsername());
@@ -1438,6 +1633,7 @@ void squeezeView::setOffersFilter()
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
       myFilter = myDb->getOffersFilterWithText(desc);
+      delete myDb;
 
       if (myFilter == "") myFilter = "offers.product_id=0"; //there should not be a product with code=0
       offersModel->setFilter(myFilter);
@@ -1462,7 +1658,7 @@ void squeezeView::setOffersFilter()
         offersModel->setFilter(QString("offers.dateend<'%1'").arg(date.toString("yyyy-MM-dd")));
         qDebug()<<"Filtro: "<<offersModel->filter();
     }
-    //Faltarian las ofertas aun no validas (futuras)
+    //Faltaria las ofertas aun no validas (futuras)
   }
   else offersModel->setFilter(""); //show all offers...
   offersModel->select();
@@ -1541,6 +1737,7 @@ void squeezeView::usersViewOnSelected(const QModelIndex & index)
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
       if (!myDb->updateUser(uInfo)) qDebug()<<"ERROR | Updating user:"<<myDb->lastError();
+      delete myDb;
 
       usersModel->select();
     }
@@ -1551,8 +1748,6 @@ void squeezeView::usersViewOnSelected(const QModelIndex & index)
 
 void squeezeView::productsViewOnSelected(const QModelIndex &index)
 {
-  ProductInfo pInfo;
-  
  if (db.isOpen()) {
     //getting data from model...
     const QAbstractItemModel *model = index.model();
@@ -1564,6 +1759,7 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     ProductEditor *productEditorDlg = new ProductEditor(this, false, db);
 
     //Set data on dialog
+    productEditorDlg->setModel(productsModel);
     productEditorDlg->disableCode(); //On Edit product, code cannot be changed.
     productEditorDlg->setStockQtyReadOnly(true); //on edit, cannot change qty to force use stockCorrection
     productEditorDlg->setDb(db);
@@ -1589,9 +1785,12 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
       if (productEditorDlg->isCorrectingStock()) {
         correctStock(pInfo.code, productEditorDlg->getOldStock(), pInfo.stockqty, productEditorDlg->getReason());
       }
+      //FIXME: We must see error types, which ones are for duplicate KEYS (codes) to advertise the user.
       productsModel->select();
+      delete myDb;
     }
     delete productEditorDlg;
+    setProductsFilter();
   }
 }
 
@@ -1656,6 +1855,7 @@ void squeezeView::clientsViewOnSelected(const QModelIndex & index)
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
       myDb->updateClient(cInfo);
+      delete myDb;
 
       clientsModel->select();
     }
@@ -1691,7 +1891,7 @@ void squeezeView::doPurchase()
         //validDiscount is for checking if product already exists on db. see line # 383 of purchaseeditor.cpp
         if (info.validDiscount) {
           if (!myDb->updateProduct(info, info.code)) qDebug()<<myDb->lastError();
-          qDebug()<<"product already on db...";
+          qDebug()<<"Product updated [purchase] ok...";
         } else if (!myDb->insertProduct(info)) qDebug()<<myDb->lastError();
 
         productsModel->select();
@@ -1717,9 +1917,12 @@ void squeezeView::doPurchase()
         tInfo.itemlist    = items.join(";");
         tInfo.profit      = 0; //FIXME: utility is calculated until products are sold, not before.
         tInfo.terminalnum = 0; //NOTE: Not really a terminal... from admin computer.
+        tInfo.providerid  = 1; //FIXME!
+        tInfo.specialOrders = "";
         myDb->insertTransaction(tInfo);
 
     }
+  delete myDb;
   }
 }
 
@@ -1743,8 +1946,21 @@ void squeezeView::stockCorrection()
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
     oldStockQty = myDb->getProductStockQty(pcode);
+    bool isAGroup = myDb->getProductInfo(pcode).isAGroup;
+    if (isAGroup) {
+      //Notify to the user that this product's stock cannot be modified.
+      //This is because if we modify each content's stock, all items will be at the same stock level, and it may not be desired.
+      //We can even ask the user to do it anyway. For now, it is forbiden.
+      //At the product editor, the stock correction button is disabled.
+      KMessageBox::information(this, i18n("The desired product is a group and its stock cannot be modified, try modifying each of its contents."), i18n("Cannot modify stock"));
+      delete myDb;
+      return;
+    }
     qDebug()<<"New Qty:"<<newStockQty<<" Reason:"<<reason;
     correctStock(pcode, oldStockQty, newStockQty, reason);
+    //Log event.
+    log(loggedUserId,QDate::currentDate(), QTime::currentTime(), i18n("Stock Correction: [%1] from %2 to %3. Reason:%4",pcode,oldStockQty,newStockQty, reason));
+    delete myDb;
   }
 }
 
@@ -1753,6 +1969,7 @@ void squeezeView::correctStock(qulonglong code, double oldStock, double newStock
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   if (!myDb->correctStock(code, oldStock, newStock, reason )) qDebug()<<myDb->lastError();
+  delete myDb;
 }
 
 void squeezeView::createUser()
@@ -1789,6 +2006,7 @@ void squeezeView::createUser()
     }
     delete userEditorDlg;
   }
+  delete myDb;
 }
 
 void squeezeView::createOffer()
@@ -1810,6 +2028,7 @@ void squeezeView::createOffer()
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
       if ( !myDb->createOffer(offerInfo) ) qDebug()<<myDb->lastError();
+      delete myDb;
       offersModel->select();
     }
     delete promoEditorDlg;
@@ -1820,6 +2039,7 @@ void squeezeView::createProduct()
 {
  if (db.isOpen()) {
   ProductEditor *prodEditorDlg = new ProductEditor(this, true, db);
+  prodEditorDlg->setModel(productsModel);
   prodEditorDlg->setDb(db);
   prodEditorDlg->enableCode();
   prodEditorDlg->setStockQtyReadOnly(false);
@@ -1845,8 +2065,10 @@ void squeezeView::createProduct()
       default:
       break;
     }
+   delete myDb;
   }
  }
+ setProductsFilter();
 }
 
 void squeezeView::createMeasure()
@@ -1868,6 +2090,7 @@ void squeezeView::createMeasure()
     myDb->setDatabase(db);
     if (!myDb->insertMeasure(meas)) qDebug()<<"Error:"<<myDb->lastError();
     measuresModel->select();
+    delete myDb;
   }
  }
 }
@@ -1883,6 +2106,7 @@ void squeezeView::createCategory()
     if (!db.isOpen()) openDB();
     myDb->setDatabase(db);
     if (!myDb->insertCategory(cat)) qDebug()<<"Error:"<<myDb->lastError();
+    delete myDb;
     categoriesModel->select();
     updateCategoriesCombo();
   }
@@ -1928,6 +2152,7 @@ void squeezeView::createClient()
     }
     delete clientEditorDlg;
   }
+  delete myDb;
 }
 
 void squeezeView::deleteSelectedClient()
@@ -2044,6 +2269,7 @@ void squeezeView::deleteSelectedProduct()
           if (myDb->deleteOffer(oID)) qDebug()<<"Ok, offer also deleted...";
           else qDebug()<<"DEBUG:"<<myDb->lastError();
         }
+        delete myDb;
       }
     }
   }
@@ -2071,6 +2297,7 @@ void squeezeView::deleteSelectedMeasure()
           measuresModel->select();
         }
       } else KMessageBox::information(this, i18n("Default measure cannot be deleted."), i18n("Cannot delete"));
+      delete myDb;
     }
   }
 }
@@ -2088,6 +2315,7 @@ void squeezeView::deleteSelectedCategory()
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
       qulonglong catId = myDb->getCategoryId(catText);
+      delete myDb;
       if (catId >0) {
         int answer = KMessageBox::questionYesNo(this, i18n("Do you really want to delete the category '%1'?", catText),
                                                 i18n("Delete"));
@@ -2151,6 +2379,7 @@ void squeezeView::exportTable()
       case 0: exportQTableView(ui_mainview.cashFlowTable);break;
       case 1: exportQTableView(ui_mainview.transactionsTable);break;
       case 2: exportQTableView(ui_mainview.balancesTable);break;
+      case 3: exportQTableView(ui_mainview.tableSO);break;
       default:break;
     }
   } else {
@@ -2180,13 +2409,13 @@ void squeezeView::exportQTableView(QAbstractItemView *tableview)
       if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
           return;
       QTextStream out(&file);
-      
+
       // Headers
       for (int j=0;j<model->columnCount();j++){
-        out << "\"" << model->headerData(j, Qt::Horizontal, Qt::DisplayRole).toString() << "\";";
+         out << "\"" << model->headerData(j, Qt::Horizontal, Qt::DisplayRole).toString() << "\";";
       }
       out << "\n";
-      
+
       // Data
       QProgressDialog progress(i18n("Exporting data..."), i18n("Abort"), 0, model->rowCount(), this);
       progress.setWindowModality(Qt::WindowModal);
@@ -2204,9 +2433,9 @@ void squeezeView::exportQTableView(QAbstractItemView *tableview)
         for (int i=0;i<model->rowCount();i++){
           progress.setValue(i);
           if (progress.wasCanceled())
-            break;
+              break;
           for (int j=0;j<model->columnCount();j++){
-            out << "\"" << model->data(model->index(i, j)).toString() << "\";";
+              out << "\"" << model->data(model->index(i, j)).toString() << "\";";
           }
           out <<"\n";
         }
@@ -2214,7 +2443,7 @@ void squeezeView::exportQTableView(QAbstractItemView *tableview)
       file.close();
       progress.setValue(model->rowCount());
       //if (KMessageBox::questionYesNo(this, i18n("Data exported succesfully to %1.\n\n Would you like to open it?").arg(fileName), i18n("Finished")) == KMessageBox::Yes ){
- //  system(QString("oocalc \""+fileName+ "\"").toLatin1());
+      //  system(QString("oocalc \""+fileName+ "\"").toLatin1());
     }
   }
 }
@@ -2319,6 +2548,7 @@ void squeezeView::printGralEndOfDay()
       PrintCUPS::printBigEndOfDay(pdInfo, printer);
     }
   }
+  delete myDb;
 }
 
 void squeezeView::printEndOfDay()
@@ -2427,6 +2657,7 @@ void squeezeView::printEndOfDay()
       }
     }
   }
+  delete myDb;
 }
 
 void squeezeView::printEndOfMonth()
@@ -2510,6 +2741,7 @@ void squeezeView::printEndOfMonth()
       PrintCUPS::printBigEndOfDay(pdInfo, printer); //uses the same method for end of month
     }
   }
+  delete myDb;
 }
 
 
@@ -2573,7 +2805,7 @@ void squeezeView::printLowStockProducts()
       PrintCUPS::printBigLowStockReport(plInfo, printer);
     }
   }
-  
+  delete myDb;
 }
 
 void squeezeView::printSoldOutProducts()
@@ -2636,6 +2868,160 @@ void squeezeView::printSoldOutProducts()
       PrintCUPS::printBigLowStockReport(plInfo, printer);
     }
   }
+  delete myDb;
+}
+
+void squeezeView::printSelectedBalance()
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  
+  qDebug()<<"Print Selected Balance";
+  if (db.isOpen()) {
+    QModelIndex index = ui_mainview.balancesTable->currentIndex();
+    if (balancesModel->tableName().isEmpty()) setupBalancesModel();
+    if (index == balancesModel->index(-1,-1) ) {
+      KMessageBox::information(this, i18n("Please select a balance to print, then press the print button again."), i18n("Cannot print"));
+    }
+    else  {
+      qulonglong bid = balancesModel->record(index.row()).value("id").toULongLong();
+      //get from database all info.
+      BalanceInfo info = myDb->getBalanceInfo(bid);
+      qDebug()<<"Printing balance id:"<<bid;
+      //print...
+      PrintBalanceInfo pbInfo;
+      pbInfo.thBalanceId = i18n("Balance Id:%1",info.id);
+      pbInfo.storeName = myDb->getConfigStoreName();
+      pbInfo.storeAddr = myDb->getConfigStoreAddress();
+      pbInfo.storeLogo = myDb->getConfigStoreLogo();
+      pbInfo.thTitle     = i18n("%1 at Terminal # %2", info.username, info.terminal);
+      pbInfo.thDeposit   = i18n("Deposit");
+      pbInfo.thIn        = i18n("In");
+      pbInfo.thOut       = i18n("Out");
+      pbInfo.thInDrawer  = i18n("In Drawer");
+      pbInfo.thTitleDetails = i18n("Transactions Details");
+      pbInfo.thTrId      = i18n("Id");
+      pbInfo.thTrTime    = i18n("Time");
+      pbInfo.thTrAmount  = i18n("Amount");
+      pbInfo.thTrPaidW    = i18n("Paid");
+      pbInfo.thTrPayMethod=i18n("Method");
+      pbInfo.startDate   = i18n("Start: %1",KGlobal::locale()->formatDateTime(info.dateTimeStart, KLocale::LongDate));
+      pbInfo.endDate     = i18n("End  : %1",KGlobal::locale()->formatDateTime(info.dateTimeEnd, KLocale::LongDate));
+      //Qty's
+      pbInfo.initAmount = KGlobal::locale()->formatMoney(info.initamount, QString(), 2);
+      pbInfo.inAmount   = KGlobal::locale()->formatMoney(info.in, QString(), 2);
+      pbInfo.outAmount  = KGlobal::locale()->formatMoney(info.out, QString(), 2);
+      pbInfo.cashAvailable=KGlobal::locale()->formatMoney(info.cash, QString(), 2);
+      pbInfo.logoOnTop = myDb->getConfigLogoOnTop();
+      pbInfo.thTitleCFDetails = i18n("Cash flow Details");
+      pbInfo.thCFType    = i18n("Type");
+      pbInfo.thCFReason  = i18n("Reason");
+      pbInfo.thCFDate    = i18n("Time");
+      
+      //TXT for dot-matrix printer
+      QStringList lines;
+      QString line;
+      lines.append(i18n("%1 at Terminal # %2", info.username, info.terminal));
+      line = QString(KGlobal::locale()->formatDateTime(info.dateTimeEnd, KLocale::LongDate));
+      lines.append(line);
+      lines.append("----------------------------------------");
+      line = QString("%1 %2").arg(i18n("Initial Amount deposited:")).arg(KGlobal::locale()->formatMoney(info.initamount, QString(), 2));
+      lines.append(line);
+      line = QString("%1 :%2, %3 :%4")
+      .arg(i18n("In"))
+      .arg(KGlobal::locale()->formatMoney(info.in, QString(), 2))
+      .arg(i18n("Out"))
+      .arg(KGlobal::locale()->formatMoney(info.out, QString(), 2));
+      lines.append(line);
+      line = QString(" %1 %2").arg(KGlobal::locale()->formatMoney(info.cash, QString(), 2)).arg(i18n("In Drawer"));
+      lines.append(line);
+      line = QString("----------%1----------").arg(i18n("Transactions Details"));
+      lines.append(line);
+      line = QString("%1           %2      %3").arg(i18n("Id")).arg(i18n("Amount")).arg(i18n("Paid"));
+      lines.append(line);
+      lines.append("----------  ----------  ----------");
+      QStringList transactionsByUser = info.transactions.split(",");
+      QStringList trList;
+      
+      QString dId;
+      QString dAmount;
+      QString dHour;
+      QString dMinute;
+      QString dPaidWith;
+      QString dPayMethod;
+
+      for (int i = 0; i < transactionsByUser.size(); ++i) {
+        qulonglong idNum = transactionsByUser.at(i).toULongLong();
+        TransactionInfo info;
+        info = myDb->getTransactionInfo(idNum);
+        
+        dId       = QString::number(info.id);
+        dAmount   = QString::number(info.amount);
+        dHour     = info.time.toString("hh");
+        dMinute   = info.time.toString("mm");
+        dPaidWith = QString::number(info.paywith);
+        
+        QString tmp = QString("%1|%2|%3|%4")
+        .arg(dId)
+        .arg(dHour+":"+dMinute)
+        .arg(KGlobal::locale()->formatMoney(info.amount, QString(), 2))
+        .arg(KGlobal::locale()->formatMoney(info.paywith, QString(), 2));
+        
+        while (dId.length()<10) dId = dId.insert(dId.length(), ' ');
+        while (dAmount.length()<14) dAmount = dAmount.insert(dAmount.length(), ' ');
+        while ((dHour+dMinute).length()<6) dMinute = dMinute.insert(dMinute.length(), ' ');
+        while (dPaidWith.length()<10) dPaidWith = dPaidWith.insert(dPaidWith.length(), ' ');
+
+        dPayMethod = myDb->getPayTypeStr(info.paymethod);//using payType methods
+        line = QString("%1 %2 %3")
+        .arg(dId)
+        .arg(dAmount)
+        .arg(dPayMethod);
+        lines.append(line);
+        
+        tmp += "|"+dPayMethod;
+        trList.append( tmp );
+      } //for
+      pbInfo.trList = trList;
+
+      //TODO: FIXME to save and retrieve from db the cashflow info for user work lapse.
+      //            We can obtain it from cashflow table using a data BETWEEN select
+      //get CashOut list and its info...
+      QStringList cfList;
+      cfList.clear();
+      QList<CashFlowInfo> cashflowInfoList = myDb->getCashFlowInfoList(info.dateTimeStart, info.dateTimeEnd);
+      foreach(CashFlowInfo cfInfo, cashflowInfoList) {
+        QString amountF = KGlobal::locale()->formatMoney(cfInfo.amount);
+        QString dateF   = KGlobal::locale()->formatTime(cfInfo.time);
+        QString data = QString::number(cfInfo.id) + "|" + cfInfo.typeStr + "|" + cfInfo.reason + "|" + amountF + "|" + dateF;
+        cfList.append(data);
+        qDebug()<<"cashflow:"<<data;
+      }
+      pbInfo.cfList = cfList;
+
+      if (Settings::smallTicketDotMatrix()) {
+        //print it on the /dev/lpXX...   send lines to print
+        if (Settings::printBalances()) {
+          QString printerFile=Settings::printerDevice();
+          if (printerFile.length() == 0) printerFile="/dev/lp0";
+          QString printerCodec=Settings::printerCodec();
+          qDebug()<<"[Printing balance on "<<printerFile<<"]";
+          PrintDEV::printSmallBalance(printerFile, printerCodec, lines.join("\n"));
+        }
+      } else if (Settings::printBalances()) {
+        //print it on cups... send pbInfo instead
+        QPrinter printer;
+        printer.setFullPage( true );
+        QPrintDialog printDialog( &printer );
+        printDialog.setWindowTitle(i18n("Print Balance"));
+        if ( printDialog.exec() ) {
+          PrintCUPS::printSmallBalance(pbInfo, printer);
+        }
+      }
+      //end print
+    }
+  }
+  delete myDb;
 }
 
 //LOGS
@@ -2644,6 +3030,114 @@ void squeezeView::log(const qulonglong &uid, const QDate &date, const QTime &tim
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   myDb->insertLog(uid, date, time, "[SQUEEZE] "+text);
+  logsModel->select();
+  delete myDb;
+}
+
+void squeezeView::showLogs()
+{
+  ui_mainview.stackedWidget->setCurrentIndex(pBrowseLogs);
+  if (logsModel->tableName().isEmpty()) setupLogsModel();
+  ui_mainview.headerLabel->setText(i18n("Events Log"));
+  ui_mainview.headerImg->setPixmap((DesktopIcon("view-pim-tasks-pending",48)));
+}
+
+void squeezeView::setupLogsModel()
+{
+  openDB();
+  qDebug()<<"setup logs msgs model.. after openDB";
+  if (db.isOpen()) {
+    logsModel->setTable("logs");
+
+    int logIdIndex      = logsModel->fieldIndex("id");
+    int logUserIndex    = logsModel->fieldIndex("userid");
+    int logActionIndex  = logsModel->fieldIndex("action");
+    int logDateIndex    = logsModel->fieldIndex("date");
+    int logTimeIndex    = logsModel->fieldIndex("time");
+
+    ui_mainview.logTable->setModel(logsModel);
+
+    logsModel->setHeaderData(logUserIndex,   Qt::Horizontal, i18n("User"));
+    logsModel->setHeaderData(logDateIndex,   Qt::Horizontal, i18n("Date"));
+    logsModel->setHeaderData(logTimeIndex,   Qt::Horizontal, i18n("Time"));
+    logsModel->setHeaderData(logActionIndex, Qt::Horizontal, i18n("Event"));
+
+    ui_mainview.logTable->setColumnHidden(logIdIndex, true);
+    logsModel->setRelation(logUserIndex, QSqlRelation("users", "id", "name"));
+
+    ui_mainview.logTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui_mainview.logTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    logsModel->select();
+  }
+  ui_mainview.logTable->resizeColumnsToContents();
+
+  qDebug()<<"setup Logs.. done, "<<logsModel->lastError();
+}
+
+//Random Messages
+void squeezeView::setupRandomMsgModel()
+{
+  openDB();
+  qDebug()<<"setup random msgs model.. after openDB";
+  if (db.isOpen()) {
+    randomMsgModel->setTable("random_msgs");
+
+    int randomMsgIdIndex      = randomMsgModel->fieldIndex("id");
+    int randomMsgMessageIndex = randomMsgModel->fieldIndex("message");
+    int randomMsgSeasonIndex  = randomMsgModel->fieldIndex("season");
+    int randomMsgCountIndex   = randomMsgModel->fieldIndex("count");
+
+    ui_mainview.randomMsgTable->setModel(randomMsgModel);
+
+    randomMsgModel->setHeaderData(randomMsgMessageIndex, Qt::Horizontal, i18n("Message"));
+    randomMsgModel->setHeaderData(randomMsgSeasonIndex, Qt::Horizontal, i18n("Month"));
+
+    ui_mainview.randomMsgTable->setColumnHidden(randomMsgIdIndex, true);
+    ui_mainview.randomMsgTable->setColumnHidden(randomMsgCountIndex, true);
+
+    ui_mainview.randomMsgTable->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    randomMsgModel->select();
+  }
+  ui_mainview.randomMsgTable->resizeColumnsToContents();
+
+  qDebug()<<"setup RandomMsg.. done, "<<randomMsgModel->lastError();
+}
+
+void squeezeView::createRandomMsg()
+{
+ if (db.isOpen()) {
+  InputDialog *dlg = new InputDialog(this, true, dialogTicketMsg, i18n("Enter the new ticket message."));
+
+  if (dlg->exec()) {
+    Azahar *myDb = new Azahar;
+    if (!db.isOpen()) openDB();
+    myDb->setDatabase(db);
+    if (!myDb->insertRandomMessage(dlg->reason, dlg->iValue)) qDebug()<<"Error:"<<myDb->lastError();
+    randomMsgModel->select();
+    delete myDb;
+  }
+ }
+}
+
+
+void squeezeView::reSelectModels()
+{
+  if ( modelsAreCreated() ) {
+    productsModel->select();
+    measuresModel->select();
+    clientsModel->select();
+    usersModel->select();
+    transactionsModel->select();
+    categoriesModel->select();
+    offersModel->select();
+    balancesModel->select();
+    cashflowModel->select();
+    specialOrdersModel->select();
+    randomMsgModel->select();
+    logsModel->select();
+  }
 }
 
 #include "squeezeview.moc"
