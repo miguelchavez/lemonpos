@@ -402,7 +402,7 @@ GRANT ALL ON lemonposdb.* TO 'lemonclient'@'localhost' IDENTIFIED BY 'xarwit0721
 # CREATE lemon users (users using lemon, cashiers... )
 #With password 'linux'. Note that this password is salt-hashed (SHA56).
 
-INSERT INTO lemonposdb.users (id, username, password, salt, name, role) VALUES (1, 'admin', 'C07B1E799DC80B95060391DDF92B3C7EF6EECDCB', 'h60VK', 'Administrator', 0);
+INSERT INTO lemonposdb.users (id, username, password, salt, name, role) VALUES (1, 'admin', 'C07B1E799DC80B95060391DDF92B3C7EF6EECDCB', 'h60VK', 'Administrator', 2); # Admin role=2
 
 ##You may change the string values for the next fields
 
