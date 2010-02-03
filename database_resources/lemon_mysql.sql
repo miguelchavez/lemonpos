@@ -1,13 +1,12 @@
 # (C) 2007-2010, Miguel Chavez Gamboa [GPL v2 or later]
 # run this as: cat lemon_mysql.sql | mysql -u root -p
 
-CREATE DATABASE lemonposdb;
-USE lemonposdb;
+CREATE DATABASE lemondb;
+USE lemondb;
 
 CREATE TABLE IF NOT EXISTS `transactions` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
   `clientid` int(10) unsigned NOT NULL,
-  `userid` int(10) NOT NULL default '0',
   `type` smallint(5) unsigned default NULL,
   `amount` double unsigned NOT NULL default '0',
   `date` date NOT NULL default '2009-01-01',
@@ -16,6 +15,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   `changegiven` double unsigned NOT NULL default '0.0',
   `paymethod` int(10) NOT NULL default '0',
   `state` int(10) NOT NULL default '0',
+  `userid` int(10) NOT NULL default '0',
   `cardnumber` varchar(20) character set utf8 collate utf8_general_ci,
   `itemcount` int(10) unsigned NOT NULL default '0',
   `itemslist` varchar(250) character set utf8 collate utf8_general_ci NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   `discmoney` double NOT NULL default '0',
   `disc` double NOT NULL default '0',
   `cardauthnumber` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
-  `profit` double NOT NULL default '0', #RENAMED
+  `utility` double NOT NULL default '0',
   `terminalnum` int(10) unsigned NOT NULL default '1',
   `providerid` int(10) unsigned NOT NULL default 1 , #for Purchase orders
   `specialOrders` varchar(255) collate utf8_general_ci default '',
@@ -38,27 +38,29 @@ CREATE TABLE IF NOT EXISTS `products` (
   `code` bigint(20) unsigned NOT NULL default '0',
   `name` varchar(255) NOT NULL collate utf8_general_ci default 'unknown',
   `price` double unsigned NOT NULL default '0.0',
-  `cost` double unsigned NOT NULL default '0',
   `stockqty` double unsigned NOT NULL default '0',
-  `brandid` bigint(20) unsigned NOT NULL default '0',
+  `cost` double unsigned NOT NULL default '0',
+  `soldunits` double unsigned NOT NULL default '0',
+  `datelastsold` date default '2009-01-01', 
   `units` int(10) unsigned collate utf8_general_ci NOT NULL default '0',
-  `taxmodel` bigint(20) unsigned NOT NULL default 1,
+  `taxpercentage` double unsigned NOT NULL default '15',
+  `extrataxes` double unsigned NOT NULL default '0',
   `photo` blob default NULL,
   `category` int(10) unsigned NOT NULL default 0,
   `points` INT(10) UNSIGNED NOT NULL DEFAULT 0,
   `alphacode` VARCHAR( 30 ) NULL,
   `lastproviderid` int(10) unsigned NOT NULL default '1',
-  `soldunits` double unsigned NOT NULL default '0',
-  `datelastsold` date default '2009-01-01',
+  # for grouped and on-demand-made products (special orders)
   `isARawProduct` bool NOT NULL default false,
-  `isAGroup` bool NOT NULL default false, 
+  `isAGroup` bool NOT NULL default false, #this is not necesary, with groupElements we can know if its a group
   `groupElements` varchar(255) collate utf8_general_ci default '',
   PRIMARY KEY  (`code`),
-  KEY `SEC` (`category`, `name`, `brandid`, `alphacode`)                                       
+  KEY `SEC` (`category`, `name`, `alphacode`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-# special orders are custom products, each order is a product containing one or more rawProducts
+# special orders are special products, each order is a product containing one or more rawProducts
 # each time its sold one, it is created. If you want predefined products use instead grouped product.
+# TODO: Implement offers for special orders
 
 CREATE TABLE IF NOT EXISTS `special_orders` (
   `orderid` bigint(20) unsigned NOT NULL auto_increment,
@@ -97,36 +99,6 @@ CREATE TABLE IF NOT EXISTS `measures` (
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-CREATE TABLE IF NOT EXISTS `categories` (
-  `catid` int(10) unsigned NOT NULL auto_increment,
-  `text` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
-  PRIMARY KEY  (`catid`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
-CREATE TABLE IF NOT EXISTS `brands` (
-  `brandid` bigint(20) unsigned NOT NULL auto_increment,
-  `bname` VARCHAR(50) NOT NULL,
-  PRIMARY KEY  (`brandid`, `bname`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
-#For the way to manage taxes, the config option "taxIsIncludedInPrice" is taken into account.
-#If this option is TRUE, the tax is going to be added to the product price, like in the USA.
-#If this option is FALSE, the tax is not added, just calculated for informative use. Like in Mexico.
-
-CREATE TABLE IF NOT EXISTS `taxmodels` (
-  `modelid` bigint(20) unsigned NOT NULL auto_increment,
-  `tname` VARCHAR(50) NOT NULL,
-  `elementsid` VARCHAR(50) NOT NULL,
-  PRIMARY KEY  (`modelid`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
-CREATE TABLE IF NOT EXISTS `taxelements` (
-  `elementid` bigint(20) unsigned NOT NULL auto_increment,
-  `ename` VARCHAR(50) NOT NULL,
-  `amount` double unsigned NOT NULL,
-  PRIMARY KEY  (`elementid`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
 CREATE TABLE IF NOT EXISTS `balances` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
   `datetime_start` datetime NOT NULL default '2009-01-01',
@@ -146,18 +118,11 @@ CREATE TABLE IF NOT EXISTS `balances` (
   KEY `SEC` (`datetime_start`,`datetime_end`, `userid` )
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-CREATE TABLE IF NOT EXISTS `invoices` (
-  `id` bigint(20) unsigned NOT NULL auto_increment,
-  `client_id` int(10) unsigned NOT NULL,
-  `transaction_id` bigint(20) unsigned NOT NULL,
-  `total` double unsigned NOT NULL default '0',
-  `subtotal` double unsigned NOT NULL default '0',
-  `taxAmount` double unsigned NOT NULL default '0',
-  `date` date NOT NULL,
-  `time` time NOT NULL,
-  PRIMARY KEY  (`id`, `client_id`, `transaction_id`)
+CREATE TABLE IF NOT EXISTS `categories` (
+  `catid` int(10) unsigned NOT NULL auto_increment,
+  `text` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
+  PRIMARY KEY  (`catid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
 
 CREATE TABLE IF NOT EXISTS `users` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
@@ -170,7 +135,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `phone_movil` varchar(50) collate utf8_general_ci default NULL,
   `role` int(10) unsigned default '0',
   `photo` blob default NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY  (`id`),
   KEY `SEC` (`username`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
@@ -184,8 +149,7 @@ CREATE TABLE IF NOT EXISTS `clients` (
   `points` bigint(20) unsigned default '0',
   `discount` double NOT NULL,
   `photo` blob default NULL,
-  PRIMARY KEY (`id`),
-  KEY `SEC` (`name`)
+  PRIMARY KEY  USING BTREE (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `paytypes` (
@@ -271,13 +235,14 @@ CREATE TABLE IF NOT EXISTS `providers` (
   PRIMARY KEY  (`id`, `name`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-CREATE TABLE IF NOT EXISTS `products_providers` (
-  `id` bigint(20) unsigned NOT NULL auto_increment,
-  `provider_id` int(10) unsigned NOT NULL,
-  `product_id` bigint(20) unsigned NOT NULL,
-  `price` double unsigned NOT NULL default '0.0', #price?? implement later if decided
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+#CREATE TABLE IF NOT EXISTS `products_providers` (
+#  `id` bigint(20) unsigned NOT NULL auto_increment,
+#  `provider_id` int(10) unsigned NOT NULL,
+#  `product_id` bigint(20) unsigned NOT NULL,
+#  `price` double unsigned NOT NULL default '0.0', #price?? implement later if decided
+#  PRIMARY KEY  (`product_id`, `provider_id`)
+#) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
 
 # Introduced on Sept 7 2009.
 CREATE TABLE IF NOT EXISTS `stock_corrections` (
@@ -292,10 +257,6 @@ CREATE TABLE IF NOT EXISTS `stock_corrections` (
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 # Some general config that is gonna be taken from azahar. For shared configuration
-#For the way to manage taxes, the config option "taxIsIncludedInPrice" is taken into account.
-#If this option is TRUE, the tax is going to be added to the product price, like in the USA.
-#If this option is FALSE, the tax is not added, just calculated for informative use.
-
 CREATE TABLE IF NOT EXISTS `config` (
   `firstrun` varchar(30) character set utf8 collate utf8_general_ci NOT NULL,
   `taxIsIncludedInPrice` bool NOT NULL default true,
@@ -396,63 +357,56 @@ order by `transactions`.`id`;
 # also re-grant it again with the new password. see the grant clause below.
 
 #CREATE USER 'lemonclient'@'localhost' IDENTIFIED BY 'xarwit0721';
-GRANT ALL ON lemonposdb.* TO 'lemonclient'@'localhost' IDENTIFIED BY 'xarwit0721';
+GRANT ALL ON lemondb.* TO 'lemonclient'@'localhost' IDENTIFIED BY 'xarwit0721';
 
 
 # CREATE lemon users (users using lemon, cashiers... )
 #With password 'linux'. Note that this password is salt-hashed (SHA56).
 
-INSERT INTO lemonposdb.users (id, username, password, salt, name, role) VALUES (1, 'admin', 'C07B1E799DC80B95060391DDF92B3C7EF6EECDCB', 'h60VK', 'Administrator', 2); # Admin role=2
+INSERT INTO lemondb.users (id, username, password, salt, name, role) VALUES (1, 'admin', 'C07B1E799DC80B95060391DDF92B3C7EF6EECDCB', 'h60VK', 'Administrator', 2);
 
 ##You may change the string values for the next fields
 
 
 #Insert a default measure (very important to keep this id)
-INSERT INTO lemonposdb.measures (id, text) VALUES(1, 'Pc');
+INSERT INTO lemondb.measures (id, text) VALUES(1, 'Pc');
 #Insert a default client
-INSERT INTO lemonposdb.clients (id, name, points, discount) VALUES (1, 'General', 0, 0);
+INSERT INTO lemondb.clients (id, name, points, discount) VALUES (1, 'General', 0, 0);
 #Insert a default category
-INSERT INTO lemonposdb.categories (catid, text) VALUES (1, 'General');
+INSERT INTO lemondb.categories (catid, text) VALUES (1, 'General');
 
 #Insert default payment types (very important to keep these ids)
-INSERT INTO lemonposdb.paytypes (typeid, text) VALUES(1, 'Cash');
-INSERT INTO lemonposdb.paytypes (typeid, text) VALUES(2, 'Card');
+INSERT INTO lemondb.paytypes (typeid, text) VALUES(1, 'Cash');
+INSERT INTO lemondb.paytypes (typeid, text) VALUES(2, 'Card');
 #Insert default transactions states (very important to keep these ids)
-INSERT INTO lemonposdb.transactionstates (stateid, text) VALUES(1, 'Not Completed');
-INSERT INTO lemonposdb.transactionstates (stateid, text) VALUES(2, 'Completed');
-INSERT INTO lemonposdb.transactionstates (stateid, text) VALUES(3, 'Cancelled');
-INSERT INTO lemonposdb.transactionstates (stateid, text) VALUES(4, 'PO Pending');
-INSERT INTO lemonposdb.transactionstates (stateid, text) VALUES(5, 'PO Completed');
-INSERT INTO lemonposdb.transactionstates (stateid, text) VALUES(6, 'PO Incomplete');
+INSERT INTO lemondb.transactionstates (stateid, text) VALUES(1, 'Not Completed');
+INSERT INTO lemondb.transactionstates (stateid, text) VALUES(2, 'Completed');
+INSERT INTO lemondb.transactionstates (stateid, text) VALUES(3, 'Cancelled');
+INSERT INTO lemondb.transactionstates (stateid, text) VALUES(4, 'PO Pending');
+INSERT INTO lemondb.transactionstates (stateid, text) VALUES(5, 'PO Completed');
+INSERT INTO lemondb.transactionstates (stateid, text) VALUES(6, 'PO Incomplete');
 #Insert default transactions types (very important to keep these ids)
-INSERT INTO lemonposdb.transactiontypes (ttypeid, text) VALUES(1, 'Sell');
-INSERT INTO lemonposdb.transactiontypes (ttypeid, text) VALUES(2, 'Purchase');
-INSERT INTO lemonposdb.transactiontypes (ttypeid, text) VALUES(3, 'Change');
-INSERT INTO lemonposdb.transactiontypes (ttypeid, text) VALUES(4, 'Return');
+INSERT INTO lemondb.transactiontypes (ttypeid, text) VALUES(1, 'Sell');
+INSERT INTO lemondb.transactiontypes (ttypeid, text) VALUES(2, 'Purchase');
+INSERT INTO lemondb.transactiontypes (ttypeid, text) VALUES(3, 'Change');
+INSERT INTO lemondb.transactiontypes (ttypeid, text) VALUES(4, 'Return');
 #Insert default cashFLOW types
-INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(1, 'Normal cash OUT');
-INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(2, 'Money return on ticket cancel');
-INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(3, 'Money return on product return');
-INSERT INTO lemonposdb.cashflowtypes (typeid, text) VALUES(4, 'Normal Cash IN');
+INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(1, 'Normal cash OUT');
+INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(2, 'Money return on ticket cancel');
+INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(3, 'Money return on product return');
+INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(4, 'Normal Cash IN');
 #Insert default provider
-INSERT INTO lemonposdb.providers (id,name,address,phone,cellphone) VALUES(1,'No provider', '-NA-', '-NA-', '-NA-');
+INSERT INTO lemondb.providers (id,name,address,phone,cellphone) VALUES(1,'No provider', '-NA-', '-NA-', '-NA-');
 
-INSERT INTO lemonposdb.so_status (id, text) VALUES(0, 'Pending');
-INSERT INTO lemonposdb.so_status (id, text) VALUES(1, 'In Progress');
-INSERT INTO lemonposdb.so_status (id, text) VALUES(2, 'Ready');
-INSERT INTO lemonposdb.so_status (id, text) VALUES(3, 'Delivered');
-INSERT INTO lemonposdb.so_status (id, text) VALUES(4, 'Cancelled');
+INSERT INTO lemondb.so_status (id, text) VALUES(0, 'Pending');
+INSERT INTO lemondb.so_status (id, text) VALUES(1, 'In Progress');
+INSERT INTO lemondb.so_status (id, text) VALUES(2, 'Ready');
+INSERT INTO lemondb.so_status (id, text) VALUES(3, 'Delivered');
+INSERT INTO lemondb.so_status (id, text) VALUES(4, 'Cancelled');
 
-INSERT INTO lemonposdb.bool_values (id, text) VALUES(0, 'NO');
-INSERT INTO lemonposdb.bool_values (id, text) VALUES(1, 'YES');
+INSERT INTO lemondb.bool_values (id, text) VALUES(0, 'NO');
+INSERT INTO lemondb.bool_values (id, text) VALUES(1, 'YES');
 
-#brands
-INSERT INTO lemonposdb.brands (brandid, bname) VALUES(1,"Unbranded");
+INSERT INTO lemondb.config (firstrun, taxIsIncludedInPrice, storeLogo, storeName, storeAddress, storePhone, logoOnTop, useCUPS, smallPrint) VALUES ('yes, it is February 6 1978', true, '', '', '', '', true, true, true);
 
-#Insert default tax model and elements
-#--COMMENT  THIS LINES IF YOU RUN YOUR COUNTRY SCRIPT.
-#INSERT INTO lemonposdb.taxmodels (modelid,tname,appway,elementsid) VALUES(1,"Default", "*.15","1");
-#INSERT INTO lemonposdb.taxelements (elementid, ename, amount) VALUES (1,"Simple 15%", 15);
-
-INSERT INTO lemonposdb.config (firstrun, taxIsIncludedInPrice, storeLogo, storeName, storeAddress, storePhone, logoOnTop, useCUPS, smallPrint) VALUES ('yes, it is February 6 1978', true, '', '', '', '', true, true, true);
 

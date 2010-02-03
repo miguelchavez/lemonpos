@@ -1,22 +1,23 @@
-/**************************************************************************
-*   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
-*   miguel@lemonpos.org                                                   *
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-*   This program is distributed in the hope that it will be useful,       *
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-*   GNU General Public License for more details.                          *
-*                                                                         *
-*   You should have received a copy of the GNU General Public License     *
-*   along with this program; if not, write to the                         *
-*   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
-***************************************************************************/
+/***************************************************************************
+ *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                  *
+ *   miguel.chavez.gamboa@gmail.com                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+ ***************************************************************************/
 
 #ifndef LEMONVIEW_H
 #define LEMONVIEW_H
@@ -24,6 +25,8 @@
 class QStringList;
 class QTableWidgetItem;
 class LoginWindow;
+class MibitTip;
+class MibitPasswordDialog;
 
 #include <qwidget.h>
 #include <QList>
@@ -59,14 +62,17 @@ public:
     QString getCurrentTransactionString();
     qulonglong     getCurrentTransaction();
     QList<int> getTheSplitterSizes();
+    int rmSeason;
+    QList<qulonglong> rmExcluded;
 
     void setTheSplitterSizes(QList<int> s);
     bool isTransactionInProgress() { return transactionInProgress;}
     void cancelByExit();
     bool canStartSelling() {return operationStarted;}
     bool validAdminUser();
-    qulonglong saveBalance();
-    
+    void corteDeCaja(); //to allow lemon class to doit
+
+    QWidget *frameLeft, *frame;
   private:
     Ui::mainview ui_mainview;
     QString loggedUser;
@@ -74,7 +80,9 @@ public:
     int     loggedUserRole;
     qulonglong loggedUserId;
     qulonglong currentTransaction;
+    qulonglong currentBalanceId;
     double  totalSum;
+    double  totalTax; // in money.
     Gaveta *drawer;
     bool   drawerCreated;
     bool   modelsCreated;
@@ -90,11 +98,15 @@ public:
     QHash<QString, ClientInfo> clientsHash;
     qulonglong buyPoints;
     double discMoney;
+    double totalSumWODisc;
     QDateTime transDateTime;
+
+    QHash<qulonglong, SpecialOrderInfo> specialOrders;
     
     QSqlRelationalTableModel *historyTicketsModel;
 
-    QSqlQueryModel *productsFilterModel;
+    MibitTip *tipCode, *tipAmount;
+    MibitPasswordDialog *lockDialog;
 
     void loadIcons();
     void setUpInputs();
@@ -149,7 +161,10 @@ public:
 
     void signalEnableUI();
     void signalDisableUI();
+    void signalEnableLogin();
+    void signalDisableLogin();
     void signalEnableStartOperationAction();
+    void signalDisableStartOperationAction();
 
 
   private slots:
@@ -240,7 +255,8 @@ public:
   /**
      * This slot is used to make a balance for the user (initial + in - out = drawer amount).
    */
-    void corteDeCaja();
+    //void corteDeCaja();  GONE TO PUBLIC
+    void doCorteDeCaja();
     void endOfDay();
 
     void startAgain();
@@ -267,8 +283,6 @@ public:
     void setupClients();
     void timerTimeout();
     void clearLabelSearchMsg();
-    void clearLabelInsertCodeMsg();
-    void clearLabelPayMsg();
     void goSelectCardAuthNumber();
 
 
@@ -296,10 +310,22 @@ public:
     void cashOut();
     void cashIn();
     void cashAvailable();
-    void modifyProductsFilterModel(); //this feature is only present on 0.7.4 - 0.8 but not in SVN. It is for search combobox - biel
 
     void freezeWidgets();
     void unfreezeWidgets();
+    void addSpecialOrder();
+    void specialOrderComplete();
+    void lockScreen();
+    void unlockScreen();
+    void suspendSale();
+    void resumeSale();
+    void changeSOStatus();
+
+    void updateTransaction();
+    void updateBalance(bool finish); //implies the drawer content
+    void insertBalance();
+
+    void occasionalDiscount();
 
     void log(const qulonglong &uid, const QDate &date, const QTime &time, const QString &text);
 

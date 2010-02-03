@@ -1,22 +1,23 @@
-/**************************************************************************
-*   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
-*   miguel@lemonpos.org                                                   *
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-*   This program is distributed in the hope that it will be useful,       *
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-*   GNU General Public License for more details.                          *
-*                                                                         *
-*   You should have received a copy of the GNU General Public License     *
-*   along with this program; if not, write to the                         *
-*   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
-***************************************************************************/
+/***************************************************************************
+ *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
+ *   miguel.chavez.gamboa@gmail.com                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+ ***************************************************************************/
 
 #ifndef SQUEEZEVIEW_H
 #define SQUEEZEVIEW_H
@@ -38,8 +39,7 @@ class MibitFloatPanel;
  * here.
  *
  * @short Main view
- * @author Miguel Chavez Gamboa <miguel@lemonpos.org>
- * @version 0.1
+ * @author Miguel Chavez Gamboa <miguel.chavez.gamboa@gmail.com>
  */
 class squeezeView : public QWidget, public Ui::squeezeview_base
 {
@@ -61,7 +61,6 @@ public:
     bool adminIsLogged;
     LoginWindow *dlgPassword;
     QHash<QString, int> categoriesHash;
-    QHash<QString, qulonglong> providersHash;
     QSqlRelationalTableModel *productsModel;
     QSqlRelationalTableModel *offersModel;
     QSqlRelationalTableModel *cashflowModel;
@@ -72,7 +71,6 @@ public:
     QSqlTableModel *balancesModel;
     QSqlTableModel *clientsModel;
     QSqlTableModel *randomMsgModel;
-    QSqlTableModel *providersModel;
     QSqlRelationalTableModel *logsModel;
     QSqlRelationalTableModel *transactionsModel;
     int productCodeIndex, productDescIndex, productPriceIndex, productStockIndex, productCostIndex,
@@ -80,7 +78,7 @@ public:
     productPhotoIndex, productCategoryIndex, productPointsIndex, productLastProviderIndex, productAlphaCodeIndex, productIsAGroupIndex, productIsARawIndex, productGEIndex;
     int offerIdIndex, offerDiscountIndex, offerDateStartIndex, offerDateEndIndex,offerProdIdIndex;
     int userIdIndex, usernameIndex, nameIndex, passwordIndex, saltIndex, addressIndex, phoneIndex, cellIndex, roleIndex,
-    photoIndex, productBrandIndex, productTaxModelIndex;
+    photoIndex;
     int transIdIndex, transClientidIndex, transTypeIndex,transAmountIndex,transDateIndex,transTimeIndex,transPaidWithIndex,
     transChangeGivenIndex,transPayMethodIndex,transStateIndex,transUseridIndex,transCardNumIndex,transItemCountIndex,transPointsIndex,
     transDiscMoneyIndex,transDiscIndex,transCardAuthNumberIndex,transUtilityIndex,transTerminalNumIndex,transItemsListIndex,  transSOIndex, transProvIdIndex;
@@ -132,13 +130,11 @@ signals:
    void showCategoriesPage();
    void showClientsPage();
    void showTransactionsPage();
-   void showProviders();
    void showReports();
    void showRandomMsgs();
    void usersViewOnSelected(const QModelIndex & index);
    void productsViewOnSelected(const QModelIndex &index);
    void clientsViewOnSelected(const QModelIndex &index);
-   void providersOnSelected(const QModelIndex &index);
    void doPurchase();
    void stockCorrection();
    void adjustOffersTable();
@@ -151,7 +147,6 @@ signals:
    void enableUI();
    void doEmitSignalSalir();
    void updateCategoriesCombo();
-   void updateProvidersCombo();
    void showProdListAsGrid();
    void showProdListAsTable();
    void adjustProductsTable();
@@ -179,7 +174,6 @@ signals:
    void createMeasure();
    void createCategory();
    void createClient();
-   void createProvider();
    void createRandomMsg();
    void deleteSelectedOffer();
    void deleteSelectedUser();
@@ -187,9 +181,7 @@ signals:
    void deleteSelectedMeasure();
    void deleteSelectedCategory();
    void deleteSelectedClient();
-   void deleteSelectedProvider();
    void populateCategoriesHash();
-   void populateProvidersHash();
    void setProductsFilter();
    void setTransactionsFilter();
    void setBalancesFilter();
@@ -204,7 +196,6 @@ signals:
    void setupCategoriesModel();
    void setupClientsModel();
    void setupTransactionsModel();
-   void setupProvidersModel();
    void checkDBStatus();
    void connectToDb();
 
@@ -220,10 +211,7 @@ signals:
 
    void createFloatingPanels();
    void reSelectModels();
-
-   void updateCategoriesModel() { categoriesModel->select(); populateCategoriesHash(); }
-   void updateMeasuresModel() { measuresModel->select(); }
-   void updateProvidersModel() { providersModel->select(); updateProvidersCombo(); }
+   
 };
 
 #endif // SQUEEZEVIEW_H

@@ -37,6 +37,7 @@ echo "Extracting messages"
 # go for azahar strings! hard coded way
 echo ${BASEDIR}../dataAccess/azahar.cpp > ${WDIR}/infiles.list
 
+
 cd $WDIR
 cd ${BASEDIR}
 # see above on sorting

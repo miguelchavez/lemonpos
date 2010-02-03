@@ -1,22 +1,23 @@
-/**************************************************************************
-*   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
-*   miguel@lemonpos.org                                                   *
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-*   This program is distributed in the hope that it will be useful,       *
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-*   GNU General Public License for more details.                          *
-*                                                                         *
-*   You should have received a copy of the GNU General Public License     *
-*   along with this program; if not, write to the                         *
-*   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
-**************************************************************************/
+/***************************************************************************
+ *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                  *
+ *   miguel.chavez.gamboa@gmail.com                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+ ***************************************************************************/
 
 #ifndef MYSTRUCTS_H
 #define MYSTRUCTS_H
@@ -36,23 +37,21 @@ struct ProductInfo {
   double discpercentage;
   bool   validDiscount;
   double cost;
-  double tax;  //total tax in percentage
+  double tax;
+  double extratax;
   double totaltax;//in money...
   QByteArray photo;
   double stockqty;
   int units;
   QString unitStr;
   int category;
-  double profit;
+  double utility;
   int row; // New: Sept 30, 2007: To store the row where the product is located in the listView.
   qulonglong points; //New: Dec 15 2007: To store the points the product gives.
   double qtyOnList;
   double purchaseQty; //New: Jan 13 2007: For purchase editor...
   qulonglong lastProviderId;
   QString alphaCode;
-  qulonglong taxmodelid;
-  QString taxElements;
-  qulonglong brandid;
   double soldUnits; // mch 21Nov09 FOR PRINTED REPORT - LOW STOCK
   // for grouped products and special orders
   bool isAGroup;
@@ -115,8 +114,9 @@ struct TransactionInfo
   double     disc;
   double     discmoney;
   qulonglong points;
-  double     profit; 
+  double     utility;
   int        terminalnum;
+  //QString    groups;  //DEPRECATED
   QString    specialOrders;
   qulonglong providerid;
   qulonglong balanceId; //to store balance where it was sold. For SESSIONS.
@@ -377,50 +377,6 @@ struct GroupInfo
   double  count; // total of items in the group
   bool    isAvailable; //based on stockqty for each product (and its qtys).
   QHash<qulonglong, ProductInfo> productsList;
-};
-
-struct BrandInfo
-{
-  qulonglong id;
-  QString    name;
-};
-
-struct ProviderInfo
-{
-  qulonglong id;
-  QString    name;
-  QString    address;
-  QString    phone;
-  QString    cell;
-};
-
-struct ProductProviderInfo
-{
-  qulonglong id;
-  qulonglong provId;
-  qulonglong prodId;
-  double     price;
-};
-
-struct TaxModelInfo
-{
-  qulonglong id;
-  QString    name;
-  QString    appway;
-  QString    elements;
-  double     taxAmount;
-};
-
-struct InvoiceInfo
-{
-  qulonglong id;
-  qulonglong transactionid;
-  qulonglong clientid;
-  QDate      date;
-  QTime      time;
-  double     totalAmount;
-  double     subtotal;
-  double     taxAmount;
 };
 
 #endif

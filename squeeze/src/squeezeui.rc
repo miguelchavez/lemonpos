@@ -1,5 +1,5 @@
 <!DOCTYPE kpartgui SYSTEM "kpartgui.dtd">
-<kpartgui name="squeeze" version="11">
+<kpartgui name="squeeze" version="10">
 <ToolBar name="aGeneral">
   <text>General ToolBar</text>
   <Action name="quickViewPlots" />
@@ -10,7 +10,6 @@
   <Action name="categoriesBrowse" />
   <Action name="clientsBrowse" />
   <Action name="randomMsgsBrowse" />
-  <Action name="providersBrowse" />
   <Action name="viewLog" />
 </ToolBar>
 
@@ -42,7 +41,6 @@
       <Action name="measuresBrowse" />
       <Action name="categoriesBrowse" />
       <Action name="clientsBrowse" />
-      <Action name="providersBrowse" />
       <Action name="randomMsgsBrowse" />
       <Action name="viewLog" />
     </Menu>

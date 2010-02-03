@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
- *   miguel@lemonpos.org                                                   *
+ *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
+ *   miguel.chavez.gamboa@gmail.com                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
+
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
@@ -28,18 +29,17 @@
 static const char description[] =
     I18N_NOOP("Squeeze your lemon!");
 
-static const char version[] = "1.0 Preview / 2010.Jan.02";
+static const char version[] = "0.9";
 
 int main(int argc, char **argv)
 {
-  KAboutData about("squeeze", 0, ki18n("squeeze"), version, ki18n(description), KAboutData::License_GPL, ki18n("© 2007-2010 Miguel Chavez Gamboa"), KLocalizedString(), 0, "miguel@lemonpos.org           ");
-    about.addAuthor( ki18n("Miguel Chávez Gamboa"), KLocalizedString(), "miguel@lemonpos.org           " );
+    KAboutData about("squeeze", 0, ki18n("squeeze"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2007-2009 Miguel Chavez Gamboa"), KLocalizedString(), 0, "miguel.chavez.gamboa@gmail.com");
+    about.addAuthor( ki18n("Miguel Chavez Gamboa"), KLocalizedString(), "miguel.chavez.gamboa@gmail.com" );
     KCmdLineArgs::init(argc, argv, &about);
 
     about.addCredit(ki18n("Roberto Aceves"), ki18n("Many ideas and general help"));
     about.addCredit(ki18n("Biel Frontera"), ki18n("Code contributor"));
-    about.addCredit(ki18n("Jose Nivar"), ki18n("Many ideas and sponsorship"));
-    
+
     KCmdLineOptions options;
     options.add("+[URL]", ki18n( "Document to open" ));
     KCmdLineArgs::addCmdLineOptions(options);

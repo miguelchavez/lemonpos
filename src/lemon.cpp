@@ -1,29 +1,30 @@
-/**************************************************************************
-*   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
-*   miguel@lemonpos.org                                                   *
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-*   This program is distributed in the hope that it will be useful,       *
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-*   GNU General Public License for more details.                          *
-*                                                                         *
-*   You should have received a copy of the GNU General Public License     *
-*   along with this program; if not, write to the                         *
-*   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
-***************************************************************************/
+/***************************************************************************
+ *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                  *
+ *   miguel.chavez.gamboa@gmail.com                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+ ***************************************************************************/
 
 #include "lemon.h"
 #include "lemonview.h"
 #include "settings.h"
 #include "enums.h"
 
-#include <kapplication.h>
+#include <kapplication.h> 
 // #include <qpainter.h>
 
 #include <kdeversion.h>
@@ -117,7 +118,12 @@ lemon::lemon()
     connect(m_view, SIGNAL(signalEnableUI()), this, SLOT(enableUi()) );
     connect(m_view, SIGNAL(signalDisableUI()), this, SLOT(disableUi()) );
 
+    connect(m_view, SIGNAL(signalDisableLogin()), this, SLOT(disableLogin()) );
+    connect(m_view, SIGNAL(signalEnableLogin()), this, SLOT(enableLogin()) );
+    
+
     connect(m_view, SIGNAL(signalEnableStartOperationAction()), this, SLOT(enableStartOp()) );
+    connect(m_view, SIGNAL(signalDisableStartOperationAction()), this, SLOT(disableStartOp()) );
 
     loadStyle();
     disableConfig();
@@ -137,38 +143,39 @@ lemon::~lemon()
 //     delete m_printer;
 }
 
+
 void lemon::setupActions()
 {
   KStandardAction::quit(this, SLOT(salir()), actionCollection());
   //KStandardAction::quit(qApp, SLOT(quit()), actionCollection());
-  
+
   KStandardAction::preferences(this, SLOT(optionsPreferences()), actionCollection());
-  
-  //Our actions
+
+    //Our actions
   QAction* loginAction =  actionCollection()->addAction( "login" );
   loginAction->setText(i18n("Login"));
-  loginAction->setIcon(KIcon("preferences-web-browser-identification")); //identity  office-address-book
+  loginAction->setIcon(KIcon("office-address-book")); //identity
   loginAction->setShortcut(Qt::CTRL+Qt::Key_L);
   connect(loginAction, SIGNAL(triggered(bool)),m_view, SLOT(login()));
-  
+
   QAction *corteCajaAction = actionCollection()->addAction("balance");
   corteCajaAction->setText(i18nc("Account balance", "Balance"));
   corteCajaAction->setIcon(KIcon("lemon-balance"));
   corteCajaAction->setShortcut(Qt::CTRL+Qt::Key_B);
-  connect(corteCajaAction, SIGNAL(triggered(bool)), m_view, SLOT(corteDeCaja()));
-  
+  connect(corteCajaAction, SIGNAL(triggered(bool)), m_view, SLOT(doCorteDeCaja()));
+
   QAction* enterCodeAction = actionCollection()->addAction( "enterCode" );
   enterCodeAction->setText(i18n("Enter Code"));
   enterCodeAction->setIcon(KIcon("lemon-tag"));
   enterCodeAction->setShortcut(Qt::Key_F2);
   connect(enterCodeAction, SIGNAL(triggered(bool)),m_view, SLOT(showEnterCodeWidget()));
-  
+
   QAction* searchItemAction = actionCollection()->addAction( "searchItem" );
   searchItemAction->setText(i18n("Search Item"));
   searchItemAction->setIcon(KIcon("edit-find"));
   searchItemAction->setShortcut(Qt::Key_F3);
   connect(searchItemAction, SIGNAL(triggered(bool)),m_view, SLOT(showSearchItemWidget()));
-  
+
   QAction* delSelectedItemAction = actionCollection()->addAction( "deleteSelectedItem" );
   delSelectedItemAction->setText(i18n("Delete Selected Item"));
   delSelectedItemAction->setIcon(KIcon("lemon-boxcancel"));
@@ -178,26 +185,26 @@ void lemon::setupActions()
   // The same for other non-working shortcuts.
   // Some problem related to different keyboard layout :
   qDebug()<<"shortcut:"<<delSelectedItemAction->shortcuts();
-  
+
   QAction* finishTransactionAction = actionCollection()->addAction( "finishTransaction" );
   finishTransactionAction->setText(i18n("Finish transaction"));
   finishTransactionAction->setIcon(KIcon("lemon-transaction-accept"));
   finishTransactionAction->setShortcut(Qt::Key_F12);
   connect(finishTransactionAction, SIGNAL(triggered(bool)),m_view, SLOT(finishCurrentTransaction()));
-  
+
   QAction* cancelTransactionAction = actionCollection()->addAction( "cancelTransaction" );
   cancelTransactionAction->setText(i18n("Cancel transaction"));
   cancelTransactionAction->setIcon(KIcon("lemon-transaction-cancel"));
   cancelTransactionAction->setShortcut(Qt::Key_F10);
   connect(cancelTransactionAction, SIGNAL(triggered(bool)),m_view, SLOT(preCancelCurrentTransaction()));
-  
+
   QAction* cancelSellAction = actionCollection()->addAction("cancelTicket");
   cancelSellAction->setText(i18n("Cancel a ticket"));
   cancelSellAction->setIcon(KIcon("lemon-ticket-cancel") );
   cancelSellAction->setShortcut(Qt::Key_F11);
   connect(cancelSellAction, SIGNAL(triggered(bool)),m_view, SLOT(askForIdToCancel()));
-  
-  //NOTE: This action is for setting how much money is on the drawer...
+
+      //NOTE: This action is for setting how much money is on the drawer...
   QAction* startOperationAction = actionCollection()->addAction( "startOperation" );
   startOperationAction->setText(i18n("Start Operation"));
   startOperationAction->setIcon(KIcon("window-new"));
@@ -209,7 +216,7 @@ void lemon::setupActions()
   payFocusAction->setIcon(KIcon("lemon-payfocus"));
   payFocusAction->setShortcut(Qt::Key_F4); //Qt::Key_Alt + Qt::Key_End
   connect(payFocusAction, SIGNAL(triggered(bool)),m_view, SLOT(focusPayInput()));
-  
+
   QAction *showProdGridAction = actionCollection()->addAction("showProductsGrid");
   showProdGridAction->setCheckable(true);
   showProdGridAction->setText(i18n("Show/Hide Products Grid"));
@@ -217,46 +224,96 @@ void lemon::setupActions()
   showProdGridAction->setShortcut(QKeySequence::Print);
   connect(showProdGridAction, SIGNAL(toggled(bool)), m_view, SLOT(showProductsGrid(bool)));
   qDebug()<<"Show Grid shortcut:"<<showProdGridAction->shortcuts();
-  
+
   QAction *showPriceCheckerAction = actionCollection()->addAction("showPriceChecker");
   showPriceCheckerAction->setText(i18n("Show Price Checker"));
   showPriceCheckerAction->setIcon(KIcon("lemon-price-checker"));
   showPriceCheckerAction->setShortcut(Qt::Key_F9);
   connect(showPriceCheckerAction, SIGNAL(triggered(bool)), m_view, SLOT(showPriceChecker()));
-  
+
   QAction *reprintTicketAction = actionCollection()->addAction("reprintTicket");
   reprintTicketAction->setText(i18n("Reprint ticket"));
   reprintTicketAction->setIcon(KIcon("lemon-print-ticket"));
   reprintTicketAction->setShortcut(Qt::Key_F5);
   connect(reprintTicketAction, SIGNAL(triggered(bool)), m_view, SLOT(showReprintTicket()));
-  
+
   QAction *cashOutAction = actionCollection()->addAction("cashOut");
   cashOutAction->setText(i18n("Cash Out"));
   cashOutAction->setIcon(KIcon("lemon-cashout"));
   cashOutAction->setShortcut(Qt::Key_F7); //F7
   connect(cashOutAction, SIGNAL(triggered(bool)), m_view, SLOT(cashOut()));
-  
+
   QAction *cashAvailableAction = actionCollection()->addAction("cashAvailable");
   cashAvailableAction->setText(i18n("Cash in drawer"));
   cashAvailableAction->setIcon(KIcon("lemon-money"));
   cashAvailableAction->setShortcut(Qt::Key_F6);
   connect(cashAvailableAction, SIGNAL(triggered(bool)), m_view, SLOT(cashAvailable()));
-  
+
   QAction *cashInAction = actionCollection()->addAction("cashIn");
   cashInAction->setText(i18n("Cash In"));
   cashInAction->setIcon(KIcon("lemon-cashin"));
   cashInAction->setShortcut(Qt::Key_F8); //F8
   connect(cashInAction, SIGNAL(triggered(bool)), m_view, SLOT(cashIn()));
-  
+
   QAction *endOfDayAction = actionCollection()->addAction("endOfDay");
   endOfDayAction->setText(i18n("End of day report"));
   endOfDayAction->setIcon(KIcon("go-jump-today"));
   endOfDayAction->setShortcut(QKeySequence::Close);
   connect(endOfDayAction, SIGNAL(triggered(bool)), m_view, SLOT(endOfDay()));
   qDebug()<<"End of day shortcut:"<<endOfDayAction->shortcuts();
+
+  QAction *soAction = actionCollection()->addAction("specialOrder");
+  soAction->setText(i18n("Add Special Order"));
+  soAction->setIcon(KIcon("lemon-box"));
+  soAction->setShortcut(Qt::Key_PageUp);
+  connect(soAction, SIGNAL(triggered(bool)), m_view, SLOT(addSpecialOrder()));
+  qDebug()<<"SpecialOrder shortcut:"<<soAction->shortcuts();
+
+
+  QAction *socAction = actionCollection()->addAction("specialOrderComplete");
+  socAction->setText(i18n("Complete Special Order"));
+  socAction->setIcon(KIcon("lemon-box"));
+  socAction->setShortcut(Qt::Key_PageDown);
+  connect(socAction, SIGNAL(triggered(bool)), m_view, SLOT(specialOrderComplete()));
+  qDebug()<<"SpecialOrder Complete shortcut:"<<socAction->shortcuts();
+
+  QAction *lockAction = actionCollection()->addAction("lockScreen");
+  lockAction->setText(i18n("Lock Screen"));
+  lockAction->setIcon(KIcon("lemon-box")); //TODO:CREATE ICON!
+  lockAction->setShortcut(Qt::CTRL+Qt::Key_Space);
+  connect(lockAction, SIGNAL(triggered(bool)), m_view, SLOT(lockScreen()));
+  qDebug()<<"LockScreen shortcut:"<<lockAction->shortcuts();
+
+  QAction *suspendSaleAction = actionCollection()->addAction("suspendSale");
+  suspendSaleAction->setText(i18n("Suspend Sale"));
+  suspendSaleAction->setIcon(KIcon("lemon-box")); //TODO:CREATE ICON!
+  suspendSaleAction->setShortcut(Qt::CTRL+Qt::Key_Backspace);
+  connect(suspendSaleAction, SIGNAL(triggered(bool)), m_view, SLOT( suspendSale() ));
+  qDebug()<<"Suspend Sale shortcut:"<<suspendSaleAction->shortcuts();
+
+  QAction *soStatusAction = actionCollection()->addAction("soStatus");
+  soStatusAction->setText(i18n("Change Special Order Status"));
+  soStatusAction->setIcon(KIcon("lemon-box")); //TODO:CREATE ICON!
+  soStatusAction->setShortcut(Qt::CTRL+Qt::Key_PageUp);
+  connect(soStatusAction, SIGNAL(triggered(bool)), m_view, SLOT( changeSOStatus() ));
+  qDebug()<<"soStatus shortcut:"<<soStatusAction->shortcuts();
+
+  QAction *oDiscAction = actionCollection()->addAction("occasionalDiscount");
+  oDiscAction->setText(i18n("Change Special Order Status"));
+  oDiscAction->setIcon(KIcon("lemon-money")); //TODO:CREATE ICON!
+  oDiscAction->setShortcut(Qt::CTRL+Qt::Key_D);
+  connect(oDiscAction, SIGNAL(triggered(bool)), m_view, SLOT( occasionalDiscount() ));
+  qDebug()<<"occasionalDiscount shortcut:"<<oDiscAction->shortcuts();
+
+  QAction *resumeAction = actionCollection()->addAction("resumeSale");
+  resumeAction->setText(i18n("Resume Sale"));
+  resumeAction->setIcon(KIcon("lemon-box")); //TODO:CREATE ICON!
+  resumeAction->setShortcut(Qt::CTRL+Qt::Key_R);
+  connect(resumeAction, SIGNAL(triggered(bool)), m_view, SLOT( resumeSale() ));
+  qDebug()<<"resumeSale shortcut:"<<resumeAction->shortcuts();
   
   setupGUI();
-  
+
   setGeometry(QApplication::desktop()->screenGeometry(this));
   if (!Settings::splitterSizes().isEmpty()) m_view->setTheSplitterSizes(Settings::splitterSizes());
 }
@@ -423,10 +480,18 @@ void lemon::reactOnStartedOp()
 
 void lemon::enableStartOp()
 {
-  if (!m_view->canStartSelling()) {
+  qDebug()<<"enabling start op action, logged user:"<<m_view->getLoggedUser();
+  if (!m_view->canStartSelling() && !m_view->getLoggedUser().isEmpty()) {
     QAction *action = actionCollection()->action("startOperation");
     action->setEnabled(true);
   }
+}
+
+void lemon::disableStartOp()
+{
+  qDebug()<<"disabling start op action, logged user:"<<m_view->getLoggedUser();
+  QAction *action = actionCollection()->action("startOperation");
+  action->setDisabled(true);
 }
 
 void lemon::reactOnLogOn()
@@ -449,7 +514,8 @@ void lemon::reactOnLogOn()
 
 void lemon::disableUi()
 {
-  m_view->setDisabled(true);
+  m_view->frame->setDisabled(true);
+  m_view->frameLeft->setDisabled(true);
   QAction *action = actionCollection()->action("enterCode");
   action->setDisabled(true);
   if (m_view->canStartSelling()) {
@@ -484,15 +550,41 @@ void lemon::disableUi()
   action->setDisabled(true);
   action = actionCollection()->action("endOfDay");
   action->setDisabled(true);
+  action = actionCollection()->action("specialOrder");
+  action->setDisabled(true);
+  action = actionCollection()->action("specialOrderComplete");
+  action->setDisabled(true);
+  action = actionCollection()->action("occasionalDiscount");
+  action->setDisabled(true);
+  
+  action = actionCollection()->action("suspendSale");
+  action->setDisabled(true);
+  action = actionCollection()->action("resumeSale");
+  action->setDisabled(true);
+
   action = actionCollection()->action("login");
   action->setEnabled(true); //enable login!
   
   disableConfig();
 }
 
+void lemon::disableLogin()
+{
+  QAction *action = actionCollection()->action("login");
+  action->setDisabled(true);
+}
+
+void lemon::enableLogin()
+{
+  QAction *action = actionCollection()->action("login");
+  action->setEnabled(true);
+}
+
 void lemon::enableUi()
 {
   m_view->setEnabled(true);
+  m_view->frame->setEnabled(true);
+  m_view->frameLeft->setEnabled(true);
   QAction *action = actionCollection()->action("enterCode");
   action->setEnabled(true);
   action = actionCollection()->action("startOperation");
@@ -525,6 +617,22 @@ void lemon::enableUi()
   action->setEnabled(true);
   action = actionCollection()->action("endOfDay");
   action->setEnabled(true);
+  action = actionCollection()->action("specialOrder");
+  action->setEnabled(true);
+  action = actionCollection()->action("specialOrderComplete");
+  action->setEnabled(true);
+  action = actionCollection()->action("occasionalDiscount");
+  action->setEnabled(true);
+
+  action = actionCollection()->action("suspendSale");
+  action->setEnabled(true);
+  action = actionCollection()->action("resumeSale");
+  action->setEnabled(true);
+  
+  if (m_view->canStartSelling()) {
+//     action = actionCollection()->action("suspendSale");
+//     action->setEnabled(true);
+  }
 }
 
 void lemon::disableConfig()
@@ -581,6 +689,13 @@ void lemon::updateClock()
     text[2] = '.';
   labelTime->setText(text);
   if ((time.hour()==0) && (time.minute()==0) && (time.second()==0) ) updateDate();
+
+  ///On kde 4.3 some bug resizes the window and the taskbar over mainview. I dont want taskbar, it means full screen is deactivated. How can we set fullScreen MODE?
+  if (geometry() != QApplication::desktop()->screenGeometry(this)) {
+    //qDebug()<<"FIXING WINDOW SIZE from:"<<geometry();
+    //setGeometry(QApplication::desktop()->screenGeometry(this));
+    //Doing this the size is fixed but the taskbar is show over mainview
+  }
 }
 
 void lemon::updateDate()
@@ -593,6 +708,8 @@ void lemon::updateUserName()
 {
   if (m_view->getLoggedUserRole() == roleBasic)
     labelUserInfo->setText(m_view->getLoggedUser());
+  else if (m_view->getLoggedUserRole() == roleSupervisor)
+    labelUserInfo->setText(QString("<html><font color=orange><b>%1</font></b>").arg(m_view->getLoggedUser()));
   else
     labelUserInfo->setText(QString("<html><font color=red><b>%1</font></b>").arg(m_view->getLoggedUser()));
 }
@@ -631,21 +748,28 @@ bool lemon::queryClose()
     //cancel current transaction
     if (m_view->isTransactionInProgress()){  m_view->cancelByExit(); }
     //save balance
-    m_view->saveBalance();
+    //m_view->saveBalance();
+    //When saving balance on quit, do we need to print the balance???
+    m_view->corteDeCaja();
     return reallyQuit;
   }
   else if ( m_view->getLoggedUser() == "admin" ) {
     //cancel current transaction
     if (m_view->isTransactionInProgress()){  m_view->cancelByExit(); }
     //save balance
-    m_view->saveBalance();
+    //m_view->saveBalance();
+    //When saving balance on quit, do we need to print the balance???
+    m_view->corteDeCaja();
     return true;
   } else return false;
 }
 
 void lemon::salir()
 {
-  if (queryClose()) kapp->quit();
+  if (queryClose()) {
+    qDebug()<<"===EXIT LEMON AT "<<QDateTime::currentDateTime().toString();
+    kapp->quit();
+  }
 }
 
 #include "lemon.moc"

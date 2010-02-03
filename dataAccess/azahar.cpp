@@ -1,22 +1,22 @@
-/**************************************************************************
-*   Copyright © 2008-2010 by Miguel Chavez Gamboa                         *
-*   miguel@lemonpos.org                                                   *
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-*   This program is distributed in the hope that it will be useful,       *
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-*   GNU General Public License for more details.                          *
-*                                                                         *
-*   You should have received a copy of the GNU General Public License     *
-*   along with this program; if not, write to the                         *
-*   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
-***************************************************************************/
+/***************************************************************************
+ *   Copyright (C) 2008-2009 by Miguel Chavez Gamboa                       *
+ *   miguel.chavez.gamboa@gmail.com                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+ ***************************************************************************/
 
 #include <QWidget>
 #include <QByteArray>
@@ -75,7 +75,7 @@ bool  Azahar::correctStock(qulonglong pcode, double oldStockQty, double newStock
   if (!db.isOpen()) db.open();
 
   //Check if the desired product is a a group.
-  if ( getProductInfo(QString::number(pcode)).isAGroup ) return false;
+  if ( getProductInfo(pcode).isAGroup ) return false;
 
   QSqlQuery query(db);
   QDate date = QDate::currentDate();
@@ -147,20 +147,13 @@ qulonglong Azahar::getProductOfferCode(qulonglong code)
 }
 
 
-ProductInfo Azahar::getProductInfo(QString code)
+ProductInfo Azahar::getProductInfo(qulonglong code)
 {
   ProductInfo info;
   info.code=0;
   info.desc="Ninguno";
   info.price=0;
   info.disc=0;
-  info.cost=0;
-  info.lastProviderId = 0;
-  info.category=0;
-  info.taxmodelid=0;
-  info.units=0;
-  info.points=0;
-  info.row=-1;info.qtyOnList=-1;info.purchaseQty=-1;
   info.discpercentage=0;
   info.validDiscount=false;
   info.alphaCode = "-NA-";
@@ -171,35 +164,7 @@ ProductInfo Azahar::getProductInfo(QString code)
 
   if (!db.isOpen()) db.open();
   if (db.isOpen()) {
-    //QString qry = QString("SELECT * from products where code=%1").arg(code);
-    QString qry = QString("SELECT  P.code as CODE, \
-    P.alphacode as ALPHACODE, \
-    P.name as NAME ,\
-    P.price as PRICE, \
-    P.cost as COST ,\
-    P.stockqty as STOCKQTY, \
-    P.units as UNITS, \
-    P.points as POINTS, \
-    P.photo as PHOTO, \
-    P.category as CATID, \
-    P.brandid as BRANDID, \
-    P.lastproviderid as PROVIDERID, \
-    P.taxmodel as TAXMODELID, \
-    P.isARawProduct as ISRAW, \
-    P.isAGroup as ISGROUP, \
-    P.groupElements as GE, \
-    P.soldunits as SOLDUNITS, \
-    U.text as UNITSDESC, \
-    C.text as CATEGORY, \
-    B.bname  as BRAND, \
-    PR.name as LASTPROVIDER ,\
-    T.tname as TAXNAME, \
-    T.elementsid as TAXELEM \
-    FROM products AS P, brands as B, taxmodels as T, providers as PR, categories as C, measures as U \
-    WHERE B.brandid=P.brandid AND PR.id=P.lastproviderid AND T.modelid=P.taxmodel \
-    AND C.catid=P.category AND U.id=P.units\
-    AND (CODE='%1' or ALPHACODE='%1');").arg(code);
-    
+    QString qry = QString("SELECT * from products where code=%1").arg(code);
     QSqlQuery query(db);
     if (!query.exec(qry)) {
       int errNum = query.lastError().number();
@@ -210,62 +175,70 @@ ProductInfo Azahar::getProductInfo(QString code)
     }
     else {
       while (query.next()) {
-        int fieldCODE = query.record().indexOf("CODE");
-        int fieldDesc = query.record().indexOf("NAME");
-        int fieldPrice= query.record().indexOf("PRICE");
-        int fieldPhoto= query.record().indexOf("PHOTO");
-        int fieldCost= query.record().indexOf("COST");
-        int fieldUnits= query.record().indexOf("UNITS");
-        int fieldUnitsDESC= query.record().indexOf("UNITSDESC");
-        //int fieldTaxName= query.record().indexOf("TAXNAME");
-        int fieldTaxModelId= query.record().indexOf("TAXMODELID");
-        //int fieldCategoryName= query.record().indexOf("CATEGORY");
-        int fieldCategoryId= query.record().indexOf("CATID");
-        int fieldPoints= query.record().indexOf("POINTS");
-        //int fieldLastProviderName = query.record().indexOf("LASTPROVIDER");
-        int fieldLastProviderId = query.record().indexOf("PROVIDERID");
-        int fieldAlphaCode = query.record().indexOf("ALPHACODE");
-        //int fieldBrandName = query.record().indexOf("BRAND");
-        int fieldBrandId = query.record().indexOf("BRANDID");
-        int fieldTaxElem = query.record().indexOf("TAXELEM");
-        int fieldStock= query.record().indexOf("STOCKQTY");
-        int fieldIsGroup = query.record().indexOf("ISGROUP");
-        int fieldIsRaw = query.record().indexOf("ISRAW");
-        int fieldGE = query.record().indexOf("GE");
-        int fieldSoldU = query.record().indexOf("SOLDUNITS");
-
-        info.code     = query.value(fieldCODE).toULongLong();
+        int fieldDesc = query.record().indexOf("name");
+        int fieldPrice= query.record().indexOf("price");
+        int fieldPhoto= query.record().indexOf("photo");
+        int fieldStock= query.record().indexOf("stockqty");
+        int fieldCost= query.record().indexOf("cost");
+        int fieldUnits= query.record().indexOf("units");
+        int fieldTax1= query.record().indexOf("taxpercentage");
+        int fieldTax2= query.record().indexOf("extrataxes");
+        int fieldCategory= query.record().indexOf("category");
+        int fieldPoints= query.record().indexOf("points");
+        int fieldLastProviderId = query.record().indexOf("lastproviderid");
+        int fieldAlphaCode = query.record().indexOf("alphacode");
+        int fieldSoldUnits = query.record().indexOf("soldunits"); //mch 21 NOV 09
+        int fieldIsARaw = query.record().indexOf("isARawProduct");
+        int fieldIsAGroup = query.record().indexOf("isAGroup");
+        int fieldGroupE = query.record().indexOf("groupElements");
+        info.code=code;
+        info.alphaCode = query.value(fieldAlphaCode).toString();
         info.desc     = query.value(fieldDesc).toString();
         info.price    = query.value(fieldPrice).toDouble();
         info.photo    = query.value(fieldPhoto).toByteArray();
+        info.stockqty = query.value(fieldStock).toDouble();
         info.cost     = query.value(fieldCost).toDouble();
+        info.tax      = query.value(fieldTax1).toDouble();
+        info.extratax = query.value(fieldTax2).toDouble();
+        //NOTE: totaltax will not be correct if addTax config option is true.
+        double pWOtax = info.price/(1+((info.tax+info.extratax)/100));
+        info.totaltax = pWOtax*((info.tax+info.extratax)/100); // in money...
         info.units    = query.value(fieldUnits).toInt();
-        info.unitStr  = query.value(fieldUnitsDESC).toString();
-        info.category = query.value(fieldCategoryId).toInt();
+        info.category = query.value(fieldCategory).toInt();
+        info.utility  = info.price - info.cost;
+        info.row      = -1;
         info.points   = query.value(fieldPoints).toInt();
+        info.qtyOnList = -1;
+        info.purchaseQty = -1;
         info.lastProviderId = query.value(fieldLastProviderId).toULongLong();
-        info.alphaCode = query.value(fieldAlphaCode).toString();
-        info.brandid    = query.value(fieldBrandId).toULongLong();
-        info.taxmodelid = query.value(fieldTaxModelId).toULongLong();
-        info.taxElements = query.value(fieldTaxElem).toString();
-        info.profit  = info.price - info.cost;
-        info.stockqty  = query.value(fieldStock).toDouble();
-        info.isAGroup  = query.value(fieldIsGroup).toBool();
-        info.isARawProduct = query.value(fieldIsRaw).toBool();
-        info.groupElementsStr = query.value(fieldGE).toString();
-        info.soldUnits = query.value(fieldSoldU).toDouble();
+        info.soldUnits = query.value(fieldSoldUnits).toDouble();
+        info.isARawProduct = query.value(fieldIsARaw).toBool();
+        info.isAGroup = query.value(fieldIsAGroup).toBool();
+        QString geStr = query.value(fieldGroupE).toString();
+        // groupElements is a list like: '1/3,2/1'
+        if (!geStr.isEmpty()) {
+          //QStringList geList = geStr.split(",");
+          info.groupElementsStr = geStr;
+          //for (int i = 0; i < geList.size(); ++i) {
+            //QStringList l = geList.at(i).split("/");
+            //if ( l.count()==2 ) { //==2 means its complete, having product and qty
+              //groupedInfo gInfo;
+              //gInfo.pInfo = getProductInfo(l.count(0).toULongLong());
+              //gInfo.qty   = l.at(1).toDouble();
+              //info.groupElements.append( gInfo );
+           // }
+          //}//for each element
+        } //groupedElements are not empty
       }
-      //get missing stuff - tax,offers for the requested product
-      info.tax = getTotalTaxPercent(info.taxElements);
-      if (getConfigTaxIsIncludedInPrice()) {
-        ///tax is included in price... mexico style.
-        double pWOtax = info.price/(1+((info.tax)/100));
-        info.totaltax = pWOtax*((info.tax)/100); // in money...
-      } else {
-        ///tax is not included in price... usa style.
-        info.totaltax = info.price*(1+(info.tax/100)); //tax in money
+      //get units descriptions
+      qry = QString("SELECT * from measures WHERE id=%1").arg(info.units);
+      QSqlQuery query3(db);
+      if (query3.exec(qry)) {
+        while (query3.next()) {
+          int fieldUD = query3.record().indexOf("text");
+          info.unitStr=query3.value(fieldUD).toString(); //Added: Dec 15 2007
+        }//query3 - get descritptions
       }
-      
      //get discount info... if have one.
      QSqlQuery query2(db);
      if (query2.exec(QString("Select * from offers where product_id=%1").arg(info.code) )) {
@@ -377,11 +350,6 @@ bool Azahar::insertProduct(ProductInfo info)
   if (!db.isOpen()) db.open();
   QSqlQuery query(db);
 
-  int g=0; int r=0;
-  g = info.isAGroup;
-  r = info.isARawProduct;
-  qDebug()<<"BEFORE FIX  |  isAGroup:"<<g<<" isARaw:"<<r<<" gElements:"<<info.groupElementsStr;
-
   //some buggy info can cause troubles.
   bool groupValueOK = false;
   bool rawValueOK = false;
@@ -389,10 +357,8 @@ bool Azahar::insertProduct(ProductInfo info)
   if (info.isARawProduct == 0 || info.isARawProduct == 1) rawValueOK=true;
   if (!groupValueOK) info.isAGroup = 0;
   if (!rawValueOK) info.isARawProduct = 0;
-
-  qDebug()<<"AFTER FIX  |  isAGroup:"<<info.isAGroup<<" isARaw:"<<info.isARawProduct<<" gElements:"<<info.groupElementsStr;
   
-  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, brandid, taxmodel, photo, category, points, alphacode, lastproviderid, isARawProduct, isAGroup, groupElements ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastsold, :units, :brand, :taxmodel, :photo, :category, :points, :alphacode, :lastproviderid, :isARaw, :isAGroup, :groupE);");
+  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, category, points, alphacode, lastproviderid, isARawProduct,isAGroup, groupElements ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastsold, :units, :tax1, :tax2, :photo, :category, :points, :alphacode, :lastproviderid, :isARaw, :isAGroup, :groupE);");
   query.bindValue(":code", info.code);
   query.bindValue(":name", info.desc);
   query.bindValue(":price", info.price);
@@ -401,8 +367,8 @@ bool Azahar::insertProduct(ProductInfo info)
   query.bindValue(":soldunits", 0);
   query.bindValue(":lastsold", "0000-00-00");
   query.bindValue(":units", info.units);
-  query.bindValue(":brand", info.brandid);
-  query.bindValue(":taxmodel", info.taxmodelid);
+  query.bindValue(":tax1", info.tax);
+  query.bindValue(":tax2", info.extratax);
   query.bindValue(":photo", info.photo);
   query.bindValue(":category", info.category);
   query.bindValue(":points", info.points);
@@ -418,13 +384,13 @@ bool Azahar::insertProduct(ProductInfo info)
 }
 
 
-//NOTE: not updated: soldunits, datelastsold
+
 bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
 {
   bool result = false;
   if (!db.isOpen()) db.open();
   QSqlQuery query(db);
-
+  
   //some buggy info can cause troubles.
   bool groupValueOK = false;
   bool rawValueOK = false;
@@ -432,33 +398,16 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   if (info.isARawProduct == 0 || info.isARawProduct == 1) rawValueOK=true;
   if (!groupValueOK) info.isAGroup = 0;
   if (!rawValueOK) info.isARawProduct = 0;
-
-  query.prepare("UPDATE products SET \
-  code=:newcode, \
-  name=:name, \
-  price=:price, \
-  cost=:cost, \
-  stockqty=:stock, \
-  brandid=:brand, \
-  units=:measure, \
-  taxmodel=:taxmodel, \
-  photo=:photo, \
-  category=:category, \
-  points=:points, \
-  alphacode=:alphacode, \
-  lastproviderid=:lastproviderid, \
-  isARawProduct=:isRaw, \
-  isAGroup=:isGroup, \
-  groupElements=:ge \
-  WHERE code=:id;");
+  
+  query.prepare("UPDATE products SET code=:newcode, photo=:photo, name=:name, price=:price, stockqty=:stock, cost=:cost, units=:measure, taxpercentage=:tax1, extrataxes=:tax2, category=:category, points=:points, alphacode=:alphacode, lastproviderid=:lastproviderid , isARawProduct=:isRaw, isAGroup=:isGroup, groupElements=:ge WHERE code=:id");
   query.bindValue(":newcode", info.code);
   query.bindValue(":name", info.desc);
   query.bindValue(":price", info.price);
   query.bindValue(":stock", info.stockqty);
   query.bindValue(":cost", info.cost);
   query.bindValue(":measure", info.units);
-  query.bindValue(":taxmodel", info.taxmodelid);
-  query.bindValue(":brand", info.brandid);
+  query.bindValue(":tax1", info.tax);
+  query.bindValue(":tax2", info.extratax);
   query.bindValue(":photo", info.photo);
   query.bindValue(":category", info.category);
   query.bindValue(":points", info.points);
@@ -469,11 +418,7 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   query.bindValue(":isRaw", info.isARawProduct);
   query.bindValue(":ge", info.groupElementsStr);
 
-  if (!query.exec()) {
-    setError(query.lastError().text());
-  }
-  else result=true;
-  
+  if (!query.exec()) setError(query.lastError().text()); else result=true;
   return result;
 }
 
@@ -499,12 +444,12 @@ bool Azahar::decrementGroupStock(qulonglong code, double qty, QDate date)
   if (!db.isOpen()) db.open();
   QSqlQuery query(db);
 
-  ProductInfo info = getProductInfo(QString::number(code));
+  ProductInfo info = getProductInfo(code);
   QStringList lelem = info.groupElementsStr.split(",");
   foreach(QString ea, lelem) {
     qulonglong c = ea.section('/',0,0).toULongLong();
     double     q = ea.section('/',1,1).toDouble();
-    ProductInfo pi = getProductInfo(QString::number(c));
+    ProductInfo pi = getProductInfo(c);
     //FOR EACH ELEMENT, DECREMENT PRODUCT STOCK
     result = result && decrementProductStock(c, q*qty, date);
   }
@@ -512,8 +457,6 @@ bool Azahar::decrementGroupStock(qulonglong code, double qty, QDate date)
   return result;
 }
 
-///NOTE or FIXME: increment is used only when returning a product? or also on purchases??
-///               Because this method is decrementing soldunits... not used in lemonview.cpp nor squeezeview !!!!!
 bool Azahar::incrementProductStock(qulonglong code, double qty)
 {
   bool result = false;
@@ -535,12 +478,12 @@ bool Azahar::incrementGroupStock(qulonglong code, double qty)
   if (!db.isOpen()) db.open();
   QSqlQuery query(db);
   
-  ProductInfo info = getProductInfo(QString::number(code));
+  ProductInfo info = getProductInfo(code);
   QStringList lelem = info.groupElementsStr.split(",");
   foreach(QString ea, lelem) {
     qulonglong c = ea.section('/',0,0).toULongLong();
     double     q = ea.section('/',1,1).toDouble();
-    ProductInfo pi = getProductInfo(QString::number(c));
+    ProductInfo pi = getProductInfo(c);
     //FOR EACH ELEMENT, DECREMENT PRODUCT STOCK
     result = result && incrementProductStock(c, q*qty);
   }
@@ -692,7 +635,7 @@ QList<ProductInfo> Azahar::getSoldOutProducts()
   if (query.exec()) {
     while (query.next()) {
       int fieldCode  = query.record().indexOf("code");
-      info = getProductInfo(query.value(fieldCode).toString());
+      info = getProductInfo(query.value(fieldCode).toULongLong());
       products.append(info);
     }
   }
@@ -714,7 +657,7 @@ QList<ProductInfo> Azahar::getLowStockProducts(double min)
   if (query.exec()) {
     while (query.next()) {
       int fieldCode  = query.record().indexOf("code");
-      info = getProductInfo(query.value(fieldCode).toString());
+      info = getProductInfo(query.value(fieldCode).toULongLong());
       products.append(info);
     }
   }
@@ -932,388 +875,6 @@ QStringList Azahar::getMeasuresList()
   return result;
 }
 
-//BRANDS
-QStringList Azahar::getBrandsList()
-{
-  qDebug()<<"getBrandsList...";
-  QStringList result;
-  result.clear();
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery myQuery(db);
-    if (myQuery.exec("select bname from brands;")) {
-      while (myQuery.next()) {
-        int fieldText = myQuery.record().indexOf("bname");
-        QString text = myQuery.value(fieldText).toString();
-        result.append(text);
-      }
-    }
-    else {
-      qDebug()<<"ERROR: "<<myQuery.lastError();
-    }
-  }
-  return result;
-}
-
-//PROVIDERS
-QStringList Azahar::getProvidersList()
-{
-  QStringList result;
-  result.clear();
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery myQuery(db);
-    if (myQuery.exec("select name from providers;")) {
-      while (myQuery.next()) {
-        int fieldText = myQuery.record().indexOf("name");
-        QString text = myQuery.value(fieldText).toString();
-        result.append(text);
-      }
-    }
-    else {
-      qDebug()<<"ERROR: "<<myQuery.lastError();
-    }
-  }
-  return result;
-}
-
-QHash<QString, qulonglong> Azahar::getProvidersHash()
-{
-  QHash<QString, qulonglong> result;
-  result.clear();
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery myQuery(db);
-    if (myQuery.exec("select * from providers;")) {
-      while (myQuery.next()) {
-        int fieldId   = myQuery.record().indexOf("id");
-        int fieldText = myQuery.record().indexOf("name");
-        int id = myQuery.value(fieldId).toInt();
-        QString text = myQuery.value(fieldText).toString();
-        result.insert(text, id);
-      }
-    }
-    else {
-      qDebug()<<"ERROR: "<<myQuery.lastError();
-    }
-  }
-  return result;
-}
-
-QString Azahar::getProviderName(const qulonglong &id)
-{
-  QString result;
-  result.clear();
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery myQuery(db);
-    if (myQuery.exec(QString("select name from providers where id=%1;").arg(id))) {
-      while (myQuery.next()) {
-        int fieldText = myQuery.record().indexOf("name");
-        result = myQuery.value(fieldText).toString();
-      }
-    }
-    else {
-      qDebug()<<"ERROR: "<<myQuery.lastError();
-    }
-  }
-  return result;
-}
-
-qulonglong Azahar::getProviderId(const QString &name)
-{
-  qulonglong result = 0;
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery myQuery(db);
-    if (myQuery.exec(QString("select id from providers where name='%1';").arg(name))) {
-      while (myQuery.next()) {
-        int fieldText = myQuery.record().indexOf("id");
-        result = myQuery.value(fieldText).toULongLong();
-      }
-    }
-    else {
-      qDebug()<<"ERROR: "<<myQuery.lastError();
-    }
-  }
-  return result;
-}
-
-ProviderInfo Azahar::getProviderInfo(qulonglong id)
-{
-  ProviderInfo info;
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery qC(db);
-    if (qC.exec("select * from providers;")) {
-      while (qC.next()) {
-        int fieldId     = qC.record().indexOf("id");
-        int fieldName   = qC.record().indexOf("name");
-        int fieldPhone  = qC.record().indexOf("phone");
-        int fieldCell   = qC.record().indexOf("cellphone");
-        int fieldAdd    = qC.record().indexOf("address");
-        if (qC.value(fieldId).toUInt() == id) {
-          info.id       = qC.value(fieldId).toULongLong();
-          info.name     = qC.value(fieldName).toString();
-          info.phone    = qC.value(fieldPhone).toString();
-          info.cell     = qC.value(fieldCell).toString();
-          info.address  = qC.value(fieldAdd).toString();
-          break;
-        }
-      }
-    }
-    else {
-      qDebug()<<"ERROR: "<<qC.lastError();
-    }
-  }
-  return info;
-}
-
-bool Azahar::insertProvider(ProviderInfo info)
-{
-  bool result = false;
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery query(db);
-    query.prepare("INSERT INTO providers (name, address, phone, cellphone) VALUES(:name, :address, :phone, :cell)");
-    query.bindValue(":name", info.name);
-    query.bindValue(":address", info.address);
-    query.bindValue(":phone", info.phone);
-    query.bindValue(":cell", info.cell);
-    if (!query.exec()) setError(query.lastError().text()); else result = true;
-  }
-  return result;
-}
-
-bool Azahar::updateProvider(ProviderInfo info)
-{
-  bool result=false;
-  if (!db.isOpen()) db.open();
-  QSqlQuery query(db);
-  query.prepare("UPDATE providers SET name=:name, address=:address, phone=:phone, cellphone=:cell WHERE id=:id;");
-  query.bindValue(":id", info.id);
-  query.bindValue(":name", info.name);
-  query.bindValue(":address", info.address);
-  query.bindValue(":phone", info.phone);
-  query.bindValue(":cell", info.cell);
-  if (!query.exec()) setError(query.lastError().text()); else result = true;
-  
-  return result;
-}
-
-bool Azahar::deleteProvider(qulonglong pid)
-{
-  bool result=false;
-  if (db.isOpen()) {
-    QString qry = QString("DELETE from providers WHERE id=%1").arg(pid);
-    QSqlQuery query(db);
-    if (!query.exec(qry)) {
-      int errNum = query.lastError().number();
-      QSqlError::ErrorType errType = query.lastError().type();
-      QString error = query.lastError().text();
-      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),error);
-    }
-    if (query.numRowsAffected() == 1) result = true;
-    else setError(i18n("Error deleting provider  id %1, Rows affected: %2", pid,query.numRowsAffected()));
-  }
-  return result;
-}
-
-bool Azahar::deleteProductProvider(qulonglong id)
-{
-  bool result=false;
-  if (db.isOpen()) {
-    QString qry = QString("DELETE from products_providers WHERE id=%1").arg(id);
-    QSqlQuery query(db);
-    if (!query.exec(qry)) {
-      int errNum = query.lastError().number();
-      QSqlError::ErrorType errType = query.lastError().type();
-      QString error = query.lastError().text();
-      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),error);
-    }
-    if (query.numRowsAffected() == 1) result = true;
-    else setError(i18n("Error deleting product_provider  id %1, Rows affected: %2", id,query.numRowsAffected()));
-  }
-  return result;
-}
-
-bool Azahar::providerHasProduct(qulonglong pid, qulonglong code)
-{
-  bool result = false;
-  int count=0;
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery qC(db);
-    if (qC.exec(QString("select * from products_providers where provider_id=%1 and product_id=%2;").arg(pid).arg(code))) {
-      while (qC.next()) {
-        int fieldId     = qC.record().indexOf("id");
-        //int fieldName   = qC.record().indexOf("product_id");
-        //int fieldPhone  = qC.record().indexOf("provider_id");
-        qulonglong id = qC.value(fieldId).toULongLong();
-        qDebug()<<"Product id "<<id<<" found";
-        count++;
-      }
-    }
-    else {
-      qDebug()<<"ERROR: "<<qC.lastError();
-    }
-  }
-  if (count>0) result=true;
-  return result;
-}
-
-bool Azahar::addProductToProvider(ProductProviderInfo info)
-{
-  bool result = false;
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery query(db);
-    query.prepare("INSERT INTO products_providers (provider_id, product_id, price) VALUES(:provid, :prodid, :price)");
-    query.bindValue(":provid", info.provId);
-    query.bindValue(":prodid", info.prodId);
-    query.bindValue(":price", info.price);
-    if (!query.exec()) setError(query.lastError().text()); else result = true;
-  }
-  return result;
-}
-
-// TAX MODELS
-double Azahar::getTotalTaxPercent(const QString& elementsid)
-{
-  double result=0;
-  //first parse string to get a list of tax elementids
-  QStringList eList = elementsid.split(",");
-
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery myQuery(db);
-    for (int i = 0; i < eList.size(); ++i) {
-      //get amount for each element
-      if (myQuery.exec(QString("select amount from taxelements where elementid=%1;").arg(eList.at(i).toULongLong()))) {
-        while (myQuery.next()) {
-          int fieldAmnt = myQuery.record().indexOf("amount");
-          double amount = myQuery.value(fieldAmnt).toDouble();
-          result += amount;
-          qDebug()<<"Sum of taxes ["<<eList.size()<<" elements, i:"<<i<<"] total = "<<result;
-        }
-      }
-      else {
-        qDebug()<<"ERROR: "<<myQuery.lastError();
-      }
-    } //for each one
-  }
-  return result;
-}
-
-TaxModelInfo Azahar::getTaxModelInfo(const qulonglong id)
-{
-  TaxModelInfo result;
-  
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery myQuery(db);
-    if (myQuery.exec(QString("select * from taxmodels where modelid=%1;").arg(id))) {
-      while (myQuery.next()) {
-        int fieldName = myQuery.record().indexOf("tname");
-        QString name  = myQuery.value(fieldName).toString();
-        int fieldAppw = myQuery.record().indexOf("appway");
-        QString appw  = myQuery.value(fieldAppw).toString();
-        int fieldElem = myQuery.record().indexOf("elementsid");
-        QString elem  = myQuery.value(fieldElem).toString();
-        
-        result.id     = id;
-        result.name   = name;
-        result.appway = appw;
-        result.elements = elem;
-        result.taxAmount =0; //not yet calculated!!!
-      }
-    }
-    else {
-      qDebug()<<"ERROR: "<<myQuery.lastError();
-    }
-  }
-  return result;
-}
-
-QString Azahar::getTaxModelElements(const qulonglong id)
-{
-  QString result="";
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery myQuery(db);
-    if (myQuery.exec(QString("select elementsid from taxmodels where modelid=%1;").arg(id))) {
-      while (myQuery.next()) {
-        int fieldElem = myQuery.record().indexOf("elementsid");
-        result = myQuery.value(fieldElem).toString();
-      }
-    }
-    else {
-      qDebug()<<"ERROR: "<<myQuery.lastError();
-    }
-  }
-  return result;
-}
-
-qulonglong Azahar::getTaxModelId(const QString &text)
-{
-  qulonglong result = 0;
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery myQuery(db);
-    if (myQuery.exec(QString("select modelid from taxmodels where tname='%1';").arg(text))) {
-      while (myQuery.next()) {
-        int fieldModel = myQuery.record().indexOf("modelid");
-        result = myQuery.value(fieldModel).toULongLong();
-      }
-    }
-    else {
-      qDebug()<<"ERROR: "<<myQuery.lastError();
-    }
-  }
-  return result;
-}
-
-QStringList Azahar::getTaxModelsList()
-{
-  QStringList result;
-  result.clear();
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery myQuery(db);
-    if (myQuery.exec("select tname from taxmodels;")) {
-      while (myQuery.next()) {
-        int fieldText = myQuery.record().indexOf("tname");
-        QString text = myQuery.value(fieldText).toString();
-        result.append(text);
-      }
-    }
-    else {
-      qDebug()<<"ERROR: "<<myQuery.lastError();
-    }
-  }
-  return result;
-}
-
-QString Azahar::getTaxModelName(const qulonglong &id)
-{
-  QString result;
-  result.clear();
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery myQuery(db);
-    if (myQuery.exec(QString("select tname from taxmodels where modelid=%1;").arg(id))) {
-      while (myQuery.next()) {
-        int fieldText = myQuery.record().indexOf("tname");
-        result = myQuery.value(fieldText).toString();
-      }
-    }
-    else {
-      qDebug()<<"ERROR: "<<myQuery.lastError();
-    }
-  }
-  return result;
-}
-
 //OFFERS
 bool Azahar::createOffer(OfferInfo info)
 {
@@ -1321,14 +882,16 @@ bool Azahar::createOffer(OfferInfo info)
   QString qryStr;
   QSqlQuery query(db);
   if (!db.isOpen()) db.open();
-  //NOTE: Now multiple offers supported (to save offers history)
-  qryStr = "INSERT INTO offers (discount, datestart, dateend, product_id) VALUES(:discount, :datestart, :dateend, :code)";
-  query.prepare(qryStr);
-  query.bindValue(":discount", info.discount );
-  query.bindValue(":datestart", info.dateStart.toString("yyyy-MM-dd"));
-  query.bindValue(":dateend", info.dateEnd.toString("yyyy-MM-dd"));
-  query.bindValue(":code", info.productCode);
-  if (query.exec()) result = true; else setError(query.lastError().text());
+    //The product has no offer yet.
+    //NOTE: Now multiple offers supported (to save offers history)
+    qryStr = "INSERT INTO offers (discount, datestart, dateend, product_id) VALUES(:discount, :datestart, :dateend, :code)";
+    query.prepare(qryStr);
+    query.bindValue(":discount", info.discount );
+    query.bindValue(":datestart", info.dateStart.toString("yyyy-MM-dd"));
+    query.bindValue(":dateend", info.dateEnd.toString("yyyy-MM-dd"));
+    query.bindValue(":code", info.productCode);
+    if (query.exec()) result = true; else setError(query.lastError().text());
+//   }
 
   return result;
 }
@@ -1845,7 +1408,7 @@ TransactionInfo Azahar::getTransactionInfo(qulonglong id)
       int fieldDiscount  = query.record().indexOf("disc");
       int fieldDiscMoney = query.record().indexOf("discmoney");
       int fieldPoints    = query.record().indexOf("points");
-      int fieldUtility   = query.record().indexOf("profit");
+      int fieldUtility   = query.record().indexOf("utility");
       int fieldTerminal  = query.record().indexOf("terminalnum");
       int fieldTax       = query.record().indexOf("totalTax");
       int fieldSpecialOrders = query.record().indexOf("specialOrders");
@@ -1868,7 +1431,7 @@ TransactionInfo Azahar::getTransactionInfo(qulonglong id)
       info.disc      = query.value(fieldDiscount).toDouble();
       info.discmoney = query.value(fieldDiscMoney).toDouble();
       info.points    = query.value(fieldPoints).toULongLong();
-      info.profit    = query.value(fieldUtility).toDouble();
+      info.utility   = query.value(fieldUtility).toDouble();
       info.terminalnum=query.value(fieldTerminal).toInt();
       info.totalTax   = query.value(fieldTax).toDouble();
       info.specialOrders = query.value(fieldSpecialOrders).toString();
@@ -1885,7 +1448,7 @@ ProfitRange Azahar::getMonthProfitRange()
   TransactionInfo info;
   for (int i = 0; i < monthTrans.size(); ++i) {
     info = monthTrans.at(i);
-    profitList.append(info.profit);
+    profitList.append(info.utility);
   }
 
   if (!profitList.isEmpty()) {
@@ -1926,7 +1489,7 @@ QList<TransactionInfo> Azahar::getMonthTransactionsForPie()
   QDate today = QDate::currentDate();
   QDate startDate = QDate(today.year(), today.month(), 1); //get the 1st of the month.
   //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-  qryTrans.prepare("SELECT date,SUM(amount),SUM(profit) from transactions where (date BETWEEN :dateSTART AND :dateEND ) AND (type=1) AND (state=2) GROUP BY date ASC;");
+  qryTrans.prepare("SELECT date,SUM(amount),SUM(utility) from transactions where (date BETWEEN :dateSTART AND :dateEND ) AND (type=1) AND (state=2) GROUP BY date ASC;");
   qryTrans.bindValue("dateSTART", startDate.toString("yyyy-MM-dd"));
   qryTrans.bindValue("dateEND", today.toString("yyyy-MM-dd"));
   //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
@@ -1939,13 +1502,13 @@ QList<TransactionInfo> Azahar::getMonthTransactionsForPie()
   } else {
     while (qryTrans.next()) {
       int fieldAmount = qryTrans.record().indexOf("SUM(amount)");
-      int fieldProfit = qryTrans.record().indexOf("SUM(profit)");
+      int fieldProfit = qryTrans.record().indexOf("SUM(utility)");
       int fieldDate = qryTrans.record().indexOf("date");
       info.amount = qryTrans.value(fieldAmount).toDouble();
-      info.profit = qryTrans.value(fieldProfit).toDouble();
+      info.utility = qryTrans.value(fieldProfit).toDouble();
       info.date = qryTrans.value(fieldDate).toDate();
       result.append(info);
-      //qDebug()<<"APPENDING:"<<info.date<< " Sales:"<<info.amount<<" Profit:"<<info.profit;
+      //qDebug()<<"APPENDING:"<<info.date<< " Sales:"<<info.amount<<" Profit:"<<info.utility;
     }
     //qDebug()<<"executed query:"<<qryTrans.executedQuery();
     //qDebug()<<"Qry size:"<<qryTrans.size();
@@ -1986,6 +1549,7 @@ QList<TransactionInfo> Azahar::getMonthTransactions()
   return result;
 }
 
+
 QList<TransactionInfo> Azahar::getDayTransactions(int terminal)
 {
     QList<TransactionInfo> result;
@@ -1993,7 +1557,7 @@ QList<TransactionInfo> Azahar::getDayTransactions(int terminal)
     QSqlQuery qryTrans(db);
     QDate today = QDate::currentDate();
     //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-    qryTrans.prepare("SELECT id,time,paidwith,paymethod,amount,profit from transactions where (date = :today) AND (terminalnum=:terminal) AND (type=1) AND (state=2) ORDER BY id ASC;");
+    qryTrans.prepare("SELECT id,time,paidwith,paymethod,amount,utility from transactions where (date = :today) AND (terminalnum=:terminal) AND (type=1) AND (state=2) ORDER BY id ASC;");
     qryTrans.bindValue("today", today.toString("yyyy-MM-dd"));
     qryTrans.bindValue(":terminal", terminal);
     //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
@@ -2006,16 +1570,16 @@ QList<TransactionInfo> Azahar::getDayTransactions(int terminal)
     } else {
       while (qryTrans.next()) {
         int fieldAmount = qryTrans.record().indexOf("amount");
-        int fieldProfit = qryTrans.record().indexOf("profit");
+        int fieldProfit = qryTrans.record().indexOf("utility");
         info.id = qryTrans.value(qryTrans.record().indexOf("id")).toULongLong();
         info.amount = qryTrans.value(fieldAmount).toDouble();
-        info.profit = qryTrans.value(fieldProfit).toDouble();
+        info.utility = qryTrans.value(fieldProfit).toDouble();
         info.paymethod = qryTrans.value(qryTrans.record().indexOf("paymethod")).toInt();
         info.paywith = qryTrans.value(qryTrans.record().indexOf("paidwith")).toDouble();
         info.time = qryTrans.value(qryTrans.record().indexOf("time")).toTime();
         info.totalTax = qryTrans.value(qryTrans.record().indexOf("totalTax")).toDouble();
         result.append(info);
-        //qDebug()<<"APPENDING:"<<info.id<< " Sales:"<<info.amount<<" Profit:"<<info.profit;
+        //qDebug()<<"APPENDING:"<<info.id<< " Sales:"<<info.amount<<" Profit:"<<info.utility;
       }
       //qDebug()<<"executed query:"<<qryTrans.executedQuery();
       //qDebug()<<"Qry size:"<<qryTrans.size();
@@ -2031,7 +1595,7 @@ QList<TransactionInfo> Azahar::getDayTransactions()
   QSqlQuery qryTrans(db);
   QDate today = QDate::currentDate();
   //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-  qryTrans.prepare("SELECT id,time,paidwith,paymethod,amount,profit from transactions where (date = :today) AND (type=1) AND (state=2) ORDER BY id ASC;");
+  qryTrans.prepare("SELECT id,time,paidwith,paymethod,amount,utility from transactions where (date = :today) AND (type=1) AND (state=2) ORDER BY id ASC;");
   qryTrans.bindValue("today", today.toString("yyyy-MM-dd"));
   //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
   if (!qryTrans.exec() ) {
@@ -2043,16 +1607,16 @@ QList<TransactionInfo> Azahar::getDayTransactions()
   } else {
     while (qryTrans.next()) {
       int fieldAmount = qryTrans.record().indexOf("amount");
-      int fieldProfit = qryTrans.record().indexOf("profit");
+      int fieldProfit = qryTrans.record().indexOf("utility");
       info.id = qryTrans.value(qryTrans.record().indexOf("id")).toULongLong();
       info.amount = qryTrans.value(fieldAmount).toDouble();
-      info.profit = qryTrans.value(fieldProfit).toDouble();
+      info.utility = qryTrans.value(fieldProfit).toDouble();
       info.paymethod = qryTrans.value(qryTrans.record().indexOf("paymethod")).toInt();
       info.paywith = qryTrans.value(qryTrans.record().indexOf("paidwith")).toDouble();
       info.time = qryTrans.value(qryTrans.record().indexOf("time")).toTime();
       info.totalTax = qryTrans.value(qryTrans.record().indexOf("totalTax")).toDouble();
       result.append(info);
-      //qDebug()<<"APPENDING:"<<info.id<< " Sales:"<<info.amount<<" Profit:"<<info.profit;
+      //qDebug()<<"APPENDING:"<<info.id<< " Sales:"<<info.amount<<" Profit:"<<info.utility;
     }
     //qDebug()<<"executed query:"<<qryTrans.executedQuery();
     //qDebug()<<"Qry size:"<<qryTrans.size();
@@ -2067,7 +1631,7 @@ AmountAndProfitInfo  Azahar::getDaySalesAndProfit(int terminal)
     QSqlQuery qryTrans(db);
     QDate today = QDate::currentDate();
     //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-    qryTrans.prepare("SELECT SUM(amount),SUM(profit) from transactions where (date = :today) AND (terminalnum=:terminal) AND (type=1) AND (state=2) GROUP BY date ASC;");
+    qryTrans.prepare("SELECT SUM(amount),SUM(utility) from transactions where (date = :today) AND (terminalnum=:terminal) AND (type=1) AND (state=2) GROUP BY date ASC;");
     qryTrans.bindValue("today", today.toString("yyyy-MM-dd"));
     qryTrans.bindValue(":terminal", terminal);
     //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
@@ -2080,10 +1644,10 @@ AmountAndProfitInfo  Azahar::getDaySalesAndProfit(int terminal)
     } else {
       while (qryTrans.next()) {
         int fieldAmount = qryTrans.record().indexOf("SUM(amount)");
-        int fieldProfit = qryTrans.record().indexOf("SUM(profit)");
+        int fieldProfit = qryTrans.record().indexOf("SUM(utility)");
         result.amount = qryTrans.value(fieldAmount).toDouble();
         result.profit = qryTrans.value(fieldProfit).toDouble();
-        //qDebug()<<"APPENDING:"<<info.date<< " Sales:"<<info.amount<<" Profit:"<<info.profit;
+        //qDebug()<<"APPENDING:"<<info.date<< " Sales:"<<info.amount<<" Profit:"<<info.utility;
       }
       //qDebug()<<"executed query:"<<qryTrans.executedQuery();
       //qDebug()<<"Qry size:"<<qryTrans.size();
@@ -2098,7 +1662,7 @@ AmountAndProfitInfo  Azahar::getDaySalesAndProfit()
   QSqlQuery qryTrans(db);
   QDate today = QDate::currentDate();
   //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-  qryTrans.prepare("SELECT SUM(amount),SUM(profit) from transactions where (date = :today) AND (type=1) AND (state=2) GROUP BY date ASC;");
+  qryTrans.prepare("SELECT SUM(amount),SUM(utility) from transactions where (date = :today) AND (type=1) AND (state=2) GROUP BY date ASC;");
   qryTrans.bindValue("today", today.toString("yyyy-MM-dd"));
   //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
   if (!qryTrans.exec() ) {
@@ -2110,7 +1674,7 @@ AmountAndProfitInfo  Azahar::getDaySalesAndProfit()
   } else {
     while (qryTrans.next()) {
       int fieldAmount = qryTrans.record().indexOf("SUM(amount)");
-      int fieldProfit = qryTrans.record().indexOf("SUM(profit)");
+      int fieldProfit = qryTrans.record().indexOf("SUM(utility)");
       result.amount = qryTrans.value(fieldAmount).toDouble();
       result.profit = qryTrans.value(fieldProfit).toDouble();
       //qDebug()<<"APPENDING:"<<info.date<< " Sales:"<<info.amount<<" Profit:"<<info.utility;
@@ -2121,7 +1685,7 @@ AmountAndProfitInfo  Azahar::getDaySalesAndProfit()
   }
   return result;
 }
-
+  
 //this returns the sales and profit from the 1st day of the month until today
 AmountAndProfitInfo  Azahar::getMonthSalesAndProfit()
 {
@@ -2130,7 +1694,7 @@ AmountAndProfitInfo  Azahar::getMonthSalesAndProfit()
   QDate today = QDate::currentDate();
   QDate startDate = QDate(today.year(), today.month(), 1); //get the 1st of the month.
   //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-  qryTrans.prepare("SELECT date,SUM(amount),SUM(profit) from transactions where (date BETWEEN :dateSTART AND :dateEND) AND (type=1) AND (state=2) GROUP BY type ASC;"); //group by type is to get the sum of all trans
+  qryTrans.prepare("SELECT date,SUM(amount),SUM(utility) from transactions where (date BETWEEN :dateSTART AND :dateEND) AND (type=1) AND (state=2) GROUP BY type ASC;"); //group by type is to get the sum of all trans
   qryTrans.bindValue("dateSTART", startDate.toString("yyyy-MM-dd"));
   qryTrans.bindValue("dateEND", today.toString("yyyy-MM-dd"));
   //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
@@ -2143,7 +1707,7 @@ AmountAndProfitInfo  Azahar::getMonthSalesAndProfit()
   } else {
     while (qryTrans.next()) {
       int fieldAmount = qryTrans.record().indexOf("SUM(amount)");
-      int fieldProfit = qryTrans.record().indexOf("SUM(profit)");
+      int fieldProfit = qryTrans.record().indexOf("SUM(utility)");
       result.amount = qryTrans.value(fieldAmount).toDouble();
       result.profit = qryTrans.value(fieldProfit).toDouble();
       //qDebug()<<"APPENDING --  Sales:"<<result.amount<<" Profit:"<<result.profit;
@@ -2159,51 +1723,48 @@ AmountAndProfitInfo  Azahar::getMonthSalesAndProfit()
 qulonglong Azahar::insertTransaction(TransactionInfo info)
 {
   qulonglong result=0;
-  QSqlQuery query2(db);
-  query2.prepare("INSERT INTO transactions ( \
-  clientid, userid, type, amount, date,  time, \
-  paidwith,  paymethod, changegiven, state,    \
-  cardnumber, itemcount, itemslist, points, \
-  discmoney, disc, discmoney, cardauthnumber, profit,  \
-  terminalnum, providerid, specialOrders, balanceId, totalTax) \
-  VALUES ( \
-  :clientid, :userid, :type, :amount, :date, :time, \
-  :paidwith, :paymethod, :changegiven, :state,  \
-  :cardnumber, :itemcount, :itemslist, :points, \
-  :discmoney, :disc, :discm, :cardauthnumber, :utility, \
-  :terminalnum, :providerid, :specialOrders, :balanceId, :totalTax)");
-  
-  query2.bindValue(":type", info.type);
-  query2.bindValue(":amount", info.amount);
-  query2.bindValue(":date", info.date.toString("yyyy-MM-dd"));
-  query2.bindValue(":time", info.time.toString("hh:mm"));
-  query2.bindValue(":paidwith", info.paywith );
-  query2.bindValue(":changegiven", info.changegiven);
-  query2.bindValue(":paymethod", info.paymethod);
-  query2.bindValue(":state", info.state);
-  query2.bindValue(":userid", info.userid);
-  query2.bindValue(":clientid", info.clientid);
-  query2.bindValue(":cardnumber", info.cardnumber); //.replace(0,15,"***************")); //FIXED: Only save last 4 digits
-  query2.bindValue(":itemcount", info.itemcount);
-  query2.bindValue(":itemslist", info.itemlist);
-  query2.bindValue(":points", info.points);
-  query2.bindValue(":discmoney", info.discmoney);
-  query2.bindValue(":disc", info.disc);
-  query2.bindValue(":cardauthnumber", info.cardauthnum);
-  query2.bindValue(":utility", info.profit);
-  query2.bindValue(":terminalnum", info.terminalnum);
-  query2.bindValue(":providerid", info.providerid);
-  query2.bindValue(":totalTax", info.totalTax);
-  query2.bindValue(":specialOrders", info.specialOrders);
-  query2.bindValue(":balanceId", info.balanceId);
-  query2.bindValue(":discm", info.discmoney);
-  if (!query2.exec() ) {
-    int errNum = query2.lastError().number();
-    QSqlError::ErrorType errType = query2.lastError().type();
-    QString errStr = query2.lastError().text();
-    QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),errStr);
-    setError(details);
-  } else result=query2.lastInsertId().toULongLong();
+  //NOTE:The next commented code was deprecated because it will cause to overwrite transactions
+  //    When two or more terminals were getting an empty transacion at the same time, getting the same one.
+  //first look for an empty transaction.
+  //qulonglong availableId = getEmptyTransactionId();
+  //if (availableId > 0 ) {
+  //  qDebug()<<"The empty transaction # "<<availableId <<" is available to reuse.";
+  //  info.id = availableId;
+  //  if (updateTransaction(info)) result = availableId;
+  //}
+  //else {
+    // insert a new one.
+    QSqlQuery query2(db);
+    query2.prepare("INSERT INTO transactions (clientid, type, amount, date,  time, paidwith, changegiven, paymethod, state, userid, cardnumber, itemcount, itemslist, cardauthnumber, utility, terminalnum, providerid, specialOrders, balanceId, totalTax) VALUES (:clientid, :type, :amount, :date, :time, :paidwith, :changegiven, :paymethod, :state, :userid, :cardnumber, :itemcount, :itemslist, :cardauthnumber, :utility, :terminalnum, :providerid, :specialOrders, :balance, :tax)"); //removed groups 29DIC09
+    query2.bindValue(":type", info.type);
+    query2.bindValue(":amount", info.amount);
+    query2.bindValue(":date", info.date.toString("yyyy-MM-dd"));
+    query2.bindValue(":time", info.time.toString("hh:mm"));
+    query2.bindValue(":paidwith", info.paywith );
+    query2.bindValue(":changegiven", info.changegiven);
+    query2.bindValue(":paymethod", info.paymethod);
+    query2.bindValue(":state", info.state);
+    query2.bindValue(":userid", info.userid);
+    query2.bindValue(":clientid", info.clientid);
+    query2.bindValue(":cardnumber", info.cardnumber); //.replace(0,15,"***************")); //FIXED: Only save last 4 digits
+    query2.bindValue(":itemcount", info.itemcount);
+    query2.bindValue(":itemslist", info.itemlist);
+    query2.bindValue(":cardauthnumber", info.cardauthnum);
+    query2.bindValue(":utility", info.utility);
+    query2.bindValue(":terminalnum", info.terminalnum);
+    query2.bindValue(":providerid", info.providerid);
+    query2.bindValue(":tax", info.totalTax);
+    query2.bindValue(":specialOrders", info.specialOrders);
+    query2.bindValue(":balance", info.balanceId);
+    if (!query2.exec() ) {
+      int errNum = query2.lastError().number();
+      QSqlError::ErrorType errType = query2.lastError().type();
+      QString errStr = query2.lastError().text();
+      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),errStr);
+      setError(details);
+    } else result=query2.lastInsertId().toULongLong();
+  //}
+
   return result;
 }
 
@@ -2222,11 +1783,11 @@ bool Azahar::updateTransaction(TransactionInfo info)
   query2.bindValue(":change", info.changegiven);
   query2.bindValue(":paymethod", info.paymethod);
   query2.bindValue(":state", info.state);
-  query2.bindValue(":cardnumber", info.cardnumber);
+  query2.bindValue(":cardnumber", info.cardnumber);//.replace(0,15,"***************")); //FIXED: Only save last 4 digits
   query2.bindValue(":itemcount", info.itemcount);
   query2.bindValue(":itemlist", info.itemlist);
   query2.bindValue(":cardauthnumber", info.cardauthnum);
-  query2.bindValue(":utility", info.profit);
+  query2.bindValue(":utility", info.utility);
   query2.bindValue(":terminalnum", info.terminalnum);
   query2.bindValue(":points", info.points);
   query2.bindValue(":clientid", info.clientid);
@@ -2268,46 +1829,46 @@ bool Azahar::deleteTransaction(qulonglong id)
 //NOTE: Is it convenient to reuse empty transactions or simply delete them?
 bool Azahar::deleteEmptyTransactions()
 {
-  bool result = false;
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery query(db);
-    QString qry = QString("DELETE FROM transactions WHERE itemcount<=0 and amount<=0");
-    if (!query.exec(qry)) {
-      int errNum = query.lastError().number();
-      QSqlError::ErrorType errType = query.lastError().type();
-      QString errStr = query.lastError().text();
-      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),errStr);
-      setError(details);
-    } else {
-      result = true;
-    }
-  }
-  return result;
+   bool result = false;
+   if (!db.isOpen()) db.open();
+   if (db.isOpen()) {
+     QSqlQuery query(db);
+     QString qry = QString("DELETE FROM transactions WHERE itemcount<=0 and amount<=0");
+     if (!query.exec(qry)) {
+       int errNum = query.lastError().number();
+       QSqlError::ErrorType errType = query.lastError().type();
+       QString errStr = query.lastError().text();
+       QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),errStr);
+       setError(details);
+     } else {
+       result = true;
+     }
+   }
+   return result;
 }
 
 qulonglong Azahar::getEmptyTransactionId()
 {
-  qulonglong result = 0;
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery query(db);
-    QString qry = QString("SELECT id from transactions WHERE itemcount<=0 and amount<=0");
-    if (!query.exec(qry)) {
-      int errNum = query.lastError().number();
-      QSqlError::ErrorType errType = query.lastError().type();
-      QString errStr = query.lastError().text();
-      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),errStr);
-      setError(details);
-    } else {
-      while (query.next()) {
-        int fieldId = query.record().indexOf("id");
-        result      = query.value(fieldId).toULongLong();
-        return result;
-      }
-    }
-  }
-  return result;
+    qulonglong result = 0;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+     QSqlQuery query(db);
+     QString qry = QString("SELECT id from transactions WHERE itemcount<=0 and amount<=0");
+     if (!query.exec(qry)) {
+       int errNum = query.lastError().number();
+       QSqlError::ErrorType errType = query.lastError().type();
+       QString errStr = query.lastError().text();
+       QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),errStr);
+       setError(details);
+     } else {
+        while (query.next()) {
+          int fieldId = query.record().indexOf("id");
+          result      = query.value(fieldId).toULongLong();
+          return result;
+        }
+       }
+     }
+     return result;
 }
 
 bool Azahar::cancelTransaction(qulonglong id, bool inProgress)
@@ -2372,7 +1933,7 @@ bool Azahar::cancelTransaction(qulonglong id, bool inProgress)
           if ( l.count()==2 ) { //==2 means its complete, having product and qty
             //check if the product is a group
             //NOTE: rawProducts ? affect stock when cancelling = YES but only if affected when sold one of its parents (specialOrders) and stockqty is set. But they would not be here, if not at specialOrders List
-            ProductInfo pi = getProductInfo(l.at(0));
+            ProductInfo pi = getProductInfo(l.at(0).toULongLong());
             if ( pi.isAGroup ) 
               incrementGroupStock(l.at(0).toULongLong(), l.at(1).toDouble()); //code at 0, qty at 1
             else //there is a normal product
@@ -2432,7 +1993,7 @@ QList<TransactionInfo> Azahar::getLastTransactions(int pageNumber,int numItems,Q
       int fieldDiscount  = query.record().indexOf("disc");
       int fieldDiscMoney = query.record().indexOf("discmoney");
       int fieldPoints    = query.record().indexOf("points");
-      int fieldUtility   = query.record().indexOf("profit");
+      int fieldUtility   = query.record().indexOf("utility");
       int fieldTerminal  = query.record().indexOf("terminalnum");
       int fieldTax    = query.record().indexOf("totalTax");
       int fieldSOrd      = query.record().indexOf("specialOrders");
@@ -2448,14 +2009,14 @@ QList<TransactionInfo> Azahar::getLastTransactions(int pageNumber,int numItems,Q
       info.state     = query.value(fieldState).toInt();
       info.userid    = query.value(fieldUserId).toULongLong();
       info.clientid  = query.value(fieldClientId).toULongLong();
-      info.cardnumber= query.value(fieldCardNum).toString();
+      info.cardnumber= query.value(fieldCardNum).toString();//.replace(0,15,"***************"); //FIXED: Only save last 4 digits;
       info.cardauthnum=query.value(fieldCardAuth).toString();
       info.itemcount = query.value(fieldItemCount).toInt();
       info.itemlist  = query.value(fieldItemsList).toString();
       info.disc      = query.value(fieldDiscount).toDouble();
       info.discmoney = query.value(fieldDiscMoney).toDouble();
       info.points    = query.value(fieldPoints).toULongLong();
-      info.profit    = query.value(fieldUtility).toDouble();
+      info.utility   = query.value(fieldUtility).toDouble();
       info.terminalnum=query.value(fieldTerminal).toInt();
       info.totalTax  = query.value(fieldTax).toDouble();
       info.specialOrders  = query.value(fieldSOrd).toString();
@@ -2628,7 +2189,7 @@ qulonglong Azahar::insertBalance(BalanceInfo info)
     queryBalance.bindValue(":terminalNum", info.terminal);
     queryBalance.bindValue(":cashflows", info.cashflows);
     queryBalance.bindValue(":isDone", info.done);
-    
+
     if (!queryBalance.exec() ) {
       int errNum = queryBalance.lastError().number();
       QSqlError::ErrorType errType = queryBalance.lastError().type();
@@ -2639,7 +2200,6 @@ qulonglong Azahar::insertBalance(BalanceInfo info)
   }
   return result;
 }
-
 
 BalanceInfo Azahar::getBalanceInfo(qulonglong id)
 {
@@ -2886,67 +2446,6 @@ qulonglong  Azahar::getPayTypeId(QString type)
   return result;
 }
 
-//Brand
-QString Azahar::getBrandName(const qulonglong &id)
-{
-  qDebug()<<"getBrandName...";
-  QString result;
-  result.clear();
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery myQuery(db);
-    if (myQuery.exec(QString("select bname from brands where brandid=%1;").arg(id))) {
-      while (myQuery.next()) {
-        int fieldText = myQuery.record().indexOf("bname");
-        result = myQuery.value(fieldText).toString();
-      }
-    }
-    else {
-      qDebug()<<"ERROR: "<<myQuery.lastError();
-    }
-  }
-  return result;
-}
-
-qulonglong Azahar::getBrandId(const QString &name)
-{
-  qulonglong result = 0;
-  if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
-    QSqlQuery myQuery(db);
-    if (myQuery.exec(QString("select brandid from brands where bname='%1';").arg(name))) {
-      while (myQuery.next()) {
-        int fieldText = myQuery.record().indexOf("brandid");
-        result = myQuery.value(fieldText).toULongLong();
-      }
-    }
-    else {
-      qDebug()<<"ERROR: "<<myQuery.lastError();
-    }
-  }
-  return result;
-}
-
-qulonglong Azahar::insertBrand(const QString &name)
-{
-  qulonglong result =0;
-  if (!db.isOpen()) db.open();
-  if (db.isOpen())
-  {
-    QSqlQuery query(db);
-    query.prepare("INSERT INTO brands (bname) VALUES (:brand)");
-    query.bindValue(":brand", name);
-    
-    if (!query.exec() ) {
-      int errNum = query.lastError().number();
-      QSqlError::ErrorType errType = query.lastError().type();
-      QString errStr = query.lastError().text();
-      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),errStr);
-      setError(details);
-    } else result = query.lastInsertId().toULongLong();
-  }
-  return result;
-}
 
 //LOGS
 
@@ -2968,7 +2467,6 @@ bool Azahar::insertLog(const qulonglong &userid, const QDate &date, const QTime 
   }
   return result;
 }
-
 
 bool Azahar::getConfigFirstRun()
 {
@@ -3409,7 +2907,7 @@ QList<ProductInfo> Azahar::getSpecialOrderProductsList(qulonglong id)
       qulonglong c = str.section('/',0,0).toULongLong();
       double     q = str.section('/',1,1).toDouble();
       //get info
-      ProductInfo pi = getProductInfo(QString::number(c));
+      ProductInfo pi = getProductInfo(c);
       pi.qtyOnList = q;
       pList.append(pi);
     }
@@ -3572,7 +3070,7 @@ double Azahar::getSpecialOrderAverageTax(qulonglong id)
   double sum = 0;
   QList<ProductInfo> pList = getSpecialOrderProductsList(id);
   foreach( ProductInfo info, pList) {
-    sum += info.tax;
+    sum += info.tax + info.extratax;
   }
 
   result = sum/pList.count();

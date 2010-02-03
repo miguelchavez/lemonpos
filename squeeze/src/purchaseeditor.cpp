@@ -1,22 +1,22 @@
-/**************************************************************************
-*   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
-*   miguel@lemonpos.org                                                   *
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-*   This program is distributed in the hope that it will be useful,       *
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-*   GNU General Public License for more details.                          *
-*                                                                         *
-*   You should have received a copy of the GNU General Public License     *
-*   along with this program; if not, write to the                         *
-*   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
-***************************************************************************/
+/***************************************************************************
+ *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
+ *   miguel.chavez.gamboa@gmail.com                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+ ***************************************************************************/
 #include <KLocale>
 #include <KMessageBox>
 #include <KFileDialog>
@@ -301,7 +301,7 @@ void PurchaseEditor::checkIfCodeExists()
   gelem = "";
   QString codeStr = ui->editCode->text();
   if (codeStr.isEmpty()) codeStr = "0";
-  ProductInfo pInfo = myDb->getProductInfo(codeStr);
+  ProductInfo pInfo = myDb->getProductInfo(codeStr.toULongLong());
   if (pInfo.code ==0 && pInfo.desc=="Ninguno") productExists = false;
   if (pInfo.code > 0) {
     status = estatusMod;
@@ -313,8 +313,7 @@ void PurchaseEditor::checkIfCodeExists()
     setMeasure(pInfo.units);
     ui->editCost->setText(QString::number(pInfo.cost));
     ui->editTax->setText(QString::number(pInfo.tax));
-    //FIXME: add tax models
-    //ui->editExtraTaxes->setText(QString::number(pInfo.extratax));
+    ui->editExtraTaxes->setText(QString::number(pInfo.extratax));
     ui->editFinalPrice->setText(QString::number(pInfo.price));
     ui->editPoints->setText(QString::number(pInfo.points));
     ui->chIsAGroup->setChecked(pInfo.isAGroup);
@@ -379,7 +378,8 @@ void PurchaseEditor::addItemToList()
   else ok = true;
 
   if (ok) {
-    ProductInfo info = myDb->getProductInfo(QString::number(getCode()));
+    ProductInfo info = myDb->getProductInfo(getCode());
+    //FIX BUG: dont allow enter new products.. dont know why? new code on 'continue' statement.
     if (info.code == 0) {
       info.code = getCode();
       info.lastProviderId=1; //for now.. fixme in the future
@@ -389,21 +389,14 @@ void PurchaseEditor::addItemToList()
     info.price   = getPrice();
     info.cost    = getCost();
     info.tax     = getTax1();
-    //FIXME: add tax models
-    //info.extratax= getTax2();
+    info.extratax= getTax2();
     info.photo   = getPhotoBA();
     info.units   = getMeasureId();
     info.category= getCategoryId();
-    info.profit  = getProfit();
+    info.utility = getProfit();
     info.points  = getPoints();
-    info.stockqty= getQtyOnDb();
     info.purchaseQty = getPurchaseQty();
-    double finalCount = info.purchaseQty + info.stockqty; // WHAT FOR??
     info.validDiscount = productExists; //used to check if product is already on db.
-    //FIXME: NEXT 2 lines are temporal remove on 0.8 version
-    //info.alphaCode = "-NA-";
-    //FIXME: last providerId for an existent must be gotten from db since we dont have that field here. Provide a combobox to select one and a button to add a new one.
-    //info.lastProviderId = 1;
 
     if (info.isAGroup) {
       // get each product fo the group/pack
@@ -412,7 +405,7 @@ void PurchaseEditor::addItemToList()
         QStringList tmp = list.at(i).split("/");
         if (tmp.count() == 2) { //ok 2 fields
           qulonglong  code  = tmp.at(0).toULongLong();
-          pInfo = myDb->getProductInfo(QString::number(code));
+          pInfo = myDb->getProductInfo(code);
           pInfo.purchaseQty = getPurchaseQty();
           pInfo.validDiscount = true; // all grouped products exists
           insertProduct(pInfo); ///inserting each product of the group

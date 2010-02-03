@@ -1,22 +1,23 @@
-/**************************************************************************
-*   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
-*   miguel@lemonpos.org                                                   *
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-*   This program is distributed in the hope that it will be useful,       *
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-*   GNU General Public License for more details.                          *
-*                                                                         *
-*   You should have received a copy of the GNU General Public License     *
-*   along with this program; if not, write to the                         *
-*   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
-***************************************************************************/
+/***************************************************************************
+ *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
+ *   miguel.chavez.gamboa@gmail.com                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+ ***************************************************************************/
 #include "lemonview.h"
 #include "settings.h"
 #include "inputdialog.h"
@@ -26,6 +27,15 @@
 #include "../printing/print-dev.h"
 #include "../printing/print-cups.h"
 #include "ticketpopup.h"
+#include "misc.h"
+#include "hash.h"
+#include "specialordereditor.h"
+#include "soselector.h"
+#include "sostatus.h"
+#include "resume.h"
+#include "../../mibitWidgets/mibittip.h"
+#include "../../mibitWidgets/mibitpassworddlg.h"
+
 
 //StarMicronics printers
 // #include "printers/sp500.h"
@@ -63,6 +73,8 @@
 
 /* Widgets zone                                                                                                         */
 /*======================================================================================================================*/
+
+///NOTE: Testing with KDE 4.2, this TicketPopup dialog was not shown. So it was changed.
 
 class BalanceDialog : public QDialog
 {
@@ -114,19 +126,24 @@ class BalanceDialog : public QDialog
 
 void lemonView::cancelByExit()
 {
-  clearUsedWidgets();
-  refreshTotalLabel();
-  preCancelCurrentTransaction();
-  Azahar * myDb = new Azahar;
-  myDb->setDatabase(db);
-  myDb->deleteEmptyTransactions();
-  if (db.isOpen()) db.close();
+ preCancelCurrentTransaction(); //WE DONT NEED TO CANCEL on exit, we are saving to restore session.
+ Azahar * myDb = new Azahar;
+ myDb->setDatabase(db);
+ myDb->deleteEmptyTransactions();
+ //updateTransaction();
+ //updateBalance(false);
+  if (db.isOpen()) {
+    qDebug()<<"Sending close connection to database...";
+    db.close();
+  }
 }
 
 lemonView::lemonView(QWidget *parent) //: QWidget(parent)
 {
+  qDebug()<<"===STARTING LEMON AT "<<QDateTime::currentDateTime().toString()<<" ===";
   drawerCreated=false;
   modelsCreated=false;
+  currentBalanceId = 0;
   QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
   db = QSqlDatabase::addDatabase("QMYSQL"); //moved here because calling multiple times cause a crash on certain installations (Not kubuntu 8.10).
   ui_mainview.setupUi(this);
@@ -139,10 +156,27 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
                              i18n("Enter administrator password please."),
                              LoginWindow::PasswordOnly);
 
+  //MibitTips
+  QString path = KStandardDirs::locate("appdata", "styles/");
+  path = path+"tip.svg";
+  tipCode   = new MibitTip(this, ui_mainview.editItemCode, path, DesktopIcon("dialog-warning",32) );
+  path = KStandardDirs::locate("appdata", "styles/")+"rotated_tip.svg";
+  tipAmount = new MibitTip(this, ui_mainview.groupPayment, path, DesktopIcon("dialog-warning",32), tpAbove );
+
+  QTimer::singleShot(1000, this, SLOT(setupGridView()));
+
+  //MibitPasswordDialog
+  path = KStandardDirs::locate("appdata", "styles/") + "dialog.svg";
+  lockDialog = new MibitPasswordDialog(this, "text", path, DesktopIcon("object-locked",64));
+  lockDialog->setSize(300,150);
+  lockDialog->setTextColor("Yellow");//Ensure to pass a valid Qt-CSS color name.
+  lockDialog->setShakeTTL(3000);
+  connect(lockDialog, SIGNAL(returnPressed()), this, SLOT(unlockScreen()));                             
+
   refreshTotalLabel();
   QTimer::singleShot(1000, this, SLOT(setupDB()));
   setAutoFillBackground(true);
-  QTimer::singleShot(1100, this, SLOT(login()));
+  QTimer::singleShot(1500, this, SLOT(login()));
   QTimer *timerClock = new QTimer(this);
 
   loggedUserRole = roleBasic;
@@ -187,15 +221,17 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   
   operationStarted = false;
   productsHash.clear();
+  specialOrders.clear();
   clientsHash.clear();
   //ui_mainview.lblClientPhoto->hide();
-  ui_mainview.labelInsertCodeMsg->hide();
+  //ui_mainview.labelInsertCodeMsg->hide();
   transDateTime = QDateTime::currentDateTime();
   ui_mainview.editTransactionDate->setDateTime(transDateTime);
   ui_mainview.groupSaleDate->hide();
 
 
   ui_mainview.editItemCode->setEmptyMessage(i18n("Enter code or qty*code. <Enter> or <+> Keys to go pay"));
+  ui_mainview.editItemCode->setToolTip(i18n("Enter code or qty*code. <Enter> or <+> Keys to go pay"));
 
   clearUsedWidgets();
   loadIcons();
@@ -204,7 +240,36 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   ui_mainview.groupWidgets->setCurrentIndex(pageMain);
   ui_mainview.mainPanel->setCurrentIndex(pageMain);
 
-  QTimer::singleShot(1000, this, SLOT(setupGridView()));
+  // point the public ui pointers
+  frameLeft = ui_mainview.frameLeft;
+  frame     = ui_mainview.frame;
+
+  //excluded list for the random messages on tickets.
+  rmExcluded.clear();
+  //NOTE: this list is populated by the Azahar::getRandomMessage() method.
+  //calculate the season... Here are different ways, by months -the easier- or by groups of months.
+  QDate today = QDate::currentDate();
+  rmSeason = today.month();
+
+ //  switch (today.month()) {
+ //    //-- Christmas time
+ //    case 12:
+ //    case  1:
+ //    case  2:
+ //    //--
+ //    case 3:
+ //    case 4:
+ //    case 5:
+ //    case 6:
+ //    case 7:
+ //    case 8:
+ //    case 9:
+ //    case 10:
+ //    case 11:
+ //    }
+
+
+  ui_mainview.editItemCode->setFocus();
 }
 
 void lemonView::showChangeDate()
@@ -268,23 +333,6 @@ void lemonView::setUpInputs()
 void lemonView::timerTimeout()
 {
   emit signalUpdateClock();
-
-  //remover comas..
-//   QString s="1,231.22";
-//   QString x = s.replace(QRegExp("[\\$,]"), "");
-//   qDebug()<<"s:"<<s<<" x:"<<x;
-
-}
-
-void lemonView::clearLabelPayMsg()
-{
-  ui_mainview.labelPayMsg->clear();
-}
-
-void lemonView::clearLabelInsertCodeMsg()
-{
-  ui_mainview.labelInsertCodeMsg->clear();
-  ui_mainview.labelInsertCodeMsg->hide();
 }
 
 void::lemonView::clearLabelSearchMsg()
@@ -323,6 +371,20 @@ void lemonView::settingsChanged()
   setupHistoryTicketsModel();
   setupClients();
 
+  //save new settings on db -to avoid double settings on lemon and squeeze-
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  if (!Settings::storeLogo().isEmpty()) {
+    QPixmap p = QPixmap( Settings::storeLogo() );
+    myDb->setConfigStoreLogo(Misc::pixmap2ByteArray(new QPixmap(p), p.size().width(),p.size().height()));
+  }
+  myDb->setConfigStoreName(Settings::editStoreName());
+  myDb->setConfigStoreAddress(Settings::storeAddress());
+  myDb->setConfigStorePhone(Settings::storePhone());
+  myDb->setConfigSmallPrint(!Settings::bigReceipt());
+  myDb->setConfigUseCUPS(!Settings::smallTicketDotMatrix());
+  myDb->setConfigLogoOnTop(Settings::chLogoOnTop());
+  delete myDb;
 }
 
 void lemonView::settingsChangedOnInitConfig()
@@ -342,6 +404,7 @@ void lemonView::settingsChangedOnInitConfig()
   setupHistoryTicketsModel();
   setupClients();
 
+  emit signalDisableStartOperationAction();
   login();
 }
 
@@ -400,6 +463,8 @@ void lemonView::clearUsedWidgets()
   ui_mainview.tableWidget->setRowCount(0);
   totalSum = 0.0;
   buyPoints = 0;
+  ui_mainview.labelDetailTax1->setText("");
+  ui_mainview.labelDetailTax2->setText("");
   ui_mainview.labelDetailUnits->setText("");
   ui_mainview.labelDetailDesc->setText(i18n("No product selected"));
   ui_mainview.labelDetailPrice->setText("");
@@ -513,6 +578,7 @@ QString lemonView::getLoggedUserName(QString id)
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   uname = myDb->getUserName(id);
+  delete myDb;
   return uname;
 }
 
@@ -522,6 +588,7 @@ int lemonView::getUserRole(qulonglong id)
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   role = myDb->getUserRole(id);
+  delete myDb;
   return role;
 }
 
@@ -531,20 +598,24 @@ qulonglong lemonView::getLoggedUserId(QString uname)
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   iD = myDb->getUserId(uname);
+  delete myDb;
   return iD;
 }
 
 void lemonView::login()
 {
-  //Make a corteDeCaja
-  if (!loggedUser.isEmpty() && operationStarted) {
-    corteDeCaja();
-    loggedUser = "";
-    loggedUserName ="";
-    loggedUserRole = roleBasic;
-    emit signalNoLoggedUser();
-  }
+  qDebug()<<"Login.. emiting disable startop action";
+  emit signalDisableStartOperationAction();
 
+  corteDeCaja(); //Make a corteDeCaja "BALANCE"
+  loggedUser = "";
+  loggedUserName ="";
+  loggedUserRole = roleBasic;
+
+  //qDebug()<<"In Cash:"<<drawer->getAvailableInCash()<<"Transactions:"<<drawer->getTransactionsCount();
+  drawer->reset();
+  emit signalNoLoggedUser();
+  
   dlgLogin->clearLines();
   if (!db.isOpen()) {
       qDebug()<<"(login): Calling connectToDb()...";
@@ -552,13 +623,9 @@ void lemonView::login()
   }
 
   if (!db.isOpen()) {
-    qDebug()<<"(4/login): Still unable to open connection to database....";
-    QString msg = i18n("Could not connect to database, please press <i><b>login<b></i> button again to raise a database configuration.");
-    KNotification *notify = new KNotification("information", this);
-    notify->setText(msg);
-    QPixmap pixmap = DesktopIcon("dialog-error",32);
-    notify->setPixmap(pixmap);
-    notify->sendEvent();
+    qDebug()<<"(login): Still unable to open connection to database....";
+    QString msg = i18n("Could not connect to database, please press 'login' button again to raise a database configuration.");
+    KPassivePopup::message( i18n("Error:"),msg, DesktopIcon("dialog-error", 48), this );
   } else {
     if ( dlgLogin->exec() ) {
       loggedUser     = dlgLogin->username();
@@ -574,8 +641,10 @@ void lemonView::login()
 	emit signalAdminLoggedOff();
         if (loggedUserRole == roleSupervisor)
           emit signalSupervisorLoggedOn();
-	else
-          slotDoStartOperation();
+	else {
+          emit signalEnableStartOperationAction();
+          //slotDoStartOperation();
+        }
       }
     } else {
       loggedUser ="";
@@ -621,7 +690,8 @@ void lemonView::doSearchItemDesc()
   //iteramos la lista
   for (int i = 0; i < pList.size(); ++i) {
      qulonglong c = pList.at(i);
-     ProductInfo pInfo = myDb->getProductInfo(QString::number(c));
+     ProductInfo pInfo = myDb->getProductInfo(c);
+     if (pInfo.code==0 || pInfo.isARawProduct) continue;
      //insert each product to the search table...
      int rowCount = ui_mainview.tableSearch->rowCount();
       ui_mainview.tableSearch->insertRow(rowCount);
@@ -645,6 +715,7 @@ void lemonView::doSearchItemDesc()
     if (pList.count()>0) ui_mainview.labelSearchMsg->setText(i18np("%1 item found","%1 items found.", pList.count()));
     else ui_mainview.labelSearchMsg->setText(i18n("No items found."));
 
+    delete myDb;
   }
 
 int lemonView::getItemRow(QString c)
@@ -665,6 +736,7 @@ int lemonView::getItemRow(QString c)
 void lemonView::refreshTotalLabel()
 {
   double sum=0.0;
+  totalTax = 0; //we clean it
   qulonglong points=0;
   if (ui_mainview.tableWidget->rowCount()>0) {
     for (int row=0; row<ui_mainview.tableWidget->rowCount(); ++row)
@@ -678,25 +750,40 @@ void lemonView::refreshTotalLabel()
       }
     }
     ProductInfo info;
+    qDebug()<<"Products Qty:"<<productsHash.count();
     QHashIterator<qulonglong, ProductInfo> i(productsHash);
     while (i.hasNext()) {
       i.next();
       info = i.value();
       points += (info.points*info.qtyOnList);
-//       qDebug()<<info.desc<<" qtyOnList:"<<info.qtyOnList;
+      double pWOtax = 0;
+      if (Settings::addTax()) //added on jan 28 2010
+        pWOtax = i.value().price;
+      else
+        pWOtax= i.value().price/(1+((info.tax+info.extratax)/100));
+      //take into account the discount
+      if (i.value().validDiscount)
+        pWOtax = pWOtax - i.value().disc;
+      //finally we have on pWOtax the price without tax and discount for 1 item
+      double tax1m = (i.value().tax/100)*pWOtax;
+      double tax2m = (i.value().extratax/100)*pWOtax;
+      totalTax += (tax1m + tax2m)*i.value().qtyOnList;
+      //totalTax is the tax in money (discount applied if apply) for the qtyOnList items
+      qDebug()<<"total tax for product:"<<i.value().totaltax<<"% accumulated tax $:"<<totalTax;
     }
   }
   buyPoints = points;
+  totalSumWODisc = sum;
   discMoney = (clientInfo.discount/100)*sum;
   totalSum = sum - discMoney;
   ui_mainview.labelTotal->setText(QString("%1").arg(KGlobal::locale()->formatMoney(totalSum)));
-  ui_mainview.labelClientDiscounted->setText(i18n("Amount Discounted: %1", KGlobal::locale()->formatMoney(discMoney)));
   long double paid, change;
   bool isNum;
   paid = ui_mainview.editAmount->text().toDouble(&isNum);
   if (isNum) change = paid - totalSum; else change = 0.0;
   if (paid <= 0) change = 0.0;
   ui_mainview.labelChange->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(change)));
+  ui_mainview.lblSaleTaxes->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(totalTax)));
 }
 
 void lemonView::doEmitSignalQueryDb()
@@ -714,22 +801,38 @@ bool lemonView::incrementTableItemQty(QString code, double q)
   ProductInfo info;
 
    if (productsHash.contains(code.toULongLong())) {
-    //qDebug()<<"Product on hash: "<<code;
     //get product info...
     info = productsHash.value(code.toULongLong());
-    //qDebug()<<"  Product on hash discount :"<<info.disc;
-    //qDebug()<<"  Product on hash stock qty:"<<info.stockqty<<"real: "<<(myDb->getProductInfo(code.toULongLong())).stockqty;
-    //qDebug()<<"  Inserted at row:"<<info.row;
 
     stockqty = info.stockqty;
     qty = info.qtyOnList;
     qty_old = qty;
-    if (stockqty>=q+qty) qty+=q; else {
+
+    //stock qty for groups are different.
+    bool available = true;
+    if (info.isAGroup) {
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      QStringList lelem = info.groupElementsStr.split(",");
+      foreach(QString ea, lelem) {
+        qulonglong c  = ea.section('/',0,0).toULongLong();
+        double     qq = ea.section('/',1,1).toDouble();
+        ProductInfo pi = myDb->getProductInfo(c);
+        QString unitStr;
+        bool yes = false;
+        if (pi.stockqty >= ((qq*q)+qty/*ONList*/) ) yes = true;
+        available = (available && yes );
+        //qDebug()<<pi.desc<<" qtyonstock:"<<pi.stockqty<<" needed qty:"<<QString::number(qq*q);
+      }
+      delete myDb;
+    } else {
+      if (stockqty>=q+qty) available = true; else available = false;
+    }
+      
+    if (available) qty+=q; else {
       QString msg = i18n("<html><font color=red><b>Product not available in stock.</b></font>");
       if (ui_mainview.mainPanel->currentIndex() == pageMain) {
-         ui_mainview.labelInsertCodeMsg->setText(msg);
-         ui_mainview.labelInsertCodeMsg->show();
-         QTimer::singleShot(3000, this, SLOT(clearLabelInsertCodeMsg()));
+         tipCode->showTip(msg, 6000);
       }
       if (ui_mainview.mainPanel->currentIndex() == pageSearch) {
          ui_mainview.labelSearchMsg->setText(msg);
@@ -746,6 +849,7 @@ bool lemonView::incrementTableItemQty(QString code, double q)
     double discountperitem = (discount_old/qty_old);
     double newdiscount = discountperitem*qty;
     itemD->setData(Qt::EditRole, QVariant(newdiscount));
+    //qDebug()<<"incrementTableQty... old discount:"<<discount_old<<" old qty:"<<qty_old<<" new discount:"<<newdiscount<<"new qty:"<<qty<<" disc per item:"<<discountperitem;
 
     info.qtyOnList = qty;
     //qDebug()<<"  New qty on list:"<<info.qtyOnList;
@@ -754,7 +858,7 @@ bool lemonView::incrementTableItemQty(QString code, double q)
 
     //get item Due to update it.
     QTableWidgetItem *itemDue = ui_mainview.tableWidget->item(info.row, colDue); //4 item Due
-    itemDue->setData(Qt::EditRole, QVariant((info.price*qty)-newdiscount));//fixed on april 30 2009 00:35. Added *qty
+    itemDue->setData(Qt::EditRole, QVariant((info.price*qty)-newdiscount));//fixed on april 30 2009 00:35. Added *qtyqDebug()<<"INCREMENTING TABLE ITEM QTY";
     refreshTotalLabel();
     QTableWidgetItem *item = ui_mainview.tableWidget->item(info.row, colCode);//item code
     displayItemInfo(item); //TODO: Cambiar para desplegar de ProductInfo.
@@ -766,6 +870,16 @@ bool lemonView::incrementTableItemQty(QString code, double q)
 
 void lemonView::insertItem(QString code)
 {
+  if ( !specialOrders.isEmpty() ) {
+    KNotification *notify = new KNotification("information", this);
+    notify->setText(i18n("Only Special Orders can be added. Please finish the current special order before adding any other product."));
+    QPixmap pixmap = DesktopIcon("dialog-information",32);
+    notify->setPixmap(pixmap);
+    notify->sendEvent();
+    ui_mainview.editItemCode->clear();
+    return;
+  }
+  
   double qty  = 1;
   QString codeX = code;
   ProductInfo info;
@@ -778,54 +892,79 @@ void lemonView::insertItem(QString code)
     qty =   list.takeAt(0).toDouble();
     codeX = list.takeAt(0);
   }
-  
+
   //verify item units and qty..
   if (productsHash.contains(codeX.toULongLong())) {
     info = productsHash.value(codeX.toULongLong());
   } else {
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
-    info = myDb->getProductInfo(codeX); //includes discount and validdiscount
+    info = myDb->getProductInfo(codeX.toULongLong()); //includes discount and validdiscount
+    delete myDb;
   }
-  
+
+
   if (info.units == uPiece) {
     unsigned int intqty = qty;
     qty = intqty;
   }
-  
+
   if ( qty <= 0) {return;}
-
+  
   if (!incrementTableItemQty(codeX, qty) ) {
-    //As it was not incremented on tableView, so there is not in the productsHash... so we get it from db.
-    Azahar *myDb = new Azahar;
-    myDb->setDatabase(db);
-    info = myDb->getProductInfo(codeX); //includes discount and validdiscount
-
-    //verify item units and qty..
-    if (info.units == uPiece) { 
-      unsigned int intqty = qty;
-      qty = intqty;
-    }
-    
     info.qtyOnList = qty;
 
     QString msg;
     int insertedAtRow = -1;
     bool productFound = false;
-    if (info.code > 0) productFound = true;
+    if ( info.code > 0 ) productFound = true;
+    if ( info.isARawProduct ) productFound = false;
     double descuento=0.0;
-    if (info.validDiscount) descuento = info.disc*qty;//fixed on april 30 2009 00:35. Added *qty
-    //qDebug()<<"insertItem:: descuento total del producto:"<<descuento;
-    if ( !productFound )  msg = i18n("<html><font color=red><b>Product not found in database.</b></font></html>");
-    else if ( productFound && info.stockqty >=  qty )
-      insertedAtRow = doInsertItem(codeX, info.desc, qty, info.price, descuento, info.unitStr);
-    else msg = i18n("<html><font color=red><b>There are only %1 articles of your choice at stock.</b></font></html>", info.stockqty);
-    
+    if (info.validDiscount) descuento = info.disc*qty;
+    if ( !productFound )
+      msg = i18n("<html><font color=red><b>Product not found in database.</b></font></html>");
+    else if ( productFound ) {
+      //NOW CHECK IF ITS A GROUP
+      QString iname = info.desc;
+      if (info.isAGroup ) {
+        QStringList itemsNotAvailable;
+        if (!info.groupElementsStr.isEmpty()) {
+          Azahar *myDb = new Azahar;
+          myDb->setDatabase(db);
+          bool available = true;
+          QStringList lelem = info.groupElementsStr.split(",");
+          foreach(QString ea, lelem) {
+            qulonglong c = ea.section('/',0,0).toULongLong();
+            double     q = ea.section('/',1,1).toDouble();
+            ProductInfo pi = myDb->getProductInfo(c);
+            QString unitStr;
+            if (pi.units == 1 ) unitStr=" "; else unitStr = pi.unitStr;
+            iname += '\n' + QString::number(q) + " "+ unitStr +" "+ pi.desc;
+            bool yes = false;
+            if (pi.stockqty >= q*qty ) yes = true;
+            available = (available && yes );
+            if (!yes) {
+              itemsNotAvailable << i18n("%1 has %2 %3 but requested %4",pi.desc,pi.stockqty,unitStr,qty*q);
+            }
+            qDebug()<<pi.desc<<" qtyonstock:"<<pi.stockqty<<" needed qty:"<<QString::number(qty*q);
+          }
+          //CHECK AVAILABILITY
+          if (available)
+            insertedAtRow = doInsertItem(codeX, iname, qty, info.price, descuento, info.unitStr);
+          else
+            msg = i18n("<html><font color=red><b>The group/pack is not available because:<br>%1</b></font></html>", itemsNotAvailable.join("<br>"));
+          delete myDb;
+        }
+      } else
+          if (info.stockqty >=  qty)
+            insertedAtRow = doInsertItem(codeX, iname, qty, info.price, descuento, info.unitStr);
+          else
+              msg = i18n("<html><font color=red><b>There are only %1 articles of your choice at stock.</b></font></html>", info.stockqty);
+    } else qDebug()<<"\n\n***Este ELSE no importa!!! ya se tomaron acciones al respecto***\nTHIS SHOULD NOT BE PRINTED!!!\n\n";
+      
     if (!msg.isEmpty()) {
         if (ui_mainview.mainPanel->currentIndex() == pageMain) {
-          ui_mainview.labelInsertCodeMsg->setText(msg);
-          ui_mainview.labelInsertCodeMsg->show();
-          QTimer::singleShot(3000, this, SLOT(clearLabelInsertCodeMsg()));
+          tipCode->showTip(msg, 6000);
         }
         if (ui_mainview.mainPanel->currentIndex() == pageSearch) {
           ui_mainview.labelSearchMsg->setText(msg);
@@ -837,11 +976,15 @@ void lemonView::insertItem(QString code)
     info.row = insertedAtRow;
     if (info.row >-1 && info.desc != "[INVALID]" && info.code>0){
       productsHash.insert(codeX.toULongLong(), info);
-//       qDebug()<<"INSERTED AT ROW:"<<insertedAtRow;
       QTableWidgetItem *item = ui_mainview.tableWidget->item(info.row, colCode);
       displayItemInfo(item);
+      refreshTotalLabel();
     }
   }//if !increment...
+  //Saving session.
+  qDebug()<<"** INSERTING A PRODUCT [updating balance/transaction]";
+  updateBalance(false);
+  updateTransaction();
 }//insertItem
 
 
@@ -866,6 +1009,7 @@ int lemonView::doInsertItem(QString itemCode, QString itemDesc, double itemQty, 
   //      seems to be an effect of QVariant(double d)
   item->setData(Qt::EditRole, QVariant(itemDiscount));
   item = ui_mainview.tableWidget->item(rowCount, colDue);
+  //item->setData(Qt::EditRole, QVariant(itemQty*(itemPrice-itemDiscount)));
   item->setData(Qt::EditRole, QVariant((itemQty*itemPrice)-itemDiscount)); //fixed on april 30 2009 00:35.
   item = ui_mainview.tableWidget->item(rowCount, colPrice);
   item->setData(Qt::EditRole, QVariant(itemPrice));
@@ -873,10 +1017,9 @@ int lemonView::doInsertItem(QString itemCode, QString itemDesc, double itemQty, 
   //This resizes the heigh... looks beter...
   ui_mainview.tableWidget->resizeRowsToContents();
 
-  if (productsHash.contains(itemCode.toULongLong())) { //Codigo mudado de int a Unsigned long long: qulonlong
+  if (productsHash.contains(itemCode.toULongLong())) { 
     ProductInfo  info = productsHash.value(itemCode.toULongLong());
     if (info.units != uPiece) itemDoubleClicked(item);//NOTE: Pieces must be id=1 at database!!!! its a workaround.
-    //STqDebug()<<"itemDoubleClicked at doInsertItem...";
   }
 
   refreshTotalLabel();
@@ -909,18 +1052,61 @@ void lemonView::deleteSelectedItem()
     if (continueIt) {
       int row = ui_mainview.tableWidget->currentRow();
       QTableWidgetItem *item = ui_mainview.tableWidget->item(row, colCode);
+      QString codeStr = item->data(Qt::DisplayRole).toString();
+
+      if ( codeStr.toULongLong() == 0 ) {
+        //its not a product, its a s.o.
+        codeStr.remove(0,3); //remove the "so." string
+        qulonglong id = codeStr.toULongLong();
+        if (specialOrders.contains(id)) {
+          SpecialOrderInfo info = specialOrders.take(id);
+          //check if is completing the order
+          if (info.status == stReady) { //yes, its completing the order, but wants to cancel the action.
+            //remove from listview
+            ui_mainview.tableWidget->removeRow(row);
+            ui_mainview.editItemCode->setFocus();
+            refreshTotalLabel();
+            return;
+          }
+          if ( info.qty == 1 ) {
+            Azahar *myDb = new Azahar;
+            myDb->setDatabase(db);
+            myDb->deleteSpecialOrder(id);
+            //remove from listview
+            ui_mainview.tableWidget->removeRow(row);
+            QString authBy = dlgPassword->username();
+            if (authBy.isEmpty()) authBy = myDb->getUserName(1); //default admin.
+            log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Removing an Special Item from shopping list. Authorized by %1",authBy));
+            ui_mainview.editItemCode->setFocus();
+            refreshTotalLabel();
+            delete myDb;
+            return;
+          }
+          //more than one
+          double iqty = info.qty-1;
+          item = ui_mainview.tableWidget->item(row, colQty);
+          item->setData(Qt::EditRole, QVariant(iqty));
+          item = ui_mainview.tableWidget->item(row, colDue);
+          item->setData(Qt::EditRole, QVariant((iqty*info.payment)));
+          info.qty = iqty;
+          //reinsert to the hash
+          specialOrders.insert(info.orderid,info);
+        }
+        ui_mainview.editItemCode->setFocus();
+        refreshTotalLabel();
+        return; //to exit the method, we dont need to continue.
+      }
+      
       qulonglong code = item->data(Qt::DisplayRole).toULongLong();
       ProductInfo info = productsHash.take(code); //insert it later...
       qty = info.qtyOnList; //this must be the same as obtaining from the table... this arrived on Dec 18 2007
-     //if the itemQty is more than 1, decrement it, if its 1, delete it
-     //item = ui_mainview.tableWidget->item(row, colDisc);
-     //double discount_old = item->data(Qt::DisplayRole).toDouble();
+      //if the itemQty is more than 1, decrement it, if its 1, delete it
       item = ui_mainview.tableWidget->item(row, colUnits);//get item Units in strings...
       QString iUnitString = item->data(Qt::DisplayRole).toString();
       item = ui_mainview.tableWidget->item(row, colQty); //get Qty
       if ((item->data(Qt::DisplayRole).canConvert(QVariant::Double))) {
         qty = item->data(Qt::DisplayRole).toDouble();
-       //NOTE and FIXME:
+       //NOTE:
        //  Here, we are going to delete only items that are bigger than 1. and remove them one by one..
        //  or are we goint to decrement items only sold by pieces?
         if (qty>1 && info.units==uPiece) {
@@ -945,8 +1131,17 @@ void lemonView::deleteSelectedItem()
         }//qty = 1...
       }//if canConvert
       if (reinsert) productsHash.insert(code, info); //we remove it with .take...
-      log(loggedUserId, QDate::currentDate(), QTime::currentTime(), QString("Removing an article from shopping list. Authorized by %1").
-       arg(dlgPassword->username()));
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      QString authBy = dlgPassword->username();
+      if (authBy.isEmpty()) authBy = myDb->getUserName(1); //default admin.
+      log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Removing an article from shopping list. Authorized by %1", authBy));
+      delete myDb;
+
+       qDebug()<<"** REMOVING A PRODUCT [updating balance/transaction]";
+       updateBalance(false);
+       updateTransaction();
+       
     }//continueIt
   }//there is something to delete..
   refreshTotalLabel();
@@ -955,16 +1150,43 @@ void lemonView::deleteSelectedItem()
 void lemonView::itemDoubleClicked(QTableWidgetItem* item)
 {
   int row = item->row();
+  double dqty = 0.0;
+  bool   ok   = false;
+  int    iqty = 0;
+  
   QTableWidgetItem *i2Modify = ui_mainview.tableWidget->item(row, colCode);
   qulonglong code = i2Modify->data(Qt::DisplayRole).toULongLong();
+  if (!productsHash.contains(code)) {
+    //its not a product, its a s.o.
+    QString oid = i2Modify->data(Qt::DisplayRole).toString();
+    oid.remove(0,3);
+    qulonglong id = oid.toULongLong();
+    if (specialOrders.contains(id)) {
+      SpecialOrderInfo info = specialOrders.take(id);
+      //check if is completing the order
+      if (info.status == stReady) return; //is completing the order, cant modify qty.
+
+      iqty = info.qty+1;
+
+      i2Modify = ui_mainview.tableWidget->item(row, colQty);
+      i2Modify->setData(Qt::EditRole, QVariant(iqty));
+      i2Modify = ui_mainview.tableWidget->item(row, colDue);
+      i2Modify->setData(Qt::EditRole, QVariant((iqty*info.payment)));
+      
+      info.qty = iqty;
+      //reinsert to the hash
+      specialOrders.insert(info.orderid,info);
+    }
+    ui_mainview.editItemCode->setFocus();
+    refreshTotalLabel();
+    return; //to exit the method, we dont need to continue.
+  }
+  
   ProductInfo info = productsHash.take(code);
   double dmaxItems = info.stockqty;
   QString msg = i18n("Enter the number of %1", info.unitStr); //Added on Dec 15, 2007
 
   //Launch a dialog to as the new qty
-  double dqty = 0.0;
-  bool   ok   = false;
-  int    iqty = 0;
   if (info.units == uPiece) {
     if (dmaxItems > 0) {
       ok = true;
@@ -997,9 +1219,7 @@ void lemonView::itemDoubleClicked(QTableWidgetItem* item)
     ui_mainview.editItemCode->setFocus();
   } else {
     msg = i18n("<html><font color=red><b>Product not available in stock for the requested quantity.</b></font></html>");
-    ui_mainview.labelInsertCodeMsg->setText(msg);
-    ui_mainview.labelInsertCodeMsg->show();
-    QTimer::singleShot(3000, this, SLOT(clearLabelInsertCodeMsg()));
+    tipCode->showTip(msg, 6000);
   }
   productsHash.insert(code, info);
   refreshTotalLabel();
@@ -1010,7 +1230,7 @@ void lemonView::itemSearchDoubleClicked(QTableWidgetItem *item)
   int row = item->row();
   QTableWidgetItem *cItem = ui_mainview.tableSearch->item(row,2); //get item code
   qulonglong code = cItem->data(Qt::DisplayRole).toULongLong();
-  qDebug()<<"Linea 981: Data at column 2:"<<cItem->data(Qt::DisplayRole).toString();
+  //qDebug()<<"Linea 981: Data at column 2:"<<cItem->data(Qt::DisplayRole).toString();
   if (productsHash.contains(code)) {
     int pos = getItemRow(QString::number(code));
     if (pos>=0) {
@@ -1026,7 +1246,6 @@ void lemonView::itemSearchDoubleClicked(QTableWidgetItem *item)
   ui_mainview.mainPanel->setCurrentIndex(pageMain);
 }
 
-//FIXME: Con los nuevos TaxModels, sobra informacion (extrataxes). Verificar cantidades tambien (% y dinero)
 void lemonView::displayItemInfo(QTableWidgetItem* item)
 {
   int row = item->row();
@@ -1042,20 +1261,35 @@ void lemonView::displayItemInfo(QTableWidgetItem* item)
     QString str;
     QString tTotalTax= i18n("Taxes:");
     QString tTax    = i18n("Tax:");
+    QString tOTax   = i18n("Other taxes:");
     QString tUnits  = i18n("Sold by:");
     QString tPrice  = i18n("Price:");
     QString tDisc   = i18n("Discount:");
     QString tPoints = i18n("Points:");
+    double pWOtax = 0;
+    if (Settings::addTax()) //added on jan 28 2010
+      pWOtax = info.price;
+    else
+      pWOtax= info.price/(1+((info.tax+info.extratax)/100)); //This is not 100% exact.
+    double tax1m = (info.tax/100)*pWOtax;
+    double tax2m = (info.extratax/100)*pWOtax;
+    info.totaltax = tax1m + tax2m;
     QPixmap pix;
     pix.loadFromData(info.photo);
 
     ui_mainview.labelDetailPhoto->setPixmap(pix);
     str = QString("%1 (%2 %)")
-        .arg(KGlobal::locale()->formatMoney(info.totaltax)).arg(info.tax);
+        .arg(KGlobal::locale()->formatMoney(info.totaltax)).arg(info.tax+info.extratax);
     ui_mainview.labelDetailTotalTaxes->setText(QString("<html>%1 <b>%2</b></html>")
         .arg(tTotalTax).arg(str));
     str = QString("%1 (%2 %)")
-        .arg(KGlobal::locale()->formatMoney(info.totaltax)).arg(info.tax);
+        .arg(KGlobal::locale()->formatMoney(tax1m)).arg(info.tax);
+    ui_mainview.labelDetailTax1->setText(QString("<html>%1 <b>%2</b></html>")
+        .arg(tTax).arg(str));
+    str = QString("%1 (%2 %)")
+        .arg(KGlobal::locale()->formatMoney(tax2m)).arg(info.extratax);
+    ui_mainview.labelDetailTax2->setText(QString("<html>%1 <b>%2</b></html>")
+        .arg(tOTax).arg(str));
     ui_mainview.labelDetailUnits->setText(QString("<html>%1 <b>%2</b></html>")
         .arg(tUnits).arg(uLabel));
     ui_mainview.labelDetailDesc->setText(QString("<html><b>%1</b></html>").arg(desc));
@@ -1106,13 +1340,16 @@ void lemonView::createNewTransaction(TransactionType type)
     info.disc = 0;
     info.discmoney = 0;
     info.points = 0;
-    info.profit = 0;
-    info.providerid = 0;
+    info.utility = 0;
+    //info.groups = "";
+    info.providerid = 1; //default one... for no.. FIXME!
     info.terminalnum=Settings::editTerminalNumber();
+    info.balanceId = currentBalanceId;
 
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
     currentTransaction = myDb->insertTransaction(info);
+    qDebug()<<"NEW TRANSACTION:"<<currentTransaction;
     if (currentTransaction <= 0) {
       KMessageBox::detailedError(this, i18n("Lemon has encountered an error when openning database, click details to see the error details."), myDb->lastError(), i18n("Create New Transaction: Error"));
     }
@@ -1120,8 +1357,10 @@ void lemonView::createNewTransaction(TransactionType type)
       transactionInProgress = true;
       emit signalUpdateTransactionInfo();
     }
+    delete myDb;
    }
   productsHash.clear();
+  specialOrders.clear();
 }
 
 void lemonView::finishCurrentTransaction()
@@ -1134,15 +1373,27 @@ void lemonView::finishCurrentTransaction()
   ui_mainview.mainPanel->setCurrentIndex(pageMain);
   if (ui_mainview.editAmount->text().isEmpty()) ui_mainview.editAmount->setText("0.0");
   if (ui_mainview.checkCash->isChecked()) {
-    if (ui_mainview.editAmount->text().toDouble()<totalSum) {
+    double amnt = ui_mainview.editAmount->text().toDouble();
+    if (amnt <totalSum) {
       canfinish = false;
       ui_mainview.editAmount->setFocus();
       ui_mainview.editAmount->setStyleSheet("background-color: rgb(255,100,0); color:white; selection-color: white; font-weight:bold;");
       ui_mainview.editCardNumber->setStyleSheet("");
       ui_mainview.editAmount->setSelection(0, ui_mainview.editAmount->text().length());
       msg = i18n("<html><font color=red><b>Please fill the correct pay amount before finishing a transaction.</b></font></html>");
-      ui_mainview.labelPayMsg->setText(msg);
-      QTimer::singleShot(3000, this, SLOT(clearLabelPayMsg()));
+      tipAmount->showTip(msg, 4000);
+    } else if (ui_mainview.editAmount->text().length() >= 8 )  {
+      if (ui_mainview.editAmount->text().contains(".00") || ui_mainview.editAmount->text().contains(",00"))
+        canfinish = true; // it was not entered by the barcode reader.
+        //To continue with that big number, the cashier needs to enter a .00 or ,00 at the end of the amnt.
+      else {
+        // This can be an EAN8/EAN13 barcode introduced in the amount field!
+        // There are reports of users doing this, leading to a bad balance.
+        msg = i18n("Please be sure to enter an appropiate amount in this field. The number seems to be a barcode entered by mistake in the amount field.");
+        tipAmount->showTip(msg, 10000); //let stay more time than other msg.
+        canfinish = false;
+        ui_mainview.editAmount->setSelection(0, ui_mainview.editAmount->text().length()); //NOTE: THIS LINE OF CODE IS THE 16,000th WRITTEN LINE!!!! According to SLOCCOUNT. MCH december 25 2009.
+      }
     }
   }
   else {
@@ -1164,19 +1415,13 @@ void lemonView::finishCurrentTransaction()
       ui_mainview.editCardAuthNumber->setSelection(0, ui_mainview.editCardAuthNumber->text().length());
       msg = i18n("<html><font color=red><b>Please enter the Authorisation number from the bank voucher.</b></font></html>");
     }
-    if (!msg.isEmpty()) {
-      ui_mainview.labelPayMsg->setText(msg);
-      QTimer::singleShot(3000, this, SLOT(clearLabelPayMsg()));
-    }
+    if (!msg.isEmpty())
+      tipAmount->showTip(msg, 4000);
   }
   if (ui_mainview.tableWidget->rowCount() == 0) canfinish = false;
   if (!canStartSelling()) {
     canfinish=false;
-    KNotification *notify = new KNotification("information", this);
-    notify->setText(i18n("Before selling, you must start operations."));
-    QPixmap pixmap = DesktopIcon("dialog-error",32); //NOTE: This does not works
-    notify->setPixmap(pixmap);
-    notify->sendEvent();
+    KMessageBox::sorry(this, i18n("Before selling, you must start operations."));
   }
 
   if (canfinish) // Ticket #52: Allow ZERO DUE.
@@ -1191,7 +1436,7 @@ void lemonView::finishCurrentTransaction()
     QString          authnumber = "";
     QString          cardNum = "";
     QString          paidStr = "'[Not Available]'";
-    QStringList ilist;
+    QStringList      groupList;
     payTotal = totalSum;
     if (ui_mainview.checkCash->isChecked()) {
       pType = pCash;
@@ -1199,16 +1444,16 @@ void lemonView::finishCurrentTransaction()
       changeGiven = payWith- totalSum;
     } else {
       pType = pCard;
-      if (ui_mainview.editCardNumber->hasAcceptableInput()) {
+      if (ui_mainview.editCardNumber->hasAcceptableInput() ) {
         cardNum = ui_mainview.editCardNumber->text().replace(0,15,"***************"); //FIXED: Only save last 4 digits;
       }
-      if (ui_mainview.editCardAuthNumber->hasAcceptableInput()) authnumber = ui_mainview.editCardAuthNumber->text();
-      //cardNum = "'"+cardNum+"'";
-      //authnumber = "'"+authnumber+"'";
+      if (ui_mainview.editCardAuthNumber->hasAcceptableInput())
+        authnumber = ui_mainview.editCardAuthNumber->text();
       payWith = payTotal;
     }
 
     tInfo.id = currentTransaction;
+    tInfo.balanceId = currentBalanceId;
     tInfo.type = 0;//already on db.
     tInfo.amount = totalSum;
 
@@ -1239,8 +1484,10 @@ void lemonView::finishCurrentTransaction()
     tInfo.disc = clientInfo.discount;
     tInfo.discmoney = discMoney; //global variable...
     tInfo.points = buyPoints; //global variable...
-    tInfo.profit = 0; //later
+    tInfo.utility = 0; //later
     tInfo.terminalnum=Settings::editTerminalNumber();
+    tInfo.providerid = 1; //default... at sale we dont use providers.
+    tInfo.totalTax = totalTax;
 
     QStringList productIDs; productIDs.clear();
     int cantidad=0;
@@ -1254,18 +1501,40 @@ void lemonView::finishCurrentTransaction()
     QList<TicketLineInfo> ticketLines;
     ticketLines.clear();
     TransactionItemInfo tItemInfo;
-    
+
     // NOTE: utilidad (profit): Also take into account client discount! after this...
+    //Iterating products hash
     while (i.hasNext()) {
+      QString iname = "";
       i.next();
       position++;
       productIDs.append(QString::number(i.key())+"/"+QString::number(i.value().qtyOnList));
       if (i.value().units == uPiece) cantidad += i.value().qtyOnList; else cantidad += 1; // :)
       utilidad += (i.value().price - i.value().cost - i.value().disc) * i.value().qtyOnList;
-      //decrement stock qty, increment soldunits
-      myDb->decrementProductStock(i.key(), i.value().qtyOnList, QDate::currentDate() );
+      //decrement stock qty, increment soldunits.. CHECK FOR GROUP
+      if (!i.value().isAGroup)
+        myDb->decrementProductStock(i.key(), i.value().qtyOnList, QDate::currentDate() );
+      else { //ITS A GROUPED PRODUCT
+        myDb->decrementGroupStock(i.key(), i.value().qtyOnList, QDate::currentDate() );
+        //GET NAME WITH ITS PRODUCTS
+        iname = i.value().desc; //name with its components
+        if (!i.value().groupElementsStr.isEmpty()) {
+          QStringList lelem = i.value().groupElementsStr.split(",");
+          //groupList << lelem;//to store on TransactionInfo
+          foreach(QString ea, lelem) {
+            if (Settings::printPackContents()) {
+              qulonglong c = ea.section('/',0,0).toULongLong();
+              double     q = ea.section('/',1,1).toDouble();
+              ProductInfo pi = myDb->getProductInfo(c);
+              QString unitStr;
+              if (pi.units == 1 ) unitStr=" "; else unitStr = pi.unitStr;
+              iname += "\n  " + QString::number(q) + " "+ unitStr +" "+ pi.desc;
+            }
+          }
+        }
+      }
 
-      //qDebug()<<"Utilidad acumulada de la venta:"<<utilidad<<" |price:"<<i.value().price<<" cost:"<<i.value().cost<<" desc:"<<i.value().disc;
+      //qDebug()<<"NEWNAME:"<<iname;
 
       //from Biel
       // save transactionItem
@@ -1279,27 +1548,142 @@ void lemonView::finishCurrentTransaction()
       tItemInfo.price           = i.value().price;
       tItemInfo.disc            = i.value().disc;
       tItemInfo.total           = (i.value().price - i.value().disc) * i.value().qtyOnList;
-      tItemInfo.name            = i.value().desc;
+      if (i.value().isAGroup)
+        tItemInfo.name            = iname.replace("\n", "|");
+      else
+        tItemInfo.name            = i.value().desc;
+      tItemInfo.soId            = ""; //no special order
+      tItemInfo.payment         = 0; //not used
+      tItemInfo.completePayment = true;
+      tItemInfo.isGroup = i.value().isAGroup;
+      tItemInfo.tax = i.value().tax + i.value().extratax; //all taxes in percentage.
+
       myDb->insertTransactionItem(tItemInfo);
 
       //re-select the transactionItems model
       historyTicketsModel->select();
 
+      iname = iname.replace("\n", "|");
+
       // add line to ticketLines 
       TicketLineInfo tLineInfo;
       tLineInfo.qty     = i.value().qtyOnList;
       tLineInfo.unitStr = i.value().unitStr;
+      tLineInfo.isGroup = false;
+      if (i.value().isAGroup) { //TO SEND GROUP INFO TO PRINTTICKET
+        tLineInfo.geForPrint    =iname;
+        tLineInfo.completePayment = true;
+        tLineInfo.payment = 0;
+        tLineInfo.isGroup = true;
+      }
       tLineInfo.desc    = i.value().desc;
       tLineInfo.price   = i.value().price;
       tLineInfo.disc    = i.value().disc;
       tLineInfo.total   = tItemInfo.total;
+      tLineInfo.tax     = tItemInfo.tax;
+      //tLineInfo.geForPrint = 
       ticketLines.append(tLineInfo);
-    }
-    tInfo.itemcount = cantidad;
+    } //each product on productHash
+    
+    tInfo.itemcount = cantidad; // qty of products (again, at Hash)
+
+    QStringList ordersStr;
+    int completePayments = 0;
+    //Now check the Special Items (Orders)
+    if (!specialOrders.isEmpty()) {
+      // NOTE: here the Special Item is taken as ONE -not counting its components-
+      tInfo.itemcount += specialOrders.count();
+      QStringList elementsStr;
+      foreach(SpecialOrderInfo siInfo, specialOrders) {
+        position++; //increment the existent positions.
+        ordersStr.append(QString::number(siInfo.orderid)+"/"+QString::number(siInfo.qty));
+        elementsStr.append(siInfo.groupElements);
+        //NOTE: Here the 'utilidad' = profit. Profit is CERO at this stage for the S.O,
+        //      Its going to be calculated when the payment is done (when picking up the product)
+        //      and is going to be emited other transaction with the profit/payment.
+        //utilidad += (siInfo.payment/*price*/ - siInfo.cost)*siInfo.qty;
+        if (siInfo.units == 1) cantidad += siInfo.qty; else cantidad +=1;
+        //from Biel
+        // save transactionItem
+        tItemInfo.transactionid   = tInfo.id;
+        tItemInfo.position        = position;
+        tItemInfo.productCode     = 0; //are qulonlong... and they are not normal products
+        tItemInfo.points          = 0;
+        tItemInfo.unitStr         = siInfo.unitStr;
+        tItemInfo.qty             = siInfo.qty;
+        tItemInfo.cost            = siInfo.cost;
+        tItemInfo.price           = siInfo.price;
+        tItemInfo.disc            = 0;
+        tItemInfo.total           = (siInfo.price) * siInfo.qty;
+        tItemInfo.name            = siInfo.name;
+        tItemInfo.soId            = "so."+QString::number(siInfo.orderid);
+        tItemInfo.payment         = siInfo.payment;
+        tItemInfo.completePayment = siInfo.completePayment;
+        tItemInfo.deliveryDateTime= siInfo.deliveryDateTime;
+        tItemInfo.isGroup         = false;
+        tItemInfo.tax             = myDb->getSpecialOrderAverageTax(siInfo.orderid);
+
+        if (siInfo.completePayment && siInfo.status == stReady) completePayments++;
+        
+        myDb->insertTransactionItem(tItemInfo);
+        //re-select the transactionItems model
+        historyTicketsModel->select();
+        // add line to ticketLines
+        TicketLineInfo tLineInfo;
+        tLineInfo.qty     = siInfo.qty;
+        tLineInfo.unitStr = siInfo.unitStr;
+        tLineInfo.desc    = siInfo.name;
+        tLineInfo.price   = siInfo.price;
+        tLineInfo.disc    = 0;
+        tLineInfo.total   = tItemInfo.total;
+        tLineInfo.geForPrint = siInfo.geForPrint;
+        tLineInfo.completePayment = siInfo.completePayment;
+        tLineInfo.payment = siInfo.payment;
+        tLineInfo.isGroup = false;
+        tLineInfo.deliveryDateTime = siInfo.deliveryDateTime;
+        tLineInfo.tax     = tItemInfo.tax;
+        
+        ticketLines.append(tLineInfo);
+
+        switch (siInfo.status) {
+          case stPending:  
+            siInfo.status = stInProgress;
+            //some clients makes the total payment when ordering.
+            if (siInfo.completePayment)
+              siInfo.completedOnTrNum = tInfo.id;
+            myDb->updateSpecialOrder(siInfo);
+            break;
+          case stInProgress: 
+            qDebug()<<"There is an inappropiate state (In progress) for a SO to be here.";
+            break;
+          case stReady:
+            siInfo.status = stDelivered;
+            siInfo.completedOnTrNum = tInfo.id;
+            //siInfo.payment   = siInfo.price-siInfo.payment; //the final payment is what we save on db.
+            myDb->updateSpecialOrder(siInfo);
+            break;
+          case stDelivered:
+            qDebug()<<"There is an inappropiate state (Delivered) for a SO to be here.";
+            break;
+          default:
+            qDebug()<<"No state for the SO, setting as InProgress";
+            siInfo.status =stInProgress;
+            myDb->updateSpecialOrder(siInfo);
+            break;
+        }
+        //update special order info (when resume sale is used, deliveryDateTime is changed)
+        myDb->updateSpecialOrder(siInfo);
+      } //for each
+    }// !specialOrders.isEmpty
+    
     // taking into account the client discount. Applied over other products discount.
     // discMoney is the money discounted because of client discount.
-    tInfo.profit = utilidad - discMoney; // utilidad = profit
+    tInfo.utility = utilidad - discMoney; // utilidad = profit
     tInfo.itemlist  = productIDs.join(",");
+
+    //special orders Str on transactionInfo
+    tInfo.specialOrders = ordersStr.join(","); //all special orders on the hash formated as id/qty,id/qty...
+    
 
     //update transactions
     myDb->updateTransaction(tInfo);
@@ -1313,7 +1697,6 @@ void lemonView::finishCurrentTransaction()
           drawer->substractCash(changeGiven);
           drawer->incCashTransactions();
           //open drawer only if there is a printer available.
-          //NOTE: What about CUPS printers?
           if (Settings::openDrawer() && Settings::smallTicketDotMatrix() && Settings::printTicket())
             drawer->open();
         } else {
@@ -1323,9 +1706,10 @@ void lemonView::finishCurrentTransaction()
         drawer->insertTransactionId(getCurrentTransaction());
     }
     else {
+       //KMessageBox::error(this, i18n("The Drawer is not initialized, please start operation first."), i18n("Error") );
       KNotification *notify = new KNotification("information", this);
       notify->setText(i18n("The Drawer is not initialized, please start operation first."));
-      QPixmap pixmap = DesktopIcon("dialog-information",32); //NOTE: This does not works
+      QPixmap pixmap = DesktopIcon("dialog-information",32);
       notify->setPixmap(pixmap);
       notify->sendEvent();
     }
@@ -1334,6 +1718,7 @@ void lemonView::finishCurrentTransaction()
     clientsHash.remove(QString::number(clientInfo.id));
     clientsHash.insert(QString::number(clientInfo.id), clientInfo);
     updateClientInfo();
+    refreshTotalLabel();
 
     //Ticket
     ticket.number = currentTransaction;
@@ -1350,8 +1735,18 @@ void lemonView::finishCurrentTransaction()
     ticket.clientPoints = clientInfo.points;
     ticket.lines = ticketLines;
     ticket.clientid = clientInfo.id;
+    ticket.hasSpecialOrders = !specialOrders.isEmpty();
+    if (completePayments>0)
+      ticket.completingSpecialOrder = true;
+    else
+      ticket.completingSpecialOrder = false;
+    ticket.totalTax = totalTax;
 
     if (printticket) printTicket(ticket);
+
+    //update balance
+    qDebug()<<"FINISH TRANSACTION, UPDATING BALANCE #"<<currentBalanceId;
+    updateBalance(false);//for sessions.
     
     transactionInProgress = false;
     updateModelView();
@@ -1359,31 +1754,55 @@ void lemonView::finishCurrentTransaction()
 
     //Check level of cash in drawer
     if (drawer->getAvailableInCash() < Settings::cashMinLevel() && Settings::displayWarningOnLowCash()) {
+      //KPassivePopup::message( i18n("Warning:"),i18n("Cash level in drawer is low."),DesktopIcon("dialog-warning", 48), this);
       KNotification *notify = new KNotification("information", this);
       notify->setText(i18n("Cash level in drawer is low."));
       QPixmap pixmap = DesktopIcon("dialog-warning",32); //NOTE: This does not works
       notify->setPixmap(pixmap);
       notify->sendEvent();
     }
+    
+    delete myDb;
    }
    
    if (!ui_mainview.groupSaleDate->isHidden()) ui_mainview.groupSaleDate->hide(); //finally we hide the sale date group
 }
 
+
+///The big question: Print tickets with a payment of ZERO?
 void lemonView::printTicket(TicketInfo ticket)
 {
-  //TRanslateable strings:
+  if (ticket.total == 0 && !Settings::printZeroTicket()) {
+    freezeWidgets();
+    KNotification *notify = new KNotification("information", this);
+    notify->setText(i18n("The ticket was not printed because it is ZERO in the amount to pay. Just to save trees."));
+    QPixmap pixmap = DesktopIcon("dialog-error",32);
+    notify->setPixmap(pixmap);
+    notify->sendEvent();
+    QTimer::singleShot(2000, this, SLOT(unfreezeWidgets()));
+    return; ///DO NOT PRINT! We are saving trees.
+  }
+
+    //TRanslateable strings:
   QString salesperson    = i18n("Salesperson: %1", loggedUserName);
   QString hQty           = i18n("Qty");
   QString hProduct       = i18n("Product");
   QString hPrice         = i18n("Price");
   QString hDisc          = i18n("Offer");
   QString hTotal         = i18n("Total");
-  QString hClientDisc    = i18n("Your discount: %1", discMoney);
-  QString hClientBuyPoints  = i18n("Your points this buy: %1", buyPoints);
-  QString hClientPoints  = i18n("Your total points: %1", clientInfo.points);
-  QString hTicket  = i18n("Ticket # %1", ticket.number);
-  QString terminal = i18n("Terminal #%1", Settings::editTerminalNumber());
+  QString hClientDisc    = i18n("Your Personal Discount");
+  QString hClientBuyPoints  = i18n("Your points this buy: %1", ticket.buyPoints); //FIXME: here use the ticket.
+  QString hClientPoints  = i18n("Your total points: %1", ticket.clientPoints);
+  QString hTicket  = i18n("# %1", ticket.number);
+  QString terminal = i18n("Terminal #%1", Settings::editTerminalNumber());//FIXME:This is not TRUE when REPRINTING TICKET
+  QString hPrePayment = i18n("  PRE PAYMENT OF  ");
+  QString hCompletePayment = i18n("  COMPLETED PAYMENT WITH ");
+  QString hNextPaymentStr = i18n("  To complete your payment");
+  QString hLastPaymentStr = i18n("  Your pre-payment");
+  QString hSpecialOrder = i18n("SPECIAL ORDERS");
+  QString hNotes = i18n("Notes:");
+  QString hDeliveryDT = i18n("  Delivery: ");
+  QString hTax = i18n("Tax");
   //HTML Ticket
   QStringList ticketHtml;
   double tDisc = 0.0;
@@ -1435,10 +1854,24 @@ void lemonView::printTicket(TicketInfo ticket)
     }
     QString idue =  localeForPrinting.toString(tLine.total,'f',2);
 
+    //get contents, remove the first which is the name of the SO
+    QStringList contentsList = tLine.geForPrint.split("|");
+    if (!contentsList.isEmpty()) contentsList.removeFirst();
     
     //HTML Ticket
     ticketHtml.append(QString("<tr><td>%1</td><td>%2</td><td>%3</td><td>%4</td><td>%5</td></tr>")
         .arg(iqty).arg(idesc).arg(iprice).arg(idiscount).arg(idue));
+    if (!tLine.geForPrint.isEmpty()) {
+      ticketHtml.append(QString("<tr><td></td><td>%1</td><td></td><td></td><td></td></tr>").arg(contentsList.join("\n")));
+      if (tLine.completePayment) {
+        if (!tLine.isGroup)
+          ticketHtml.append(QString("<tr><td></td><td>%1</td><td></td><td></td><td></td></tr>").arg(hCompletePayment+QString::number(tLine.payment*tLine.qty)));
+      }
+      else {
+        if (!tLine.isGroup)
+          ticketHtml.append(QString("<tr><td></td><td>%1</td><td></td><td></td><td></td></tr>").arg(hPrePayment+QString::number(tLine.payment*tLine.qty)));
+      }
+    }
     //TEXT TICKET
     //adjusting length
     if (idesc.length()>14) idesc.truncate(14); //idesc = idesc.insert(19, '\n');
@@ -1458,6 +1891,21 @@ void lemonView::printTicket(TicketInfo ticket)
         arg(iprice).
         arg(idue);
     itemsForPrint.append(line);
+    if (!contentsList.isEmpty()) {
+      itemsForPrint<<contentsList;
+      if (tLine.completePayment) {
+        if (!tLine.isGroup)
+          itemsForPrint<<(hCompletePayment+" "+QString::number(tLine.payment*tLine.qty));
+      }
+      else {
+        if (!tLine.isGroup)
+          itemsForPrint<<(hPrePayment+" "+QString::number(tLine.payment*tLine.qty));
+      }
+      if (!tLine.isGroup && tLine.payment > 0) {
+        //print the delivery date.
+        itemsForPrint<<(hDeliveryDT+" "+KGlobal::locale()->formatDateTime(tLine.deliveryDateTime,  KLocale::ShortDate));
+      }
+    }
     if (hasDiscount) itemsForPrint.append(QString("        * %1 *     -%2").arg(hDisc).arg(idiscount) );
   }//for each item
 
@@ -1479,9 +1927,9 @@ void lemonView::printTicket(TicketInfo ticket)
     line = i18n("You saved %1", KGlobal::locale()->formatMoney(tDisc, QString(), 2));
     itemsForPrint.append(line);
   }
-  if (clientInfo.discount>0) itemsForPrint.append(hClientDisc);
-  if (buyPoints>0) itemsForPrint.append(hClientBuyPoints);
-  if (clientInfo.points>0) itemsForPrint.append(hClientPoints);
+  if (ticket.clientDiscMoney>0) itemsForPrint.append(hClientDisc+": "+QString::number(ticket.clientDiscMoney));
+  if (ticket.buyPoints>0 && ticket.clientid>1) itemsForPrint.append(hClientBuyPoints);
+  if (ticket.clientPoints>0 && ticket.clientid>1) itemsForPrint.append(hClientPoints);
   itemsForPrint.append(" ");
   line = i18n("Paid with %1, your change is %2",
               KGlobal::locale()->formatMoney(ticket.paidwith, QString(), 2), KGlobal::locale()->formatMoney(ticket.change, QString(), 2));
@@ -1514,6 +1962,14 @@ void lemonView::printTicket(TicketInfo ticket)
       QPixmap logoPixmap;
       logoPixmap.load(Settings::storeLogo());
 
+      //foreach(TicketLineInfo li, ticket.lines) {
+      //  qDebug()<<"TicketLine.geForPrint:"<<li.geForPrint;
+      //}
+
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      QString clientName = myDb->getClientInfo(ticket.clientid).name;
+
       ptInfo.ticketInfo = ticket;
       ptInfo.storeLogo  = logoPixmap;
       ptInfo.storeName  = Settings::editStoreName();
@@ -1531,7 +1987,7 @@ void lemonView::printTicket(TicketInfo ticket)
       ptInfo.thDiscount = hDisc;
       ptInfo.thTotal    = hTotal;
       ptInfo.thTotals   = KGlobal::locale()->formatMoney(ptInfo.ticketInfo.total, QString(), 2);
-      ptInfo.thPoints   = i18n("You got %1 points, your accumulated is :%2", ptInfo.ticketInfo.buyPoints, ptInfo.ticketInfo.clientPoints);
+      ptInfo.thPoints   = i18n(" %3 [ %4 ]| You got %1 points | Your accumulated is :%2 | ", ticket.buyPoints, ticket.clientPoints, clientName, ticket.clientid);
       ptInfo.thArticles = i18np("%1 article.", "%1 articles.", ptInfo.ticketInfo.itemcount);
       ptInfo.thPaid     = i18n("Paid with %1, your change is %2", KGlobal::locale()->formatMoney(ptInfo.ticketInfo.paidwith, QString(), 2),KGlobal::locale()->formatMoney(ptInfo.ticketInfo.change, QString(), 2) );
       ptInfo.tDisc      = KGlobal::locale()->formatMoney(-tDisc, QString(), 2);
@@ -1539,8 +1995,19 @@ void lemonView::printTicket(TicketInfo ticket)
       ptInfo.thCardAuth = i18n("Authorization : %1", ticket.cardAuthNum);
       ptInfo.totDisc    = tDisc;
       ptInfo.logoOnTop = Settings::chLogoOnTop();
-      
-      
+      QString signM = KGlobal::locale()->formatMoney(tDisc, QString(), 2);
+      signM.truncate(2);
+      ptInfo.paymentStrPrePayment = hPrePayment + signM;
+      ptInfo.paymentStrComplete = hCompletePayment + signM;
+      ptInfo.nextPaymentStr = hNextPaymentStr;
+      ptInfo.lastPaymentStr = hLastPaymentStr;
+      ptInfo.deliveryDateStr= hDeliveryDT;
+      ptInfo.clientDiscMoney = ticket.clientDiscMoney;
+      ptInfo.clientDiscountStr = hClientDisc;
+      ptInfo.randomMsg = myDb->getRandomMessage(rmExcluded, rmSeason);
+      ptInfo.taxes = KGlobal::locale()->formatMoney(ticket.totalTax, QString(), 2);
+      ptInfo.thTax = hTax;
+
       QPrinter printer;
       printer.setFullPage( true );
       QPrintDialog printDialog( &printer );
@@ -1548,6 +2015,7 @@ void lemonView::printTicket(TicketInfo ticket)
       if ( printDialog.exec() ) {
         PrintCUPS::printSmallTicket(ptInfo, printer);
       }
+      delete myDb;
     }
     else {
       qDebug()<<"Printing big receipt using CUPS";
@@ -1556,6 +2024,10 @@ void lemonView::printTicket(TicketInfo ticket)
       QPixmap logoPixmap;
       logoPixmap.load(Settings::storeLogo());
 
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      QString clientName = myDb->getClientInfo(ticket.clientid).name;
+      
       ptInfo.ticketInfo = ticket;
       ptInfo.storeLogo  = logoPixmap;
       ptInfo.storeName  = Settings::editStoreName();
@@ -1573,12 +2045,15 @@ void lemonView::printTicket(TicketInfo ticket)
       ptInfo.thDiscount = hDisc;
       ptInfo.thTotal    = hTotal;
       ptInfo.thTotals   = KGlobal::locale()->formatMoney(ptInfo.ticketInfo.total, QString(), 2);
-      ptInfo.thPoints   = i18n("You got %1 points, your accumulated is :%2", ptInfo.ticketInfo.buyPoints, ptInfo.ticketInfo.clientPoints);
+      ptInfo.thPoints   = i18n(" %3 [ %4 ]| You got %1 points | Your accumulated is :%2 | ", ticket.buyPoints, ticket.clientPoints, clientName, ticket.clientid);
       ptInfo.thArticles = i18np("%1 article.", "%1 articles.", ptInfo.ticketInfo.itemcount);
       ptInfo.thPaid     = ""; //i18n("Paid with %1, your change is %2", KGlobal::locale()->formatMoney(ptInfo.ticketInfo.paidwith, QString(), 2),KGlobal::locale()->formatMoney(ptInfo.ticketInfo.change, QString(), 2) );
       ptInfo.tDisc      = KGlobal::locale()->formatMoney(-tDisc, QString(), 2);
       ptInfo.totDisc    = tDisc;
       ptInfo.logoOnTop = Settings::chLogoOnTop();
+      ptInfo.clientDiscMoney = ticket.clientDiscMoney;
+      ptInfo.clientDiscountStr = hClientDisc;
+      ptInfo.randomMsg = myDb->getRandomMessage(rmExcluded, rmSeason);
 
       QPrinter printer;
       printer.setFullPage( true );
@@ -1587,10 +2062,41 @@ void lemonView::printTicket(TicketInfo ticket)
       if ( printDialog.exec() ) {
         PrintCUPS::printBigTicket(ptInfo, printer);
       }
-
-
-      
+      delete myDb;
     }//bigTicket
+    //now if so.. print it
+    if (Settings::printSO() && ticket.hasSpecialOrders && !ticket.completingSpecialOrder){
+      qDebug()<<"Printing small receipt for SPECIAL ORDERS using CUPS";
+      PrintTicketInfo ptInfo;
+      
+      ptInfo.ticketInfo = ticket;
+      ptInfo.storeName  = hSpecialOrder; //user for header
+      ptInfo.salesPerson= loggedUserName;
+      ptInfo.terminal   = terminal;
+      ptInfo.thDate     = KGlobal::locale()->formatDateTime(ptInfo.ticketInfo.datetime, KLocale::LongDate);
+      ptInfo.thTicket   = hTicket;
+      ptInfo.thProduct  = hProduct;
+      ptInfo.thQty      = i18n("Qty");
+      ptInfo.thPrice    = hPrice;
+      ptInfo.thTotal    = hTotal;
+      ptInfo.thTotals   = KGlobal::locale()->formatMoney(ptInfo.ticketInfo.total, QString(), 2);
+      QString signM = KGlobal::locale()->formatMoney(tDisc, QString(), 2);
+      signM.truncate(2);
+      ptInfo.paymentStrPrePayment = hPrePayment + signM;
+      ptInfo.paymentStrComplete = hCompletePayment + signM;
+      ptInfo.nextPaymentStr = hNextPaymentStr;
+      ptInfo.lastPaymentStr = hLastPaymentStr;
+      ptInfo.deliveryDateStr = hDeliveryDT;
+      
+      
+      QPrinter printer;
+      printer.setFullPage( true );
+      QPrintDialog printDialog( &printer );
+      printDialog.setWindowTitle(i18n("Print Special Order Instructions "));
+      if ( printDialog.exec() ) {
+        PrintCUPS::printSmallSOTicket(ptInfo, printer);
+      }
+    }//soticket
   } //printTicket
 
   freezeWidgets();
@@ -1621,12 +2127,15 @@ void lemonView::startAgain()
 {
   qDebug()<<"startAgain(): New Transaction";
   productsHash.clear();
+  specialOrders.clear();
   setupClients(); //clear the clientInfo (sets the default client info)
   clearUsedWidgets();
   buyPoints =0;
   discMoney=0;
   refreshTotalLabel();
   createNewTransaction(tSell);
+  //NOTE: when createNewTRansaction is executed, and we are exiting application, the requested transaction create in not completed.. due to the way it is implemented in qtsql. This is a good thing for me because i dont want to create a new transaction when we are exiting lemon. Thats why the message "QSqlDatabasePrivate::removeDatabase: connection 'qt_sql_default_connection' is still in use, all queries will cease to work." appears on log (std output) when exiting lemon. This method is called from corteDeCaja which is called from cancelByExit() method which is called by lemon class on exit-query.
+  //NOTE: But if we want to save something when exiting lemon -sending the query at the end- we must check for it to complete. In this case, this is the last query sent... but later with more code aded, could be a danger not to check for this things.
 }
 
 void lemonView::cancelCurrentTransaction()
@@ -1648,18 +2157,25 @@ void lemonView::cancelCurrentTransaction()
 void lemonView::preCancelCurrentTransaction()
 {
   if (ui_mainview.tableWidget->rowCount()==0 ) { //empty transaction
+    qDebug()<<"Entering empty transaction cancel";
     productsHash.clear();
+    specialOrders.clear();
     setupClients(); //clear the clientInfo (sets the default client info)
     clearUsedWidgets();
     buyPoints =0;
     discMoney=0;
     refreshTotalLabel();
+    qDebug()<<"** Cancelling an empty transaction [updating transaction]";
+    updateTransaction();
     ///Next two lines were deleted to do not increment transactions number. reuse it.
     //if (Settings::deleteEmptyCancelledTransactions()) deleteCurrentTransaction();
     //else cancelCurrentTransaction();
   }
   else {
-    cancelCurrentTransaction();
+    //cancelCurrentTransaction();
+    //instead of cancelling the transaction we suspend it.
+    updateTransaction();
+    updateBalance(false);
   }
 
   //if change sale date is in progress (but cancelled), hide it.
@@ -1679,6 +2195,7 @@ void lemonView::deleteCurrentTransaction()
   else {
     KMessageBox::detailedError(this, i18n("Lemon has encountered an error when querying the database, click details to see the error details."), myDb->lastError(), i18n("Delete Transaction: Error"));
   }
+  delete myDb;
 }
 
 //NOTE: This substracts points given to the client, restore stockqty, register a cashout for the money return. All if it applies.
@@ -1695,6 +2212,7 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
   
   if (getCurrentTransaction() == transactionNumber) {
     ///this transaction is not saved yet (more than the initial data when transaction is created)
+    //UPDATE: Now each time a product is inserted or screen locked, transaction and balance is saved.
     transToCancelIsInProgress = true;
     clearUsedWidgets();
     refreshTotalLabel();
@@ -1708,8 +2226,9 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
   }
   
   //Mark as cancelled if possible
-
+  
   //Check if payment was with cash.
+  //FIXME: Allow card payments to be cancelled!!! DIC 2009
   if (tinfo.paymethod != 1 ) {
     KNotification *notify = new KNotification("information", this);
     notify->setText(i18n("The ticket cannot be cancelled because it was paid with a credit/debit card."));
@@ -1721,7 +2240,9 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
   
   if  (enoughCashAvailable || transToCancelIsInProgress) {
     if (myDb->cancelTransaction(transactionNumber, transToCancelIsInProgress)) {
-      log(loggedUserId, QDate::currentDate(), QTime::currentTime(), QString("Cancelling transaction #%1. Authorized by %2").arg(transactionNumber).arg(dlgPassword->username()));
+      QString authBy = dlgPassword->username();
+      if (authBy.isEmpty()) authBy = myDb->getUserName(1); //default admin.
+      log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Cancelling transaction #%1. Authorized by %2",transactionNumber,authBy));
       qDebug()<<"Cancelling ticket was ok";
       if (transCompleted) {
         //if was completed, then return the money...
@@ -1729,6 +2250,12 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
           drawer->substractCash(tinfo.amount);
           if (Settings::openDrawer() && Settings::smallTicketDotMatrix() && Settings::printTicket()) drawer->open();
         }
+        //Inform to the user.
+        KNotification *notify = new KNotification("information", this);
+        notify->setText(i18n("The ticket was sucessfully cancelled."));
+        QPixmap pixmap = DesktopIcon("dialog-error",32);
+        notify->setPixmap(pixmap);
+        notify->sendEvent();
       }
       transactionInProgress = false; //reset
       createNewTransaction(tSell);
@@ -1745,11 +2272,14 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
         //Reuse the transaction instead of creating a new one.
         qDebug()<<"Transaction to cancel is in progress. Clearing all to reuse transaction number...";
         productsHash.clear();
+        specialOrders.clear();
         setupClients(); //clear the clientInfo (sets the default client info)
         clearUsedWidgets();
         buyPoints =0;
         discMoney=0;
         refreshTotalLabel();
+        qDebug()<<"** Cancelling current transaction [updating transaction]";
+        updateTransaction();
       }
     }
   } else {
@@ -1766,45 +2296,59 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
     notify->setPixmap(pixmap);
     notify->sendEvent();
   }
+  delete myDb;
 }
 
 
 void lemonView::startOperation(const QString &adminUser)
 {
   qDebug()<<"Starting operations...";
+  operationStarted = false;
   bool ok=false;
-  double qty=0.0;
+  double qty=0.0; //TODO:preset as the money on the drawer on the last user.
   InputDialog *dlg = new InputDialog(this, false, dialogMoney, i18n("Enter the amount of money to deposit in the drawer"));
   dlg->setEnabled(true);
   if (dlg->exec() ) {
     qty = dlg->dValue;
     if (qty >= 0) ok = true; //allow no deposit...
   }
-  
+
   if (ok) {
     if (!drawerCreated) {
       drawer = new Gaveta();
       drawer->setPrinterDevice(Settings::printerDevice());
       drawerCreated = true;
     }
-    //NOTE: What about CUPS printers?
+    //NOTE: What about CUPS printers? Some of them can be configured to open drawer when printing.
      if (Settings::openDrawer() && Settings::smallTicketDotMatrix() && Settings::printTicket()) drawer->open();
    // Set drawer amount.
+    drawer->reset();
     drawer->setStartDateTime(QDateTime::currentDateTime());
-    drawer->setAvailableInCash(qty);
+    drawer->setAvailableInCash(qty); //this also sets the available in card amount
     drawer->setInitialAmount(qty);
     operationStarted = true;
     createNewTransaction(tSell);
     emit signalStartedOperation();
-    log(loggedUserId, QDate::currentDate(), QTime::currentTime(), QString("Operation Started by %1 at terminal %2").
-    arg(adminUser).
-    arg(Settings::editTerminalNumber()));
+    log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Operation Started by %1 at terminal %2",
+    adminUser, Settings::editTerminalNumber()));
   }
   else {
-    operationStarted = false;
+    qDebug()<<"Starting Operations cancelled...";
     emit signalEnableStartOperationAction();
     emit signalNoLoggedUser();
   }
+
+  //SESSIONS DEC 28 2009
+  if (currentBalanceId <= 0 ) {
+    qDebug()<<"StartOperations::INSERT_BALANCE";
+    insertBalance(); //this updates the currentBalanceId
+  }
+  else {
+    qDebug()<<"StartOperations::UPDATE_BALANCE [should not occurr, balanceId="<<currentBalanceId<<"]";
+    updateBalance(false);
+  }
+  
+  ui_mainview.editItemCode->setFocus();
 }
 
 //this method is for lemon.cpp's action connect for button, since button's trigger(bool) will cause to ask = trigger's var.
@@ -1812,7 +2356,6 @@ void lemonView::_slotDoStartOperation()
 {
   //simply call the other...
   slotDoStartOperation(true);
-  qDebug()<<"Called startOp from lemon.cpp (ui,)";
 }
 
 void lemonView::slotDoStartOperation(const bool &ask)
@@ -1820,6 +2363,8 @@ void lemonView::slotDoStartOperation(const bool &ask)
   //NOTE: For security reasons, we must ask for admin's password.
   //But, can we be more flexible -for one person store- and do not ask for password in low security mode
   // is ask is true we ask for auth, else we dont because it was previously asked for (calling method from corteDeCaja)
+
+  //qDebug()<<"bool ask = "<<ask;
   
   qDebug()<<"doStartOperations..";
   if (!operationStarted) {
@@ -1834,15 +2379,51 @@ void lemonView::slotDoStartOperation(const bool &ask)
           doit = dlgPassword->exec();
         } while (!doit);
     }//else lowsecurity
-    if (doit) startOperation(dlgPassword->username());
+    QString adminU;
+    if (dlgPassword->username().isEmpty()) {
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      adminU = myDb->getUserName(1);//default admin.
+      delete myDb;
+    }
+    if (doit) startOperation(adminU);
   }
 }
 
 /* REPORTS ZONE */
 /*--------------*/
 
+void lemonView::doCorteDeCaja()
+{
+  qDebug()<<"logged user:"<<loggedUser;
+  //This is called only from the UI (via Button or shortcut) -- request by the user.
+  //We force a login, login forces a corteDeCaja if needed.
+  login();
+}
+
 void lemonView::corteDeCaja()
 {
+  //Balance: Where there are no transactions, we dont need to doit.
+  //         Also consider the cash in the drawer.
+  //         Also, when doing a Balance, we need to force login.
+  qDebug()<<"Transactions Count:"<<drawer->getTransactionsCount()<<" Cash in drawer:"<<drawer->getAvailableInCash();
+  bool yes=false;
+  if (drawer->getTransactionsCount()>0 || drawer->getAvailableInCash()>0) yes=true;
+  if (!yes) {
+    //     KNotification *notify = new KNotification("information", this);
+    //     notify->setText(i18n("There are no transactions to inform or cash in the drawer."));
+    //     QPixmap pixmap = DesktopIcon("dialog-information",32);
+    //     notify->setPixmap(pixmap);
+    //     if (!loggedUser.isEmpty())
+    //       notify->sendEvent();
+    
+    //Things to do even if balance is not needed.
+    operationStarted = false;
+    currentBalanceId = 0;
+    startAgain();
+    return;
+  }
+  
   bool doit = false;
   //ASK for security if no lowSecurityMode.
   if (Settings::lowSecurityMode()) {
@@ -1870,7 +2451,9 @@ void lemonView::corteDeCaja()
 
     PrintBalanceInfo pbInfo;
 
-    pbInfo.thBalanceId = i18n("Balance Id:%1",saveBalance()) ; //SAVE BALANCE and ASSIGN ID to pbInfo
+    updateBalance(true); //now it is finished.
+    pbInfo.thBalanceId = i18n("Balance Id:%1", currentBalanceId);
+    //NOTE: saveBalance was replaced by updateBalance(currentBalanceId)
 
     // Create lines to print and/or show on dialog...
 
@@ -1971,13 +2554,22 @@ void lemonView::corteDeCaja()
     lines.append("----------  ----------  ----------");
     QList<qulonglong> transactionsByUser = drawer->getTransactionIds();
     QStringList trList;
+
+    qDebug()<<"# of transactions:"<<transactionsByUser.count();
     //This gets all transactions ids done since last corteDeCaja.
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
     for (int i = 0; i < transactionsByUser.size(); ++i) {
+      qDebug()<<"i="<<i<<" tr # "<<transactionsByUser.at(i);
       qulonglong idNum = transactionsByUser.at(i);
       TransactionInfo info;
       info = myDb->getTransactionInfo(idNum);
+
+      //check if its completed and not cancelled
+      if (info.state != tCompleted) {
+        qDebug()<<"Excluding from balance a transaction marked as state:"<<info.state;
+        continue; //FOR PURIST i will replace this continue statement when i have enough time.
+      }
 
       dId       = QString::number(info.id);
       dAmount   = QString::number(info.amount);
@@ -2035,7 +2627,6 @@ void lemonView::corteDeCaja()
 
     line = QString("</table></body></html>");
     linesHTML.append(line);
-    operationStarted = false;
 
     if (Settings::smallTicketDotMatrix()) {
       //print it on the /dev/lpXX...   send lines to print
@@ -2051,8 +2642,15 @@ void lemonView::corteDeCaja()
         PrintCUPS::printSmallBalance(pbInfo, printer);
       }
     }
-    slotDoStartOperation(false);
-  }//if doit
+    ///NOTE: Really startoperation at this moment? why not wait user request it? Dec 23 2009
+    /// slotDoStartOperation(false);
+
+    //for sessions, clear currentBalanceId
+    currentBalanceId = 0; //this will make at startOperations to create a new one.
+    operationStarted = false;
+
+    delete myDb;
+  } //if doit
 }
 
 void lemonView::endOfDay() {
@@ -2068,10 +2666,11 @@ void lemonView::endOfDay() {
   }//else lowsecurity
 
   if (doit) {
-    log(loggedUserId, QDate::currentDate(), QTime::currentTime(), QString("End of Day report printed by %1 at terminal %2 on %3").
-    arg(dlgPassword->username()).
-    arg(Settings::editTerminalNumber()).
-    arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm")));
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    QString authBy = dlgPassword->username();
+    if (authBy.isEmpty()) authBy = myDb->getUserName(1); //default admin.
+    log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("End of Day report printed by %1 at terminal %2 on %3",authBy,Settings::editTerminalNumber(),QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm")));
 
     // Get every transaction from all day, calculate sales, profit, and profit margin (%). From the same terminal
     AmountAndProfitInfo amountProfit;
@@ -2080,8 +2679,7 @@ void lemonView::endOfDay() {
     QPixmap logoPixmap;
     logoPixmap.load(Settings::storeLogo());
 
-    Azahar *myDb = new Azahar;
-    myDb->setDatabase(db);
+
     amountProfit     = myDb->getDaySalesAndProfit(Settings::editTerminalNumber());
     transactionsList = myDb->getDayTransactions(Settings::editTerminalNumber());
 
@@ -2101,21 +2699,33 @@ void lemonView::endOfDay() {
     pdInfo.thTotalSales  = KGlobal::locale()->formatMoney(amountProfit.amount, QString(), 2);
     pdInfo.thTotalProfit = KGlobal::locale()->formatMoney(amountProfit.profit, QString(), 2);
 
+    QStringList lines;
+    lines.append(pdInfo.thTitle);
+    lines.append(pdInfo.thDate);
+    lines.append(loggedUserName+pdInfo.terminal);
+    lines.append(pdInfo.thTicket+"    "+pdInfo.thTime+ pdInfo.thAmount+"   "+pdInfo.thProfit+"   "+pdInfo.thPayMethod);
+    //lines.append();
+
     //each transaction...
     for (int i = 0; i < transactionsList.size(); ++i)
     {
       QLocale localeForPrinting; // needed to convert double to a string better
       TransactionInfo info = transactionsList.at(i);
+      //qDebug()<<" transactions on end of day: i="<<i<<" ID:"<<info.id;
       QString tid      = QString::number(info.id);
       QString hour     = info.time.toString("hh:mm");
       QString amount   =  localeForPrinting.toString(info.amount,'f',2);
-      QString profit   =  localeForPrinting.toString(info.profit, 'f', 2);
+      QString profit   =  localeForPrinting.toString(info.utility, 'f', 2);
       QString payMethod;
       payMethod        = myDb->getPayTypeStr(info.paymethod);//using payType methods
 
       QString line     = tid +"|"+ hour +"|"+ amount +"|"+ profit +"|"+ payMethod;
       pdInfo.trLines.append(line);
+      lines.append(tid+"  "+hour+"  "+ amount+"  "+profit+"  "+payMethod);
     } //for each item
+
+    lines.append(i18n("Total Sales : %1",pdInfo.thTotalSales));
+    lines.append(i18n("Total Profit: %1",pdInfo.thTotalProfit));
 
 
     if (Settings::smallTicketDotMatrix()) {
@@ -2123,8 +2733,8 @@ void lemonView::endOfDay() {
       if (printerFile.length() == 0) printerFile="/dev/lp0";
       QString printerCodec=Settings::printerCodec();
       qDebug()<<"[Printing report on "<<printerFile<<"]";
-      ///TODO: Still missing the code to prepare the lines!
-      //PrintDEV::printSmallBalance(printerFile, printerCodec, lines.join("\n"));
+      qDebug()<<lines.join("\n");
+      PrintDEV::printSmallBalance(printerFile, printerCodec, lines.join("\n"));
     } else if (Settings::smallTicketCUPS()) {
       qDebug()<<"[Printing report on CUPS small size]";
       QPrinter printer;
@@ -2144,42 +2754,10 @@ void lemonView::endOfDay() {
         PrintCUPS::printBigEndOfDay(pdInfo, printer);
       }
     }
+    delete myDb;
   }
 }
 
-
-qulonglong lemonView::saveBalance()
-{
-  qulonglong result = 0;
-  BalanceInfo info;
-  info.id = 0;
-  info.dateTimeStart = drawer->getStartDateTime();
-  info.dateTimeEnd   = QDateTime::currentDateTime();
-  info.userid     = loggedUserId;
-  info.username   =  loggedUserName;
-  info.initamount = drawer->getInitialAmount();
-  info.in         = drawer->getInAmount();
-  info.out        = drawer->getOutAmount();
-  info.cash       = drawer->getAvailableInCash();
-  info.card       = drawer->getAvailableInCard();
-  info.terminal   = Settings::editTerminalNumber();
-  
-  QStringList transactionList;
-  QList<qulonglong> intList = drawer->getTransactionIds();
-  if (intList.isEmpty()) transactionList.append("EMPTY");
-  else {
-    for (int i = 0; i < intList.size(); ++i) {
-      transactionList.append( QString::number(intList.at(i)) );
-    }
-  }
-  info.transactions=transactionList.join(",");
-  
-  //Save balance on Database
-  Azahar *myDb = new Azahar;
-  myDb->setDatabase(db);
-  result = myDb->insertBalance(info);
-  return result;
-}
 
 void lemonView::showBalance(QStringList lines)
 {
@@ -2237,16 +2815,6 @@ void lemonView::setupModel()
 
     productsModel->select();
 
-    ///TODO: -MCH- Remove the filter by Biel?
-    //BFB. Added QCompleter to editFilterByDesc
-    productsFilterModel->setQuery("");
-    QCompleter *completer = new QCompleter(this);
-    completer->setModel(productsFilterModel);
-    completer->setCaseSensitivity(Qt::CaseInsensitive); 
-    //Show all possible results, because completer only works with prefix. The filter is done modifying the model
-    completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
-    ui_mainview.editFilterByDesc->setCompleter(completer);
-
     //Categories popuplist
     populateCategoriesHash();
     QHashIterator<QString, int> item(categoriesHash);
@@ -2258,8 +2826,7 @@ void lemonView::setupModel()
 
     ui_mainview.comboFilterByCategory->setCurrentIndex(0);
     connect(ui_mainview.comboFilterByCategory,SIGNAL(currentIndexChanged(int)), this, SLOT( setFilter()) );
-    connect(ui_mainview.editFilterByDesc,SIGNAL(returnPressed()), this, SLOT( setFilter()) );
-    connect(ui_mainview.editFilterByDesc,SIGNAL(textEdited(const QString)), this, SLOT( modifyProductsFilterModel()) );
+    connect(ui_mainview.editFilterByDesc,SIGNAL(textEdited(const QString &)), this, SLOT( setFilter()) );
     connect(ui_mainview.rbFilterByDesc, SIGNAL(toggled(bool)), this, SLOT( setFilter()) );
     connect(ui_mainview.rbFilterByCategory, SIGNAL(toggled(bool)), this, SLOT( setFilter()) );
 
@@ -2273,6 +2840,7 @@ void lemonView::populateCategoriesHash()
   Azahar * myDb = new Azahar;
   myDb->setDatabase(db);
   categoriesHash = myDb->getCategoriesHash();
+  delete myDb;
 }
 
 void lemonView::listViewOnMouseMove(const QModelIndex & index)
@@ -2364,56 +2932,37 @@ void lemonView::setFilter()
   //   then NO pictures are shown; even if is refiltered again.
   QRegExp regexp = QRegExp(ui_mainview.editFilterByDesc->text());
   
-  if (ui_mainview.rbFilterByDesc->isChecked()) {//by description
-    if (!regexp.isValid() )  ui_mainview.editFilterByDesc->setText("");
-    if (ui_mainview.editFilterByDesc->text()=="*" || ui_mainview.editFilterByDesc->text()=="") productsModel->setFilter("");
-    else  productsModel->setFilter(QString("products.name REGEXP '%1'").arg(ui_mainview.editFilterByDesc->text().split("(").at(0).trimmed()));
-    // BFB: If the user choose a product from the completer, this product is added to the list.
-    modifyProductsFilterModel();
-    if (productsFilterModel->rowCount() == 1){
-      if (ui_mainview.editFilterByDesc->text() == productsFilterModel->data(productsFilterModel->index(0,0)).toString()){
-              qulonglong idProduct = productsFilterModel->data(productsFilterModel->index(0, 1)).toULongLong();
-        insertItem(QString::number(idProduct));
-        ui_mainview.editFilterByDesc->selectAll();
-      }
-    }
+  if (ui_mainview.rbFilterByDesc->isChecked()) { //by description
+      if (!regexp.isValid())  ui_mainview.editFilterByDesc->setText("");
+      if (ui_mainview.editFilterByDesc->text()=="*" || ui_mainview.editFilterByDesc->text()=="")
+        productsModel->setFilter("products.isARawProduct=false");
+      else
+        productsModel->setFilter(QString("products.isARawProduct=false and products.name REGEXP '%1'").arg(ui_mainview.editFilterByDesc->text()));
   }
   else {
-    if (ui_mainview.rbFilterByCategory->isChecked()) {//by category
+    if (ui_mainview.rbFilterByCategory->isChecked()) { //by category
       //Find catId for the text on the combobox.
       int catId=-1;
       QString catText = ui_mainview.comboFilterByCategory->currentText();
       if (categoriesHash.contains(catText)) {
         catId = categoriesHash.value(catText);
       }
-      productsModel->setFilter(QString("products.category=%1").arg(catId));
-    }else{//by most sold products in current month --biel
-      productsModel->setFilter("products.code IN (SELECT * FROM (SELECT product_id FROM (SELECT product_id, sum( units ) AS sold_items FROM transactions t, transactionitems ti WHERE t.id = ti.transaction_id AND t.date > ADDDATE( sysdate( ) , INTERVAL -31 DAY ) GROUP BY ti.product_id) month_sold_items ORDER BY sold_items DESC LIMIT 5) popular_products)");
+      productsModel->setFilter(QString("products.isARawProduct=false and products.category=%1").arg(catId));
+    } else { //by most sold products in current month --biel
+      productsModel->setFilter("products.isARawProduct=false and (products.datelastsold > ADDDATE(sysdate( ), INTERVAL -31 DAY )) ORDER BY products.datelastsold DESC"); //limit or not the result to 5?
+      
+      //products.code IN (SELECT * FROM (SELECT product_id FROM (SELECT product_id, sum( units ) AS sold_items FROM transactions t, transactionitems ti WHERE  t.id = ti.transaction_id AND t.date > ADDDATE( sysdate( ) , INTERVAL -31 DAY ) GROUP BY ti.product_id) month_sold_items ORDER BY sold_items DESC LIMIT 5) popular_products)
     }
   }
   productsModel->select();
-}
-
-void lemonView::modifyProductsFilterModel()
-{    
-    if (ui_mainview.editFilterByDesc->text().length() > 2){
-        QString sql;
-        QString productName=ui_mainview.editFilterByDesc->text().split("(").at(0).trimmed();
-        if (KGlobal::locale()->positivePrefixCurrencySymbol())
-          sql = QString("select concat(name,  ' (%1 ' ,price , ')' ) as nameprice, code, name from products where products.name REGEXP '%2'").arg(KGlobal::locale()->currencySymbol()).arg(productName);
-        else
-          sql = QString("select concat(name,  ' (' ,price , ' %1)' ) as nameprice, code, name from products where products.name REGEXP '%2'").arg(KGlobal::locale()->currencySymbol()).arg(productName);
-        productsFilterModel->setQuery(sql);
-    }else{
-        productsFilterModel->setQuery("");
-    }
-
 }
 
 void lemonView::setupDB()
 {
   qDebug()<<"Setting up database...";
   if (db.isOpen()) db.close();
+  //QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+  //db = QSqlDatabase::addDatabase("QMYSQL");
   db.setHostName(Settings::editDBServer());
   db.setDatabaseName(Settings::editDBName());
   db.setUserName(Settings::editDBUsername());
@@ -2439,8 +2988,6 @@ void lemonView::connectToDb()
     if (!modelsCreated) { //Create models...
       productsModel       = new QSqlTableModel();
       historyTicketsModel = new QSqlRelationalTableModel();
-      //BFB. New combo for comboFilterByDesc
-      productsFilterModel = new QSqlQueryModel();
       modelsCreated = true;
     }
     setupModel();
@@ -2476,11 +3023,22 @@ void lemonView::setupClients()
     if (idx>-1) ui_mainview.comboClients->setCurrentIndex(idx);
     clientInfo = clientsHash.value(mainClient);
     updateClientInfo();
+    refreshTotalLabel();
+
+    delete myDb;
 }
 
 void lemonView::comboClientsOnChange()
 {
+  if ( !specialOrders.isEmpty() ) {
+    // There are special orders, from now, we cannot change client
+    updateClientInfo();
+    refreshTotalLabel();
+    return;
+    //maybe the client combo box is changed, but not the data (points, discount...)
+  }
   QString newClientName    = ui_mainview.comboClients->currentText();
+  qDebug()<<"Client info changed by user.";
   if (clientsHash.contains(newClientName)) {
     clientInfo = clientsHash.value(newClientName);
     updateClientInfo();
@@ -2491,13 +3049,16 @@ void lemonView::comboClientsOnChange()
 
 void lemonView::updateClientInfo()
 {
-  QString pStr = i18n("Points: %1", clientInfo.points);
-  QString dStr = i18n("Discount: %1%",clientInfo.discount);
-  ui_mainview.lblClientDiscount->setText(dStr);
-  //ui_mainview.lblClientPoints->setText(pStr);
+  QString pStr = i18n("%1 points", clientInfo.points);
+  QString dStr = i18n("Discount: %1% ",clientInfo.discount);
+  double discMoney = (clientInfo.discount/100)*totalSumWODisc;
+  QString frmDisc = i18n("[%1]", KGlobal::locale()->formatMoney(discMoney));
+  ui_mainview.lblClientDiscount->setText(dStr+frmDisc);
+  ui_mainview.labelClientDiscounted->setText(pStr);
   QPixmap pix;
   pix.loadFromData(clientInfo.photo);
   ui_mainview.lblClientPhoto->setPixmap(pix);
+  qDebug()<<"Updating client info...";
 }
 
 void lemonView::setHistoryFilter() {
@@ -2582,9 +3143,13 @@ void lemonView::printSelTicket()
   ui_mainview.mainPanel->setCurrentIndex(pageMain);
 }
 
-void lemonView::printTicketFromTransaction(qulonglong transactionNumber){
+void lemonView::printTicketFromTransaction(qulonglong transactionNumber)
+{
   QList<TicketLineInfo> ticketLines;
+  TicketInfo ticket;
   ticketLines.clear();
+  ticket.hasSpecialOrders = false;
+  ticket.completingSpecialOrder = false;
   
   if (!db.isOpen()) db.open();
   Azahar *myDb = new Azahar;
@@ -2602,13 +3167,45 @@ void lemonView::printTicketFromTransaction(qulonglong transactionNumber){
     tLineInfo.price   = trItem.price;
     tLineInfo.disc    = trItem.disc;
     tLineInfo.total   = trItem.total;
+    tLineInfo.payment = trItem.payment;
+    tLineInfo.completePayment = trItem.completePayment;
+    tLineInfo.isGroup = trItem.isGroup;
+    tLineInfo.deliveryDateTime = trItem.deliveryDateTime;
+    tLineInfo.tax     = trItem.tax;
+    QString newName;
+    newName = trItem.soId;
+    qulonglong sorderid = newName.remove(0,3).toULongLong();
+    QString    soNotes  = myDb->getSONotes(sorderid);
+    soNotes = soNotes.replace("\n", "|  ");
+    if (sorderid > 0) {
+      ticket.hasSpecialOrders = true;
+      ticket.completingSpecialOrder = false; //we are re-printing...
+      QList<ProductInfo> pList = myDb->getSpecialOrderProductsList(sorderid);
+      newName = "";
+      foreach(ProductInfo info, pList ) {
+        QString unitStr;
+        if (info.units == 1 ) unitStr=" "; else unitStr = info.unitStr;
+        newName += "|  " + QString::number(info.qtyOnList) + " "+ unitStr +" "+ info.desc;
+      }
+      tLineInfo.geForPrint = trItem.name+newName+"|  |"+i18n("Notes:")+soNotes+" | ";
+    } else tLineInfo.geForPrint = "";
+
+    //qDebug()<<"isGROUP:"<<trItem.isGroup;
+    if (trItem.isGroup) {
+      tLineInfo.geForPrint = trItem.name;
+      QString n = trItem.name.section('|',0,0);
+      trItem.name = n;
+      tLineInfo.desc    = trItem.name;
+    }
+    
     ticketLines.append(tLineInfo);
   }
+  
   //Ticket
-  TicketInfo ticket;
   QDateTime dt;
   dt.setDate(trInfo.date);
   dt.setTime(trInfo.time);
+  ticket.clientid = trInfo.clientid;
   ticket.datetime = dt;
   ticket.number = transactionNumber;
   ticket.total  = trInfo.amount;
@@ -2621,13 +3218,14 @@ void lemonView::printTicketFromTransaction(qulonglong transactionNumber){
     ticket.cardnum  = "";
   ticket.cardAuthNum = trInfo.cardauthnum;
   ticket.paidWithCard = (trInfo.paymethod == 2) ? true:false;
-  ticket.clientDisc = 0;
-  ticket.clientDiscMoney = 0;
-  ticket.buyPoints = 0;
-  ticket.clientPoints = 0;
+  ticket.clientDisc = trInfo.disc;
+  ticket.clientDiscMoney = trInfo.discmoney;
+  ticket.buyPoints = trInfo.points;
+  ticket.clientPoints = myDb->getClientInfo(ticket.clientid).points;
   ticket.lines = ticketLines;
   printTicket(ticket);
-  
+
+  delete myDb;
 }
 
 void lemonView::showReprintTicket()
@@ -2650,11 +3248,6 @@ void lemonView::cashOut()
   }//else lowsecurity
   
   if (doit) {
-    log(loggedUserId, QDate::currentDate(), QTime::currentTime(), QString("Cash-OUT by %1 at terminal %2 on %3").
-    arg(dlgPassword->username()).
-    arg(Settings::editTerminalNumber()).
-    arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm")));
-    
     double max = drawer->getAvailableInCash();
     if (!max>0) {
       //KPassivePopup::message( i18n("Error:"),i18n("Cash not available at drawer!"),DesktopIcon("dialog-error", 48), this );
@@ -2685,6 +3278,10 @@ void lemonView::cashOut()
         if (Settings::openDrawer() && Settings::smallTicketDotMatrix()) drawer->open();
         drawer->substractCash(info.amount);
         drawer->insertCashflow(cfId);
+        QString authBy = dlgPassword->username();
+        if (authBy.isEmpty()) authBy = myDb->getUserName(1); //default admin.
+        log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Cash-OUT by %1 at terminal %2 on %3",authBy,Settings::editTerminalNumber(),QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm")));
+        delete myDb;
       }
     }
   }
@@ -2704,11 +3301,6 @@ void lemonView::cashIn()
   }//else lowsecurity
   
   if (doit) {
-    log(loggedUserId, QDate::currentDate(), QTime::currentTime(), QString("Cash-IN by %1 at terminal %2 on %3").
-    arg(dlgPassword->username()).
-    arg(Settings::editTerminalNumber()).
-    arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm")));
-    
     InputDialog *dlg = new InputDialog(this, false, dialogCashOut, i18n("Cash In"));
     if (dlg->exec() ) {
       Azahar *myDb = new Azahar;
@@ -2728,6 +3320,11 @@ void lemonView::cashIn()
       if (Settings::openDrawer() && Settings::smallTicketDotMatrix()) drawer->open();
       drawer->addCash(info.amount);
       drawer->insertCashflow(cfId);
+
+      QString authBy = dlgPassword->username();
+      if (authBy.isEmpty()) authBy = myDb->getUserName(1); //default admin.
+      log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Cash-IN [%1] by %2 at terminal %3 on %4",QString::number(info.amount, 'f',2),authBy,Settings::editTerminalNumber(),QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm")));
+      delete myDb;
     }
   }
 }
@@ -2747,6 +3344,526 @@ void lemonView::log(const qulonglong &uid, const QDate &date, const QTime &time,
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   myDb->insertLog(uid, date, time, "[ LEMON ] "+text);
+  delete myDb;
+}
+
+/** Inserts a S.O. into the buy list, at 50% of its price (a prepayment).
+**  Or it can be the total payment.
+**/
+void lemonView::addSpecialOrder()
+{
+  if ( transactionInProgress && (totalSum >0) && specialOrders.isEmpty() ) {
+    KNotification *notify = new KNotification("information", this);
+    notify->setText(i18n("Please finish the current transaction before creating a special order."));
+    QPixmap pixmap = DesktopIcon("dialog-information",32);
+    notify->setPixmap(pixmap);
+    notify->sendEvent();
+    return;
+  }
+  
+  SpecialOrderInfo soInfo;
+  qulonglong newSOId = 0;
+  SpecialOrderEditor *soEditor = new SpecialOrderEditor(this);
+  soEditor->setModel(productsModel);
+  soEditor->setDb(db);
+  soEditor->setTransId(currentTransaction);
+  soEditor->setUsername(loggedUserName);
+
+  if (soEditor->exec()) {
+    //get values from dialog
+    soInfo.saleid   = currentTransaction;
+    soInfo.name     = soEditor->getDescription();
+    soInfo.qty      = soEditor->getQty();
+    soInfo.price    = soEditor->getPrice();
+    soInfo.cost     = soEditor->getCost();
+    soInfo.notes    = soEditor->getNotes();
+    soInfo.status   = stPending;
+    soInfo.units    = 1; /// MCH 20DIC09
+    soInfo.unitStr  = "";
+    soInfo.groupElements = soEditor->getGroupElementsStr();
+    soInfo.payment  = soEditor->getPayment();
+    soInfo.deliveryDateTime = soEditor->getDeliveryDateTime();
+    if (soInfo.payment == soInfo.price)
+      soInfo.completePayment = true;
+    else
+      soInfo.completePayment = false;
+    
+    soInfo.dateTime = soEditor->getDateTime();
+
+    if (soInfo.payment == soInfo.price)
+      soInfo.completedOnTrNum = currentTransaction;
+    else
+      soInfo.completedOnTrNum = 0;
+    
+    soInfo.clientId = soEditor->getClientId();
+    soInfo.userId = soEditor->getUserId();
+
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    
+    //for the user discount, change user on transaction.
+    clientInfo = myDb->getClientInfo(soInfo.clientId);
+    int idx = ui_mainview.comboClients->findText(clientInfo.name,Qt::MatchCaseSensitive);
+    if (idx>-1) ui_mainview.comboClients->setCurrentIndex(idx);
+    updateClientInfo();
+    refreshTotalLabel();
+
+    newSOId = myDb->insertSpecialOrder(soInfo); //we need to insert it to get the orderid.
+    if ( newSOId == 0 ) qDebug()<<"Error insertando SO :"<<myDb->lastError();
+
+    soInfo.orderid = newSOId;
+
+    //add info to the buy list
+
+    int insertedAtRow = -1;
+    QString codeX = QString("so.%1").arg(QString::number(soInfo.orderid));
+    QString newName = soInfo.name+"\n"+soEditor->getContentNames();
+    /// here we insert the product at  its payment - can be 50%  pre-payment
+    insertedAtRow = doInsertItem(codeX, newName, soInfo.qty, soInfo.payment, 0, soInfo.unitStr);
+    soInfo.insertedAtRow = insertedAtRow;
+    newName = newName.replace("\n", "|");
+    soInfo.geForPrint = newName;
+
+    //add to the hash
+    specialOrders.insert(soInfo.orderid, soInfo);
+    //Saving session.
+    qDebug()<<"** INSERTING A SPECIAL ORDER [updating balance/transaction]";
+    updateBalance(false);
+    updateTransaction();
+    
+    delete myDb;
+  }
+  //finally delete de ui
+  delete soEditor;
+}
+
+void lemonView::specialOrderComplete()
+{
+  //first ensure we have no pending transaction
+  if ( transactionInProgress && (totalSum >0) ) {
+    KNotification *notify = new KNotification("information", this);
+    notify->setText(i18n("Please finish the current transaction before completing a special order."));
+    QPixmap pixmap = DesktopIcon("dialog-information",32);
+    notify->setPixmap(pixmap);
+    notify->sendEvent();
+    return;
+  }
+
+  SOSelector *dlg = new SOSelector(this);
+  dlg->setDb(db);
+  
+  if (dlg->exec() ) {
+    qulonglong tNum=dlg->getSelectedTicket();
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    QList<SpecialOrderInfo> soList = myDb->getAllSOforSale(tNum);
+    if (soList.isEmpty()) {
+      KNotification *notify = new KNotification("information", this);
+      notify->setText(i18n("The given ticket number does not contains any special order."));
+      QPixmap pixmap = DesktopIcon("dialog-information",32);
+      notify->setPixmap(pixmap);
+      notify->sendEvent();
+      return;
+    }
+    //continue.. its time to complete
+    QStringList paidOrders; paidOrders << i18n("These special orders cannot be completed because:");
+    int soCompletePayments = 0;
+    qulonglong clientIdForDiscount = 0;
+    foreach(SpecialOrderInfo soInfo, soList) {
+      if ( soInfo.status == stDelivered || soInfo.status == stCancelled) {
+        QString stStr;
+        if (soInfo.status == stCancelled)
+          stStr = i18n("<b>is Cancelled</b>");
+        else
+          stStr = i18n("is already <b>Delivered</b>");
+        paidOrders << i18n("%1 %2.", soInfo.name, stStr);
+      } else {
+        //first check if the so is already delivered or cancelled
+        if (soInfo.status == stDelivered || soInfo.status == stCancelled) {
+          continue; //HEY PURIST, WHEN I GOT SOME TIME I WILL CLEAN IT
+        }
+        if (soInfo.payment == soInfo.price) {
+          soCompletePayments++;
+          myDb->specialOrderSetStatus(soInfo.orderid, stDelivered);
+          qDebug()<<"This special order is completeley paid and marked as delivered without emiting a ticket.";
+          KNotification *notify = new KNotification("information", this);
+          notify->setText(i18n("The special order %1 in ticket %2 is completely paid. Marked as delivered.", soInfo.orderid, soInfo.saleid));
+          QPixmap pixmap = DesktopIcon("dialog-information",32);
+          notify->setPixmap(pixmap);
+          notify->sendEvent();
+          continue; //dont insert this...
+        }
+        qDebug()<<"Going to insert so in the list.";
+        clientIdForDiscount = soInfo.clientId;
+        //insert each so to the list.
+        int insertedAtRow = -1;
+        QString codeX = QString("so.%1").arg(QString::number(soInfo.orderid));
+
+        QList<ProductInfo> pList = myDb->getSpecialOrderProductsList(soInfo.orderid);
+        QString newName = soInfo.name;
+        foreach(ProductInfo inf, pList) {
+          QString unitStr;
+          if (inf.units == 1 ) unitStr=" "; else unitStr = inf.unitStr;
+          newName += "\n  " + QString::number(inf.qtyOnList) + " "+ unitStr +" "+ inf.desc;
+        }
+        newName = newName+"\n"+i18n("Notes:")+soInfo.notes;
+
+        /// here we insert the product with the appropiate payment.
+        insertedAtRow = doInsertItem(codeX, newName, soInfo.qty, soInfo.price-soInfo.payment, 0, soInfo.unitStr);
+        //modify SpecialOrder info for database update.
+        soInfo.insertedAtRow = insertedAtRow;
+        soInfo.payment = soInfo.price-soInfo.payment; //the final payment is what we save on db.
+        soInfo.completePayment = true;
+        soInfo.status  = stReady; //status = ready to deliver.
+        soInfo.completedOnTrNum = currentTransaction;
+        newName = newName.replace("\n", "|");
+        soInfo.geForPrint = newName;
+        
+        //add to the hash
+        specialOrders.insert(soInfo.orderid, soInfo);
+      }
+    }
+
+    //for the client discount.NOTE:This only for the first SO. We assume all so in the transaction are for the same client.
+    if (clientIdForDiscount == 0) {
+      // no client id.. this happens on completeley paid orders.
+      clientInfo = clientsHash.value(myDb->getMainClient());
+      clientIdForDiscount = clientInfo.id;
+    } else  clientInfo = myDb->getClientInfo(clientIdForDiscount);
+    int idx = ui_mainview.comboClients->findText(clientInfo.name,Qt::MatchCaseSensitive);
+    if (idx>-1) ui_mainview.comboClients->setCurrentIndex(idx);
+    updateClientInfo();
+    refreshTotalLabel();
+    
+    if (paidOrders.count()> 1) { // the first is the pre-message
+      KNotification *notify = new KNotification("information", this);
+      notify->setText(paidOrders.join("\n"));
+      QPixmap pixmap = DesktopIcon("dialog-information",32);
+      notify->setPixmap(pixmap);
+      notify->sendEvent();
+    }
+    //Saving session.
+    qDebug()<<"** COMPLETING A SPECIAL ORDER [updating balance/transaction]";
+    updateBalance(false);
+    updateTransaction();
+
+    delete myDb;
+  }
+}
+
+
+void lemonView::lockScreen()
+{
+  //To allow cashier to suspend sales for a moment. There is still a concept to implement: save uncompleted sales to allow retake later on (minutes, hours, days).
+
+  emit signalDisableUI();
+  emit signalDisableLogin();
+  QString msg = i18n("<b>This terminal is locked.</b> <br><i>Please enter the user's password to unlock it</i>.");
+  lockDialog->showDialog(msg);
+
+  //Saving session.
+  qDebug()<<"** LOCKING SCREEN [updating balance/transaction]";
+  updateBalance(false);
+  updateTransaction();
+}
+
+void lemonView::unlockScreen()
+{
+  //get password from dialog.
+  QString pwd = lockDialog->getPassword();
+  if (!pwd.isEmpty()) {
+    //get user info
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    UserInfo uInfo = myDb->getUserInfo(loggedUserId);
+    delete myDb;
+    QString givenPass = Hash::password2hash((uInfo.salt+pwd).toLocal8Bit());
+    if (givenPass == uInfo.password) {
+      //finally close dialog
+      lockDialog->hideDialog();
+      lockDialog->cleanPassword();
+      //unlock ui
+      emit signalEnableUI();
+      emit signalEnableLogin();
+      ui_mainview.editItemCode->setFocus();
+    } else {
+      lockDialog->cleanPassword();
+      lockDialog->shake();
+    }
+  }
+}
+
+//For save sessions
+
+void lemonView::insertBalance()
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  
+  //This creates an empty balance
+  BalanceInfo info;
+  info.id = 0;
+  info.dateTimeStart = drawer->getStartDateTime();
+  info.dateTimeEnd   = info.dateTimeStart;
+  info.userid        = loggedUserId;
+  info.username      = loggedUser;
+  info.initamount    = drawer->getInitialAmount();
+  info.in            = drawer->getInAmount();
+  info.out           = drawer->getOutAmount();
+  info.cash          = drawer->getAvailableInCash();
+  info.card          = drawer->getAvailableInCard();
+  info.terminal      = Settings::editTerminalNumber();
+  
+  info.transactions  = "";
+  info.cashflows     = "";
+  info.done = false;
+  currentBalanceId   = myDb->insertBalance(info);
+  qDebug()<<"Inserted the new BALANCE #"<<currentBalanceId;
+  delete myDb;
+}
+
+void lemonView::updateBalance(bool finish)
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  
+  //got info from drawer..
+  BalanceInfo info;
+  info.id = currentBalanceId;
+  info.dateTimeStart = drawer->getStartDateTime();
+  info.dateTimeEnd   = QDateTime::currentDateTime();
+  info.userid        = loggedUserId;
+  info.username      = loggedUser;
+  info.initamount    = drawer->getInitialAmount();
+  info.in            = drawer->getInAmount();
+  info.out           = drawer->getOutAmount();
+  info.cash          = drawer->getAvailableInCash();
+  info.card          = drawer->getAvailableInCard();
+  info.terminal      = Settings::editTerminalNumber();
+  info.done          = finish; //only true when finishing the Balace.
+
+  QStringList tmpList;
+  foreach(qulonglong tid, drawer->getTransactionIds()) {
+    tmpList << QString::number(tid);
+  }
+  info.transactions  = tmpList.join(",");
+  tmpList.clear();
+  foreach(qulonglong tid, drawer->getCashflowIds()) {
+    tmpList << QString::number(tid);
+  }
+  info.cashflows = tmpList.join(",");
+  qDebug()<<"Updating balance #"<<currentBalanceId;
+  if (!myDb->updateBalance(info)) qDebug()<<"Error updating balance..";
+
+  delete myDb;
+}
+
+void lemonView::updateTransaction()
+{
+  //fill info
+  TransactionInfo info;
+  info.id       = currentTransaction;
+  info.balanceId= currentBalanceId;
+  info.type     = tSell;
+  info.amount   = totalSum;
+  if (!ui_mainview.groupSaleDate->isHidden())
+    info.date     = ui_mainview.editTransactionDate->dateTime().date();
+  else
+    info.date     = QDate::currentDate();
+  info.time     = QTime::currentTime();
+  info.paywith  = 0;
+  info.changegiven = 0;
+  info.paymethod = pCash;
+  info.state     = tNotCompleted;
+  info.userid    = loggedUserId;
+  info.clientid  = clientInfo.id;
+  info.cardnumber= "NA";
+  info.cardauthnum= "NA";
+  info.disc       = clientInfo.discount;
+  info.discmoney  = discMoney;
+  info.points     = buyPoints;
+  info.terminalnum= Settings::editTerminalNumber();
+  info.providerid=1;
+
+  double profit = 0;
+  double cant   = 0;
+  QStringList tmpList;
+  foreach(ProductInfo pi, productsHash) {
+    profit += (pi.price - pi.cost - pi.disc) * pi.qtyOnList;
+    if ( pi.units == uPiece ) cant += 1; else cant   += pi.qtyOnList;
+    tmpList << QString::number(pi.code) + "/" + QString::number(pi.qtyOnList);
+  }
+  info.itemlist   = tmpList.join(","); //Only save normal products. Its almost DEPRECATED.
+  
+  tmpList.clear();
+  foreach(SpecialOrderInfo soi, specialOrders) {
+    profit += (soi.price - soi.cost) * soi.qty;
+    if ( soi.units == uPiece ) cant += 1; else cant   += soi.qty;
+    tmpList << QString::number(soi.orderid) + "/" + QString::number(soi.qty);
+  }
+  info.specialOrders= tmpList.join(",");
+
+  info.itemcount  = cant;
+  info.utility    = profit;
+  //info.groups     = ""; //DEPRECATED.
+
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  myDb->updateTransaction(info);
+  delete myDb;
+}
+
+void lemonView::suspendSale()
+{
+  qulonglong count = specialOrders.count() + productsHash.count();
+  if ( operationStarted && count>0 ) {
+    qulonglong tmpId = currentTransaction;
+    qDebug()<<"THE SALE HAS BEEN SUSPENDED. Id="<<tmpId;
+    // save transaction and balance
+    updateTransaction();
+    updateBalance(false);
+    // clear widgets
+    startAgain();
+    //inform the user
+    KNotification *notify = new KNotification("information", this);
+    notify->setText(i18n("The sale %1 has been sucessfully suspended.", tmpId));
+    QPixmap pixmap = DesktopIcon("dialog-information",32);
+    notify->setPixmap(pixmap);
+    notify->sendEvent();
+  }
+}
+
+//This will resume the sale, using a new balanceid.
+void lemonView::resumeSale()
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  ResumeDialog *dlg = new ResumeDialog(this);
+  dlg->setUserId(loggedUserId); //note: this must be called before setDb()
+  dlg->setDb(db);
+
+  if (dlg->exec()) {
+    //get data
+    QList<ProductInfo>      pList = dlg->getProductsList();
+    QList<SpecialOrderInfo> sList = dlg->getSOList();
+    qulonglong trNumber           = dlg->getSelectedTransaction();
+    qulonglong clientId           = dlg->getSelectedClient();
+    //Check if there is a transaction, and suspend it.
+    suspendSale();
+    currentTransaction = trNumber;
+    emit signalUpdateTransactionInfo();
+    clientInfo = myDb->getClientInfo(clientId);
+    qDebug()<<"Client id for the resumed sale:";
+    int idx = ui_mainview.comboClients->findText(clientInfo.name,Qt::MatchCaseSensitive);
+    if (idx>-1) ui_mainview.comboClients->setCurrentIndex(idx);
+    updateClientInfo();
+    refreshTotalLabel();
+    //NOTE: change sale date ?
+    //get each product - the availability and group verification will do the insertItem method
+    foreach(ProductInfo info, pList) {
+      QString qtyXcode = QString::number(info.qtyOnList) + "x" + QString::number(info.code);
+      insertItem(qtyXcode);
+    }
+    foreach(SpecialOrderInfo info, sList) {
+      int insertedAtRow = -1;
+      QString codeX = QString("so.%1").arg(QString::number(info.orderid));
+      //get formated content names for printing/list.
+          QStringList list;
+          QStringList strlTmp = info.groupElements.split(",");
+          foreach(QString str, strlTmp) {
+            qulonglong itemCode = str.section('/',0,0).toULongLong();
+            double     itemQty  = str.section('/',1,1).toDouble();
+            //get item info
+            ProductInfo itemInfo = myDb->getProductInfo(itemCode);
+            itemInfo.qtyOnList   = itemQty;
+            QString unitStr;
+            if (itemInfo.units == 1 ) unitStr=""; else unitStr = itemInfo.unitStr;
+            list.append("  "+QString::number(itemInfo.qtyOnList)+" "+unitStr+" "+ itemInfo.desc);
+          }
+          //append NOTES for the SO.
+          list.append("\n"+i18n("Notes: %1", info.notes+" \n"));
+      //end of formated content names for so
+      QString newName = info.name+"\n" + list.join("\n");
+      insertedAtRow = doInsertItem(codeX, newName, info.qty, info.payment, 0, info.unitStr);
+      info.insertedAtRow = insertedAtRow;
+      newName = newName.replace("\n", "|");
+      info.geForPrint = newName;
+      //change delivery datetime.
+      //get original date lapse between so-creation date and delivery date.
+      int lap = info.dateTime.date().daysTo( info.deliveryDateTime.date() );
+      info.deliveryDateTime = QDateTime::currentDateTime().addDays(lap);
+      qDebug()<<"lap:"<<lap;
+      //add to the hash
+      specialOrders.insert(info.orderid, info);
+      //myDb->updateSpecialOrder(info);
+      //In case this sale is re-suspended the delivery lapse is going to be increased...
+      //this update was moved to finishCurrentTransaction...
+    }
+    updateBalance(false);
+    updateTransaction();
+  }
+  delete myDb;
+}
+
+void lemonView::changeSOStatus()
+{
+  if ( transactionInProgress && (totalSum >0) ) {
+    KNotification *notify = new KNotification("information", this);
+    notify->setText(i18n("Please finish the current transaction before changing state for a special order."));
+    QPixmap pixmap = DesktopIcon("dialog-information",32);
+    notify->setPixmap(pixmap);
+    notify->sendEvent();
+    return;
+  }
+  
+  SOStatus *dlg = new SOStatus(this);
+  dlg->setDb(db);
+
+  if (dlg->exec()) {
+    int status         = dlg->getStatusId();
+    qulonglong orderid = dlg->getSelectedTicket();
+
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    myDb->soTicketSetStatus(orderid, status);
+    delete myDb;
+  }//dlg exec
+}
+
+void  lemonView::occasionalDiscount()
+{
+  bool continuar=false;
+  if (Settings::lowSecurityMode()) { //qDebug()<<"LOW security mode";
+    continuar=true;
+  } else {// qDebug()<<"NO LOW security mode";
+    dlgPassword->show();
+    dlgPassword->hide();
+    dlgPassword->clearLines();
+    continuar = dlgPassword->exec();
+  }
+  
+  if (continuar) {
+    bool ok=false;
+    double discPercent = 0;
+    InputDialog *dlg = new InputDialog(this, false, dialogMoney, i18n("Enter the discount percentage to apply"), 0.01, 99.0);
+    if (dlg->exec())
+    {
+      discPercent = dlg->dValue;
+      ok = true;
+    }
+    if (ok) {
+      //APPLY DISCOUNT!
+      clientInfo.discount = discPercent;
+      updateClientInfo();
+      refreshTotalLabel();
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      QString authBy = dlgPassword->username();
+      if (authBy.isEmpty()) authBy = myDb->getUserName(1); //default admin.
+      log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Applying occassional discount. Authorized by %1",authBy));
+      delete myDb;
+    }
+  }
 }
 
 #include "lemonview.moc"

@@ -194,6 +194,22 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="groupTax">
+     <property name="title">
+      <string>Taxes</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="QCheckBox" name="kcfg_addTax">
+        <property name="text">
+         <string>Add taxes to sale (not included in price)</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer>
      <property name="orientation">
       <enum>Qt::Vertical</enum>

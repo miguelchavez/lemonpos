@@ -1,22 +1,23 @@
-/**************************************************************************
-*   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
-*   miguel@lemonpos.org                                                   *
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-*   This program is distributed in the hope that it will be useful,       *
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-*   GNU General Public License for more details.                          *
-*                                                                         *
-*   You should have received a copy of the GNU General Public License     *
-*   along with this program; if not, write to the                         *
-*   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
-**************************************************************************/
+/***************************************************************************
+ *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                  *
+ *   miguel.chavez.gamboa@gmail.com                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+ ***************************************************************************/
 
 #include <QtGui>
 #include <QtSql>
@@ -46,10 +47,14 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     QModelIndex nameIndex = model->index(row, 1);
     QString name = model->data(nameIndex, Qt::DisplayRole).toString();
     QByteArray pixData = model->data(index, Qt::DisplayRole).toByteArray();
-    nameIndex = model->index(row, 3);
+    nameIndex = model->index(row, 3); //model->fieldIndex("stockqty")
     double stockqty = model->data(nameIndex, Qt::DisplayRole).toDouble();
     nameIndex = model->index(row, 0);
     QString strCode = "# " + model->data(nameIndex, Qt::DisplayRole).toString();
+    nameIndex = model->index(row, 16);
+    bool isGroup = model->data(nameIndex, Qt::DisplayRole).toBool();
+    nameIndex  = model->index(row, 15);
+    bool isRaw = model->data(nameIndex, Qt::DisplayRole).toBool();
 
     //preparing photo to paint it...
     QPixmap pix;
@@ -130,6 +135,39 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
                       option.rect.y()+5,
                       150, 20, Qt::AlignCenter, strCode);
     painter->setBackgroundMode(Qt::TransparentMode);
+
+    //painting things like isARawProduct and isAGroup
+    //TODO: Paint an icon instead of text!
+    if (isRaw) {
+      font = QFont("Trebuchet MS", 9);
+      font.setBold(true);
+      font.setItalic(false);
+      painter->setFont(font);
+      painter->setBackgroundMode(Qt::OpaqueMode);
+      painter->setPen(Qt::blue);
+      painter->setBackground(QColor(255,225,0,160));
+      QString naStr = i18n(" Raw Product ");
+      painter->drawText(option.rect.x()+10,
+                        option.rect.y()+20,
+                        150, 20, Qt::AlignCenter, naStr);
+                        painter->setBackgroundMode(Qt::TransparentMode);
+    } else if (isGroup) {
+      font = QFont("Trebuchet MS", 9);
+      font.setBold(true);
+      font.setItalic(false);
+      painter->setFont(font);
+      painter->setBackgroundMode(Qt::OpaqueMode);
+      painter->setPen(Qt::blue);
+      painter->setBackground(QColor(255,225,0,160));
+      QString naStr = i18n(" Group ");
+      //load pixmap
+      pix = QPixmap(DesktopIcon("lemon-groups", 48));
+      //painter->drawText(option.rect.x()+10,
+      painter->drawPixmap(option.rect.x()+10,
+                        option.rect.y()+20,
+                        /*150, 20, */ pix /*Qt::AlignCenter, naStr*/);
+                        painter->setBackgroundMode(Qt::TransparentMode);
+    }
 }
 
 

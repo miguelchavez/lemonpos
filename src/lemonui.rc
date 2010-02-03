@@ -1,5 +1,5 @@
 <!DOCTYPE kpartgui SYSTEM "kpartgui.dtd">
-<kpartgui name="lemon" version="1">
+<kpartgui name="lemon" version="10">
   <ToolBar name="aBasicToolBar">
     <text>Basic Use Toolbar</text>
     <Action name="login" />
@@ -16,12 +16,15 @@
     <Action name="cashAvailable"/>
     <Action name="showProductsGrid"/>
     <Action name="showPriceChecker"/>
+    <Action name="specialOrder"/>
+    <Action name="specialOrderComplete"/>
   </ToolBar>
   <ToolBar name="adminToolBar" >
     <text>Administrator's Toolbar</text>
     <Action name="startOperation" />
     <Action name="balance"/>
     <Action name="endOfDay"/>
+    <Action name="suspendSale"/>
     <Action name="options_configure" />
     <Action name="file_quit" />
  </ToolBar>

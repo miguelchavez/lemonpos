@@ -1,22 +1,23 @@
-/**************************************************************************
-*   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
-*   miguel@lemonpos.org                                                   *
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-*   This program is distributed in the hope that it will be useful,       *
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-*   GNU General Public License for more details.                          *
-*                                                                         *
-*   You should have received a copy of the GNU General Public License     *
-*   along with this program; if not, write to the                         *
-*   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
-***************************************************************************/
+/***************************************************************************
+ *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                  *
+ *   miguel.chavez.gamboa@gmail.com                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+ ***************************************************************************/
 
 // #include <QString>
 #include <QDebug>
@@ -29,6 +30,7 @@
 Gaveta::Gaveta()
 {
   unused = true;
+  totalTransactions = 0;
   setAvailableInCash(0.0);
   startDateTime = QDateTime::currentDateTime();
   tIds.clear();
@@ -52,15 +54,26 @@ void Gaveta::setInitialAmount(double qty)
 //This is executed only when a new user is logged ( each startOperation() )
 void Gaveta::setAvailableInCash(double amount)
 {
+  reset();
   availableInCash = amount;
   initialAmount = amount;
+  if (amount>0) unused=false; else unused=true;
+}
+
+void Gaveta::reset()
+{
+  availableInCash = 0;
+  initialAmount = 0;
   setAvailableInCard(0.0);
   in = 0;
   out = 0;
   initialAmount = 0.0;
+  cashTransactions = 0;
+  cardTransactions = 0;
+  totalTransactions = 0;
   tIds.clear();
   cashflowIds.clear();
-  if (amount>0) unused=false; else unused=true;
+  unused=true;
 }
 
 void Gaveta::setAvailableInCard(double amount)
@@ -75,9 +88,10 @@ void Gaveta::substractCash(double amount)
   out += amount;
 }
 
+//This method is not congruent. Card Payments are done trough bank accounts, not physically.
+//This could be useful for cancel transactions paid with card.
 void Gaveta::substractCard(double amount)
 {
-  //Can we do this???
   qDebug()<<"Not implemented Gaveta::substractInCard:"<<amount;
 }
 
@@ -87,6 +101,7 @@ void Gaveta::addCash(double amount)
   in += amount;
 }
 
+//This is only for informative tasks. To know how much money is got from certain transaction.
 void Gaveta::addCard(double amount)
 {
   availableInCard += amount;

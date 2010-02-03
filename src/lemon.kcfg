@@ -76,6 +76,10 @@
       <label>Display Low Cash Warning</label>
       <default>true</default>
     </entry>
+    <entry name="addTax" type="Bool">
+      <label>Add tax to prices. Tax is not included in price</label>
+      <default>true</default>
+    </entry>
   </group>
   <group name="Database">
     <entry name="editDBServer" type="String">
@@ -143,6 +147,22 @@
     <entry name="printBalances" type="Bool">
       <label>Print balances using ticket printer</label>
       <default>false</default>
+    </entry>
+    <entry name="printZeroTicket" type="Bool">
+      <label>Print tickets with ZERO in the TOTAL</label>
+      <default>false</default>
+    </entry>
+    <entry name="printPackContents" type="Bool">
+      <label>Print Group/Pack Contents on tickets</label>
+      <default>true</default>
+    </entry>
+    <entry name="printSO" type="Bool">
+      <label>Print SpecialOrders Instructions</label>
+      <default>true</default>
+    </entry>
+    <entry name="printRandomMsg" type="Bool">
+      <label>Print Random Messages on tickets</label>
+      <default>true</default>
     </entry>
     <entry name="printTicket" type="Bool">
       <label>Print Ticket (dou you have a ticket printer?)</label>

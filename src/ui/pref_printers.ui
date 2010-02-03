@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>480</width>
-    <height>292</height>
+    <height>344</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -162,6 +162,34 @@
     <widget class="QCheckBox" name="kcfg_printChangedDateTicket">
      <property name="text">
       <string>Print Date Changed Tickets</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="kcfg_printSO">
+     <property name="text">
+      <string>Print Special Orders</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="kcfg_printZeroTicket">
+     <property name="text">
+      <string>Print tickets with a ZERO total payment.</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="kcfg_printPackContents">
+     <property name="text">
+      <string>Print Group/Pack Contents on tickets.</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="kcfg_printRandomMsg">
+     <property name="text">
+      <string>Print a random message on tickets.</string>
      </property>
     </widget>
    </item>

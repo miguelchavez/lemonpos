@@ -1,6 +1,6 @@
-/**************************************************************************
-*   Copyright © 2009-2010 by Miguel Chavez Gamboa                         *
-*   miguel@lemonpos.org                                                   *
+/***************************************************************************
+*   Copyright (C) 2009 by Miguel Chavez Gamboa                            *
+*   miguel.chavez.gamboa@gmail.com                                        *
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
 *   it under the terms of the GNU General Public License as published by  *
@@ -16,7 +16,7 @@
 *   along with this program; if not, write to the                         *
 *   Free Software Foundation, Inc.,                                       *
 *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
-**************************************************************************/
+***************************************************************************/
 
 #include "ticketpopup.h"
 

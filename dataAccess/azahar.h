@@ -1,22 +1,22 @@
-/**************************************************************************
-*   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
-*   miguel@lemonpos.org                                                   *
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-*   This program is distributed in the hope that it will be useful,       *
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-*   GNU General Public License for more details.                          *
-*                                                                         *
-*   You should have received a copy of the GNU General Public License     *
-*   along with this program; if not, write to the                         *
-*   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
-***************************************************************************/
+/***************************************************************************
+ *   Copyright (C) 2008-2009 by Miguel Chavez Gamboa                       *
+ *   miguel.chavez.gamboa@gmail.com                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+ ***************************************************************************/
 
 #ifndef AZAHAR_H
 #define AZAHAR_H
@@ -35,12 +35,12 @@ class QString;
  *
  * @short Database access class
  * @author Miguel Chavez Gamboa <miguel.chavez.gamboa@gmail.com>
- * @version 0.9
+ * @version 0.8
  */
 
 class Azahar : public QObject
 {
-  Q_OBJECT  
+  Q_OBJECT  //NOTE: This also gives the extra function of self destroying when parent is destroyed ? it has no parent
   private:
     QSqlDatabase db;
     QString errorStr;
@@ -55,9 +55,7 @@ class Azahar : public QObject
     void setDatabase(const QSqlDatabase& database);
 
     // PRODUCTS
-    // Si se introduce el alphacode, entonces tambien para buscar el producto por alphacode...
-    // En otros metodos diferentes a getProductInfo se usa el codigo como entero y no como alphacode.
-    ProductInfo  getProductInfo(QString code);
+    ProductInfo  getProductInfo(qulonglong code);
     qulonglong   getProductOfferCode(qulonglong code);
     qulonglong   getProductCode(QString text);
     QList<qulonglong> getProductsCode(QString regExpName);
@@ -80,6 +78,7 @@ class Azahar : public QObject
     qulonglong   getLastProviderId(qulonglong code);
     bool         updateProductLastProviderId(qulonglong code, qulonglong provId);
 
+    
     //PRODUCT STOCK CORRECTION
     bool         correctStock(qulonglong pcode, double oldStockQty, double newStockQty, const QString &reason );
 
@@ -165,34 +164,6 @@ class Azahar : public QObject
     //PayTypes
     QString     getPayTypeStr(qulonglong type);
     qulonglong  getPayTypeId(QString type);
-
-    //TAX MODELS
-    double      getTotalTaxPercent(const QString& elementsid);
-    TaxModelInfo getTaxModelInfo(const qulonglong id);
-    QStringList getTaxModelsList();
-    QString     getTaxModelElements(const qulonglong id);
-    QString     getTaxModelName(const qulonglong &id);
-    qulonglong  getTaxModelId(const QString &text);
-
-    //PROVIDERS
-    QHash<QString, qulonglong> getProvidersHash();
-    QStringList  getProvidersList();
-    QString      getProviderName(const qulonglong &id);
-    qulonglong   getProviderId(const QString &name);
-    ProviderInfo getProviderInfo(qulonglong id);
-    bool         insertProvider(ProviderInfo info);
-    bool         updateProvider(ProviderInfo info);
-    bool         deleteProvider(qulonglong pid);
-    bool         deleteProductProvider(qulonglong id);
-    bool         providerHasProduct(qulonglong pid, qulonglong code);
-    bool         addProductToProvider(ProductProviderInfo info);
-
-    //BRANDS
-    //QHash<qulonglong, QString> getBrandsHash();
-    QStringList getBrandsList();
-    QString     getBrandName(const qulonglong &id);
-    qulonglong  getBrandId(const QString &name);
-    qulonglong  insertBrand(const QString &name);
 
     //LOGS
     bool        insertLog(const qulonglong &userid, const QDate &date, const QTime &time, const QString actionStr);

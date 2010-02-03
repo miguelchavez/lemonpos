@@ -1,6 +1,6 @@
 /**  Simple Style for Squeeze (Default style).
- **  Copyright Miguel Chavez Gamboa 2007-2010 licensed as GPL v2 or later
- **  miguel@lemonpos.org           
+ **  Miguel Chavez Gamboa 2007-2009
+ **  miguel.chavez.gamboa@gmail.com
  **
  **  This style themes only certain objects, such as login&passowrd dialog some labels, and
  **  the tableview/listview. All other objects are left with the kde/qt theme used. In my case

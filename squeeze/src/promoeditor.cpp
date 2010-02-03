@@ -1,22 +1,23 @@
-/**************************************************************************
-*   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
-*   miguel@lemonpos.org                                                   *
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-*   This program is distributed in the hope that it will be useful,       *
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-*   GNU General Public License for more details.                          *
-*                                                                         *
-*   You should have received a copy of the GNU General Public License     *
-*   along with this program; if not, write to the                         *
-*   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
-**************************************************************************/
+/***************************************************************************
+ *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
+ *   miguel.chavez.gamboa@gmail.com                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+ ***************************************************************************/
 #include <KLocale>
 #include <KMessageBox>
 #include <KFileDialog>
@@ -105,7 +106,7 @@ void PromoEditor::productChanged()
   if (code != 0){
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
-    ProductInfo info = myDb->getProductInfo(QString::number(code));
+    ProductInfo info = myDb->getProductInfo(code);
     ui->spinboxPrice->setValue(info.price*(100.0-ui->spinboxDiscount->value())/100);
   }
   checkValid();
@@ -119,7 +120,7 @@ void PromoEditor::discountChanged()
     if (code != 0){
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
-      ProductInfo info = myDb->getProductInfo(QString::number(code));
+      ;               ProductInfo info = myDb->getProductInfo(code);
       ui->spinboxPrice->setValue(info.price*(100.0-ui->spinboxDiscount->value())/100);
     }
   }
@@ -134,7 +135,7 @@ void PromoEditor::priceChanged()
     if (code != 0){
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
-      ProductInfo info = myDb->getProductInfo(QString::number(code));
+      ProductInfo info = myDb->getProductInfo(code);
       ui->spinboxDiscount->setValue(100.0-(ui->spinboxPrice->value()*100/info.price));
     }
   }
