@@ -10,6 +10,7 @@ set(squeeze_SRCS
    producteditor.cpp
    purchaseeditor.cpp
    offersdelegate.cpp
+   providerseditor.cpp
    ../../src/inputdialog.cpp
    ../../src/loginwindow.cpp
    ../../src/misc.cpp
@@ -34,6 +35,7 @@ kde4_add_ui_files( squeeze_SRCS
   ui/editpromo_widget.ui
   ui/producteditor.ui
   ui/purchaseeditor.ui
+  ui/providerseditor.ui
   )
 
 

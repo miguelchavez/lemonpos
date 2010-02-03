@@ -116,6 +116,7 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct, const QSqlDataba
     connect( ui->btnAddBrand, SIGNAL( clicked() ), this, SLOT( showPanelBrand() ) );
     connect( ui->btnAddCategory, SIGNAL( clicked() ), this, SLOT( showPanelCategory() ) );
     connect( ui->btnAddUnits, SIGNAL( clicked() ), this, SLOT( showPanelMeasures() ) );
+    connect( ui->btnAddProvider, SIGNAL( clicked() ), this, SLOT( showPanelProviders() ) );
 
     connect( ui->editDesc, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
     connect( ui->editStockQty, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
@@ -523,12 +524,18 @@ void ProductEditor::changeCode()
 
 void ProductEditor::showPanelStock()
 {
+  //setting validators
+  QRegExp regexpA("[0-9]*[//.]{0,1}[0-9][0-9]*"); //Cualquier numero flotante (0.1, 100, 0, .10, 100.0, 12.23)
+  QRegExpValidator * validatorFloat = new QRegExpValidator(regexpA,this);
+  ui->editNewStock->setValidator(validatorFloat);
+  
   ui->editReason->show();
   ui->editNewStock->show();
-  ui->groupFloatPanel->setTitle("Stock Correction");
-  ui->editNewStock->setEmptyMessage("Enter the new stock quantity here");
-  ui->editReason->setEmptyMessage("Enter the reason for the change here");
-  ui->btnOk->setText("Update Stock");
+  ui->groupFloatPanel->setTitle(i18n("Stock Correction"));
+  ui->editNewStock->setEmptyMessage(i18n("Enter the new stock quantity here"));
+  ui->editReason->setEmptyMessage(i18n("Enter the reason for the change here"));
+  ui->btnOk->setText(i18n("Update Stock"));
+  ui->groupFloatPanel->setWhatsThis("Stock Correction");
   panel->showPanel();
   ui->editNewStock->setFocus();
   enableButtonOk(false);
@@ -537,10 +544,14 @@ void ProductEditor::showPanelStock()
 
 void ProductEditor::showPanelBrand()
 {
+  //remove validator 
+  ui->editNewStock->setValidator(0);
+  
   ui->editReason->hide();
-  ui->groupFloatPanel->setTitle("Create New Brand");
-  ui->editNewStock->setEmptyMessage("Enter the new brand name here");
-  ui->btnOk->setText("Create Brand");
+  ui->groupFloatPanel->setTitle(i18n("Create New Brand"));
+  ui->editNewStock->setEmptyMessage(i18n("Enter the new brand name here"));
+  ui->btnOk->setText(i18n("Create Brand"));
+  ui->groupFloatPanel->setWhatsThis("New Brand");
   panel->showPanel();
   ui->editNewStock->setFocus();
   enableButtonOk(false);
@@ -549,10 +560,13 @@ void ProductEditor::showPanelBrand()
 
 void ProductEditor::showPanelCategory()
 {
+  //remove validator
+  ui->editNewStock->setValidator(0);
   ui->editReason->hide();
-  ui->groupFloatPanel->setTitle("Create New Category");
-  ui->editNewStock->setEmptyMessage("Enter the new category name here");
-  ui->btnOk->setText("Create Category");
+  ui->groupFloatPanel->setTitle(i18n("Create New Category"));
+  ui->editNewStock->setEmptyMessage(i18n("Enter the new category name here"));
+  ui->btnOk->setText(i18n("Create Category"));
+  ui->groupFloatPanel->setWhatsThis("New Category");
   panel->showPanel();
   ui->editNewStock->setFocus();
   enableButtonOk(false);
@@ -561,10 +575,28 @@ void ProductEditor::showPanelCategory()
 
 void ProductEditor::showPanelMeasures()
 {
+  //remove validator
+  ui->editNewStock->setValidator(0);
   ui->editReason->hide();
-  ui->groupFloatPanel->setTitle("Create New Weight or Measure");
-  ui->editNewStock->setEmptyMessage("Enter the new measure name here");
-  ui->btnOk->setText("Create Measure");
+  ui->groupFloatPanel->setTitle(i18n("Create New Weight or Measure"));
+  ui->editNewStock->setEmptyMessage(i18n("Enter the new measure name here"));
+  ui->btnOk->setText(i18n("Create Measure"));
+  ui->groupFloatPanel->setWhatsThis("New Measure or weight");
+  panel->showPanel();
+  ui->editNewStock->setFocus();
+  enableButtonOk(false);
+  enableButtonCancel(false);
+}
+
+void ProductEditor::showPanelProviders()
+{
+  //remove validator
+  ui->editNewStock->setValidator(0);
+  ui->editReason->hide();
+  ui->groupFloatPanel->setTitle(i18n("Create New Provider"));
+  ui->editNewStock->setEmptyMessage(i18n("Enter the new provider name here"));
+  ui->btnOk->setText(i18n("Create Provider"));
+  ui->groupFloatPanel->setWhatsThis("New Provider");
   panel->showPanel();
   ui->editNewStock->setFocus();
   enableButtonOk(false);
@@ -573,7 +605,7 @@ void ProductEditor::showPanelMeasures()
 
 void ProductEditor::updateBtn()
 {
-  if (ui->groupFloatPanel->title().contains("Stock", Qt::CaseInsensitive)) {
+  if (ui->groupFloatPanel->whatsThis().contains("Stock", Qt::CaseInsensitive)) {
     ///correcting stock
     correctingStockOk = false;
     oldStockQty = ui->editStockQty->text().toDouble();
@@ -586,7 +618,7 @@ void ProductEditor::updateBtn()
       enableButtonCancel(true);
       ui->editNewStock->clear();
     } else ui->editNewStock->setFocus();
-  } else if (ui->groupFloatPanel->title().contains("Brand", Qt::CaseInsensitive)) {
+  } else if (ui->groupFloatPanel->whatsThis().contains("Brand", Qt::CaseInsensitive)) {
     ///creating new brand
     correctingStockOk = false;
     if (!ui->editNewStock->text().isEmpty()) { //jus reusing the line edit
@@ -608,7 +640,7 @@ void ProductEditor::updateBtn()
       //and clear the edits.
       ui->editNewStock->clear();
     }
-  } else if (ui->groupFloatPanel->title().contains("Category", Qt::CaseInsensitive)) {
+  } else if (ui->groupFloatPanel->whatsThis().contains("Category", Qt::CaseInsensitive)) {
     ///creating new category
     correctingStockOk = false;
     if (!ui->editNewStock->text().isEmpty()) { //jus reusing the line edit
@@ -630,7 +662,7 @@ void ProductEditor::updateBtn()
       ui->editNewStock->clear();
     }
   }
-  else if (ui->groupFloatPanel->title().contains("Measure", Qt::CaseInsensitive)) {
+  else if (ui->groupFloatPanel->whatsThis().contains("Measure", Qt::CaseInsensitive)) {
     ///creating new category
     correctingStockOk = false;
     if (!ui->editNewStock->text().isEmpty()) { //jus reusing the line edit
@@ -645,6 +677,33 @@ void ProductEditor::updateBtn()
       if (idx > -1) ui->measuresCombo->setCurrentIndex(idx); else qDebug()<<"measure not found on combo box:"<<ui->editNewStock->text();
       //update model
       emit updateMeasuresModel();
+      //finally close panel and reenable buttons
+      panel->hidePanel();
+      enableButtonOk(true);
+      enableButtonCancel(true);
+      ui->editNewStock->clear();
+    }
+  }
+  else if (ui->groupFloatPanel->whatsThis().contains("Provider", Qt::CaseInsensitive)) {
+    ///creating new provider
+    correctingStockOk = false;
+    if (!ui->editNewStock->text().isEmpty()) { //jus reusing the line edit
+      //send new provider to db
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      ProviderInfo pinfo;
+      pinfo.name = ui->editNewStock->text();
+      pinfo.address = "";
+      pinfo.phone = "";
+      pinfo.cell = "";
+      myDb->insertProvider(pinfo);
+      //repopulate providers list
+      populateProvidersCombo();
+      //select the new provider... we suppose that the user wants to use the new one
+      int idx = ui->providerCombo->findText(ui->editNewStock->text(),Qt::MatchCaseSensitive);
+      if (idx > -1) ui->providerCombo->setCurrentIndex(idx); else qDebug()<<"provider not found on combo box:"<<ui->editNewStock->text();
+      //update model
+      emit updateProvidersModel();
       //finally close panel and reenable buttons
       panel->hidePanel();
       enableButtonOk(true);

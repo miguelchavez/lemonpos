@@ -61,6 +61,7 @@ public:
     bool adminIsLogged;
     LoginWindow *dlgPassword;
     QHash<QString, int> categoriesHash;
+    QHash<QString, qulonglong> providersHash;
     QSqlRelationalTableModel *productsModel;
     QSqlRelationalTableModel *offersModel;
     QSqlRelationalTableModel *cashflowModel;
@@ -71,6 +72,7 @@ public:
     QSqlTableModel *balancesModel;
     QSqlTableModel *clientsModel;
     QSqlTableModel *randomMsgModel;
+    QSqlTableModel *providersModel;
     QSqlRelationalTableModel *logsModel;
     QSqlRelationalTableModel *transactionsModel;
     int productCodeIndex, productDescIndex, productPriceIndex, productStockIndex, productCostIndex,
@@ -130,11 +132,13 @@ signals:
    void showCategoriesPage();
    void showClientsPage();
    void showTransactionsPage();
+   void showProviders();
    void showReports();
    void showRandomMsgs();
    void usersViewOnSelected(const QModelIndex & index);
    void productsViewOnSelected(const QModelIndex &index);
    void clientsViewOnSelected(const QModelIndex &index);
+   void providersOnSelected(const QModelIndex &index);
    void doPurchase();
    void stockCorrection();
    void adjustOffersTable();
@@ -147,6 +151,7 @@ signals:
    void enableUI();
    void doEmitSignalSalir();
    void updateCategoriesCombo();
+   void updateProvidersCombo();
    void showProdListAsGrid();
    void showProdListAsTable();
    void adjustProductsTable();
@@ -174,6 +179,7 @@ signals:
    void createMeasure();
    void createCategory();
    void createClient();
+   void createProvider();
    void createRandomMsg();
    void deleteSelectedOffer();
    void deleteSelectedUser();
@@ -181,7 +187,9 @@ signals:
    void deleteSelectedMeasure();
    void deleteSelectedCategory();
    void deleteSelectedClient();
+   void deleteSelectedProvider();
    void populateCategoriesHash();
+   void populateProvidersHash();
    void setProductsFilter();
    void setTransactionsFilter();
    void setBalancesFilter();
@@ -196,6 +204,7 @@ signals:
    void setupCategoriesModel();
    void setupClientsModel();
    void setupTransactionsModel();
+   void setupProvidersModel();
    void checkDBStatus();
    void connectToDb();
 
@@ -214,6 +223,7 @@ signals:
 
    void updateCategoriesModel() { categoriesModel->select(); populateCategoriesHash(); }
    void updateMeasuresModel() { measuresModel->select(); }
+   void updateProvidersModel() { providersModel->select(); updateProvidersCombo(); }
 };
 
 #endif // SQUEEZEVIEW_H

@@ -105,6 +105,7 @@ private slots:
     void    showPanelStock();
     void    showPanelCategory();
     void    showPanelMeasures();
+    void    showPanelProviders();
     void    showBtns();
     void    toggleGroup(bool checked);
     void    toggleRaw(bool checked);
@@ -127,7 +128,6 @@ private slots:
     QString reason;
     bool correctingStockOk;
     double oldStockQty;
-    QSqlDatabase database;
     GroupInfo groupInfo;
     bool m_modelAssigned;
     QSqlRelationalTableModel *m_model;

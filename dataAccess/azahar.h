@@ -175,10 +175,17 @@ class Azahar : public QObject
     qulonglong  getTaxModelId(const QString &text);
 
     //PROVIDERS
-    //QHash<qulonglong, QString> getProvidersHash();
-    QStringList getProvidersList();
-    QString     getProviderName(const qulonglong &id);
-    qulonglong  getProviderId(const QString &name);
+    QHash<QString, qulonglong> getProvidersHash();
+    QStringList  getProvidersList();
+    QString      getProviderName(const qulonglong &id);
+    qulonglong   getProviderId(const QString &name);
+    ProviderInfo getProviderInfo(qulonglong id);
+    bool         insertProvider(ProviderInfo info);
+    bool         updateProvider(ProviderInfo info);
+    bool         deleteProvider(qulonglong pid);
+    bool         deleteProductProvider(qulonglong id);
+    bool         providerHasProduct(qulonglong pid, qulonglong code);
+    bool         addProductToProvider(ProductProviderInfo info);
 
     //BRANDS
     //QHash<qulonglong, QString> getBrandsHash();

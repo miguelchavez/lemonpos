@@ -189,6 +189,8 @@ void squeeze::enableUI()
     action->setEnabled(true);
     action = actionCollection()->action("stockCorrection");
     action->setEnabled(true);
+    action = actionCollection()->action( "providersBrowse" );
+    action->setEnabled(true);
   }
   qDebug()<<"Enabling others..";
   action = actionCollection()->action("usersBrowse");
@@ -228,6 +230,8 @@ void squeeze::disableUI()
   action = actionCollection()->action("cashFlowBrowse");
   action->setDisabled(true);
   action = actionCollection()->action("stockCorrection");
+  action->setDisabled(true);
+  action = actionCollection()->action( "providersBrowse" );
   action->setDisabled(true);
 }
 
@@ -375,6 +379,11 @@ void squeeze::setupActions()
     action->setShortcut(Qt::CTRL+Qt::Key_G);
     connect(action, SIGNAL(triggered(bool)),m_view, SLOT(showLogs()));
 
+    action = actionCollection()->addAction( "providersBrowse" );
+    action->setText(i18n("Providers"));
+    action->setIcon(KIcon("lemon-user"));
+    action->setShortcut(Qt::CTRL+Qt::Key_R);
+    connect(action, SIGNAL(triggered(bool)),m_view, SLOT(showProviders()));
 }
 
 

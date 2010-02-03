@@ -394,6 +394,14 @@ struct ProviderInfo
   QString    cell;
 };
 
+struct ProductProviderInfo
+{
+  qulonglong id;
+  qulonglong provId;
+  qulonglong prodId;
+  double     price;
+};
+
 struct TaxModelInfo
 {
   qulonglong id;

@@ -261,11 +261,9 @@ ProductInfo Azahar::getProductInfo(QString code)
         ///tax is included in price... mexico style.
         double pWOtax = info.price/(1+((info.tax)/100));
         info.totaltax = pWOtax*((info.tax)/100); // in money...
-        qDebug()<<"Tax is included in public price...";
       } else {
         ///tax is not included in price... usa style.
         info.totaltax = info.price*(1+(info.tax/100)); //tax in money
-        qDebug()<<"Tax is NOT included in public price...";
       }
       
      //get discount info... if have one.
@@ -979,6 +977,29 @@ QStringList Azahar::getProvidersList()
   return result;
 }
 
+QHash<QString, qulonglong> Azahar::getProvidersHash()
+{
+  QHash<QString, qulonglong> result;
+  result.clear();
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery myQuery(db);
+    if (myQuery.exec("select * from providers;")) {
+      while (myQuery.next()) {
+        int fieldId   = myQuery.record().indexOf("id");
+        int fieldText = myQuery.record().indexOf("name");
+        int id = myQuery.value(fieldId).toInt();
+        QString text = myQuery.value(fieldText).toString();
+        result.insert(text, id);
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<myQuery.lastError();
+    }
+  }
+  return result;
+}
+
 QString Azahar::getProviderName(const qulonglong &id)
 {
   QString result;
@@ -1014,6 +1035,144 @@ qulonglong Azahar::getProviderId(const QString &name)
     else {
       qDebug()<<"ERROR: "<<myQuery.lastError();
     }
+  }
+  return result;
+}
+
+ProviderInfo Azahar::getProviderInfo(qulonglong id)
+{
+  ProviderInfo info;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery qC(db);
+    if (qC.exec("select * from providers;")) {
+      while (qC.next()) {
+        int fieldId     = qC.record().indexOf("id");
+        int fieldName   = qC.record().indexOf("name");
+        int fieldPhone  = qC.record().indexOf("phone");
+        int fieldCell   = qC.record().indexOf("cellphone");
+        int fieldAdd    = qC.record().indexOf("address");
+        if (qC.value(fieldId).toUInt() == id) {
+          info.id       = qC.value(fieldId).toULongLong();
+          info.name     = qC.value(fieldName).toString();
+          info.phone    = qC.value(fieldPhone).toString();
+          info.cell     = qC.value(fieldCell).toString();
+          info.address  = qC.value(fieldAdd).toString();
+          break;
+        }
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<qC.lastError();
+    }
+  }
+  return info;
+}
+
+bool Azahar::insertProvider(ProviderInfo info)
+{
+  bool result = false;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO providers (name, address, phone, cellphone) VALUES(:name, :address, :phone, :cell)");
+    query.bindValue(":name", info.name);
+    query.bindValue(":address", info.address);
+    query.bindValue(":phone", info.phone);
+    query.bindValue(":cell", info.cell);
+    if (!query.exec()) setError(query.lastError().text()); else result = true;
+  }
+  return result;
+}
+
+bool Azahar::updateProvider(ProviderInfo info)
+{
+  bool result=false;
+  if (!db.isOpen()) db.open();
+  QSqlQuery query(db);
+  query.prepare("UPDATE providers SET name=:name, address=:address, phone=:phone, cellphone=:cell WHERE id=:id;");
+  query.bindValue(":id", info.id);
+  query.bindValue(":name", info.name);
+  query.bindValue(":address", info.address);
+  query.bindValue(":phone", info.phone);
+  query.bindValue(":cell", info.cell);
+  if (!query.exec()) setError(query.lastError().text()); else result = true;
+  
+  return result;
+}
+
+bool Azahar::deleteProvider(qulonglong pid)
+{
+  bool result=false;
+  if (db.isOpen()) {
+    QString qry = QString("DELETE from providers WHERE id=%1").arg(pid);
+    QSqlQuery query(db);
+    if (!query.exec(qry)) {
+      int errNum = query.lastError().number();
+      QSqlError::ErrorType errType = query.lastError().type();
+      QString error = query.lastError().text();
+      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),error);
+    }
+    if (query.numRowsAffected() == 1) result = true;
+    else setError(i18n("Error deleting provider  id %1, Rows affected: %2", pid,query.numRowsAffected()));
+  }
+  return result;
+}
+
+bool Azahar::deleteProductProvider(qulonglong id)
+{
+  bool result=false;
+  if (db.isOpen()) {
+    QString qry = QString("DELETE from products_providers WHERE id=%1").arg(id);
+    QSqlQuery query(db);
+    if (!query.exec(qry)) {
+      int errNum = query.lastError().number();
+      QSqlError::ErrorType errType = query.lastError().type();
+      QString error = query.lastError().text();
+      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),error);
+    }
+    if (query.numRowsAffected() == 1) result = true;
+    else setError(i18n("Error deleting product_provider  id %1, Rows affected: %2", id,query.numRowsAffected()));
+  }
+  return result;
+}
+
+bool Azahar::providerHasProduct(qulonglong pid, qulonglong code)
+{
+  bool result = false;
+  int count=0;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery qC(db);
+    if (qC.exec(QString("select * from products_providers where provider_id=%1 and product_id=%2;").arg(pid).arg(code))) {
+      while (qC.next()) {
+        int fieldId     = qC.record().indexOf("id");
+        //int fieldName   = qC.record().indexOf("product_id");
+        //int fieldPhone  = qC.record().indexOf("provider_id");
+        qulonglong id = qC.value(fieldId).toULongLong();
+        qDebug()<<"Product id "<<id<<" found";
+        count++;
+      }
+    }
+    else {
+      qDebug()<<"ERROR: "<<qC.lastError();
+    }
+  }
+  if (count>0) result=true;
+  return result;
+}
+
+bool Azahar::addProductToProvider(ProductProviderInfo info)
+{
+  bool result = false;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO products_providers (provider_id, product_id, price) VALUES(:provid, :prodid, :price)");
+    query.bindValue(":provid", info.provId);
+    query.bindValue(":prodid", info.prodId);
+    query.bindValue(":price", info.price);
+    if (!query.exec()) setError(query.lastError().text()); else result = true;
   }
   return result;
 }

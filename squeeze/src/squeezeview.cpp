@@ -16,7 +16,7 @@
 *   along with this program; if not, write to the                         *
 *   Free Software Foundation, Inc.,                                       *
 *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
-***************************************************************************/
+**************************************************************************/
 
 #define QT_GUI_LIB
 //The above line is because that define is needed, and as i dont use qmake, i must define it here..
@@ -30,6 +30,7 @@
 #include "promoeditor.h"
 #include "producteditor.h"
 #include "purchaseeditor.h"
+#include "providerseditor.h"
 #include "../../src/hash.h"
 #include "../../src/misc.h"
 #include "../../src/structs.h"
@@ -77,7 +78,7 @@
 //TODO: Change all qDebug to errorDialogs or remove them.
 //NOTE: Common configuration fields need to be shared between lemon and squeeze (low stock alarm value).
 
-enum {pWelcome=0, pBrowseProduct=1, pBrowseOffers=2, pBrowseUsers=3, pBrowseMeasures=4, pBrowseCategories=5, pBrowseClients=6, pBrowseRandomMessages=7, pBrowseLogs=8, pBrowseSO=9, pReports=10};
+enum {pWelcome=0, pBrowseProduct=1, pBrowseOffers=2, pBrowseUsers=3, pBrowseMeasures=4, pBrowseCategories=5, pBrowseClients=6, pBrowseRandomMessages=7, pBrowseLogs=8, pBrowseProviders=9, pReports=10};
 
 
 squeezeView::squeezeView(QWidget *parent)
@@ -113,6 +114,7 @@ squeezeView::squeezeView(QWidget *parent)
   timerUpdateGraphs = new QTimer(this);
   timerUpdateGraphs->setInterval(10000);
   categoriesHash.clear();
+  providersHash.clear();
   setupSignalConnections();
   QTimer::singleShot(1100, this, SLOT(setupDb()));
   QTimer::singleShot(2000, timerCheckDb, SLOT(start()));
@@ -250,6 +252,7 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.clientsView, SIGNAL(activated(const QModelIndex &)), SLOT(clientsViewOnSelected(const QModelIndex &)));
   connect(ui_mainview.productsView, SIGNAL(activated(const QModelIndex &)), SLOT(productsViewOnSelected(const QModelIndex &)));
   connect(ui_mainview.productsViewAlt, SIGNAL(activated(const QModelIndex &)), SLOT(productsViewOnSelected(const QModelIndex &)));
+  connect(ui_mainview.providersTable, SIGNAL(activated(const QModelIndex &)), SLOT(providersOnSelected(const QModelIndex &)));
 
   connect(ui_mainview.groupFilterOffers, SIGNAL(toggled(bool)), SLOT(setOffersFilter()));
   
@@ -260,8 +263,10 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.editOffersFilterByProduct, SIGNAL( textEdited(const QString &) ), SLOT(setOffersFilter()));
   connect(ui_mainview.btnAddUser, SIGNAL(clicked()), SLOT(createUser()));
   connect(ui_mainview.btnAddOffer, SIGNAL(clicked()), SLOT(createOffer()));
+  connect(ui_mainview.btnAddProvider, SIGNAL(clicked()), SLOT(createProvider()));
   connect(ui_mainview.btnDeleteUser, SIGNAL(clicked()), SLOT(deleteSelectedUser()));
   connect(ui_mainview.btnDeleteOffer, SIGNAL(clicked()), SLOT(deleteSelectedOffer()));
+  connect(ui_mainview.btnDeleteProvider, SIGNAL(clicked()), SLOT(deleteSelectedProvider()));
   connect(ui_mainview.btnAddProduct, SIGNAL(clicked()), SLOT(createProduct()) );
   connect(ui_mainview.btnAddMeasure, SIGNAL(clicked()), SLOT(createMeasure()) );
   connect(ui_mainview.btnAddCategory, SIGNAL(clicked()), SLOT(createCategory()) );
@@ -791,6 +796,7 @@ void squeezeView::setupDb()
     specialOrdersModel   = new QSqlRelationalTableModel();
     randomMsgModel  = new QSqlTableModel();
     logsModel       = new QSqlRelationalTableModel();
+    providersModel  = new QSqlRelationalTableModel();
     modelsCreated   = true;
     setupProductsModel();
     setupMeasuresModel();
@@ -804,6 +810,7 @@ void squeezeView::setupDb()
     setupSpecialOrdersModel();
     setupRandomMsgModel();
     setupLogsModel();
+    setupProvidersModel();
   } else {
     emit signalDisconnected();
     disableUI();
@@ -853,6 +860,7 @@ void squeezeView::connectToDb()
       specialOrdersModel   = new QSqlRelationalTableModel();
       randomMsgModel  = new QSqlTableModel();
       logsModel       = new QSqlRelationalTableModel();
+      providersModel  = new QSqlRelationalTableModel();
       modelsCreated = true;
     }
     dlgPassword->setDb(db);
@@ -870,6 +878,7 @@ void squeezeView::connectToDb()
     setupSpecialOrdersModel();
     setupRandomMsgModel();
     setupLogsModel();
+    setupProvidersModel();
   }
 }
 
@@ -998,16 +1007,26 @@ void squeezeView::setupProductsModel()
     //populate Categories...
     populateCategoriesHash();
     ui_mainview.comboProductsFilterByCategory->clear();
-      QHashIterator<QString, int> item(categoriesHash);
-      while (item.hasNext()) {
-        item.next();
-        ui_mainview.comboProductsFilterByCategory->addItem(item.key());
-      }
-      ui_mainview.comboProductsFilterByCategory->setCurrentIndex(0);
+    QHashIterator<QString, int> item(categoriesHash);
+    while (item.hasNext()) {
+      item.next();
+      ui_mainview.comboProductsFilterByCategory->addItem(item.key());
+    }
+    ui_mainview.comboProductsFilterByCategory->setCurrentIndex(0);
 
-      ui_mainview.rbProductsFilterByAvailable->setChecked(true);
-      ui_mainview.productsViewAlt->setCurrentIndex(productsModel->index(0, 0));
-      setProductsFilter();
+    //populate Providers...
+    populateProvidersHash();
+    ui_mainview.comboProductsFilterByProvider->clear();
+    QHashIterator<QString, qulonglong> itemp(providersHash);
+    while (itemp.hasNext()) {
+      itemp.next();
+      ui_mainview.comboProductsFilterByProvider->addItem(itemp.key());
+    }
+    ui_mainview.comboProductsFilterByProvider->setCurrentIndex(0);
+
+    ui_mainview.rbProductsFilterByAvailable->setChecked(true);
+    ui_mainview.productsViewAlt->setCurrentIndex(productsModel->index(0, 0));
+    setProductsFilter();
  }
  qDebug()<<"setupProducts.. done.";
 }
@@ -1076,6 +1095,17 @@ else {
     //8th if: filter by GROUPS
     productsModel->setFilter(QString("products.isAGroup=true"));
     productsModel->setSort(productCodeIndex, Qt::AscendingOrder);
+  }
+  else if (ui_mainview.rbProductsFilterByProvider->isChecked()) {
+    //9th if: Filter by Last Provider
+    //Find provid for the text on the combobox.
+    int provId=-1;
+    QString provText = ui_mainview.comboProductsFilterByProvider->currentText();
+    if (providersHash.contains(provText)) {
+      provId = providersHash.value(provText);
+    }
+    productsModel->setFilter(QString("products.lastproviderid=%1").arg(provId));
+    productsModel->setSort(productStockIndex, Qt::DescendingOrder);
   }
   else {
   //else: filter by less sold items
@@ -1770,8 +1800,9 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     productEditorDlg->setCode(id); //this method gets all data for such product code.
     qulonglong newcode=0;
 
-    connect ( productEditorDlg, SIGNAL(updateCategoriesModel()), this, SLOT(updateCategoriesModel()) );
+    connect ( productEditorDlg, SIGNAL(updateCategoriesModel()), this, SLOT(updateCategoriesCombo()) );
     connect ( productEditorDlg, SIGNAL(updateMeasuresModel()), this, SLOT(updateMeasuresModel()) );
+    connect ( productEditorDlg, SIGNAL(updateProvidersModel()), this, SLOT(updateProvidersModel()) );
 
     //Launch dialog, and if dialog is accepted...
     if (productEditorDlg->exec() ) {
@@ -1865,6 +1896,32 @@ void squeezeView::clientsViewOnSelected(const QModelIndex & index)
       clientsModel->select();
     }
     delete clientEditorDlg;
+  }
+}
+
+void squeezeView::providersOnSelected(const QModelIndex &index)
+{
+  if (db.isOpen()) {
+    //getting data from model...
+    const QAbstractItemModel *model = index.model();
+    int row = index.row();
+    QModelIndex indx = model->index(row, providersModel->fieldIndex("id"));
+    qulonglong id = model->data(indx, Qt::DisplayRole).toULongLong();
+    
+    //Launch Edit dialog
+    ProvidersEditor *providerEditorDlg = new ProvidersEditor(this, false, db);
+    providerEditorDlg->setDb(db);
+    providerEditorDlg->setProviderId(id);
+    if (providerEditorDlg->exec() ) {
+      ProviderInfo info = providerEditorDlg->getProviderInfo();
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      if ( !myDb->updateProvider(info) ) qDebug()<<myDb->lastError();
+      delete myDb;
+      providersModel->select();
+    }
+    delete providerEditorDlg;
+    updateProvidersCombo();
   }
 }
 
@@ -2130,6 +2187,26 @@ void squeezeView::updateCategoriesCombo()
   }
 }
 
+void squeezeView::updateProvidersCombo()
+{
+  populateProvidersHash();
+  ui_mainview.comboProductsFilterByProvider->clear();
+  QHashIterator<QString, qulonglong> item(providersHash);
+  while (item.hasNext()) {
+    item.next();
+    ui_mainview.comboProductsFilterByProvider->addItem(item.key());
+  }
+}
+
+void squeezeView::populateProvidersHash()
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  providersHash.clear();
+  providersHash = myDb->getProvidersHash();
+  delete myDb;
+}
+
 void squeezeView::createClient()
 {
   Azahar *myDb = new Azahar;
@@ -2336,6 +2413,96 @@ void squeezeView::deleteSelectedCategory()
   }
 }
 
+//Providers
+void squeezeView::showProviders()
+{
+  ui_mainview.stackedWidget->setCurrentIndex(pBrowseProviders);
+  if (providersModel->tableName().isEmpty()) setupProvidersModel();
+  ui_mainview.headerLabel->setText(i18n("Providers"));
+  ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-user",48)));
+  ui_mainview.btnPrintBalance->hide();
+}
+
+void squeezeView::setupProvidersModel()
+{
+  if (db.isOpen()) {
+    providersModel->setTable("providers");
+    int provIdIndex   = providersModel->fieldIndex("id");
+    int provNameIndex = providersModel->fieldIndex("name");
+    int provAddIndex  = providersModel->fieldIndex("address");
+    int provPhoneIndex= providersModel->fieldIndex("phone");
+    int provCellIndex = providersModel->fieldIndex("cellphone");
+
+    providersModel->setHeaderData(provNameIndex, Qt::Horizontal, i18n("Name"));
+    providersModel->setHeaderData(provAddIndex, Qt::Horizontal, i18n("Address"));
+    providersModel->setHeaderData(provPhoneIndex, Qt::Horizontal, i18n("Phone"));
+    providersModel->setHeaderData(provCellIndex, Qt::Horizontal, i18n("Cell Phone"));
+    
+    ui_mainview.providersTable->setModel(providersModel);
+    ui_mainview.providersTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui_mainview.providersTable->setColumnHidden(provIdIndex, true);
+    ui_mainview.providersTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    
+    ui_mainview.providersTable->setCurrentIndex(providersModel->index(0, 0));
+    providersModel->select();
+    ui_mainview.providersTable->resizeColumnsToContents();
+  }
+  else {
+    //At this point, what to do?
+    // inform to the user about the error and finish app  or retry again some time later?
+    QString details = db.lastError().text();
+    KMessageBox::detailedError(this, i18n("Squeeze has encountered an error, click details to see the error details."), details, i18n("Error"));
+    QTimer::singleShot(10000, this, SLOT(setupProvidersModel()));
+  }
+}
+
+void squeezeView::createProvider()
+{
+  if (db.isOpen()) {
+    ProvidersEditor *providerEditorDlg = new ProvidersEditor(this, true, db);
+    providerEditorDlg->setDb(db);
+    if (providerEditorDlg->exec() ) {
+      ProviderInfo info = providerEditorDlg->getProviderInfo();
+      
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      if ( !myDb->insertProvider(info) ) qDebug()<<myDb->lastError();
+      delete myDb;
+      providersModel->select();
+    }
+    delete providerEditorDlg;
+  }
+}
+
+void squeezeView::deleteSelectedProvider()
+{
+  if (db.isOpen()) {
+    QModelIndex index;
+    index = ui_mainview.providersTable->currentIndex();
+    
+    if (providersModel->tableName().isEmpty()) setupProvidersModel();
+    if (index == providersModel->index(-1,-1) ) {
+      KMessageBox::information(this, i18n("Please select a provider to delete, then press the delete button."), i18n("Cannot delete"));
+    }
+    else  {
+      int answer = KMessageBox::questionYesNo(this, i18n("Do you really want to delete the selected provider?"),i18n("Delete"));
+      if (answer == KMessageBox::Yes) {
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
+        //first we obtain the provider code to be deleted.
+        qulonglong  iD = providersModel->record(index.row()).value("id").toULongLong();
+        if (!providersModel->removeRow(index.row(), index)) {
+          // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 ..
+          bool d = myDb->deleteProvider(iD); qDebug()<<"Deleteing product ("<<iD<<") manually...";
+          if (d) qDebug()<<"Deletion succed...";
+        }
+        providersModel->submitAll();
+        providersModel->select();
+        delete myDb;
+      }
+    }
+  }
+}
 
 //CASH OUTS
 void squeezeView::setupCashFlowModel()
@@ -3143,6 +3310,7 @@ void squeezeView::reSelectModels()
     specialOrdersModel->select();
     randomMsgModel->select();
     logsModel->select();
+    providersModel->select();
   }
 }
 
