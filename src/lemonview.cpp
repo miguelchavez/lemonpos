@@ -757,13 +757,17 @@ void lemonView::refreshTotalLabel()
       info = i.value();
       points += (info.points*info.qtyOnList);
       double pWOtax = 0;
-      if (Settings::addTax()) //added on jan 28 2010
+      if (Settings::addTax()) //added on jan 28 2010. Also on db we have other setting
         pWOtax = i.value().price;
       else
         pWOtax= i.value().price/(1+((info.tax+info.extratax)/100));
-      //take into account the discount
-      if (i.value().validDiscount)
-        pWOtax = pWOtax - i.value().disc;
+      //take into account the discount, user discount.
+      if (i.value().validDiscount || clientInfo.discount>0 ) { //UPDATED: Jan 4 2010.
+        double cDisc = (clientInfo.discount/100)*pWOtax;
+        double iDisc = (i.value().discpercentage/100)*pWOtax;
+        if (!i.value().validDiscount) iDisc = 0;
+        pWOtax = pWOtax - iDisc - cDisc;
+      }
       //finally we have on pWOtax the price without tax and discount for 1 item
       double tax1m = (i.value().tax/100)*pWOtax;
       double tax2m = (i.value().extratax/100)*pWOtax;

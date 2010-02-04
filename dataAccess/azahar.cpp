@@ -265,7 +265,7 @@ ProductInfo Azahar::getProductInfo(qulonglong code)
            //get the first item, which is the greater one.
            info.validDiscount = true;
            info.discpercentage = descuentos.first();
-           info.disc = round((info.discpercentage/100 * info.price)*100)/100;
+           info.disc = round((info.discpercentage/100 * info.price)*100)/100; //FIXME:This is not necesary VALID.
          } else {info.disc = 0; info.validDiscount =false;}
      }
     }
