@@ -811,7 +811,8 @@ bool lemonView::incrementTableItemQty(QString code, double q)
     stockqty = info.stockqty;
     qty = info.qtyOnList;
     qty_old = qty;
-
+    QStringList itemsNotAvailable;
+    
     //stock qty for groups are different.
     bool available = true;
     if (info.isAGroup) {
@@ -824,17 +825,33 @@ bool lemonView::incrementTableItemQty(QString code, double q)
         ProductInfo pi = myDb->getProductInfo(c);
         QString unitStr;
         bool yes = false;
-        if (pi.stockqty >= ((qq*q)+qty/*ONList*/) ) yes = true;
+        double onList = getTotalQtyOnList(pi); // item itself and contained in any gruped product.
+        // q     : item qty to add.
+        // qq    : item qty on current grouped element to add
+        // qq*q  : total items to add for this product.
+        // onList: items of the same product already on the shopping list.
+        if (pi.stockqty >= ((qq*q)+onList) ) yes = true;
         available = (available && yes );
-        //qDebug()<<pi.desc<<" qtyonstock:"<<pi.stockqty<<" needed qty:"<<QString::number(qq*q);
+        if (!yes) {
+          itemsNotAvailable << i18n("%1 has %2 %3 but requested %4 + %5",pi.desc,pi.stockqty,unitStr,qq*q,onList);
+        }
+        qDebug()<<pi.desc<<" qtyonstock:"<<pi.stockqty<<" needed qty (onlist and new):"<<QString::number((qq*q)+onList);
       }
       delete myDb;
     } else {
-      if (stockqty>=q+qty) available = true; else available = false;
+      double onList = getTotalQtyOnList(info); // item itself and contained in any gruped product.
+      if (stockqty >= q+onList) available = true; else available = false;
+      qDebug()<<info.desc<<" qtyonstock:"<<info.stockqty<<" needed qty (onlist and new):"<<QString::number(q+onList);
     }
       
     if (available) qty+=q; else {
-      QString msg = i18n("<html><font color=red><b>Product not available in stock.</b></font>");
+      QString msg;
+      double onList = getTotalQtyOnList(info); // item itself and contained in any gruped product.
+      if (!itemsNotAvailable.isEmpty())
+        msg = i18n("<html><font color=red><b>The group/pack is not available because:<br>%1</b></font></html>", itemsNotAvailable.join("<br>"));
+      else
+        msg = i18n("<html><font color=red><b>There are only %1 articles of your choice at stock.<br> You requested %2</b></font></html>", info.stockqty,q+onList);
+      
       if (ui_mainview.mainPanel->currentIndex() == pageMain) {
          tipCode->showTip(msg, 6000);
       }
@@ -945,10 +962,15 @@ void lemonView::insertItem(QString code)
             if (pi.units == 1 ) unitStr=" "; else unitStr = pi.unitStr;
             iname += '\n' + QString::number(q) + " "+ unitStr +" "+ pi.desc;
             bool yes = false;
-            if (pi.stockqty >= q*qty ) yes = true;
+            double onList = getTotalQtyOnList(pi); // item itself and contained in any gruped product.
+            // q     : item qty to add.
+            // qq    : item qty on current grouped element to add
+            // q*qty : total items to add for this product.
+            // onList: items of the same product already on the shopping list.
+            if (pi.stockqty >= ((q*qty)+onList) ) yes = true;
             available = (available && yes );
             if (!yes) {
-              itemsNotAvailable << i18n("%1 has %2 %3 but requested %4",pi.desc,pi.stockqty,unitStr,qty*q);
+              itemsNotAvailable << i18n("%1 has %2 %3 but requested %4 + %5",pi.desc,pi.stockqty,unitStr,qty*q,onList);
             }
             qDebug()<<pi.desc<<" qtyonstock:"<<pi.stockqty<<" needed qty:"<<QString::number(qty*q);
           }
@@ -959,11 +981,13 @@ void lemonView::insertItem(QString code)
             msg = i18n("<html><font color=red><b>The group/pack is not available because:<br>%1</b></font></html>", itemsNotAvailable.join("<br>"));
           delete myDb;
         }
-      } else
-          if (info.stockqty >=  qty)
-            insertedAtRow = doInsertItem(codeX, iname, qty, info.price, descuento, info.unitStr);
-          else
-              msg = i18n("<html><font color=red><b>There are only %1 articles of your choice at stock.</b></font></html>", info.stockqty);
+      } else {
+        double onList = getTotalQtyOnList(info); // item itself and contained in any gruped product.
+        if (info.stockqty >=  qty+onList)
+          insertedAtRow = doInsertItem(codeX, iname, qty, info.price, descuento, info.unitStr);
+        else
+          msg = i18n("<html><font color=red><b>There are only %1 articles of your choice at stock.<br> You requested %2</b></font></html>", info.stockqty,qty+onList);
+      }
     } else qDebug()<<"\n\n***Este ELSE no importa!!! ya se tomaron acciones al respecto***\nTHIS SHOULD NOT BE PRINTED!!!\n\n";
       
     if (!msg.isEmpty()) {
@@ -991,6 +1015,32 @@ void lemonView::insertItem(QString code)
   updateTransaction();
 }//insertItem
 
+double lemonView::getTotalQtyOnList(const ProductInfo &info)
+{
+  double result = 0;
+  //first inspect the products hash to see how many direct products are there, then if any group contains
+  foreach (ProductInfo pi, productsHash) {
+    //first direct products.
+    if (pi.code == info.code) {
+      result += pi.qtyOnList;
+      qDebug()<<"Found product "<<info.code<<" with "<<pi.qtyOnList<<" items in shopping list.";
+    } else { //so its not the product itself, it maybe its a group containing it
+      if (pi.isAGroup) {
+        QStringList lelem = pi.groupElementsStr.split(",");
+        foreach(QString ea, lelem) {
+          qulonglong c  = ea.section('/',0,0).toULongLong();
+          double     qq = ea.section('/',1,1).toDouble();
+          if (c == info.code) { //YES its contained in this group
+            double qqq = qq*pi.qtyOnList;
+            result += qqq;
+            qDebug()<<" Found product "<<info.code<<" on grouped product "<<c<<" containing "<<qqq<<" items";
+          }
+        }
+      }
+    } //it was a group
+  }
+  return result;
+}
 
 int lemonView::doInsertItem(QString itemCode, QString itemDesc, double itemQty, double itemPrice, double itemDiscount, QString itemUnits)
 {

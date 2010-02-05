@@ -326,6 +326,7 @@ public:
     void insertBalance();
 
     void occasionalDiscount();
+    double getTotalQtyOnList(const ProductInfo &info);
 
     void log(const qulonglong &uid, const QDate &date, const QTime &time, const QString &text);
 
