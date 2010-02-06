@@ -9,7 +9,7 @@ To compile and install:
   
 * The basic instructions are:
 
-  cd persa
+  cd lemonpos
   mkdir build
   cd build
   cmake -DCMAKE_INSTALL_PREFIX=/usr ..  #here you put your path to kde4.
@@ -19,11 +19,11 @@ To compile and install:
   
   Now, copy the lemonrc file to your local .kde/share/config directory:
   
-  cp persa/src/lemonrc /home/USER/.kde4/share/config/ #Replace USER with your username.
+  cp lemonpos/src/lemonrc /home/USER/.kde4/share/config/ #Replace USER with your username.
   
 * After installation, you need to create a database and user on mysql, to do this:
 
-  cd persa/database_resources
+  cd lemonpos/database_resources
   cat lemon_mysql.sql | mysql -u root -p
   
   
