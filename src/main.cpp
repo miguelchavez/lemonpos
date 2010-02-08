@@ -34,7 +34,7 @@
 static const char description[] =
     I18N_NOOP("Lemon, A point of sale for linux");
 
-static const char version[] = "0.9 - NAVIDAD";
+static const char version[] = "0.9.1";
 KSplashScreen *splash;
 
 int main(int argc, char **argv)
