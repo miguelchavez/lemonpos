@@ -200,9 +200,6 @@ ProductInfo Azahar::getProductInfo(qulonglong code)
         info.cost     = query.value(fieldCost).toDouble();
         info.tax      = query.value(fieldTax1).toDouble();
         info.extratax = query.value(fieldTax2).toDouble();
-        //NOTE: totaltax will not be correct if addTax config option is true.
-        double pWOtax = info.price/(1+((info.tax+info.extratax)/100));
-        info.totaltax = pWOtax*((info.tax+info.extratax)/100); // in money...
         info.units    = query.value(fieldUnits).toInt();
         info.category = query.value(fieldCategory).toInt();
         info.utility  = info.price - info.cost;
@@ -214,6 +211,14 @@ ProductInfo Azahar::getProductInfo(qulonglong code)
         info.soldUnits = query.value(fieldSoldUnits).toDouble();
         info.isARawProduct = query.value(fieldIsARaw).toBool();
         info.isAGroup = query.value(fieldIsAGroup).toBool();
+        if (info.isAGroup) {
+          //get group average tax
+          info.tax = getGroupAverageTax(code);
+          info.extratax = 0; //this is included in the average tax.
+        }
+        //NOTE: totaltax will not be correct if addTax config option is true.
+        double pWOtax = info.price/(1+((info.tax+info.extratax)/100));
+        info.totaltax = pWOtax*((info.tax+info.extratax)/100); // in money...
         QString geStr = query.value(fieldGroupE).toString();
         // groupElements is a list like: '1/3,2/1'
         if (!geStr.isEmpty()) {
@@ -699,6 +704,70 @@ bool Azahar::updateProductLastProviderId(qulonglong code, qulonglong provId)
   qDebug()<<"Rows Affected:"<<query.numRowsAffected();
   return result;
 }
+
+QList<ProductInfo> Azahar::getGroupProductsList(qulonglong id)
+{
+  qDebug()<<"getGroupProductsList...";
+  QList<ProductInfo> pList;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QString ge = getProductGroupElementsStr(id); //DONOT USE getProductInfo... this will cause an infinite loop because at that method this method is called trough getGroupAverageTax
+    qDebug()<<"elements:"<<ge;
+    if (ge.isEmpty()) return pList;
+    QStringList pq = ge.split(",");
+    foreach(QString str, pq) {
+      qulonglong c = str.section('/',0,0).toULongLong();
+      double     q = str.section('/',1,1).toDouble();
+      //get info
+      ProductInfo pi = getProductInfo(c);
+      pi.qtyOnList = q;
+      pList.append(pi);
+      qDebug()<<" code:"<<c<<" qty:"<<q;
+    }
+  }
+  return pList;
+}
+
+double Azahar::getGroupAverageTax(qulonglong id)
+{
+  qDebug()<<"Getting averate tax for id:"<<id;
+  double result = 0;
+  double sum = 0;
+  QList<ProductInfo> pList = getGroupProductsList(id);
+  foreach( ProductInfo info, pList) {
+    sum += info.tax + info.extratax;
+  }
+  
+  result = sum/pList.count();
+  qDebug()<<"Group average tax: "<<result <<" sum:"<<sum<<" count:"<<pList.count();
+  
+  return result;
+}
+
+QString Azahar::getProductGroupElementsStr(qulonglong id)
+{
+  QString result;
+  if (db.isOpen()) {
+    QString qry = QString("SELECT groupElements from products WHERE code=%1").arg(id);
+    QSqlQuery query(db);
+    if (!query.exec(qry)) {
+      int errNum = query.lastError().number();
+      QSqlError::ErrorType errType = query.lastError().type();
+      QString error = query.lastError().text();
+      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),error);
+    }
+    if (query.size() == -1)
+      setError(i18n("Error serching product id %1, Rows affected: %2", id,query.size()));
+    else {
+      while (query.next()) {
+        int field = query.record().indexOf("groupElements");
+        result    = query.value(field).toString();
+      }
+    }
+  }
+  return result;
+}
+
 
 //CATEGORIES
 bool Azahar::insertCategory(QString text)

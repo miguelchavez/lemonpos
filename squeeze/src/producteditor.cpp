@@ -117,7 +117,7 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
       disableStockCorrection();
     } else ui->labelStockQty->setText(i18n("Stock Qty:"));
 
-    QTimer::singleShot(750, this, SLOT(checkIfCodeExists()));
+    QTimer::singleShot(450, this, SLOT(checkIfCodeExists()));
 
     ui->editStockQty->setText("0.0");
     ui->editPoints->setText("0.0");
@@ -197,7 +197,7 @@ void ProductEditor::setCategory(QString str)
  int idx = ui->categoriesCombo->findText(str,Qt::MatchCaseSensitive);
  if (idx > -1) ui->categoriesCombo->setCurrentIndex(idx);
  else {
-  qDebug()<<"Str not found:"<<str;
+  qDebug()<<"Category not found:"<<str;
   }
 }
 
@@ -205,6 +205,7 @@ void ProductEditor::setCategory(int i)
 {
  QString text = getCategoryStr(i);
  setCategory(text);
+ qDebug()<<"SET CATEGORY INT :: Category Id:"<<i<<" Name:"<<text;
 }
 
 void ProductEditor::setMeasure(int i)
@@ -218,7 +219,7 @@ void ProductEditor::setMeasure(QString str)
 int idx = ui->measuresCombo->findText(str,Qt::MatchCaseSensitive);
  if (idx > -1) ui->measuresCombo->setCurrentIndex(idx);
  else {
-  qDebug()<<"Str not found:"<<str;
+  qDebug()<<"Measure not found:"<<str;
   }
 }
 
@@ -349,6 +350,10 @@ void ProductEditor::checkIfCodeExists()
       ui->editExtraTaxes->setText(QString::number(pInfo.extratax));
       ui->editFinalPrice->setText(QString::number(pInfo.price));
       ui->editPoints->setText(QString::number(pInfo.points));
+      ui->chIsAGroup->setChecked(pInfo.isAGroup);
+      ui->btnShowGroup->setEnabled(pInfo.isAGroup);
+      ui->btnStockCorrect->setDisabled(pInfo.isAGroup); //dont allow grouped products to make stock correction
+      setGroupElements(pInfo.groupElementsStr);
       if (!pInfo.photo.isEmpty()) {
         QPixmap photo;
         photo.loadFromData(pInfo.photo);
@@ -377,8 +382,8 @@ void ProductEditor::checkIfCodeExists()
       ui->editUtility->clear();
       ui->editFinalPrice->clear();
       ui->labelPhoto->setText("No Photo");
-      }
-      //qDebug()<< "no product found with code "<<codeStr<<" .query.size()=="<<query.size();
+    }
+    //qDebug()<< "no product found with code "<<codeStr<<" .query.size()=="<<query.size();
   }
   delete myDb;
 }
@@ -516,6 +521,8 @@ void ProductEditor::addItem()
   //update cost and price on the form
   ui->editCost->setText(QString::number(groupInfo.cost));
   ui->editFinalPrice->setText(QString::number(groupInfo.price));
+  ui->editTax->setText("0.0");
+  ui->editExtraTaxes->setText("0.0");
 
   //qDebug()<<"There are "<<groupInfo.count<<" items in group. The cost is:"<<groupInfo.cost<<", The price is:"<<groupInfo.price<<" And is available="<<groupInfo.isAvailable;
 
@@ -559,6 +566,8 @@ void ProductEditor::removeItem()
   //update cost and price on the form
   ui->editCost->setText(QString::number(groupInfo.cost));
   ui->editFinalPrice->setText(QString::number(groupInfo.price));
+  ui->editTax->setText("0.0");
+  ui->editExtraTaxes->setText("0.0");
   
   qDebug()<<"There are "<<groupInfo.count<<" items in group. The cost is:"<<groupInfo.cost<<", The price is:"<<groupInfo.price<<" And is available="<<groupInfo.isAvailable;
 }
@@ -594,6 +603,8 @@ void ProductEditor::itemDoubleClicked(QTableWidgetItem* item)
   //update cost and price on the form
   ui->editCost->setText(QString::number(groupInfo.cost));
   ui->editFinalPrice->setText(QString::number(groupInfo.price));
+  ui->editTax->setText("0.0");
+  ui->editExtraTaxes->setText("0.0");
   
   //qDebug()<<"There are "<<groupInfo.count<<" items in group. The cost is:"<<groupInfo.cost<<", The price is:"<<groupInfo.price<<" And is available="<<groupInfo.isAvailable;
   delete myDb;

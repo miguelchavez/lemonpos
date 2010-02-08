@@ -77,6 +77,9 @@ class Azahar : public QObject
     double       getProductStockQty(qulonglong code);
     qulonglong   getLastProviderId(qulonglong code);
     bool         updateProductLastProviderId(qulonglong code, qulonglong provId);
+    QList<ProductInfo> getGroupProductsList(qulonglong id);
+    double       getGroupAverageTax(qulonglong id);
+    QString      getProductGroupElementsStr(qulonglong id);
 
     
     //PRODUCT STOCK CORRECTION

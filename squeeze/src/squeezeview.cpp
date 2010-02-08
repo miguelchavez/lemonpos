@@ -1802,7 +1802,8 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     productEditorDlg->setStockQtyReadOnly(true); //on edit, cannot change qty to force use stockCorrection
     productEditorDlg->setDb(db);
     productEditorDlg->setCode(id);
-    productEditorDlg->setDescription(name);
+    //The next lines are commented because some data is not correctly obtained from the model. Anyway this data is obtained by the productEditor when code is set.
+    /*productEditorDlg->setDescription(name);
     productEditorDlg->setStockQty(stockQty);
     productEditorDlg->setPrice(price);
     productEditorDlg->setCost(cost);
@@ -1814,7 +1815,7 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     productEditorDlg->setPoints(points);
     productEditorDlg->setIsAGroup(isAGroup);
     productEditorDlg->setIsARaw(isARaw);
-    productEditorDlg->setGroupElements(gelements);
+    productEditorDlg->setGroupElements(gelements);*/
 
     qulonglong newcode=0;
     //Launch dialog, and if dialog is accepted...

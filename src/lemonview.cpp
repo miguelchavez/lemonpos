@@ -1024,7 +1024,7 @@ double lemonView::getTotalQtyOnList(const ProductInfo &info)
     if (pi.code == info.code) {
       result += pi.qtyOnList;
       qDebug()<<"Found product "<<info.code<<" with "<<pi.qtyOnList<<" items in shopping list.";
-    } else { //so its not the product itself, it maybe its a group containing it
+    } else { //so its not the product itself, maybe its a group containing it
       if (pi.isAGroup) {
         QStringList lelem = pi.groupElementsStr.split(",");
         foreach(QString ea, lelem) {
