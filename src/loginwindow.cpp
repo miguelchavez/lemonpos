@@ -188,6 +188,7 @@ LoginWindow::LoginWindow(QWidget *parent,
 
 /* This is a workaround for the login/password dialog background.
  * Simply draw the pixmap, instead the style painting.
+ * NOTE: This may not be styleable... so this can confuse users that wants to change its image via stylesheet.
 */
 void LoginWindow::paintEvent(QPaintEvent* event){
   QDialog::paintEvent(event);
