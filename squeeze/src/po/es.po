@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?"
 "atid=1011570&group_id=209899&func=browse\n"
-"POT-Creation-Date: 2010-02-08 19:09-0600\n"
+"POT-Creation-Date: 2010-02-09 06:07-0600\n"
 "PO-Revision-Date: 2007-12-21 13:10-0600\n"
 "Last-Translator: Miguel Chavez Gamboa <miguel@lemonpos.org>\n"
 "Language-Team: Español <es@lemonpos.org>\n"
@@ -2434,9 +2434,13 @@ msgstr "Contraseña:"
 msgid "Invalid username or password"
 msgstr "Usuario o contraseña inválida"
 
+#: ../../src/inputdialog.cpp:68
+msgid "Product Code:"
+msgstr "Código del Producto:"
+
 #: ../../src/inputdialog.cpp:70
 msgid "Month or Season:"
-msgstr ""
+msgstr "Mes o temporada:"
 
 #: ../../src/inputdialog.cpp:71
 msgid "New Stock Qty:"
@@ -2469,6 +2473,10 @@ msgstr "Escriba el código del producto..."
 #: ../../src/inputdialog.cpp:98
 msgid "Enter the new stock quantity here..."
 msgstr "Escriba la nueva cantidad de inventario..."
+
+#: ../../src/inputdialog.cpp:105
+msgid "Terminal Number:"
+msgstr "Número de terminal:"
 
 #: ../../src/inputdialog.cpp:106
 msgid "Enter the terminal number here..."

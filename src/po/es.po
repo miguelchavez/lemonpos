@@ -3,13 +3,12 @@
 # This file is distributed under the same license as the lemonpos package.
 #
 # Miguel Chavez Gamboa <miguel.chavez.gamboa@gmail.com>, 2007-2009.
-#: specialordereditor.cpp:508
 msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?"
 "atid=1011570&group_id=209899&func=browse\n"
-"POT-Creation-Date: 2010-02-08 19:09-0600\n"
+"POT-Creation-Date: 2010-02-09 06:07-0600\n"
 "PO-Revision-Date: 2007-11-22 23:17-0600\n"
 "Last-Translator: Miguel Chavez Gamboa <miguel@lemonpos.org>\n"
 "Language-Team: Español <es@lemonpos.org>\n"
@@ -72,6 +71,10 @@ msgstr ""
 "Error al obtener la información de la orden especial %1, columnas afectadas: "
 "%2"
 
+#: inputdialog.cpp:68
+msgid "Product Code:"
+msgstr "Código del Producto:"
+
 #: inputdialog.cpp:70
 msgid "Month or Season:"
 msgstr "Mes o temporada:"
@@ -107,6 +110,10 @@ msgstr "Escriba el código del producto aqui..."
 #: inputdialog.cpp:98
 msgid "Enter the new stock quantity here..."
 msgstr "Escriba la nueva cantidad en inventario aqui..."
+
+#: inputdialog.cpp:105
+msgid "Terminal Number:"
+msgstr "Núm de terminal:"
 
 #: inputdialog.cpp:106
 msgid "Enter the terminal number here..."
@@ -529,7 +536,7 @@ msgstr "Total"
 
 #: lemonview.cpp:1847
 msgid "Your Personal Discount"
-msgstr "Su Descuento Personal: %1"
+msgstr "Su Descuento Personal"
 
 #: lemonview.cpp:1848
 msgid "Your points this buy: %1"
@@ -1097,7 +1104,8 @@ msgstr "Mostrar mensaje de alerta en nivel bajo de efectivo"
 #. i18n: ectx: label, entry (addTax), group (General Preferences)
 #: po/extractedrc.cpp:54 extractedrc.cpp:54
 msgid "Add tax to prices. Tax is not included in price"
-msgstr "Agregar Impuestos a los precios. El impuesto no esta incluido en el precio."
+msgstr ""
+"Agregar Impuestos a los precios. El impuesto no esta incluido en el precio."
 
 #. i18n: file: lemon.kcfg:86
 #. i18n: ectx: label, entry (editDBServer), group (Database)
@@ -1885,10 +1893,10 @@ msgstr ""
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\">Las siguentes ventasestan "
 "suspendidas. Por favor <span style=\" font-weight:600;\">seleccione una para "
-"retomar</span> y presione el botón <span style=\" font-weight:600; font-style:"
-"italic;\">Ok</span>; o el botón <span style=\" font-weight:600; font-style:"
-"italic;\">cancelar</span> para <span style=\" font-weight:600;\">comenzar "
-"una nueva venta.</span>.</p></body></html>"
+"retomar</span> y presione el botón <span style=\" font-weight:600; font-"
+"style:italic;\">Ok</span>; o el botón <span style=\" font-weight:600; font-"
+"style:italic;\">cancelar</span> para <span style=\" font-weight:600;"
+"\">comenzar una nueva venta.</span>.</p></body></html>"
 
 #. i18n: file: ui/resume.ui:65
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)

@@ -65,7 +65,7 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
   productCodeEdit = new KLineEdit(this);
   reasonEdit = new KLineEdit(this);
   lineEdit = new KLineEdit(this);
-  productCodeLabel = new QLabel("Product Code:", this);
+  productCodeLabel = new QLabel(i18n("Product Code:"), this);
 
   if (type == dialogTicketMsg) qLabel = new QLabel(i18n("Month or Season:"));
   else if (type == dialogStockCorrection) qLabel = new QLabel(i18n("New Stock Qty:"));
@@ -102,7 +102,7 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
     reasonEdit->show();
   }
   else if (type == dialogTerminalNum) {
-   qLabel->setText("Terminal Number:");
+   qLabel->setText(i18n("Terminal Number:"));
    lineEdit->setClickMessage(i18n("Enter the terminal number here..."));
    productCodeEdit->hide();
    productCodeLabel->hide();

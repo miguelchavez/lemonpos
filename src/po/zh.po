@@ -5,13 +5,12 @@
 # Miguel Chavez Gamboa <miguel.chavez.gamboa@gmail.com>, 2007.
 # Girard Yanqing <girardyanqing@free.fr>, 2007.
 # Scott Wu, 2009
-#: specialordereditor.cpp:508
 msgid ""
 msgstr ""
 "Project-Id-Version: zh\n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?"
 "atid=1011570&group_id=209899&func=browse\n"
-"POT-Creation-Date: 2010-02-08 19:09-0600\n"
+"POT-Creation-Date: 2010-02-09 06:07-0600\n"
 "PO-Revision-Date: 2007-12-25 22:30+0100\n"
 "Last-Translator: Scott Wu <lolinux_2008@hotmail.com>\n"
 "Language-Team: Zh <zh@li.org>\n"
@@ -73,6 +72,11 @@ msgstr "支票#%1 已经被取消或出售未成功"
 msgid "Error getting special Order information, id: %1, Rows affected: %2"
 msgstr "出错 获取code %1 的产品信息，影响行数： %2"
 
+#: inputdialog.cpp:68
+#, fuzzy
+msgid "Product Code:"
+msgstr "产品"
+
 #: inputdialog.cpp:70
 msgid "Month or Season:"
 msgstr ""
@@ -113,6 +117,11 @@ msgstr "选择退还的产品"
 #: inputdialog.cpp:98
 msgid "Enter the new stock quantity here..."
 msgstr ""
+
+#: inputdialog.cpp:105
+#, fuzzy
+msgid "Terminal Number:"
+msgstr "结束号码 &T:"
 
 # removed f-u-z-z-y
 #: inputdialog.cpp:106
@@ -998,7 +1007,7 @@ msgstr "lemon"
 
 #: main.cpp:42
 #, fuzzy
-msgid "(C) 2007-2009 Miguel Chavez Gamboa"
+msgid "(C) 2007-2010 Miguel Chavez Gamboa"
 msgstr "(C) 2007 Miguel Chávez Gamboa"
 
 #: main.cpp:43

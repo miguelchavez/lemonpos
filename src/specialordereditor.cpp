@@ -505,7 +505,7 @@ void SpecialOrderEditor::checkDate(QDateTime dt)
 void SpecialOrderEditor::hideError()
 {
   ui->deliveryDT->show();
-  ui->lblDateError->setText(i18n(""));
+  ui->lblDateError->setText("");
   ui->lblDateError->hide();
 }
 

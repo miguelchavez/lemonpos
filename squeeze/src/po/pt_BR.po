@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: lemonPOS pt_BR\n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?"
 "atid=1011570&group_id=209899&func=browse\n"
-"POT-Creation-Date: 2010-02-08 19:09-0600\n"
+"POT-Creation-Date: 2010-02-09 06:07-0600\n"
 "PO-Revision-Date: 2009-03-11 22:53-0300\n"
 "Last-Translator: Leonardo <lleoliveirabr@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <kde-i18n-pt_br@mail.kde.org>\n"
@@ -54,7 +54,7 @@ msgid "squeeze"
 msgstr ""
 
 #: main.cpp:36
-msgid "(C) 2007-2009 Miguel Chavez Gamboa"
+msgid "(C) 2007-2010 Miguel Chavez Gamboa"
 msgstr ""
 
 #: main.cpp:37
@@ -2442,6 +2442,11 @@ msgstr "Senha:"
 msgid "Invalid username or password"
 msgstr "Nome de usuário ou senha inválidos"
 
+#: ../../src/inputdialog.cpp:68
+#, fuzzy
+msgid "Product Code:"
+msgstr "Produtos"
+
 #: ../../src/inputdialog.cpp:70
 msgid "Month or Season:"
 msgstr ""
@@ -2482,6 +2487,11 @@ msgstr ""
 #, fuzzy
 msgid "Enter the new stock quantity here..."
 msgstr "Adicionar nova categoria:"
+
+#: ../../src/inputdialog.cpp:105
+#, fuzzy
+msgid "Terminal Number:"
+msgstr "por número de terminal"
 
 #: ../../src/inputdialog.cpp:106
 msgid "Enter the terminal number here..."

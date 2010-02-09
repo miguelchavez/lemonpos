@@ -3,14 +3,13 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: specialordereditor.cpp:508
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?"
 "atid=1011570&group_id=209899&func=browse\n"
-"POT-Creation-Date: 2010-02-08 19:09-0600\n"
+"POT-Creation-Date: 2010-02-09 06:07-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,6 +65,10 @@ msgstr ""
 msgid "Error getting special Order information, id: %1, Rows affected: %2"
 msgstr ""
 
+#: inputdialog.cpp:68
+msgid "Product Code:"
+msgstr ""
+
 #: inputdialog.cpp:70
 msgid "Month or Season:"
 msgstr ""
@@ -100,6 +103,10 @@ msgstr ""
 
 #: inputdialog.cpp:98
 msgid "Enter the new stock quantity here..."
+msgstr ""
+
+#: inputdialog.cpp:105
+msgid "Terminal Number:"
 msgstr ""
 
 #: inputdialog.cpp:106
@@ -934,7 +941,7 @@ msgid "lemon"
 msgstr ""
 
 #: main.cpp:42
-msgid "(C) 2007-2009 Miguel Chavez Gamboa"
+msgid "(C) 2007-2010 Miguel Chavez Gamboa"
 msgstr ""
 
 #: main.cpp:43

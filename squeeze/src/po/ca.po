@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?"
 "atid=1011570&group_id=209899&func=browse\n"
-"POT-Creation-Date: 2010-02-08 19:09-0600\n"
+"POT-Creation-Date: 2010-02-09 06:07-0600\n"
 "PO-Revision-Date: 2009-01-31 18:24+0100\n"
 "Last-Translator: \n"
 "Language-Team: Catalan <kde-i18n-doc@lists.kde.org>\n"
@@ -54,7 +54,7 @@ msgstr "squeeze"
 
 #: main.cpp:36
 #, fuzzy
-msgid "(C) 2007-2009 Miguel Chavez Gamboa"
+msgid "(C) 2007-2010 Miguel Chavez Gamboa"
 msgstr "(C) 2007 Miguel Chávez Gamboa"
 
 #: main.cpp:37
@@ -2486,6 +2486,11 @@ msgstr "Contrasenya:"
 msgid "Invalid username or password"
 msgstr "Usuari o contrasenya incorrectes"
 
+#: ../../src/inputdialog.cpp:68
+#, fuzzy
+msgid "Product Code:"
+msgstr "Productes"
+
 #: ../../src/inputdialog.cpp:70
 msgid "Month or Season:"
 msgstr ""
@@ -2526,6 +2531,11 @@ msgstr ""
 #, fuzzy
 msgid "Enter the new stock quantity here..."
 msgstr "Escriu la nova categoria a afegir:"
+
+#: ../../src/inputdialog.cpp:105
+#, fuzzy
+msgid "Terminal Number:"
+msgstr "Per terminal"
 
 #: ../../src/inputdialog.cpp:106
 msgid "Enter the terminal number here..."

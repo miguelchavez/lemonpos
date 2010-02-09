@@ -4,13 +4,12 @@
 #
 # Biel Frontera
 # Miguel Chavez Gamboa <miguel.chavez.gamboa@gmail.com>, 2007, 2009.
-#: specialordereditor.cpp:508
 msgid ""
 msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?"
 "atid=1011570&group_id=209899&func=browse\n"
-"POT-Creation-Date: 2010-02-08 19:09-0600\n"
+"POT-Creation-Date: 2010-02-09 06:07-0600\n"
 "PO-Revision-Date: 2009-03-04 21:57+0100\n"
 "Last-Translator: \n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
@@ -74,6 +73,11 @@ msgid "Error getting special Order information, id: %1, Rows affected: %2"
 msgstr ""
 "Error a l'obtenir la informació del producte amb codi %1. Files afectades: %2"
 
+#: inputdialog.cpp:68
+#, fuzzy
+msgid "Product Code:"
+msgstr "Producte"
+
 #: inputdialog.cpp:70
 msgid "Month or Season:"
 msgstr ""
@@ -112,6 +116,11 @@ msgstr "Introdueix el número de ticket"
 #: inputdialog.cpp:98
 msgid "Enter the new stock quantity here..."
 msgstr ""
+
+#: inputdialog.cpp:105
+#, fuzzy
+msgid "Terminal Number:"
+msgstr "Núm de &terminal:"
 
 #: inputdialog.cpp:106
 #, fuzzy
@@ -1000,7 +1009,7 @@ msgstr "lemon"
 
 #: main.cpp:42
 #, fuzzy
-msgid "(C) 2007-2009 Miguel Chavez Gamboa"
+msgid "(C) 2007-2010 Miguel Chavez Gamboa"
 msgstr "(C) 2007 Miguel Chávez Gamboa"
 
 #: main.cpp:43
