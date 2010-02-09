@@ -256,7 +256,10 @@ ProductInfo Azahar::getProductInfo(QString code)
         info.soldUnits = query.value(fieldSoldU).toDouble();
       }
       //get missing stuff - tax,offers for the requested product
-      info.tax = getTotalTaxPercent(info.taxElements);
+      if (info.isAGroup) //If its a group, the taxmodel is ignored, the tax will be its elements taxes
+        info.tax = getGroupAverageTax(info.code);
+      else
+        info.tax = getTotalTaxPercent(info.taxElements);
       if (getConfigTaxIsIncludedInPrice()) {
         ///tax is included in price... mexico style.
         double pWOtax = info.price/(1+((info.tax)/100));
@@ -756,6 +759,71 @@ bool Azahar::updateProductLastProviderId(qulonglong code, qulonglong provId)
   qDebug()<<"Rows Affected:"<<query.numRowsAffected();
   return result;
 }
+
+QList<ProductInfo> Azahar::getGroupProductsList(qulonglong id)
+{
+  qDebug()<<"getGroupProductsList...";
+  QList<ProductInfo> pList;
+  if (!db.isOpen()) db.open();
+  if (db.isOpen()) {
+    QString ge = getProductGroupElementsStr(id); //DONOT USE getProductInfo... this will cause an infinite loop because at that method this method is called trough getGroupAverageTax
+    qDebug()<<"elements:"<<ge;
+    if (ge.isEmpty()) return pList;
+    QStringList pq = ge.split(",");
+    foreach(QString str, pq) {
+      qulonglong c = str.section('/',0,0).toULongLong();
+      double     q = str.section('/',1,1).toDouble();
+      //get info
+      ProductInfo pi = getProductInfo(QString::number(c));
+      pi.qtyOnList = q;
+      pList.append(pi);
+      qDebug()<<" code:"<<c<<" qty:"<<q;
+    }
+  }
+  return pList;
+}
+
+double Azahar::getGroupAverageTax(qulonglong id)
+{
+  qDebug()<<"Getting averate tax for id:"<<id;
+  double result = 0;
+  double sum = 0;
+  QList<ProductInfo> pList = getGroupProductsList(id);
+  foreach( ProductInfo info, pList) {
+    //get each element its taxModel/taxElements.
+    sum += getTotalTaxPercent(info.taxElements);
+  }
+
+  result = sum/pList.count();
+  qDebug()<<"Group average tax: "<<result <<" sum:"<<sum<<" count:"<<pList.count();
+
+  return result;
+}
+
+QString Azahar::getProductGroupElementsStr(qulonglong id)
+{
+  QString result;
+  if (db.isOpen()) {
+    QString qry = QString("SELECT groupElements from products WHERE code=%1").arg(id);
+    QSqlQuery query(db);
+    if (!query.exec(qry)) {
+      int errNum = query.lastError().number();
+      QSqlError::ErrorType errType = query.lastError().type();
+      QString error = query.lastError().text();
+      QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),error);
+    }
+    if (query.size() == -1)
+      setError(i18n("Error serching product id %1, Rows affected: %2", id,query.size()));
+    else {
+      while (query.next()) {
+        int field = query.record().indexOf("groupElements");
+        result    = query.value(field).toString();
+      }
+    }
+  }
+  return result;
+}
+
 
 //CATEGORIES
 bool Azahar::insertCategory(QString text)

@@ -750,6 +750,7 @@ void ProductEditor::checkIfCodeExists()
       setIsAGroup(pInfo.isAGroup);
       setGroupElements(pInfo.groupElementsStr);
       setIsARaw(pInfo.isARawProduct);
+      ui->taxModelCombo->setDisabled(pInfo.isAGroup); // DISABLE TAX MODEL if the product is a group. Tax will be the content's taxes.
       if (!pInfo.isAGroup && !pInfo.isARawProduct) {
         ui->chIsAGroup->setEnabled(true);
         ui->chIsARaw->setEnabled(true);
