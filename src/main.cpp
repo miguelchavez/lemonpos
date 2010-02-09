@@ -39,8 +39,8 @@ KSplashScreen *splash;
 
 int main(int argc, char **argv)
 {
-    KAboutData about("lemon", 0, ki18n("lemon"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2007-2009 Miguel Chavez Gamboa"), KLocalizedString(), 0, "miguel.chavez.gamboa@gmail.com");
-    about.addAuthor( ki18n("Miguel Chavez Gamboa"), KLocalizedString(), "miguel.chavez.gamboa@gmail.com" );
+    KAboutData about("lemon", 0, ki18n("lemon"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2007-2010 Miguel Chavez Gamboa"), KLocalizedString(), 0, "miguel@lemonpos.org");
+    about.addAuthor( ki18n("Miguel Chavez Gamboa"), KLocalizedString(), "miguel@lemonpos.org" );
     KCmdLineArgs::init(argc, argv, &about);
 
     about.addCredit(ki18n("Biel Frontera"), ki18n("Code contributor"));
