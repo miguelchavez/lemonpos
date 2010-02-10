@@ -1,4 +1,14 @@
-CHANGELOG FOR LEMONPOS VERSION 0.9 
+CHANGELOG FOR LEMONPOS VERSION 0.9.1
+-----------------------------------------------------
+  - BUGFIX       : Allow to sell more items than in the stock.
+  - BUGFIX       : Comments on lemon_mysql.sql script where fixed.
+  - Improvement  : Refreshed the splash screen and loginBackground images. Created new ones on other resolutions.
+  - Improvement  : Updated Spanish Translation.
+  - Added Feature: Sales Taxes are shown on screen and printed on tickets.
+  -                Script to upgrade from 0.9 database to 0.9.1 [ fix_0.9.sql ]
+
+
+CHANGELOG FOR LEMONPOS VERSION 0.9
 -----------------------------------------------------
 
   - BUGFIX: The weird crash is gone.
