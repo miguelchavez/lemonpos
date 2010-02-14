@@ -33,19 +33,9 @@ body{
 	margin:auto;
 	position:relative;
 	overflow:visible;
-        background:  url(images/inner_776x1.jpg) repeat-y left top;
+        background:#65AB23;
 }
 
-#outer-main{
-  height:99.9%;
-  min-height:100%;
-  width:776px;
-  text-align:left;
-  margin:auto;
-  position:relative;
-  overflow:visible;
-  background:#65AB23;
-}
 
 /* mac hide \*/
 * html #outer{
@@ -152,7 +142,7 @@ div,p  {
 }
 #left {
 	position:relative;/*ie needs this to show float */
-	width:563px;
+	width: 776px;  /*  NO space for right panel on main page 563px;*/
 	float:left;
 	padding-left: 7px;
 	z-index: 56;
@@ -181,9 +171,7 @@ html>body #minHeight{
 }
 
 
-#content h1 {
-  color:#cbf858;
-}
+
 
 #content h2 {
 	font-size: 15px;
@@ -193,6 +181,10 @@ html>body #minHeight{
 	line-height: 24px;
 	position: relative;
 	z-index: 999;
+}
+
+#content h1 {
+  color:#cbf858;
 }
 
 h3#post-  {
@@ -345,7 +337,7 @@ img {
 .hide {display: none;}
 
 
-#getitnow  { /*#lemontag32:hover*/
+#getitnow  { 
   width:190px;
   height:200px;
   margin: 0px;
@@ -424,3 +416,56 @@ img {
   text-decoration: none;
   color: white;
 }
+
+/*For the screenshots on main page*/
+#topPanelLeft {
+  float:left;
+  color:white;
+  text-align:justify;
+  width:450px;
+  height: 250px;
+  font-size:1.1em;
+  margin-top:10px;
+}
+
+
+#topPanelLeft h1 {
+  color:#cbf858;
+}
+
+#panelLeft {
+  float:left;
+  color:white;
+  text-align:justify;
+  width:450px;
+  height: 250px;
+  font-size:1.1em;
+  margin-top:10px;
+}
+
+#panelRight {
+  float:right;
+  text-align:justify;
+  width:250px;
+  height: 250px;
+  margin-top:10px;
+}
+
+
+.topPanelRight {
+  float:right;
+  color:#cbf858;
+  text-align:justify;
+  width:300px;
+  height: 250px;
+/*   background:white; */
+  overflow: hidden;
+  margin-top:10px;
+}
+
+.topPanelRight img
+{
+  padding: 2px;
+  border: 0px;
+}
+
