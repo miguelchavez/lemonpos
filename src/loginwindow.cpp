@@ -195,13 +195,26 @@ void LoginWindow::paintEvent(QPaintEvent* event){
   QPainter painter(this);
   painter.setClipRegion(event->region());
   QString path = KStandardDirs::locate("appdata", "styles/");
-  QPixmap bg;
+  QPixmap bg; QString fileName;
+  //getting style source.
+  fileName = path + Settings::styleName() + "/" + Settings::styleName() + ".qss";
+  QFile file(fileName);
+  bool op = file.open(QFile::ReadOnly);
+  QString styleSheet = QLatin1String(file.readAll());
+  //replace fakepath to the real path..
+  QString bgName;
+  int indxs = styleSheet.indexOf("]loginBackground");
+  int indxe = styleSheet.indexOf(")", indxs);
+  /*indxe = indxe-1;*/ indxs = indxs+1;
+  bgName = styleSheet.mid(indxs,indxe-indxs);
+  qDebug()<<" index start:"<<indxs<<" index end:"<<indxe<<" string:"<<bgName<< " OMG: How many times this is updated! (painted)...";
+  
 
   switch (currentMode)
   {
     case LoginWindow::FullScreen:
       if (QApplication::desktop()->screenGeometry(this) != geometry()) setGeometry(QApplication::desktop()->screenGeometry(this));
-      bg = QPixmap(path + Settings::styleName() + "/loginBackground_1280x800.png");
+      bg = QPixmap(path + Settings::styleName() + "/" + bgName);
       break;
     case LoginWindow::PasswordOnly:
       bg = QPixmap(path + Settings::styleName() + "/passwordBackground_wide.png");

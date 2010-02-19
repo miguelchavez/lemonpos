@@ -32,7 +32,7 @@ LoginWindow#passwordDialog {
 }
 
 LoginWindow#loginDialog {
-   background-image: url([STYLE_PATH]loginBackground_1280x800.png); /* choose resolution and provide the image */
+   background-image: url([STYLE_PATH]loginBackground_1280x1024.png); /* choose resolution and provide the image */
    background-position: center center;
    background-attachment: fixed;
    background-repeat:no-repeat;
