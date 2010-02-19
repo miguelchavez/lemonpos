@@ -7,7 +7,7 @@
 #ajaxmenu ul li {
 	position: relative;
 	float: left;
-	width: 70px; /*70*/
+	width: 80px; /*70*/
 	display: block;
 	text-decoration: none;
 	text-align: center;
@@ -139,14 +139,15 @@
 #ajaxmenu li ul, #ajaxmenu li.over ul { 
 	display: block;
 } /* The pop */
+
 #ajaxmenu {
-        position:relative;
-	margin-right: 10px;
-	margin-left: 0px;
-	width: 450px;
+        position:absolute;
+        right:25px;
+	width: 430px;
         height:22px;
-        top:32px;
-        float:right;
+        margin:0px;
+        padding:0px;
+        top:55px;
 }
 
 .B_currentCrumb {
