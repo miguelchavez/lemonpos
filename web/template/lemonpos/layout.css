@@ -1,4 +1,4 @@
-/* commented backslash hides from ie5mac \*/ 
+/* commented backslash hides from ie5mac \*/
 html{
 	height:100%;
 	margin:0;
@@ -32,7 +32,7 @@ body{
 	margin:auto;
 	position:relative;
 	overflow:visible; 
-        background:#65AB23; /*url(images/inner_776x1.jpg) repeat-y left top;*/ /*FIXME: este puede estar sin color*/
+        background:  url(images/inner_776x1.jpg) repeat-y left top;
 }
 
 
