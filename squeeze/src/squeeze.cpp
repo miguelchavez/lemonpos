@@ -104,6 +104,7 @@ squeeze::~squeeze()
     delete m_printer;
 }
 
+//NOTE: There is a problem with taskbar panel applets on the desktop (plasma widgets), the 145 pixels is a simple qty that works for me.
 void squeeze::fixGeom()
 {
   //qDebug()<<"Window Size:"<<geometry()<<"desktop size:"<<QApplication::desktop()->screenGeometry(this);
