@@ -3329,7 +3329,7 @@ void lemonView::cashOut()
         qulonglong cfId = myDb->insertCashFlow(info);
         //affect drawer
         //NOTE: What about CUPS printers?
-        if (Settings::openDrawer() && Settings::smallTicketDotMatrix()) drawer->open();
+        if (Settings::openDrawer() && Settings::smallTicketDotMatrix() && Settings::printTicket() ) drawer->open();
         drawer->substractCash(info.amount);
         drawer->insertCashflow(cfId);
         QString authBy = dlgPassword->username();
@@ -3371,7 +3371,7 @@ void lemonView::cashIn()
       qulonglong cfId = myDb->insertCashFlow(info);
       //affect drawer
       //NOTE: What about CUPS printers?
-      if (Settings::openDrawer() && Settings::smallTicketDotMatrix()) drawer->open();
+      if (Settings::openDrawer() && Settings::smallTicketDotMatrix() && Settings::printTicket() ) drawer->open();
       drawer->addCash(info.amount);
       drawer->insertCashflow(cfId);
 
@@ -3914,7 +3914,7 @@ void  lemonView::occasionalDiscount()
       myDb->setDatabase(db);
       QString authBy = dlgPassword->username();
       if (authBy.isEmpty()) authBy = myDb->getUserName(1); //default admin.
-      log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Applying occassional discount. Authorized by %1",authBy));
+      log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Applying occasional discount. Authorized by %1",authBy));
       delete myDb;
     }
   }
