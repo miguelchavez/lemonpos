@@ -36,13 +36,13 @@ function highlight(el,endcolor,duration) {
 </head>
 <body>
 <div id="wrapper">
-<div id="minHeight"></div>
+<!--<div id="minHeight"></div>-->
 <div id="outer">
 <div id="inner">
 <div id="right">
 <div id="right-inner">
 <h1 style="text-indent: -5000px;padding: 0px; margin:0px; font-size: 1px;">[(site_name)]</h1>
-`<div id="sidebar">
+<div id="sidebar">
 <!-- download -->
 <h2>Get it now!</h2>
 <div id="getitnow"><a name="download" href="[(base_url)]download">Download</a></div>
@@ -63,7 +63,7 @@ function highlight(el,endcolor,duration) {
 <base href="[(site_url)]" />
 [[Breadcrumbs]]
 <div class="post">
-<h2>[*longtitle*]</h2>
+<!-- <h2>[*longtitle*]</h2> -->
 [*#content*] </div>
 <!-- close .post (main column content) -->
 </div>
@@ -74,7 +74,6 @@ function highlight(el,endcolor,duration) {
 <!-- end left -->
 </div>
 <!-- end inner -->
-<div id="clearfooter"></div>
 <div id="header">
 <h1><a id="logo" href="[~[(site_start)]~]" title="[(site_name)]">[(site_name)]</a></h1>
 <div id="search">[!AjaxSearch? ajaxSearch=`1` &AS_landing=`8` &moreResultsPage=`8` &showMoreResults=`1` &addJscript=`0` &extract=`0` &AS_showResults=`0`!]</div>
@@ -83,6 +82,7 @@ function highlight(el,endcolor,duration) {
 </div>
 <!-- end header -->
 <br style="clear:both;height:0;font-size: 1px" />
+<div id="clearfooter"></div>
 <div id="footer">
 {{lemonfooter}}
 </div>

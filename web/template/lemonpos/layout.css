@@ -83,7 +83,7 @@ html>body #outer{
 	clear:both;
 	height:200px;  /*FIXME 255*/
 	text-align:left;
-        position: absolute;
+        position: relative;
 	left:0px;
 	bottom:0px;
         background: #ff6800; /*url(images/foot_776x82_2.jpg) no-repeat left top;*/
@@ -150,7 +150,7 @@ div,p  {
 }
 #clearfooter {
 	width:100%;
-	height:0px;
+	height:50px;
 	clear:both;
 } /* to clear footer */
 
