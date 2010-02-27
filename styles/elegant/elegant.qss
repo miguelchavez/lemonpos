@@ -15,7 +15,7 @@
 /** login window **/
 /* NOTE: QDialog, QWidget, only support the background property, not the border.
          thats why the login/password windows experiment problems at diferent screen resolutions.
-         A workaround is to select an image acording to the screen size. I added a loginBackground_1280x800.jpg
+         A workaround is to select an image acording to the screen size. 
          for widescreens at 1280x800. and changed the name below.
 */
 LoginWindow#passwordDialog{
