@@ -175,6 +175,7 @@ html>body #minHeight{
 	line-height: 24px;
 	position: relative;
 	z-index: 999;
+        text-align:justify;
 }
 
 #content h1 {
@@ -190,6 +191,7 @@ h3#post-  {
 
 #content p {
 	font-size: 13px;
+        text-align:justify;
 	color: white;
 	line-height: 18px;
 	_line-height: 16px;

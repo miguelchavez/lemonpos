@@ -165,6 +165,7 @@ html>body #minHeight{
 	z-index: 300;
 	padding-bottom: 7px;
         padding-top:7px;
+        text-align:justify;
 }
 
 
@@ -193,6 +194,7 @@ h3#post-  {
 
 #content p {
 	font-size: 13px;
+        text-align:justify;
 	color: white;
         margin-top:5px;
 	line-height: 18px;
