@@ -671,6 +671,7 @@ void squeezeView::updateGraphs()
       QList<TransactionInfo> monthTrans = myDb->getMonthTransactionsForPie();
       ProfitRange rangeP = myDb->getMonthProfitRange();
       ProfitRange rangeS = myDb->getMonthSalesRange();
+      //qDebug()<<"** [Ranges] Profit:"<<rangeP.min<<","<<rangeP.max<<" Sales:"<<rangeS.min<<","<<rangeS.max;
       TransactionInfo info;
       ///plots
       //clear data
@@ -688,7 +689,7 @@ void squeezeView::updateGraphs()
       int day=0; double AccSales=0.0; double AccProfit=0.0;
       for (int i = 0; i < monthTrans.size(); ++i) {
         info = monthTrans.at(i);
-        //qDebug()<<i<<", sales:"<<info.amount<<" profit:"<<info.utility;
+        //qDebug()<<"ITERATING MONTH TRANSACTIONS  |  "<<i<<", sales:"<<info.amount<<" profit:"<<info.utility;
         ///we got one result per day (sum)
         //insert the day,profit to the plot
         AccSales  = info.amount;

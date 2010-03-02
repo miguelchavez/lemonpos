@@ -1796,7 +1796,13 @@ void lemonView::finishCurrentTransaction()
       ticket.completingSpecialOrder = false;
     ticket.totalTax = totalTax;
 
-    if (printticket) printTicket(ticket);
+    if (printticket)
+      printTicket(ticket);
+    else {
+        //if not printing ticket, it means it is config to not print date changed tickets.. but this affects to the freeze/unfreeze UI, and to call startAgain().
+        freezeWidgets();
+        QTimer::singleShot(500, this, SLOT(unfreezeWidgets()));
+      }
 
     //update balance
     qDebug()<<"FINISH TRANSACTION, UPDATING BALANCE #"<<currentBalanceId;

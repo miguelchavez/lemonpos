@@ -158,7 +158,8 @@ double Gaveta::getOutAmount()
 
 void Gaveta::insertTransactionId(qulonglong id)
 {
-  tIds.append(id);
+  if (!tIds.contains(id))
+    tIds.append(id);
 }
 
 QList<qulonglong> Gaveta::getTransactionIds()
@@ -173,7 +174,8 @@ QList<qulonglong> Gaveta::getCashflowIds()
 
 void Gaveta::insertCashflow(qulonglong id)
 {
-  cashflowIds.append(id);
+  if (!cashflowIds.contains(id))
+    cashflowIds.append(id);
 }
 
 void Gaveta::incCardTransactions()
