@@ -680,16 +680,25 @@ void squeezeView::updateGraphs()
       // X = date, Y=profit
       int hoy=0;
       hoy = QDate::currentDate().day();
-      if (hoy==1) hoy=2;//si es el unico dia, exapndir a 2 para los limites
 
       //NOTE:Set the same scale for both plots?? to compare.. or his own range to each one. if profit>sales?
-      ui_mainview.plotSales->setLimits(1, hoy, rangeS.min, rangeS.max+rangeS.max*.10);
-      ui_mainview.plotProfit->setLimits(1, hoy, rangeP.min, rangeP.max+rangeP.max*.10);
+      ui_mainview.plotSales->setLimits(0, hoy+1, rangeS.min-rangeS.min*.10, rangeS.max+rangeS.max*.10);
+      ui_mainview.plotProfit->setLimits(0, hoy+1, rangeP.min-rangeS.min*.10, rangeP.max+rangeP.max*.10);
       //insert each day's sales and profit.
       int day=0; double AccSales=0.0; double AccProfit=0.0;
+      //BEGIN Fix old issue. This is to fix the not shown values, the first and last days are not shown, fixed by adding day 0 and one after the last.
+      objSales->addPoint(0,0, "0");
+      objProfit->addPoint(0,0, "0");
+      if (!monthTrans.isEmpty()) {
+        TransactionInfo inf;
+        inf.date = monthTrans.last().date.addDays(1);
+        inf.amount = 0;
+        inf.utility = 0;
+        monthTrans.append(inf);
+      }
+      //END Fix old issue.
       for (int i = 0; i < monthTrans.size(); ++i) {
         info = monthTrans.at(i);
-        //qDebug()<<"ITERATING MONTH TRANSACTIONS  |  "<<i<<", sales:"<<info.amount<<" profit:"<<info.utility;
         ///we got one result per day (sum)
         //insert the day,profit to the plot
         AccSales  = info.amount;
@@ -697,6 +706,7 @@ void squeezeView::updateGraphs()
         day       = info.date.day();
         objSales->addPoint(day,AccSales, QString::number(AccSales));
         objProfit->addPoint(day,AccProfit, QString::number(AccProfit));
+        //qDebug()<<"ITERATING MONTH TRANSACTIONS  |  "<<day<<", sales:"<<info.amount<<" profit:"<<info.utility<<" AccSales:"<<AccSales<<" AccProfit:"<<AccProfit;
       } //for each eleement
       
 

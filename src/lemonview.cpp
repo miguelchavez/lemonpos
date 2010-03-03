@@ -1512,13 +1512,13 @@ void lemonView::finishCurrentTransaction()
     tInfo.amount = totalSum;
 
     //new feature from biel : Change sale date time
-    bool printticket=true;
+    bool printDTticket=true;
     if (!ui_mainview.groupSaleDate->isHidden()) { //not hidden, change date.
       QDateTime datetime = ui_mainview.editTransactionDate->dateTime();
       tInfo.date   =  datetime.date();
       tInfo.time   =  datetime.time();
       ticket.datetime = datetime;
-      if (!Settings::printChangedDateTicket()) printticket = false;
+      if (!Settings::printChangedDateTicket()) printDTticket = false;
     } else  { // hidden, keep current date as sale date.
       tInfo.date   = QDate::currentDate();
       tInfo.time   = QTime::currentTime();
@@ -1796,12 +1796,13 @@ void lemonView::finishCurrentTransaction()
       ticket.completingSpecialOrder = false;
     ticket.totalTax = totalTax;
 
-    if (printticket)
+    if (printDTticket)
       printTicket(ticket);
     else {
         //if not printing ticket, it means it is config to not print date changed tickets.. but this affects to the freeze/unfreeze UI, and to call startAgain().
         freezeWidgets();
         QTimer::singleShot(500, this, SLOT(unfreezeWidgets()));
+        qDebug()<<"Not printing ticket...";
       }
 
     //update balance
