@@ -687,11 +687,13 @@ void lemonView::doSearchItemDesc()
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   QList<qulonglong> pList = myDb->getProductsCode(desc); //busca con regexp...
+  int numRaw = 0;
   //iteramos la lista
   for (int i = 0; i < pList.size(); ++i) {
      qulonglong c = pList.at(i);
      ProductInfo pInfo = myDb->getProductInfo(c);
-     if (pInfo.code==0 || pInfo.isARawProduct) continue;
+     if (pInfo.isARawProduct) numRaw++;
+     if (pInfo.code==0 || pInfo.isARawProduct) continue; //discard this item, continue loop.
      //insert each product to the search table...
      int rowCount = ui_mainview.tableSearch->rowCount();
       ui_mainview.tableSearch->insertRow(rowCount);
@@ -712,7 +714,7 @@ void lemonView::doSearchItemDesc()
       ui_mainview.tableSearch->setItem(rowCount, 2, new QTableWidgetItem(QString::number(pInfo.code)));
       ui_mainview.tableSearch->resizeRowsToContents();
     }
-    if (pList.count()>0) ui_mainview.labelSearchMsg->setText(i18np("%1 item found","%1 items found.", pList.count()));
+    if (pList.count()>0) ui_mainview.labelSearchMsg->setText(i18np("%1 item found","%1 items found.", pList.count()-numRaw));
     else ui_mainview.labelSearchMsg->setText(i18n("No items found."));
 
     delete myDb;
