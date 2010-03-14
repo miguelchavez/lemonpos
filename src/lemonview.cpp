@@ -369,7 +369,10 @@ void lemonView::settingsChanged()
   connectToDb();
   setupModel();
   setupHistoryTicketsModel();
-  setupClients();
+  
+  currentBalanceId = 0;
+  insertBalance(); //this updates the currentBalanceId
+  startAgain();
 
   //save new settings on db -to avoid double settings on lemon and squeeze-
   Azahar *myDb = new Azahar;
@@ -402,7 +405,10 @@ void lemonView::settingsChangedOnInitConfig()
   connectToDb();
   setupModel();
   setupHistoryTicketsModel();
-  setupClients();
+
+  currentBalanceId = 0;
+  insertBalance(); //this updates the currentBalanceId
+  startAgain();
 
   emit signalDisableStartOperationAction();
   login();
