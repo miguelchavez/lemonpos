@@ -1,3 +1,18 @@
+CHANGELOG FOR LEMONPOS VERSION 0.9.2
+-----------------------------------------------------
+- BUGFIX       : Hidden first and last values for profit and sales plots on squeeze.
+- BUGFIX       : When using date change feature, it seems that the transaction was not completed sucessfully.
+- BUGFIX       : On the search panel, the RAW products where excluded but still counted on the result.
+- BUGFIX       : Groups dont get all its taxes from the elements, if the group tax is not set correctly on creation, it will not have a correct one.
+- BUGFIX       : When changing configuration, now lemon requests a new transaction and balance.
+- BUGFIX       : Missing settings-check for drawer openning.
+- IMPROVEMENT  : Fixing and improved CSS style sheet. Updated CSS, improving method on lemon to load the correct file for login window.
+- UPDATE       : Updating PDF documentation.
+
+NOTE: 0.9.2 version does not requiere a database upgrade.
+
+
+
 CHANGELOG FOR LEMONPOS VERSION 0.9.1
 -----------------------------------------------------
   - BUGFIX       : Allow to sell more items than in the stock.

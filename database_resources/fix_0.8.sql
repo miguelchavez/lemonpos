@@ -1,7 +1,7 @@
 # Fixes to migrate from 0.8 to 0.9 database version
 # (C) Miguel Chavez Gamboa 2009-2010 [GPL v2 or later]
 
-use lemondb; --modify the database name according to yours.
+use lemondb; 
 
 alter table transactions add `providerid` int(10) unsigned NOT NULL  default 1 after terminalnum;
 alter table transactions add `specialOrders` varchar(255) collate utf8_general_ci default '' after providerid;
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `special_orders` (
   `price` double unsigned NOT NULL default '0.0',
   `cost` double unsigned NOT NULL default '0',
   `units` int(10) unsigned collate utf8_general_ci NOT NULL default '0',
-  `status` int(10) default 0, -- 0: pending, 1: inprogress, 2:ready, 3:delivered, 4: cancelled
+  `status` int(10) default 0, 
   `saleid` bigint(20) unsigned NOT NULL default 1,
   `notes` varchar(255) collate utf8_general_ci default '',
   `payment` double unsigned NOT NULL default '0',

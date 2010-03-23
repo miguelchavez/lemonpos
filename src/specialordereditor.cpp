@@ -493,8 +493,8 @@ QString SpecialOrderEditor::getContentNames()
 
 void SpecialOrderEditor::checkDate(QDateTime dt)
 {
-  if (dt.date() <= QDate::currentDate()) {
-    ui->deliveryDT->setDateTime(QDateTime::currentDateTime().addDays(1));
+  if (dt.date() </*=*/ QDate::currentDate()) { //allow also deliver for today. Requested by Jnivar. TODO: We could use a config option for this.
+    ui->deliveryDT->setDateTime(QDateTime::currentDateTime()/*.addDays(1)*/);
     ui->deliveryDT->hide();
     ui->lblDateError->setText(i18n("<html><font color=red><b>The delivery date is in the past.</b></font></html>"));
     ui->lblDateError->show();
@@ -626,6 +626,16 @@ void SpecialOrderEditor::setUsername(QString username)
   if (index > -1)
     ui->usersCombo->setCurrentIndex(index);
   
+}
+
+///Use this function after assign the DB!
+void SpecialOrderEditor::setClientName(QString name)
+{
+  if (ui->clientsCombo->count() < 1) populateClientsCombo(); //just in case!
+  int index = ui->clientsCombo->findText(name,Qt::MatchCaseSensitive);
+  if (index > -1)
+    ui->clientsCombo->setCurrentIndex(index);
+  else qDebug()<<"CLIENT:"<<name<< "not found.";
 }
 
 #include "specialordereditor.moc"

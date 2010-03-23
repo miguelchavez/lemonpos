@@ -76,6 +76,8 @@ class SpecialOrderEditor : public KDialog
     void    setDateTime(QDateTime dt)  { dateTime = dt; }
     void    setDeliveryDateTime(QDateTime dt)  { ui->deliveryDT->setDateTime(dt); }
     void    setUsername(QString name);
+    void    setClientsComboEnabled(bool val) { ui->clientsCombo->setEnabled(val); }
+    void    setClientName(QString name);
 
     
   private slots:

@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS `special_orders` (
   `units` int(10) unsigned collate utf8_general_ci NOT NULL default '0',
   `status` int(10) default 0, # 0: pending, 1: inprogress, 2:ready, 3:delivered, 4: cancelled
   `saleid` bigint(20) unsigned NOT NULL default 1,
-  `notes` varchar(255) collate utf8_general_ci default '',
+  `notes` varchar(800) collate utf8_general_ci default '', #MCH CHANGED from 255 to 800. March 22 2010.
   `payment` double unsigned NOT NULL default '0',
   `completePayment` bool default false,
   `dateTime` datetime NOT NULL default '2009-01-01',

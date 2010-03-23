@@ -3148,6 +3148,25 @@ double Azahar::getSpecialOrderAverageTax(qulonglong id)
   return result;
 }
 
+///This gets discounts on a special order based on its raw products discount, returned in %.
+double Azahar::getSpecialOrderAverageDiscount(qulonglong id)
+{
+  double result = 0;
+  double sum = 0;
+  QList<ProductInfo> pList = getSpecialOrderProductsList(id);
+  foreach( ProductInfo info, pList) {
+    if (info.validDiscount) {
+      sum += info.discpercentage;
+    }
+  }
+  
+  result = sum/pList.count();
+  qDebug()<<"SO average discount: "<<result <<" sum:"<<sum<<" count:"<<pList.count();
+  
+  return result;
+}
+
+
 QStringList Azahar::getStatusList()
 {
   QStringList result;

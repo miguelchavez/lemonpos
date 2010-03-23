@@ -478,6 +478,9 @@ void lemonView::clearUsedWidgets()
   ui_mainview.labelDetailTotalTaxes->setText("");
   ui_mainview.labelDetailPhoto->clear();
   ui_mainview.labelDetailPoints->clear();
+
+  //enable clients combo box...
+  ui_mainview.comboClients->setEnabled(true);
 }
 
 void lemonView::askForIdToCancel()
@@ -782,6 +785,23 @@ void lemonView::refreshTotalLabel()
       totalTax += (tax1m + tax2m)*i.value().qtyOnList;
       //totalTax is the tax in money (discount applied if apply) for the qtyOnList items
       qDebug()<<"total tax for product:"<<i.value().totaltax<<"% accumulated tax $:"<<totalTax;
+    }
+    //Taxes for SO.
+    foreach(SpecialOrderInfo soInfo, specialOrders) {
+      double pWOtax = 0;
+      if (Settings::addTax())
+        pWOtax = soInfo.payment;
+      else
+        pWOtax= soInfo.payment/(1+((soInfo.averageTax)/100));
+      //take into account the discount, user discount. 
+      if ( clientInfo.discount>0 ) {
+        double cDisc = (clientInfo.discount/100)*pWOtax;
+        double iDisc = 0; //FIXME: myDb->getSpecialOrderAverageDiscount(soInfo.orderid)*soInfo.;
+        pWOtax = pWOtax - iDisc - cDisc;
+        qDebug()<<"Client discount:"<<cDisc<<" pWOtax:"<<pWOtax;
+      }
+      totalTax += ((soInfo.averageTax/100) * pWOtax * soInfo.qty); // average is in percentage
+      qDebug()<<"Average tax for Special Order:"<<soInfo.averageTax<<"% accumulated tax $:"<<totalTax;
     }
   }
   buyPoints = points;
@@ -1127,6 +1147,7 @@ void lemonView::deleteSelectedItem()
             //remove from listview
             ui_mainview.tableWidget->removeRow(row);
             ui_mainview.editItemCode->setFocus();
+            if (ui_mainview.tableWidget->rowCount() == 0) ui_mainview.comboClients->setEnabled(true);
             refreshTotalLabel();
             return;
           }
@@ -1139,6 +1160,7 @@ void lemonView::deleteSelectedItem()
             QString authBy = dlgPassword->username();
             if (authBy.isEmpty()) authBy = myDb->getUserName(1); //default admin.
             log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Removing an Special Item from shopping list. Authorized by %1",authBy));
+            if (ui_mainview.tableWidget->rowCount() == 0) ui_mainview.comboClients->setEnabled(true);
             ui_mainview.editItemCode->setFocus();
             refreshTotalLabel();
             delete myDb;
@@ -1154,6 +1176,7 @@ void lemonView::deleteSelectedItem()
           //reinsert to the hash
           specialOrders.insert(info.orderid,info);
         }
+        if (ui_mainview.tableWidget->rowCount() == 0) ui_mainview.comboClients->setEnabled(true);
         ui_mainview.editItemCode->setFocus();
         refreshTotalLabel();
         return; //to exit the method, we dont need to continue.
@@ -1206,6 +1229,8 @@ void lemonView::deleteSelectedItem()
        
     }//continueIt
   }//there is something to delete..
+
+  if (ui_mainview.tableWidget->rowCount() == 0) ui_mainview.comboClients->setEnabled(true);
   refreshTotalLabel();
 }
 
@@ -3429,6 +3454,9 @@ void lemonView::addSpecialOrder()
     notify->sendEvent();
     return;
   }
+
+  //first, if the sale contains another SO, then only the same client is allowed, and we must disable the client selection on the SO editor.
+  bool allowClientSelection = specialOrders.isEmpty();
   
   SpecialOrderInfo soInfo;
   qulonglong newSOId = 0;
@@ -3437,6 +3465,8 @@ void lemonView::addSpecialOrder()
   soEditor->setDb(db);
   soEditor->setTransId(currentTransaction);
   soEditor->setUsername(loggedUserName);
+  soEditor->setClientsComboEnabled(allowClientSelection);
+  if (!allowClientSelection) soEditor->setClientName(clientInfo.name);
 
   if (soEditor->exec()) {
     //get values from dialog
@@ -3493,12 +3523,18 @@ void lemonView::addSpecialOrder()
     newName = newName.replace("\n", "|");
     soInfo.geForPrint = newName;
 
+    //after inserting so in the db, calculate tax.
+    soInfo.averageTax = myDb->getSpecialOrderAverageTax(soInfo.orderid);
     //add to the hash
     specialOrders.insert(soInfo.orderid, soInfo);
+    refreshTotalLabel();
     //Saving session.
     qDebug()<<"** INSERTING A SPECIAL ORDER [updating balance/transaction]";
     updateBalance(false);
     updateTransaction();
+
+    //disable client combo box.
+    ui_mainview.comboClients->setDisabled(true);
     
     delete myDb;
   }
@@ -3615,6 +3651,9 @@ void lemonView::specialOrderComplete()
     qDebug()<<"** COMPLETING A SPECIAL ORDER [updating balance/transaction]";
     updateBalance(false);
     updateTransaction();
+    
+    //disable clients combo box
+    ui_mainview.comboClients->setDisabled(true);
 
     delete myDb;
   }

@@ -43,7 +43,7 @@ $(document).ready(function() {
 </head>
 <body>
 <div id="wrapper">
-<!--<div id="minHeight"></div>-->
+<div id="minHeight"></div>
 <div id="outer">
 <div id="inner">
 <div id="left">
@@ -52,6 +52,7 @@ $(document).ready(function() {
 <base href="[(site_url)]" />
 [[Breadcrumbs]]
 <div class="post">
+<!-- <h2>[*longtitle*]</h2> -->
 [*#content*] </div>
 <!-- close .post (main column content) -->
 </div> <!-- close #content -->
@@ -72,5 +73,29 @@ $(document).ready(function() {
 
 
 </div> <!-- end wrapper -->
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try{
+  var pageTracker = _gat._getTracker("UA-7037042-1");
+  pageTracker._trackPageview();
+} catch(err) {}
+</script>
+
+<!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://sourceforge.net/apps/piwik/lemonpos/" : "http://sourceforge.net/apps/piwik/lemonpos/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+  var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+  piwikTracker.trackPageView();
+  piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://sourceforge.net/apps/piwik/lemonpos/piwik.php?idsite=1" style="border:0" alt=""/></p></noscript>
+<!-- End Piwik Tag -->
 </body>
 </html>

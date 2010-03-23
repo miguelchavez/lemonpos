@@ -208,6 +208,7 @@ class Azahar : public QObject
     QStringList             getStatusListExceptDelivered();
     int                     getStatusId(QString texto);
     double                  getSpecialOrderAverageTax(qulonglong id);
+    double                  getSpecialOrderAverageDiscount(qulonglong id);
 
     //Random Msgs
     QString   getRandomMessage(QList<qulonglong> &excluded, const int &season);

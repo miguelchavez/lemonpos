@@ -542,7 +542,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       yPos = yPos + fm.lineSpacing();
       ///Check for delivery date and if its a SO
       if (!isGroup && tLine.payment>0 ) {
-        sp = ptInfo.deliveryDateStr + deliveryDT.toString(); //TODO:hey i18n stuff!!!
+        sp = ptInfo.deliveryDateStr + deliveryDT.toString("ddd d MMMM, h:m ap"); //TODO:hey i18n stuff!!!
         tmpFont = QFont("Bitstream Vera Sans", 17 );
         tmpFont.setWeight(QFont::Bold);
         painter.setFont(tmpFont);
@@ -1587,20 +1587,51 @@ bool PrintCUPS::printSmallSOTicket(const PrintTicketInfo &ptInfo, QPrinter &prin
     yPos = yPos + fm.lineSpacing();
       //check if there is a Special Order, to print contents
       if ( !tLine.geForPrint.isEmpty() ) {
-        QStringList strList = tLine.geForPrint.split("|");
-        //strList.append("\n"); //extra line for separate betwee special orders
-        strList.removeFirst();
-        foreach(QString strTmp, strList) {
-          if ( Margin + yPos > printer.height() - Margin ) {
-            printer.newPage();             // no more room on this page
-            yPos = 0;                       // back to top of page
+        //QStringList strList = tLine.geForPrint.split("|");
+        //strList.removeFirst();
+        QStringList tmpList = tLine.geForPrint.split("|");
+        QStringList strList;
+        tmpList.removeFirst();
+        //check text lenght
+        double maxL = ((printer.width())-100);
+        foreach(QString strTmp, tmpList) {
+          fm = painter.fontMetrics();
+          QString strCopy = strTmp;
+          double realTrozos = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, strTmp).width() / maxL;
+          int trozos   = realTrozos;
+          double diff = (realTrozos - trozos);
+          if (diff > 0.25 && trozos > 0) trozos += 1;
+          int tamTrozo = 0;
+          if (trozos > 0) {
+            tamTrozo = (strTmp.length()/trozos);
+          } else {
+            tamTrozo = strTmp.length();
           }
-          painter.drawText(Margin, Margin+yPos, strTmp);
+          
+          QStringList otherList;
+          for (int x = 1; x <= trozos; x++) {
+            //we repeat for each trozo
+            if (x*(tamTrozo-1) < strCopy.length())
+              strCopy.insert(x*(tamTrozo-1), "|  "); //create a section
+              otherList = strCopy.split("|");
+          }
+          if (!otherList.isEmpty()) strList << otherList;
+          if (trozos < 1) strList << strTmp;
+          qDebug()<<"Trozos:"<<trozos<<" tamTrozo:"<<tamTrozo<<" realTrozos:"<<QString::number(realTrozos,'f', 2)<<" maxL:"<<maxL<<" strTmp.width in pixels:"<<fm.size(Qt::TextExpandTabs | Qt::TextDontClip, strTmp).width()<<" diff:"<<diff;
+        }
+
+
+        foreach(QString str/*Tmp*/, strList) {
+          //if ( Margin + yPos > printer.height() - Margin ) {
+          //  printer.newPage();             // no more room on this page
+          //  yPos = 0;                       // back to top of page
+          //}
+          painter.drawText(Margin, Margin+yPos, str/*Tmp*/);
           yPos = yPos + fm.lineSpacing();
         }
         ///Check for delivery date and if its a SO
         if (!isGroup && tLine.payment>0 ) {
-          sp = ptInfo.deliveryDateStr + deliveryDT.toString(); //TODO:hey i18n stuff!!!
+          sp = ptInfo.deliveryDateStr + deliveryDT.toString("ddd d MMMM, h:m ap"); //TODO:hey i18n stuff!!!
           tmpFont = QFont("Bitstream Vera Sans", 16 );
           tmpFont.setWeight(QFont::Bold);
           painter.setFont(tmpFont);
