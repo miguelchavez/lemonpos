@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   `userid` int(10) NOT NULL default '0',
   `cardnumber` varchar(20) character set utf8 collate utf8_general_ci,
   `itemcount` int(10) unsigned NOT NULL default '0',
-  `itemslist` varchar(250) character set utf8 collate utf8_general_ci NOT NULL,
+  `itemslist` varchar(1000) character set utf8 collate utf8_general_ci NOT NULL,
   `points` bigint(20) unsigned NOT NULL default '0',
   `discmoney` double NOT NULL default '0',
   `disc` double NOT NULL default '0',
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   `utility` double NOT NULL default '0',
   `terminalnum` int(10) unsigned NOT NULL default '1',
   `providerid` int(10) unsigned NOT NULL default 1 , #for Purchase orders
-  `specialOrders` varchar(255) collate utf8_general_ci default '',
+  `specialOrders` varchar(1000) collate utf8_general_ci default '',
   `balanceId` bigint(20) unsigned NOT NULL default '1',
   `totalTax` double NOT NULL default '0',
   PRIMARY KEY (`id`),
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   # for grouped and on-demand-made products (special orders)
   `isARawProduct` bool NOT NULL default false,
   `isAGroup` bool NOT NULL default false, #this is not necesary, with groupElements we can know if its a group
-  `groupElements` varchar(255) collate utf8_general_ci default '',
+  `groupElements` varchar(1000) collate utf8_general_ci default '',
   PRIMARY KEY  (`code`),
   KEY `SEC` (`category`, `name`, `alphacode`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `special_orders` (
   `orderid` bigint(20) unsigned NOT NULL auto_increment,
   `name` varchar(255) NOT NULL collate utf8_general_ci default 'unknown',
   # group elements are each products code/qty ['1/3,9/1']
-  `groupElements` varchar(255) collate utf8_general_ci default '',
+  `groupElements` varchar(1000) collate utf8_general_ci default '',
   `qty` double unsigned NOT NULL default 1,
   `price` double unsigned NOT NULL default '0.0',
   `cost` double unsigned NOT NULL default '0',
@@ -110,9 +110,9 @@ CREATE TABLE IF NOT EXISTS `balances` (
   `out` double NOT NULL,
   `cash` double NOT NULL,
   `card` double NOT NULL,
-  `transactions` varchar(250) collate utf8_general_ci NOT NULL default "",
+  `transactions` varchar(1000) collate utf8_general_ci NOT NULL,
   `terminalnum` bigint(20) unsigned NOT NULL,
-  `cashflows` varchar(250) collate utf8_general_ci default "",
+  `cashflows` varchar(1000) collate utf8_general_ci default '',
   `done` bool NOT NULL default false,
   PRIMARY KEY  (`id`),
   KEY `SEC` (`datetime_start`,`datetime_end`, `userid` )
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `username` varchar(50) collate utf8_general_ci NOT NULL default '',
   `password` varchar(50) collate utf8_general_ci default NULL,
   `salt` varchar(5) collate utf8_general_ci default NULL,
-  `name` varchar(100) collate utf8_general_ci default NULL,
+  `name` varchar(255) collate utf8_general_ci default '',
   `address` varchar(255) collate utf8_general_ci default NULL,
   `phone` varchar(50) character set utf8 collate utf8_general_ci default NULL,
   `phone_movil` varchar(50) collate utf8_general_ci default NULL,
@@ -141,7 +141,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 CREATE TABLE IF NOT EXISTS `clients` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
-  `name` varchar(100) collate utf8_general_ci default NULL,
+  `name` varchar(255) collate utf8_general_ci default '',
   `since` date NOT NULL default '2009-01-01',
   `address` varchar(255) collate utf8_general_ci default NULL,
   `phone` varchar(50) character set utf8 collate utf8_general_ci default NULL,
@@ -209,7 +209,7 @@ CREATE TABLE IF NOT EXISTS `cashflow` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
   `type` smallint(5) unsigned NOT NULL default '1',
   `userid` bigint(20) NOT NULL default '1',
-  `reason` varchar(100) default NULL,                                     
+  `reason` varchar(255) default '',
   `amount` double unsigned NOT NULL default '0',
   `date` date NOT NULL default '2009-01-01',
   `time` time NOT NULL default '00:00',
@@ -228,7 +228,7 @@ CREATE TABLE IF NOT EXISTS `cashflowtypes` (
 
 CREATE TABLE IF NOT EXISTS `providers` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `name` VARCHAR( 20 ) NULL,
+  `name` VARCHAR( 255 ) collate utf8_general_ci default '',
   `address` varchar(255) collate utf8_general_ci default NULL,
   `phone` varchar(50) character set utf8 collate utf8_general_ci default NULL,
   `cellphone` varchar(50) collate utf8_general_ci default NULL,
@@ -250,7 +250,7 @@ CREATE TABLE IF NOT EXISTS `stock_corrections` (
   `product_id` bigint(20) unsigned NOT NULL,
   `new_stock_qty` bigint(20) unsigned NOT NULL,
   `old_stock_qty` bigint(20) unsigned NOT NULL,
-  `reason` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
+  `reason` varchar(255) collate utf8_general_ci NOT NULL,
   `date` varchar(20) NOT NULL default '2009-01-01',
   `time` varchar(20) NOT NULL default '00:00',
   PRIMARY KEY  (`id`)

@@ -2,12 +2,14 @@ CHANGELOG FOR LEMONPOS VERSION 0.9.3
 -----------------------------------------------------
 - BUGFIX       : Taxes for SpecialOrders/CustomProducts are now calculated and printed on tickets.
 - BUGFIX       : SpecialOrders (extra ticket) notes printing fixed.
-- BUGFIX       : When selling Custom Products (SO) and adding more than one, the client is the same
+- BUGFIX       : When selling Custom Products and adding more than one, the client is the same
                  for all custom products, its not allowed to change the client when adding another custom product.
 - BUGFIX       : Adding fix_roles.sql script to fix the roles on database. Run this on 0.9.2 or older databases.
 - IMPROVEMENT  : SpecialOrders delivery date now is printed in the format: 'Mon 21 May, 4:30 PM'.
 - IMPROVEMENT  : SpecalOrders are now allowed to be marked as delivered on the same day.
 - IMPROVEMENT  : Now specialOrders notes are up to 800 characters long.
+- IMPROVEMENT  : Some important fields (group elements, items in transactions...) are expanded to 1000 chars, and other to 255 from lower values.
+
 
 
 
