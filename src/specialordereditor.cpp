@@ -81,6 +81,8 @@ SpecialOrderEditor::SpecialOrderEditor( QWidget *parent, bool newOne )
 
     connect( ui->deliveryDT, SIGNAL(valueChanged(QDateTime)), this, SLOT(checkDate(QDateTime)) );
 
+    connect( ui->editNotes, SIGNAL(textChanged()), SLOT(updateNoteLength()) );
+
     //for now, when creating a s.o. the status cannot be modified. It can be when edited.
     if (newOne) {
       dateTime         = QDateTime::currentDateTime();
@@ -636,6 +638,18 @@ void SpecialOrderEditor::setClientName(QString name)
   if (index > -1)
     ui->clientsCombo->setCurrentIndex(index);
   else qDebug()<<"CLIENT:"<<name<< "not found.";
+}
+
+
+//NOTE:this seems to be SLOW!
+void SpecialOrderEditor::updateNoteLength()
+{
+  int i = ui->editNotes->toPlainText().length();
+  ui->lblNoteL->setText(i18n("%1 chars of %2 allowed.", i, 800));
+  if (i > 800) {
+    ui->editNotes->setText(ui->editNotes->toPlainText().left(800));
+    ui->editNotes->moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);
+  }
 }
 
 #include "specialordereditor.moc"

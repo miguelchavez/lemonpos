@@ -94,6 +94,7 @@ class SpecialOrderEditor : public KDialog
     void    hideError();
     void    createClient();
     void    enableCreateClient();
+    void    updateNoteLength();
   protected slots:
     virtual void slotButtonClicked(int button);
   private:
