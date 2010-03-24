@@ -8,6 +8,9 @@ virus attacks, and lowers the costs in licenses.
 Lemon provides a modern themeable and easy to use Interface, a search panel, a price-checker tool,
 an administration tool for managing your store, printed reports, and more...
 
+It has beeen tested with a parallel matrix printer (Star Micronics SP500), an USB thermal printer
+(Star Micronics SP143), and an USB barcode reader (Dataogic DLC6065-M0).
+
 More information on 
 
 Project Home Page:
