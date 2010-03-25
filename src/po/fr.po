@@ -1,0 +1,2360 @@
+# translation of fr.po to français
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Miguel Chavez Gamboa <miguel.chavez.gamboa@gmail.com>, 2007.
+# Girard Henri <girardhenri@free.fr>, 2007.
+# This is not updated since 0.5 version.
+msgid ""
+msgstr ""
+"Project-Id-Version: fr\n"
+"Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?"
+"atid=1011570&group_id=209899&func=browse\n"
+"POT-Creation-Date: 2010-03-24 23:44-0600\n"
+"PO-Revision-Date: 2007-12-25 11:08+0100\n"
+"Last-Translator: girard henri <girardhenri@free.fr>\n"
+"Language-Team: français <fr@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#: ../../dataAccess/azahar.cpp:111 ../../dataAccess/azahar.cpp:135
+#: ../../dataAccess/azahar.cpp:173 ../../dataAccess/azahar.cpp:757
+#: ../../dataAccess/azahar.cpp:978 ../../dataAccess/azahar.cpp:1569
+#: ../../dataAccess/azahar.cpp:1605 ../../dataAccess/azahar.cpp:1637
+#: ../../dataAccess/azahar.cpp:1674 ../../dataAccess/azahar.cpp:1711
+#: ../../dataAccess/azahar.cpp:1741 ../../dataAccess/azahar.cpp:1774
+#: ../../dataAccess/azahar.cpp:1832 ../../dataAccess/azahar.cpp:1870
+#: ../../dataAccess/azahar.cpp:1888 ../../dataAccess/azahar.cpp:1910
+#: ../../dataAccess/azahar.cpp:1930 ../../dataAccess/azahar.cpp:1970
+#: ../../dataAccess/azahar.cpp:2176 ../../dataAccess/azahar.cpp:2266
+#: ../../dataAccess/azahar.cpp:2342 ../../dataAccess/azahar.cpp:2369
+#: ../../dataAccess/azahar.cpp:2854 ../../dataAccess/azahar.cpp:2882
+#: ../../dataAccess/azahar.cpp:2908 ../../dataAccess/azahar.cpp:3084
+msgid ""
+"Error #%1, Type:%2\n"
+"'%3'"
+msgstr ""
+
+#: ../../dataAccess/azahar.cpp:114 ../../dataAccess/azahar.cpp:760
+msgid "Error serching product id %1, Rows affected: %2"
+msgstr ""
+
+#: ../../dataAccess/azahar.cpp:138
+msgid "Error serching offer id %1, Rows affected: %2"
+msgstr ""
+
+#: ../../dataAccess/azahar.cpp:174
+msgid "Error getting product information for code %1, Rows affected: %2"
+msgstr ""
+
+#: ../../dataAccess/azahar.cpp:981
+msgid "Error deleting offer id %1, Rows affected: %2"
+msgstr ""
+
+#: ../../dataAccess/azahar.cpp:2021
+msgid "Money return on cancelling ticket #%1 "
+msgstr ""
+
+#: ../../dataAccess/azahar.cpp:2028
+msgid "Ticket #%1 was already canceled."
+msgstr ""
+
+#: ../../dataAccess/azahar.cpp:2855 ../../dataAccess/azahar.cpp:2883
+#: ../../dataAccess/azahar.cpp:2909 ../../dataAccess/azahar.cpp:3085
+msgid "Error getting special Order information, id: %1, Rows affected: %2"
+msgstr ""
+
+#: inputdialog.cpp:68
+#, fuzzy
+msgid "Product Code:"
+msgstr "Produit"
+
+#: inputdialog.cpp:70
+msgid "Month or Season:"
+msgstr ""
+
+#: inputdialog.cpp:71
+msgid "New Stock Qty:"
+msgstr ""
+
+#: inputdialog.cpp:72
+#, fuzzy
+msgid "Amount:"
+msgstr "Montant"
+
+#: inputdialog.cpp:74
+#, fuzzy
+msgid "New Message:"
+msgstr "&Message du ticket :"
+
+#: inputdialog.cpp:75
+msgid "Reason:"
+msgstr ""
+
+#: inputdialog.cpp:77
+#, fuzzy
+msgid "Ticket #:"
+msgstr "Ticket  # %1"
+
+#: inputdialog.cpp:90
+msgid "valid amount between %1 and %2"
+msgstr ""
+
+#: inputdialog.cpp:97
+#, fuzzy
+msgid "Enter the product code here..."
+msgstr "Saisir le numéro du ticket à annuler"
+
+#: inputdialog.cpp:98
+msgid "Enter the new stock quantity here..."
+msgstr ""
+
+#: inputdialog.cpp:105
+#, fuzzy
+msgid "Terminal Number:"
+msgstr "Numéro de &terminal:"
+
+#: inputdialog.cpp:106
+#, fuzzy
+msgid "Enter the terminal number here..."
+msgstr "Saisir le numéro du ticket à annuler"
+
+#: inputdialog.cpp:113
+#, fuzzy
+msgid "Enter the number of the month or season here..."
+msgstr "Saisir le numéro du ticket à annuler"
+
+#. i18n: file: ui/special_order.ui:675
+#. i18n: ectx: property (text), widget (QPushButton, btnClientAdd)
+#: inputdialog.cpp:150 po/extractedrc.cpp:608 extractedrc.cpp:608
+msgid "Ok"
+msgstr "OK"
+
+#. i18n: file: ui/special_order.ui:668
+#. i18n: ectx: property (text), widget (QPushButton, btnClientCancel)
+#: inputdialog.cpp:153 po/extractedrc.cpp:605 extractedrc.cpp:605
+msgid "Cancel"
+msgstr "Annuler"
+
+#: lemon.cpp:156
+msgid "Login"
+msgstr "Login"
+
+#: lemon.cpp:162
+msgctxt "Account balance"
+msgid "Balance"
+msgstr "Solde"
+
+#: lemon.cpp:168
+msgid "Enter Code"
+msgstr "Entrer le code"
+
+#: lemon.cpp:174
+msgid "Search Item"
+msgstr "Chercher l'article"
+
+#: lemon.cpp:180
+msgid "Delete Selected Item"
+msgstr "Effacer l'article sélectionné"
+
+#: lemon.cpp:190
+msgid "Finish transaction"
+msgstr "Terminer la transaction"
+
+#: lemon.cpp:196
+msgid "Cancel transaction"
+msgstr "Annuler la transaction"
+
+#: lemon.cpp:202
+msgid "Cancel a ticket"
+msgstr "Annuler un ticket"
+
+#: lemon.cpp:209
+msgid "Start Operation"
+msgstr "Commencer les opérations"
+
+#: lemon.cpp:215
+msgid "Pay focus"
+msgstr "Payer"
+
+#: lemon.cpp:222
+msgid "Show/Hide Products Grid"
+msgstr "Montrer/Cacher la grille de produits "
+
+#: lemon.cpp:229
+msgid "Show Price Checker"
+msgstr ""
+
+#: lemon.cpp:235
+msgid "Reprint ticket"
+msgstr ""
+
+#: lemon.cpp:241 lemonview.cpp:3356
+#, fuzzy
+msgid "Cash Out"
+msgstr "Caisse"
+
+#: lemon.cpp:247
+#, fuzzy
+msgid "Cash in drawer"
+msgstr "dans la caisse"
+
+#: lemon.cpp:253 lemonview.cpp:3398
+#, fuzzy
+msgid "Cash In"
+msgstr "Caisse"
+
+#: lemon.cpp:259 lemonview.cpp:2783
+msgid "End of day report"
+msgstr ""
+
+#: lemon.cpp:266
+msgid "Add Special Order"
+msgstr ""
+
+#: lemon.cpp:274
+msgid "Complete Special Order"
+msgstr ""
+
+#: lemon.cpp:281
+msgid "Lock Screen"
+msgstr ""
+
+#: lemon.cpp:288
+msgid "Suspend Sale"
+msgstr ""
+
+#: lemon.cpp:295 lemon.cpp:302
+msgid "Change Special Order Status"
+msgstr ""
+
+#. i18n: file: ui/resume.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, resumeDialog)
+#: lemon.cpp:309 po/extractedrc.cpp:462 resume.cpp:46 extractedrc.cpp:462
+msgid "Resume Sale"
+msgstr ""
+
+#. i18n: file: ui/prefs_db.ui:19
+#. i18n: ectx: property (title), widget (QGroupBox, groupBox)
+#: lemon.cpp:396 lemon.cpp:423 po/extractedrc.cpp:414 extractedrc.cpp:414
+msgid "Database"
+msgstr "Base de données"
+
+#: lemon.cpp:414
+msgid "General"
+msgstr "Général"
+
+#: lemon.cpp:419
+msgid "Store"
+msgstr "Magasin"
+
+#: lemon.cpp:427
+msgid "Appearence"
+msgstr "Apparence"
+
+#. i18n: file: ui/pref_security.ui:13
+#. i18n: ectx: property (windowTitle), widget (QWidget, pref_security)
+#: lemon.cpp:434 po/extractedrc.cpp:435 extractedrc.cpp:435
+msgid "Security"
+msgstr "Securité"
+
+#: lemon.cpp:438
+msgid "Printer"
+msgstr "Imprimante"
+
+#: lemon.cpp:503
+#, fuzzy
+msgid ""
+"Administrator or Supervisor needs to start operation before you can start "
+"selling..."
+msgstr ""
+"L'administrateur doit commencer les opérations avant de pouvoir vendre..."
+
+#: lemon.cpp:720
+msgid "Transaction #%1"
+msgstr "Transaction #%1"
+
+#: lemonview.cpp:98
+msgid "Continue"
+msgstr "Continuer"
+
+#: lemonview.cpp:151
+msgid "Welcome to Lemon"
+msgstr "Bienvenue dans Lémon"
+
+#: lemonview.cpp:152
+msgid "Enter username and password to start using the system."
+msgstr ""
+"Entrer un nom d'utilisateur et un mot de passe pour utiliser le logiciel."
+
+#: lemonview.cpp:155
+msgid "Authorisation Required"
+msgstr "Autorisation nécessaire"
+
+#: lemonview.cpp:156
+msgid "Enter administrator password please."
+msgstr "Entrer le mot de passe admin SVP"
+
+#: lemonview.cpp:233 lemonview.cpp:234
+msgid "Enter code or qty*code. <Enter> or <+> Keys to go pay"
+msgstr ""
+
+#: lemonview.cpp:475
+msgid "No product selected"
+msgstr "Aucun produit sélectionné "
+
+#: lemonview.cpp:503
+msgid "Enter the ticket number to cancel"
+msgstr "Saisir le numéro du ticket à annuler"
+
+#: lemonview.cpp:535
+#, fuzzy
+msgid "Enter the ticket number"
+msgstr "Saisir le numéro du ticket à annuler"
+
+#: lemonview.cpp:636
+msgid ""
+"Could not connect to database, please press 'login' button again to raise a "
+"database configuration."
+msgstr ""
+
+#: lemonview.cpp:637
+#, fuzzy
+msgid "Error:"
+msgstr "Erreur"
+
+#: lemonview.cpp:726
+msgid "%1 item found"
+msgid_plural "%1 items found."
+msgstr[0] "%1 artícle trouvé."
+msgstr[1] "%1 artículos encontrados."
+
+#: lemonview.cpp:727
+msgid "No items found."
+msgstr "Aucun article trouvé"
+
+#: lemonview.cpp:864 lemonview.cpp:1001
+msgid "%1 has %2 %3 but requested %4 + %5"
+msgstr ""
+
+#: lemonview.cpp:879 lemonview.cpp:1009
+#, fuzzy
+msgid ""
+"<html><font color=red><b>The group/pack is not available because:<br>%1</b></"
+"font></html>"
+msgstr ""
+"<html><font color=red weight=bold>Produit non disponible en inventaire.</"
+"font></html>"
+
+#: lemonview.cpp:881 lemonview.cpp:1017
+#, fuzzy
+msgid ""
+"<html><font color=red><b>There are only %1 articles of your choice at stock."
+"<br> You requested %2</b></font></html>"
+msgstr ""
+"<html><font color=red weight=bold>Produit non disponible en inventaire.</"
+"font></html>"
+
+#: lemonview.cpp:924
+msgid ""
+"Only Special Orders can be added. Please finish the current special order "
+"before adding any other product."
+msgstr ""
+
+#: lemonview.cpp:974
+#, fuzzy
+msgid ""
+"<html><font color=red><b>Product not found in database.</b></font></html>"
+msgstr ""
+"<html><font color=red weight=bold>Produit non présent dans la base de "
+"données.</font></html>"
+
+#: lemonview.cpp:1162
+msgid "Removing an Special Item from shopping list. Authorized by %1"
+msgstr ""
+
+#: lemonview.cpp:1223
+msgid "Removing an article from shopping list. Authorized by %1"
+msgstr ""
+
+#: lemonview.cpp:1274
+msgid "Enter the number of %1"
+msgstr "Numéro : %1"
+
+#: lemonview.cpp:1308
+#, fuzzy
+msgid ""
+"<html><font color=red><b>Product not available in stock for the requested "
+"quantity.</b></font></html>"
+msgstr ""
+"<html><font color=red weight=bold>Produit non disponible en inventaire.</"
+"font></html>"
+
+#. i18n: file: ui/mainview.ui:1106
+#. i18n: ectx: property (text), widget (QLabel, lblSaleTaxesPre)
+#: lemonview.cpp:1349 po/extractedrc.cpp:237 extractedrc.cpp:237
+msgid "Taxes:"
+msgstr "Taxes :"
+
+#: lemonview.cpp:1350
+msgid "Tax:"
+msgstr "TVA :"
+
+#: lemonview.cpp:1351
+msgid "Other taxes:"
+msgstr "Autres taxes :"
+
+#: lemonview.cpp:1352
+msgid "Sold by:"
+msgstr "Vendu par :"
+
+#. i18n: file: ui/special_order.ui:559
+#. i18n: ectx: property (text), widget (QLabel, lblPriceLabel)
+#: lemonview.cpp:1353 po/extractedrc.cpp:596 extractedrc.cpp:596
+msgid "Price:"
+msgstr "Prix :"
+
+#: lemonview.cpp:1354 lemonview.cpp:2949 pricechecker.cpp:53
+msgid "Discount:"
+msgstr "Remise :"
+
+#: lemonview.cpp:1355
+msgid "Points:"
+msgstr "Avoir :"
+
+#: lemonview.cpp:1441
+msgid ""
+"Lemon has encountered an error when openning database, click details to see "
+"the error details."
+msgstr ""
+"Lemon a rencontré une erreur en ouvrant la base de données. Cliquer sur "
+"détails pour voir l'erreur."
+
+#: lemonview.cpp:1441
+msgid "Create New Transaction: Error"
+msgstr "Créer une nouvelle transaction : Erreur"
+
+#: lemonview.cpp:1470
+#, fuzzy
+msgid ""
+"<html><font color=red><b>Please fill the correct pay amount before finishing "
+"a transaction.</b></font></html>"
+msgstr ""
+"<html><font color=red weight=bold>Saisir le montant exact avant de terminer "
+"la transaction SVP.</font></html>"
+
+#: lemonview.cpp:1479
+msgid ""
+"Please be sure to enter an appropiate amount in this field. The number seems "
+"to be a barcode entered by mistake in the amount field."
+msgstr ""
+
+#: lemonview.cpp:1495
+#, fuzzy
+msgid ""
+"<html><font color=red><b>Please enter the card number.</b></font></html>"
+msgstr ""
+"<html><font color=red weight=bold>Entrer le numéro de carte SVP.</font></"
+"html>"
+
+#: lemonview.cpp:1503
+#, fuzzy
+msgid ""
+"<html><font color=red><b>Please enter the Authorisation number from the bank "
+"voucher.</b></font></html>"
+msgstr ""
+"<html><font color=red weight=bold>Entrer le numéro confidentiel de la banque "
+"SVP.</font></html>"
+
+#: lemonview.cpp:1511
+msgid "Before selling, you must start operations."
+msgstr "Avant de vendre vous devez initialiser les opérations."
+
+#: lemonview.cpp:1798
+msgid "The Drawer is not initialized, please start operation first."
+msgstr ""
+"Le tiroir caisse n'est pas initialisé, effectuer cette opération d'abord SVP."
+
+#: lemonview.cpp:1853
+msgid "Cash level in drawer is low."
+msgstr ""
+
+#: lemonview.cpp:1872
+msgid ""
+"The ticket was not printed because it is ZERO in the amount to pay. Just to "
+"save trees."
+msgstr ""
+
+#: lemonview.cpp:1881
+msgid "Salesperson: %1"
+msgstr "Vendeur : %1"
+
+#. i18n: file: ui/mainview.ui:779
+#. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
+#. i18n: file: ui/resume.ui:72
+#. i18n: ectx: property (text), widget (QTableWidget, contentTable)
+#. i18n: file: ui/special_order.ui:337
+#. i18n: ectx: property (text), widget (QTableWidget, groupView)
+#. i18n: file: ui/mainview.ui:779
+#. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
+#. i18n: file: ui/resume.ui:72
+#. i18n: ectx: property (text), widget (QTableWidget, contentTable)
+#. i18n: file: ui/special_order.ui:337
+#. i18n: ectx: property (text), widget (QTableWidget, groupView)
+#: lemonview.cpp:1882 lemonview.cpp:2079 lemonview.cpp:2137 lemonview.cpp:2173
+#: po/extractedrc.cpp:216 po/extractedrc.cpp:475 po/extractedrc.cpp:560
+#: extractedrc.cpp:216 extractedrc.cpp:475 extractedrc.cpp:560
+msgid "Qty"
+msgstr "Qantité."
+
+#. i18n: file: ui/mainview.ui:79
+#. i18n: ectx: property (title), widget (QGroupBox, groupDetails)
+#: lemonview.cpp:1883 po/extractedrc.cpp:141 extractedrc.cpp:141
+msgid "Product"
+msgstr "Produit"
+
+#. i18n: file: ui/mainview.ui:774
+#. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
+#. i18n: file: ui/mainview.ui:1216
+#. i18n: ectx: property (text), widget (QTableWidget, tableSearch)
+#. i18n: file: ui/mainview.ui:1460
+#. i18n: ectx: property (text), widget (QTableWidget, tableReturnProducts)
+#. i18n: file: ui/mainview.ui:774
+#. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
+#. i18n: file: ui/mainview.ui:1216
+#. i18n: ectx: property (text), widget (QTableWidget, tableSearch)
+#. i18n: file: ui/mainview.ui:1460
+#. i18n: ectx: property (text), widget (QTableWidget, tableReturnProducts)
+#: lemonview.cpp:1884 po/extractedrc.cpp:213 po/extractedrc.cpp:258
+#: po/extractedrc.cpp:309 extractedrc.cpp:213 extractedrc.cpp:258
+#: extractedrc.cpp:309
+msgid "Price"
+msgstr "Prix"
+
+#: lemonview.cpp:1885
+msgid "Offer"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:794
+#. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
+#: lemonview.cpp:1886 lemonview.cpp:3178 po/extractedrc.cpp:225
+#: extractedrc.cpp:225
+msgid "Total"
+msgstr "Total"
+
+#: lemonview.cpp:1887
+#, fuzzy
+msgid "Your Personal Discount"
+msgstr "Votre escompte : %1"
+
+#: lemonview.cpp:1888
+msgid "Your points this buy: %1"
+msgstr "Vos points pour cet achat : %1"
+
+#: lemonview.cpp:1889
+msgid "Your total points: %1"
+msgstr "Avoir total : %1:"
+
+#: lemonview.cpp:1890
+msgid "# %1"
+msgstr ""
+
+#: lemonview.cpp:1891
+msgid "Terminal #%1"
+msgstr "Terminal #%1"
+
+#: lemonview.cpp:1892
+msgid "  PRE PAYMENT OF  "
+msgstr ""
+
+#: lemonview.cpp:1893
+msgid "  COMPLETED PAYMENT WITH "
+msgstr ""
+
+#: lemonview.cpp:1894
+msgid "  To complete your payment"
+msgstr ""
+
+#: lemonview.cpp:1895
+msgid "  Your pre-payment"
+msgstr ""
+
+#: lemonview.cpp:1896
+msgid "SPECIAL ORDERS"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:224
+#. i18n: ectx: property (text), widget (QLabel, lblNotes)
+#: lemonview.cpp:1897 lemonview.cpp:3284 lemonview.cpp:3614
+#: po/extractedrc.cpp:547 extractedrc.cpp:547
+#, fuzzy
+msgid "Notes:"
+msgstr "Avoir :"
+
+#: lemonview.cpp:1898
+msgid "  Delivery: "
+msgstr ""
+
+#: lemonview.cpp:1899
+#, fuzzy
+msgid "Tax"
+msgstr "TVA :"
+
+#: lemonview.cpp:2008 lemonview.cpp:2085 lemonview.cpp:2143
+msgid "%1 article."
+msgid_plural "%1 articles."
+msgstr[0] "%1 artícle"
+msgstr[1] "%1 artículos"
+
+#: lemonview.cpp:2009
+msgid "A total of"
+msgstr "Total"
+
+#: lemonview.cpp:2012
+msgid "<br>Paid with %1, your change is <b>%2</b><br>"
+msgstr "<br>Paiement en %1, votre monaie est <b>%2</b><br>"
+
+#: lemonview.cpp:2021
+#, fuzzy
+msgid "You saved %1"
+msgstr "Vous avez économisé %1"
+
+#: lemonview.cpp:2028 lemonview.cpp:2086
+msgid "Paid with %1, your change is %2"
+msgstr "<br>Paiement en %1, votre monaie est <b>%2</b><br>"
+
+#: lemonview.cpp:2033
+msgid "<br>Card # %1<br>Authorisation # %2"
+msgstr "<br>Carte# %1<br>Autorisation # %2"
+
+#: lemonview.cpp:2034
+#, fuzzy
+msgid ""
+"Card Number:%1 \n"
+"Authorisation #:%2"
+msgstr "<br>Carte# %1<br>Autorisation # %2"
+
+#: lemonview.cpp:2075 lemonview.cpp:2133
+msgid "Phone: "
+msgstr ""
+
+#: lemonview.cpp:2084 lemonview.cpp:2142
+msgid " %3 [ %4 ]| You got %1 points | Your accumulated is :%2 | "
+msgstr ""
+
+#: lemonview.cpp:2088
+#, fuzzy
+msgid "Card Number  : %1"
+msgstr "&Numéro de carte :"
+
+#: lemonview.cpp:2089
+#, fuzzy
+msgid "Authorization : %1"
+msgstr "Numéro d'autorisation :"
+
+#: lemonview.cpp:2108 lemonview.cpp:2155
+#, fuzzy
+msgid "Print Receipt"
+msgstr "Imprimante"
+
+#: lemonview.cpp:2189
+msgid "Print Special Order Instructions "
+msgstr ""
+
+#: lemonview.cpp:2290
+msgid ""
+"Lemon has encountered an error when querying the database, click details to "
+"see the error details."
+msgstr ""
+"Lemon a rencontré une erreur en interrogeant la base de données. Cliquer sur "
+"détails pour savoir l'erreur."
+
+#: lemonview.cpp:2290
+msgid "Delete Transaction: Error"
+msgstr "Effacer la transaction : Erreur"
+
+#: lemonview.cpp:2328
+msgid ""
+"The ticket cannot be cancelled because it was paid with a credit/debit card."
+msgstr ""
+
+#: lemonview.cpp:2339
+msgid "Cancelling transaction #%1. Authorized by %2"
+msgstr ""
+
+#: lemonview.cpp:2349
+msgid "The ticket was sucessfully cancelled."
+msgstr ""
+
+#: lemonview.cpp:2361
+msgid "Error cancelling ticket: %1"
+msgstr ""
+
+#: lemonview.cpp:2383
+msgid "There is not enough cash available in the drawer."
+msgstr ""
+
+#: lemonview.cpp:2385
+msgid "Ticket to cancel does not exists!"
+msgstr ""
+
+#: lemonview.cpp:2403
+msgid "Enter the amount of money to deposit in the drawer"
+msgstr "Entrer le montant à déposer dans le tiroir caisse :"
+
+#: lemonview.cpp:2426
+msgid "Operation Started by %1 at terminal %2"
+msgstr ""
+
+#: lemonview.cpp:2549
+#, fuzzy
+msgid "Balance Id:%1"
+msgstr "Solde"
+
+#: lemonview.cpp:2555
+#, fuzzy
+msgid "%1 at Terminal # %2"
+msgstr "Terminal #%1"
+
+#: lemonview.cpp:2556
+msgid "Initial Amount deposited:"
+msgstr "Montant initial déposé :"
+
+#: lemonview.cpp:2557
+msgid "Deposit"
+msgstr "Dépôt"
+
+#: lemonview.cpp:2558
+msgid "In"
+msgstr "recette"
+
+#: lemonview.cpp:2559
+msgid "Out"
+msgstr "dépense"
+
+#: lemonview.cpp:2560
+msgid "In Drawer"
+msgstr "dans la caisse"
+
+#: lemonview.cpp:2561
+msgid "Drawer Balance"
+msgstr "Solde de la caisse"
+
+#: lemonview.cpp:2562
+msgid "Transactions Details"
+msgstr "Détails des transactions "
+
+#: lemonview.cpp:2563
+msgid "Transactions"
+msgstr "Transactions "
+
+#: lemonview.cpp:2564 lemonview.cpp:2784
+msgid "Id"
+msgstr "Numéro"
+
+#: lemonview.cpp:2565 lemonview.cpp:2598 lemonview.cpp:2788 resume.cpp:153
+msgid "Time"
+msgstr "Heure"
+
+#: lemonview.cpp:2566 lemonview.cpp:2789
+msgid "Amount"
+msgstr "Montant"
+
+#: lemonview.cpp:2567
+#, fuzzy
+msgid "Paid"
+msgstr "Payé par Pagado con"
+
+#: lemonview.cpp:2568 lemonview.cpp:2791
+#, fuzzy
+msgid "Method"
+msgstr "mode de paiement"
+
+#: lemonview.cpp:2587
+msgid "Start: %1"
+msgstr ""
+
+#: lemonview.cpp:2588
+msgid "End  : %1"
+msgstr ""
+
+#: lemonview.cpp:2595
+msgid "Cash flow Details"
+msgstr ""
+
+#: lemonview.cpp:2596
+msgid "Type"
+msgstr ""
+
+#: lemonview.cpp:2597
+msgid "Reason"
+msgstr ""
+
+#: lemonview.cpp:2734
+#, fuzzy
+msgid "Print Balance"
+msgstr "Solde"
+
+#: lemonview.cpp:2767
+msgid "End of Day report printed by %1 at terminal %2 on %3"
+msgstr ""
+
+#: lemonview.cpp:2786
+#, fuzzy
+msgid "at terminal # %1"
+msgstr "Terminal #%1"
+
+#: lemonview.cpp:2790
+#, fuzzy
+msgid "Profit"
+msgstr "Imprimante"
+
+#: lemonview.cpp:2821
+msgid "Total Sales : %1"
+msgstr ""
+
+#: lemonview.cpp:2822
+#, fuzzy
+msgid "Total Profit: %1"
+msgstr "Avoir total : %1:"
+
+#: lemonview.cpp:2837 lemonview.cpp:2846
+msgid "Print end of day report"
+msgstr ""
+
+#: lemonview.cpp:2947
+msgid "Price: "
+msgstr "Prix :"
+
+#: lemonview.cpp:2948
+msgid "Available: "
+msgstr "Disponible :"
+
+#: lemonview.cpp:2950
+msgid "Category:"
+msgstr "Catégorie :"
+
+#: lemonview.cpp:2951
+msgid "in stock"
+msgstr ""
+
+#: lemonview.cpp:2952
+msgid "in your shopping cart, Total Available"
+msgstr ""
+
+#: lemonview.cpp:3146
+#, fuzzy
+msgid "%1 points"
+msgstr "Avoir :"
+
+#: lemonview.cpp:3147
+#, fuzzy
+msgid "Discount: %1% "
+msgstr "Remise : %1%"
+
+#: lemonview.cpp:3149
+msgid "[%1]"
+msgstr ""
+
+#: lemonview.cpp:3173
+msgid "Tr"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:814
+#. i18n: ectx: property (title), widget (QGroupBox, groupClient)
+#: lemonview.cpp:3174 po/extractedrc.cpp:228 resume.cpp:156
+#: extractedrc.cpp:228
+msgid "Client"
+msgstr "Client"
+
+#: lemonview.cpp:3175 resume.cpp:154 soselector.cpp:170 sostatus.cpp:167
+#, fuzzy
+msgid "Date"
+msgstr "Base de données"
+
+#: lemonview.cpp:3176
+#, fuzzy
+msgid "User"
+msgstr "Nom utilisateur :"
+
+#: lemonview.cpp:3177
+msgid "Items"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:789
+#. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
+#: lemonview.cpp:3179 po/extractedrc.cpp:222 extractedrc.cpp:222
+msgid "Discount"
+msgstr "remise"
+
+#: lemonview.cpp:3230
+msgid "Please select a ticket to print."
+msgstr ""
+
+#: lemonview.cpp:3230
+#, fuzzy
+msgid "Cannot print ticket"
+msgstr "Annuler un ticket"
+
+#: lemonview.cpp:3350
+msgid "Cash not available at drawer!"
+msgstr ""
+
+#: lemonview.cpp:3377
+msgid "Cash-OUT by %1 at terminal %2 on %3"
+msgstr ""
+
+#: lemonview.cpp:3420
+msgid "Cash-IN [%1] by %2 at terminal %3 on %4"
+msgstr ""
+
+#: lemonview.cpp:3430
+msgid "There are <b> %1 in cash </b> available at the drawer."
+msgstr ""
+
+#: lemonview.cpp:3451
+msgid "Please finish the current transaction before creating a special order."
+msgstr ""
+
+#: lemonview.cpp:3550
+msgid ""
+"Please finish the current transaction before completing a special order."
+msgstr ""
+
+#: lemonview.cpp:3567
+msgid "The given ticket number does not contains any special order."
+msgstr ""
+
+#: lemonview.cpp:3574
+msgid "These special orders cannot be completed because:"
+msgstr ""
+
+#: lemonview.cpp:3581
+msgid "<b>is Cancelled</b>"
+msgstr ""
+
+#: lemonview.cpp:3583
+msgid "is already <b>Delivered</b>"
+msgstr ""
+
+#: lemonview.cpp:3584
+msgid "%1 %2."
+msgstr ""
+
+#: lemonview.cpp:3595
+msgid ""
+"The special order %1 in ticket %2 is completely paid. Marked as delivered."
+msgstr ""
+
+#: lemonview.cpp:3669
+msgid ""
+"<b>This terminal is locked.</b> <br><i>Please enter the user's password to "
+"unlock it</i>."
+msgstr ""
+
+#: lemonview.cpp:3837
+msgid "The sale %1 has been sucessfully suspended."
+msgstr ""
+
+#: lemonview.cpp:3892 specialordereditor.cpp:492
+#, fuzzy
+msgid "Notes: %1"
+msgstr "Points: %1"
+
+#: lemonview.cpp:3920
+msgid ""
+"Please finish the current transaction before changing state for a special "
+"order."
+msgstr ""
+
+#: lemonview.cpp:3956
+#, fuzzy
+msgid "Enter the discount percentage to apply"
+msgstr "Saisir le numéro du ticket à annuler"
+
+#: lemonview.cpp:3971
+msgid "Applying occasional discount. Authorized by %1"
+msgstr ""
+
+#: loginwindow.cpp:64
+msgid "&Quit"
+msgstr ""
+
+#: loginwindow.cpp:65
+msgid "&Ok"
+msgstr "&Accepter"
+
+#: loginwindow.cpp:171
+msgid "Username:"
+msgstr "Nom utilisateur :"
+
+#: loginwindow.cpp:172
+msgid "Password:"
+msgstr "Mot de passe :"
+
+#: loginwindow.cpp:306
+msgid "Invalid username or password"
+msgstr "Utilisateur ou mot de passe invalide"
+
+#: main.cpp:35
+msgid "Lemon, A point of sale for linux"
+msgstr "Lemon point de vente pour linux"
+
+#: main.cpp:42
+msgid "lemon"
+msgstr "lemon"
+
+#: main.cpp:42
+#, fuzzy
+msgid "(C) 2007-2010 Miguel Chavez Gamboa"
+msgstr "(C) 2007 Miguel Chávez Gamboa"
+
+#: main.cpp:43
+msgid "Miguel Chavez Gamboa"
+msgstr "Miguel Chávez Gamboa"
+
+#: main.cpp:46
+msgid "Biel Frontera"
+msgstr ""
+
+#: main.cpp:46
+msgid "Code contributor"
+msgstr ""
+
+#. i18n: file: lemon.kcfg:9
+#. i18n: ectx: label, entry (SplitterSizes), group (lemon)
+#: po/extractedrc.cpp:3 extractedrc.cpp:3
+msgid "How the main window is divided."
+msgstr "Division de la fenêtre principale"
+
+#. i18n: file: lemon.kcfg:14
+#. i18n: ectx: label, entry (editStoreName), group (Store Preferences)
+#: po/extractedrc.cpp:6 extractedrc.cpp:6
+msgid "Store Name"
+msgstr "Nom du magasin"
+
+#. i18n: file: lemon.kcfg:18
+#. i18n: ectx: label, entry (storePhone), group (Store Preferences)
+#: po/extractedrc.cpp:9 extractedrc.cpp:9
+#, fuzzy
+msgid "Store Phone Number"
+msgstr "Numéro de succursale"
+
+#. i18n: file: lemon.kcfg:22
+#. i18n: ectx: label, entry (storeAddress), group (Store Preferences)
+#: po/extractedrc.cpp:12 extractedrc.cpp:12
+#, fuzzy
+msgid "Store Address"
+msgstr "Nom du magasin"
+
+#. i18n: file: lemon.kcfg:26
+#. i18n: ectx: label, entry (editTicketMessage), group (Store Preferences)
+#: po/extractedrc.cpp:15 extractedrc.cpp:15
+msgid "Ticket Message"
+msgstr "Message du ticket"
+
+#. i18n: file: lemon.kcfg:30
+#. i18n: ectx: label, entry (storeLogo), group (Store Preferences)
+#: po/extractedrc.cpp:18 extractedrc.cpp:18
+msgid "Store Logo file"
+msgstr ""
+
+#. i18n: file: lemon.kcfg:34
+#. i18n: ectx: label, entry (chLogoOnTop), group (Store Preferences)
+#: po/extractedrc.cpp:21 extractedrc.cpp:21
+#, fuzzy
+msgid "Print Logo on ticket Top"
+msgstr "Saisir le numéro du ticket à annuler"
+
+#. i18n: file: lemon.kcfg:40
+#. i18n: ectx: label, entry (editTerminalNumber), group (General Preferences)
+#: po/extractedrc.cpp:24 extractedrc.cpp:24
+msgid "POS Number"
+msgstr "Numéro de caisse"
+
+#. i18n: file: lemon.kcfg:44
+#. i18n: ectx: label, entry (requiereDelAuth), group (General Preferences)
+#: po/extractedrc.cpp:27 extractedrc.cpp:27
+msgid "Requiere delete authorisation"
+msgstr "Autorisation nécessaire pour effacer des articles de la liste "
+
+#. i18n: file: lemon.kcfg:48
+#. i18n: ectx: label, entry (lowSecurityMode), group (General Preferences)
+#: po/extractedrc.cpp:30 extractedrc.cpp:30
+#, fuzzy
+msgid "Low Security Mode"
+msgstr "Securité"
+
+#. i18n: file: lemon.kcfg:52
+#. i18n: ectx: label, entry (showCurrencyOnTotal), group (General Preferences)
+#: po/extractedrc.cpp:33 extractedrc.cpp:33
+msgid "Show Currency"
+msgstr "Afficher la monnaie "
+
+#. i18n: file: lemon.kcfg:56
+#. i18n: ectx: label, entry (editCurrencyFull), group (General Preferences)
+#: po/extractedrc.cpp:36 extractedrc.cpp:36
+msgid "Full Currency String"
+msgstr "Type de monaie "
+
+#. i18n: file: lemon.kcfg:60
+#. i18n: ectx: label, entry (editCurrencyShort), group (General Preferences)
+#: po/extractedrc.cpp:39 extractedrc.cpp:39
+msgid "Short Currency String"
+msgstr "Abréviation du type de monnaie"
+
+#. i18n: file: lemon.kcfg:64
+#. i18n: ectx: label, entry (showGrid), group (General Preferences)
+#: po/extractedrc.cpp:42 extractedrc.cpp:42
+msgid "Show Products Grid"
+msgstr "Afficher la grille de produits"
+
+#. i18n: file: lemon.kcfg:68
+#. i18n: ectx: label, entry (stockAlertValue), group (General Preferences)
+#: po/extractedrc.cpp:45 extractedrc.cpp:45
+msgid "Low Stock Alert"
+msgstr ""
+
+#. i18n: file: lemon.kcfg:72
+#. i18n: ectx: label, entry (cashMinLevel), group (General Preferences)
+#: po/extractedrc.cpp:48 extractedrc.cpp:48
+msgid "Low Cash Level"
+msgstr ""
+
+#. i18n: file: lemon.kcfg:76
+#. i18n: ectx: label, entry (displayWarningOnLowCash), group (General Preferences)
+#: po/extractedrc.cpp:51 extractedrc.cpp:51
+msgid "Display Low Cash Warning"
+msgstr ""
+
+#. i18n: file: lemon.kcfg:80
+#. i18n: ectx: label, entry (addTax), group (General Preferences)
+#: po/extractedrc.cpp:54 extractedrc.cpp:54
+msgid "Add tax to prices. Tax is not included in price"
+msgstr ""
+
+#. i18n: file: lemon.kcfg:86
+#. i18n: ectx: label, entry (editDBServer), group (Database)
+#: po/extractedrc.cpp:57 extractedrc.cpp:57
+msgid "DB Server Name"
+msgstr "Nom du serveur de BD"
+
+#. i18n: file: lemon.kcfg:90
+#. i18n: ectx: label, entry (editDBUsername), group (Database)
+#: po/extractedrc.cpp:60 extractedrc.cpp:60
+msgid "DB Username"
+msgstr "Utilisateur de la B.D."
+
+#. i18n: file: lemon.kcfg:94
+#. i18n: ectx: label, entry (editDBPassword), group (Database)
+#: po/extractedrc.cpp:63 extractedrc.cpp:63
+msgid "DB Password"
+msgstr "Mot de passe de la B.D."
+
+#. i18n: file: lemon.kcfg:98
+#. i18n: ectx: label, entry (editDBName), group (Database)
+#: po/extractedrc.cpp:66 extractedrc.cpp:66
+msgid "DB Name"
+msgstr "Nom de la B.D."
+
+#. i18n: file: lemon.kcfg:102
+#. i18n: ectx: label, entry (deleteEmptyCancelledTransactions), group (Database)
+#. i18n: file: ui/prefs_db.ui:99
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_deleteEmptyCancelledTransactions)
+#. i18n: file: lemon.kcfg:102
+#. i18n: ectx: label, entry (deleteEmptyCancelledTransactions), group (Database)
+#. i18n: file: ui/prefs_db.ui:99
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_deleteEmptyCancelledTransactions)
+#: po/extractedrc.cpp:69 po/extractedrc.cpp:432 extractedrc.cpp:69
+#: extractedrc.cpp:432
+msgid "Delete empty cancelled transactions"
+msgstr "Effacer les transactions annulées vides "
+
+#. i18n: file: lemon.kcfg:108
+#. i18n: ectx: label, entry (useStyle), group (Styles)
+#: po/extractedrc.cpp:72 extractedrc.cpp:72
+msgid "Use style"
+msgstr "Utiliser un style"
+
+#. i18n: file: lemon.kcfg:112
+#. i18n: ectx: label, entry (styleName), group (Styles)
+#: po/extractedrc.cpp:75 extractedrc.cpp:75
+msgid "Get Stylesheet Name"
+msgstr "Obtenir le nom d'un style"
+
+#. i18n: file: lemon.kcfg:118
+#. i18n: ectx: label, entry (allowAnyUserToQuit), group (security)
+#: po/extractedrc.cpp:78 extractedrc.cpp:78
+msgid "Allow any user to quit application"
+msgstr "Permettre n'importe-quel utilisateur de quitter l'application"
+
+#. i18n: file: lemon.kcfg:124
+#. i18n: ectx: label, entry (showDialogOnPrinting), group (printer)
+#: po/extractedrc.cpp:81 extractedrc.cpp:81
+msgid "Show a dialog when printing the ticket"
+msgstr "Afficher un dialogue à l'impression"
+
+#. i18n: file: lemon.kcfg:128
+#. i18n: ectx: label, entry (ticketTime), group (printer)
+#: po/extractedrc.cpp:84 extractedrc.cpp:84
+msgid "Time showing the ticket dialog"
+msgstr ""
+
+#. i18n: file: lemon.kcfg:132
+#. i18n: ectx: label, entry (openDrawer), group (printer)
+#: po/extractedrc.cpp:87 extractedrc.cpp:87
+msgid "There is a drawer and use it"
+msgstr ""
+
+#. i18n: file: lemon.kcfg:136
+#. i18n: ectx: label, entry (smallTicketDotMatrix), group (printer)
+#: po/extractedrc.cpp:90 extractedrc.cpp:90
+#, fuzzy
+msgid "Print a small receipt using a ticket printer -dot matrix-."
+msgstr "Imprimer le ticket"
+
+#. i18n: file: lemon.kcfg:140
+#. i18n: ectx: label, entry (smallTicketCUPS), group (printer)
+#: po/extractedrc.cpp:93 extractedrc.cpp:93
+#, fuzzy
+msgid "Print a small receipt using a thermal ticket printer -CUPS-"
+msgstr "Imprimer le ticket"
+
+#. i18n: file: lemon.kcfg:144
+#. i18n: ectx: label, entry (bigReceipt), group (printer)
+#: po/extractedrc.cpp:96 extractedrc.cpp:96
+msgid "Print a big receipt using a normal printer"
+msgstr ""
+
+#. i18n: file: lemon.kcfg:148
+#. i18n: ectx: label, entry (printBalances), group (printer)
+#: po/extractedrc.cpp:99 extractedrc.cpp:99
+#, fuzzy
+msgid "Print balances using ticket printer"
+msgstr "Imprimer le ticket"
+
+#. i18n: file: lemon.kcfg:152
+#. i18n: ectx: label, entry (printZeroTicket), group (printer)
+#: po/extractedrc.cpp:102 extractedrc.cpp:102
+msgid "Print tickets with ZERO in the TOTAL"
+msgstr ""
+
+#. i18n: file: lemon.kcfg:156
+#. i18n: ectx: label, entry (printPackContents), group (printer)
+#: po/extractedrc.cpp:105 extractedrc.cpp:105
+#, fuzzy
+msgid "Print Group/Pack Contents on tickets"
+msgstr "Saisir le numéro du ticket à annuler"
+
+#. i18n: file: lemon.kcfg:160
+#. i18n: ectx: label, entry (printSO), group (printer)
+#: po/extractedrc.cpp:108 extractedrc.cpp:108
+msgid "Print SpecialOrders Instructions"
+msgstr ""
+
+#. i18n: file: lemon.kcfg:164
+#. i18n: ectx: label, entry (printRandomMsg), group (printer)
+#: po/extractedrc.cpp:111 extractedrc.cpp:111
+#, fuzzy
+msgid "Print Random Messages on tickets"
+msgstr "Saisir le numéro du ticket à annuler"
+
+#. i18n: file: lemon.kcfg:168
+#. i18n: ectx: label, entry (printTicket), group (printer)
+#: po/extractedrc.cpp:114 extractedrc.cpp:114
+msgid "Print Ticket (dou you have a ticket printer?)"
+msgstr "Imprimer Ie ticket"
+
+#. i18n: file: lemon.kcfg:172
+#. i18n: ectx: label, entry (printChangedDateTicket), group (printer)
+#: po/extractedrc.cpp:117 extractedrc.cpp:117
+msgid "Print Date Changed Ticket"
+msgstr ""
+
+#. i18n: file: lemon.kcfg:176
+#. i18n: ectx: label, entry (printerDevice), group (printer)
+#: po/extractedrc.cpp:120 extractedrc.cpp:120
+msgid "Get printer device to use for printing"
+msgstr ""
+
+#. i18n: file: lemon.kcfg:180
+#. i18n: ectx: label, entry (printerCodec), group (printer)
+#: po/extractedrc.cpp:123 extractedrc.cpp:123
+msgid "Get Printer Codec to use"
+msgstr ""
+
+#. i18n: file: lemonui.rc:4
+#. i18n: ectx: ToolBar (aBasicToolBar)
+#: po/extractedrc.cpp:126 extractedrc.cpp:126
+msgid "Basic Use Toolbar"
+msgstr "Barre à outils de base "
+
+#. i18n: file: lemonui.rc:23
+#. i18n: ectx: ToolBar (adminToolBar)
+#: po/extractedrc.cpp:129 extractedrc.cpp:129
+msgid "Administrator's Toolbar"
+msgstr "Barre d'outils de l'administrateur"
+
+#. i18n: file: ui/checker.ui:31
+#. i18n: ectx: property (windowTitle), widget (QWidget, priceChecker)
+#. i18n: file: ui/mainview.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, mainview)
+#. i18n: file: ui/pref_printers.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, pref_printers)
+#. i18n: file: ui/prefs_db.ui:13
+#. i18n: ectx: property (windowTitle), widget (QWidget, prefs_db)
+#. i18n: file: ui/pref_style.ui:13
+#. i18n: ectx: property (windowTitle), widget (QWidget, pref_style)
+#. i18n: file: ui/printticket.ui:13
+#. i18n: ectx: property (windowTitle), widget (QWidget, printTicket)
+#. i18n: file: ui/store_data.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, store_data)
+#. i18n: file: ui/checker.ui:31
+#. i18n: ectx: property (windowTitle), widget (QWidget, priceChecker)
+#. i18n: file: ui/mainview.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, mainview)
+#. i18n: file: ui/pref_printers.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, pref_printers)
+#. i18n: file: ui/prefs_db.ui:13
+#. i18n: ectx: property (windowTitle), widget (QWidget, prefs_db)
+#. i18n: file: ui/pref_style.ui:13
+#. i18n: ectx: property (windowTitle), widget (QWidget, pref_style)
+#. i18n: file: ui/printticket.ui:13
+#. i18n: ectx: property (windowTitle), widget (QWidget, printTicket)
+#. i18n: file: ui/store_data.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, store_data)
+#: po/extractedrc.cpp:132 po/extractedrc.cpp:135 po/extractedrc.cpp:321
+#: po/extractedrc.cpp:411 po/extractedrc.cpp:444 po/extractedrc.cpp:450
+#: po/extractedrc.cpp:611 extractedrc.cpp:132 extractedrc.cpp:135
+#: extractedrc.cpp:321 extractedrc.cpp:411 extractedrc.cpp:444
+#: extractedrc.cpp:450 extractedrc.cpp:611
+msgid "Form"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:42
+#. i18n: ectx: property (text), widget (QLabel, label)
+#: po/extractedrc.cpp:138 pricechecker.cpp:49 extractedrc.cpp:138
+msgid "&Code:"
+msgstr "&Códe :"
+
+#. i18n: file: ui/mainview.ui:106
+#. i18n: ectx: property (text), widget (QLabel, labelDetailDesc)
+#. i18n: file: ui/mainview.ui:131
+#. i18n: ectx: property (text), widget (QLabel, labelDetailPrice)
+#. i18n: file: ui/mainview.ui:153
+#. i18n: ectx: property (text), widget (QLabel, labelDetailDiscount)
+#. i18n: file: ui/mainview.ui:169
+#. i18n: ectx: property (text), widget (QLabel, labelDetailTotalTaxes)
+#. i18n: file: ui/mainview.ui:191
+#. i18n: ectx: property (text), widget (QLabel, labelDetailTax1)
+#. i18n: file: ui/mainview.ui:213
+#. i18n: ectx: property (text), widget (QLabel, labelDetailTax2)
+#. i18n: file: ui/mainview.ui:235
+#. i18n: ectx: property (text), widget (QLabel, labelDetailUnits)
+#. i18n: file: ui/mainview.ui:245
+#. i18n: ectx: property (text), widget (QLabel, labelDetailPoints)
+#. i18n: file: ui/mainview.ui:106
+#. i18n: ectx: property (text), widget (QLabel, labelDetailDesc)
+#. i18n: file: ui/mainview.ui:131
+#. i18n: ectx: property (text), widget (QLabel, labelDetailPrice)
+#. i18n: file: ui/mainview.ui:153
+#. i18n: ectx: property (text), widget (QLabel, labelDetailDiscount)
+#. i18n: file: ui/mainview.ui:169
+#. i18n: ectx: property (text), widget (QLabel, labelDetailTotalTaxes)
+#. i18n: file: ui/mainview.ui:191
+#. i18n: ectx: property (text), widget (QLabel, labelDetailTax1)
+#. i18n: file: ui/mainview.ui:213
+#. i18n: ectx: property (text), widget (QLabel, labelDetailTax2)
+#. i18n: file: ui/mainview.ui:235
+#. i18n: ectx: property (text), widget (QLabel, labelDetailUnits)
+#. i18n: file: ui/mainview.ui:245
+#. i18n: ectx: property (text), widget (QLabel, labelDetailPoints)
+#: po/extractedrc.cpp:144 po/extractedrc.cpp:147 po/extractedrc.cpp:150
+#: po/extractedrc.cpp:153 po/extractedrc.cpp:156 po/extractedrc.cpp:159
+#: po/extractedrc.cpp:162 po/extractedrc.cpp:165 extractedrc.cpp:144
+#: extractedrc.cpp:147 extractedrc.cpp:150 extractedrc.cpp:153
+#: extractedrc.cpp:156 extractedrc.cpp:159 extractedrc.cpp:162
+#: extractedrc.cpp:165
+msgid "label"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:307
+#. i18n: ectx: property (title), widget (QGroupBox, groupPayment)
+#: po/extractedrc.cpp:168 extractedrc.cpp:168
+#, fuzzy
+msgid "Payment"
+msgstr "<b>Paiement</b>"
+
+#. i18n: file: ui/mainview.ui:333
+#. i18n: ectx: property (text), widget (QRadioButton, checkCash)
+#: po/extractedrc.cpp:171 extractedrc.cpp:171
+msgid "Ca&sh"
+msgstr "&Espèces"
+
+#. i18n: file: ui/mainview.ui:365
+#. i18n: ectx: property (text), widget (QRadioButton, checkCard)
+#: po/extractedrc.cpp:174 extractedrc.cpp:174
+msgid "Ca&rd"
+msgstr "&Carte"
+
+#. i18n: file: ui/mainview.ui:430
+#. i18n: ectx: property (text), widget (QLabel, labelCashAmount)
+#: po/extractedrc.cpp:177 extractedrc.cpp:177
+msgid "Cash &Amount:"
+msgstr "&Quantité :"
+
+#. i18n: file: ui/mainview.ui:500
+#. i18n: ectx: property (text), widget (QLabel, labelCardNumber)
+#: po/extractedrc.cpp:180 extractedrc.cpp:180
+msgid "Card &Number:"
+msgstr "&Numéro de carte :"
+
+#. i18n: file: ui/mainview.ui:528
+#. i18n: ectx: property (inputMask), widget (QLineEdit, editCardNumber)
+#: po/extractedrc.cpp:183 extractedrc.cpp:183
+msgid "0000-0000-0000-0000; "
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:531
+#. i18n: ectx: property (text), widget (QLineEdit, editCardNumber)
+#: po/extractedrc.cpp:186 extractedrc.cpp:186
+msgid "---"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:541
+#. i18n: ectx: property (text), widget (QLabel, labelAuthNumber)
+#: po/extractedrc.cpp:189 extractedrc.cpp:189
+msgid "Authorization number:"
+msgstr "Numéro d'autorisation :"
+
+#. i18n: file: ui/mainview.ui:577
+#. i18n: ectx: property (title), widget (QGroupBox, groupSaleDate)
+#: po/extractedrc.cpp:192 extractedrc.cpp:192
+msgid "Sale Date"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:593
+#. i18n: ectx: property (text), widget (QPushButton, btnChangeSaleDate)
+#: po/extractedrc.cpp:195 extractedrc.cpp:195
+msgid "Change Sale Date"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:676
+#. i18n: ectx: property (text), widget (QRadioButton, rbFilterByDesc)
+#: po/extractedrc.cpp:198 extractedrc.cpp:198
+msgid "filter by description"
+msgstr "filtrer par description"
+
+#. i18n: file: ui/mainview.ui:686
+#. i18n: ectx: property (text), widget (QRadioButton, rbFilterByCategory)
+#: po/extractedrc.cpp:201 extractedrc.cpp:201
+msgid "filter by category"
+msgstr "filtrer par catégorie "
+
+#. i18n: file: ui/mainview.ui:699
+#. i18n: ectx: property (text), widget (QRadioButton, rbFilterByPopularity)
+#: po/extractedrc.cpp:204 extractedrc.cpp:204
+#, fuzzy
+msgid "filter by popularity this month"
+msgstr "filtrer par description"
+
+#. i18n: file: ui/mainview.ui:764
+#. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
+#. i18n: file: ui/mainview.ui:1221
+#. i18n: ectx: property (text), widget (QTableWidget, tableSearch)
+#. i18n: file: ui/mainview.ui:1445
+#. i18n: ectx: property (text), widget (QTableWidget, tableReturnProducts)
+#. i18n: file: ui/mainview.ui:764
+#. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
+#. i18n: file: ui/mainview.ui:1221
+#. i18n: ectx: property (text), widget (QTableWidget, tableSearch)
+#. i18n: file: ui/mainview.ui:1445
+#. i18n: ectx: property (text), widget (QTableWidget, tableReturnProducts)
+#: po/extractedrc.cpp:207 po/extractedrc.cpp:261 po/extractedrc.cpp:300
+#: extractedrc.cpp:207 extractedrc.cpp:261 extractedrc.cpp:300
+msgid "Code"
+msgstr "Code"
+
+#. i18n: file: ui/mainview.ui:769
+#. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
+#. i18n: file: ui/mainview.ui:1211
+#. i18n: ectx: property (text), widget (QTableWidget, tableSearch)
+#. i18n: file: ui/mainview.ui:1450
+#. i18n: ectx: property (text), widget (QTableWidget, tableReturnProducts)
+#. i18n: file: ui/resume.ui:77
+#. i18n: ectx: property (text), widget (QTableWidget, contentTable)
+#. i18n: file: ui/special_order.ui:342
+#. i18n: ectx: property (text), widget (QTableWidget, groupView)
+#. i18n: file: ui/mainview.ui:769
+#. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
+#. i18n: file: ui/mainview.ui:1211
+#. i18n: ectx: property (text), widget (QTableWidget, tableSearch)
+#. i18n: file: ui/mainview.ui:1450
+#. i18n: ectx: property (text), widget (QTableWidget, tableReturnProducts)
+#. i18n: file: ui/resume.ui:77
+#. i18n: ectx: property (text), widget (QTableWidget, contentTable)
+#. i18n: file: ui/special_order.ui:342
+#. i18n: ectx: property (text), widget (QTableWidget, groupView)
+#: po/extractedrc.cpp:210 po/extractedrc.cpp:255 po/extractedrc.cpp:303
+#: po/extractedrc.cpp:478 po/extractedrc.cpp:563 extractedrc.cpp:210
+#: extractedrc.cpp:255 extractedrc.cpp:303 extractedrc.cpp:478
+#: extractedrc.cpp:563
+msgid "Description"
+msgstr "Description"
+
+#. i18n: file: ui/mainview.ui:784
+#. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
+#: po/extractedrc.cpp:219 extractedrc.cpp:219
+msgid "Units"
+msgstr "Unité "
+
+#. i18n: file: ui/mainview.ui:958
+#. i18n: ectx: property (text), widget (QLabel, labelTotalpre)
+#: po/extractedrc.cpp:231 extractedrc.cpp:231
+msgid "Total:"
+msgstr "Total :"
+
+#. i18n: file: ui/mainview.ui:1045
+#. i18n: ectx: property (text), widget (QLabel, labelChangepre)
+#: po/extractedrc.cpp:234 extractedrc.cpp:234
+msgid "Change:"
+msgstr "Monaie :"
+
+#. i18n: file: ui/mainview.ui:1142
+#. i18n: ectx: property (text), widget (QLabel, labelImageSearch)
+#. i18n: file: ui/mainview.ui:1337
+#. i18n: ectx: property (text), widget (QLabel, label_9)
+#. i18n: file: ui/mainview.ui:1371
+#. i18n: ectx: property (text), widget (QLabel, label_10)
+#. i18n: file: ui/mainview.ui:1405
+#. i18n: ectx: property (text), widget (QLabel, label_11)
+#. i18n: file: ui/mainview.ui:1494
+#. i18n: ectx: property (text), widget (QLabel, lblReturnProdQty)
+#. i18n: file: ui/mainview.ui:1142
+#. i18n: ectx: property (text), widget (QLabel, labelImageSearch)
+#. i18n: file: ui/mainview.ui:1337
+#. i18n: ectx: property (text), widget (QLabel, label_9)
+#. i18n: file: ui/mainview.ui:1371
+#. i18n: ectx: property (text), widget (QLabel, label_10)
+#. i18n: file: ui/mainview.ui:1405
+#. i18n: ectx: property (text), widget (QLabel, label_11)
+#. i18n: file: ui/mainview.ui:1494
+#. i18n: ectx: property (text), widget (QLabel, lblReturnProdQty)
+#: po/extractedrc.cpp:240 po/extractedrc.cpp:282 po/extractedrc.cpp:288
+#: po/extractedrc.cpp:294 po/extractedrc.cpp:318 extractedrc.cpp:240
+#: extractedrc.cpp:282 extractedrc.cpp:288 extractedrc.cpp:294
+#: extractedrc.cpp:318
+msgid "TextLabel"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:1155
+#. i18n: ectx: property (text), widget (QPushButton, buttonSearchDone)
+#: po/extractedrc.cpp:243 extractedrc.cpp:243
+msgid "Go back"
+msgstr "Retour "
+
+#. i18n: file: ui/mainview.ui:1168
+#. i18n: ectx: property (text), widget (QLabel, label_5)
+#: po/extractedrc.cpp:246 extractedrc.cpp:246
+msgid "Enter item description:"
+msgstr "Descripcion :"
+
+#. i18n: file: ui/mainview.ui:1188
+#. i18n: ectx: property (text), widget (QLabel, labelSearchMsg)
+#: po/extractedrc.cpp:249 extractedrc.cpp:249
+#, fuzzy
+msgid ""
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">.<span style=\" font-"
+"weight:600; color:#ff6347;\">.</span></p></body></html>"
+msgstr ""
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"weight:600; color:#ff7f50;\">Total HT</span></p></body></html>"
+
+#. i18n: file: ui/mainview.ui:1233
+#. i18n: ectx: property (text), widget (QLabel, label_2)
+#: po/extractedrc.cpp:264 extractedrc.cpp:264
+#, fuzzy
+msgid "Reprint Ticket"
+msgstr "Annuler un ticket"
+
+#. i18n: file: ui/mainview.ui:1245
+#. i18n: ectx: property (text), widget (QLabel, lblTicketDatePicker)
+#: po/extractedrc.cpp:267 extractedrc.cpp:267
+msgid "Show tickets before"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:1272
+#. i18n: ectx: property (text), widget (QPushButton, btnTicketPrint)
+#: po/extractedrc.cpp:270 extractedrc.cpp:270
+msgid "Print selected ticket"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:1279
+#. i18n: ectx: property (text), widget (QPushButton, btnTicketDone)
+#: po/extractedrc.cpp:273 extractedrc.cpp:273
+msgid "Back"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:1295
+#. i18n: ectx: property (text), widget (QLabel, label_4)
+#: po/extractedrc.cpp:276 extractedrc.cpp:276
+#, fuzzy
+msgid "Return Products"
+msgstr "Produit"
+
+#. i18n: file: ui/mainview.ui:1321
+#. i18n: ectx: property (text), widget (QLabel, label_6)
+#: po/extractedrc.cpp:279 extractedrc.cpp:279
+#, fuzzy
+msgid "Ticket number:"
+msgstr "Numéro de caisse"
+
+#. i18n: file: ui/mainview.ui:1355
+#. i18n: ectx: property (text), widget (QLabel, label_7)
+#: po/extractedrc.cpp:285 extractedrc.cpp:285
+#, fuzzy
+msgid "Date and time:"
+msgstr "Nom de la B.&D :"
+
+#. i18n: file: ui/mainview.ui:1389
+#. i18n: ectx: property (text), widget (QLabel, label_8)
+#: po/extractedrc.cpp:291 extractedrc.cpp:291
+#, fuzzy
+msgid "Client:"
+msgstr "Client"
+
+#. i18n: file: ui/mainview.ui:1437
+#. i18n: ectx: property (text), widget (QLabel, label_3)
+#: po/extractedrc.cpp:297 extractedrc.cpp:297
+msgid "Select the products to return"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:1455
+#. i18n: ectx: property (text), widget (QTableWidget, tableReturnProducts)
+#: po/extractedrc.cpp:306 extractedrc.cpp:306
+msgid "Qty on purchase"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:1465
+#. i18n: ectx: property (text), widget (QTableWidget, tableReturnProducts)
+#: po/extractedrc.cpp:312 extractedrc.cpp:312
+msgid "Qty to return"
+msgstr ""
+
+#. i18n: file: ui/mainview.ui:1479
+#. i18n: ectx: property (title), widget (QGroupBox, groupBox)
+#: po/extractedrc.cpp:315 extractedrc.cpp:315
+msgid "Selected products details"
+msgstr ""
+
+#. i18n: file: ui/pref_printers.ui:32
+#. i18n: ectx: property (title), widget (QGroupBox, kcfg_printTicket)
+#: po/extractedrc.cpp:324 extractedrc.cpp:324
+#, fuzzy
+msgid "Print the ticket as"
+msgstr "Saisir le numéro du ticket à annuler"
+
+#. i18n: file: ui/pref_printers.ui:44
+#. i18n: ectx: property (text), widget (QRadioButton, kcfg_smallTicketCUPS)
+#: po/extractedrc.cpp:327 extractedrc.cpp:327
+#, fuzzy
+msgid "Small receipt using a thermal ticket printer (using CUPS)"
+msgstr "Imprimer le ticket"
+
+#. i18n: file: ui/pref_printers.ui:60
+#. i18n: ectx: property (text), widget (QRadioButton, kcfg_smallTicketDotMatrix)
+#: po/extractedrc.cpp:330 extractedrc.cpp:330
+#, fuzzy
+msgid "Small receipt using a dot-matrix ticket printer (using /dev/lpX)"
+msgstr "Imprimer le ticket"
+
+#. i18n: file: ui/pref_printers.ui:75
+#. i18n: ectx: property (text), widget (QLabel, Printerdevice)
+#: po/extractedrc.cpp:333 extractedrc.cpp:333
+#, fuzzy
+msgid "Printer Device:"
+msgstr "Imprimante"
+
+#. i18n: file: ui/pref_printers.ui:92
+#. i18n: ectx: property (text), widget (QLabel, label_2)
+#: po/extractedrc.cpp:336 extractedrc.cpp:336
+#, fuzzy
+msgid "Printer Codec:"
+msgstr "Entrer le code"
+
+#. i18n: file: ui/pref_printers.ui:122
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_openDrawer)
+#: po/extractedrc.cpp:339 extractedrc.cpp:339
+#, fuzzy
+msgid "Open drawer"
+msgstr "dans la caisse"
+
+#. i18n: file: ui/pref_printers.ui:131
+#. i18n: ectx: property (text), widget (QRadioButton, kcfg_bigReceipt)
+#: po/extractedrc.cpp:342 extractedrc.cpp:342
+msgid "Big format [A4, Letter] receipt using normal printer (using CUPS)"
+msgstr ""
+
+#. i18n: file: ui/pref_printers.ui:154
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_printBalances)
+#: po/extractedrc.cpp:345 extractedrc.cpp:345
+#, fuzzy
+msgid "Print Balances on your selected printer (above)."
+msgstr "Imprimer le ticket"
+
+#. i18n: file: ui/pref_printers.ui:164
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_printChangedDateTicket)
+#: po/extractedrc.cpp:348 extractedrc.cpp:348
+msgid "Print Date Changed Tickets"
+msgstr ""
+
+#. i18n: file: ui/pref_printers.ui:171
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_printSO)
+#: po/extractedrc.cpp:351 extractedrc.cpp:351
+msgid "Print Special Orders"
+msgstr ""
+
+#. i18n: file: ui/pref_printers.ui:178
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_printZeroTicket)
+#: po/extractedrc.cpp:354 extractedrc.cpp:354
+msgid "Print tickets with a ZERO total payment."
+msgstr ""
+
+#. i18n: file: ui/pref_printers.ui:185
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_printPackContents)
+#: po/extractedrc.cpp:357 extractedrc.cpp:357
+msgid "Print Group/Pack Contents on tickets."
+msgstr ""
+
+#. i18n: file: ui/pref_printers.ui:192
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_printRandomMsg)
+#: po/extractedrc.cpp:360 extractedrc.cpp:360
+#, fuzzy
+msgid "Print a random message on tickets."
+msgstr "Saisir le numéro du ticket à annuler"
+
+#. i18n: file: ui/prefs_base.ui:31
+#. i18n: ectx: property (text), widget (QLabel, label_3)
+#: po/extractedrc.cpp:363 extractedrc.cpp:363
+msgid "This is the &Terminal Number:"
+msgstr "Numéro de &terminal:"
+
+#. i18n: file: ui/prefs_base.ui:41
+#. i18n: ectx: property (inputMask), widget (QLineEdit, kcfg_editTerminalNumber)
+#: po/extractedrc.cpp:366 extractedrc.cpp:366
+msgid "0000; "
+msgstr ""
+
+#. i18n: file: ui/prefs_base.ui:56
+#. i18n: ectx: property (title), widget (QGroupBox, groupBoxOb)
+#: po/extractedrc.cpp:369 extractedrc.cpp:369
+msgid "Dialogs and Authorizations"
+msgstr "Dialogues et autorisations"
+
+#. i18n: file: ui/prefs_base.ui:68
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_showDialogOnPrinting)
+#: po/extractedrc.cpp:372 extractedrc.cpp:372
+msgid "Show a dialog when printing ticket"
+msgstr "Afficher le dialogue d'impression"
+
+#. i18n: file: ui/prefs_base.ui:77
+#. i18n: ectx: property (text), widget (QLabel, label_5)
+#: po/extractedrc.cpp:375 extractedrc.cpp:375
+msgid "Time showing the dialog:"
+msgstr ""
+
+#. i18n: file: ui/prefs_base.ui:87
+#. i18n: ectx: property (suffix), widget (QSpinBox, kcfg_ticketTime)
+#: po/extractedrc.cpp:378 extractedrc.cpp:378
+msgid " seconds"
+msgstr ""
+
+#. i18n: file: ui/prefs_base.ui:96
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_requiereDelAuth)
+#: po/extractedrc.cpp:381 extractedrc.cpp:381
+msgid "Requiere authorisation to delete items from shopping list"
+msgstr ""
+"Nécessite une autorisation pour effacer un élément de la liste d'achats"
+
+#. i18n: file: ui/prefs_base.ui:106
+#. i18n: ectx: property (title), widget (QGroupBox, groupMatrix)
+#: po/extractedrc.cpp:384 extractedrc.cpp:384
+msgid "Products Grid"
+msgstr "Grille de produits"
+
+#. i18n: file: ui/prefs_base.ui:118
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_showGrid)
+#: po/extractedrc.cpp:387 extractedrc.cpp:387
+msgid "Show products grid"
+msgstr "Afficher la grille de produits"
+
+#. i18n: file: ui/prefs_base.ui:128
+#. i18n: ectx: property (title), widget (QGroupBox, groupBox_2)
+#: po/extractedrc.cpp:390 extractedrc.cpp:390
+msgid "Low Stock"
+msgstr ""
+
+#. i18n: file: ui/prefs_base.ui:142
+#. i18n: ectx: property (text), widget (QLabel, label_4)
+#: po/extractedrc.cpp:393 extractedrc.cpp:393
+msgid "Minimum value for alert"
+msgstr ""
+
+#. i18n: file: ui/prefs_base.ui:173
+#. i18n: ectx: property (title), widget (QGroupBox, groupBox_3)
+#: po/extractedrc.cpp:396 extractedrc.cpp:396
+msgid "Drawer Cash Level"
+msgstr ""
+
+#. i18n: file: ui/prefs_base.ui:179
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_displayWarningOnLowCash)
+#: po/extractedrc.cpp:399 extractedrc.cpp:399
+msgid "Display warning message whe level is lower than"
+msgstr ""
+
+#. i18n: file: ui/prefs_base.ui:186
+#. i18n: ectx: property (prefix), widget (QDoubleSpinBox, kcfg_cashMinLevel)
+#. i18n: file: ui/special_order.ui:569
+#. i18n: ectx: property (text), widget (QLabel, lblPrice)
+#. i18n: file: ui/prefs_base.ui:186
+#. i18n: ectx: property (prefix), widget (QDoubleSpinBox, kcfg_cashMinLevel)
+#. i18n: file: ui/special_order.ui:569
+#. i18n: ectx: property (text), widget (QLabel, lblPrice)
+#: po/extractedrc.cpp:402 po/extractedrc.cpp:599 extractedrc.cpp:402
+#: extractedrc.cpp:599
+msgid "$"
+msgstr ""
+
+#. i18n: file: ui/prefs_base.ui:199
+#. i18n: ectx: property (title), widget (QGroupBox, groupTax)
+#: po/extractedrc.cpp:405 extractedrc.cpp:405
+#, fuzzy
+msgid "Taxes"
+msgstr "Taxes :"
+
+#. i18n: file: ui/prefs_base.ui:205
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_addTax)
+#: po/extractedrc.cpp:408 extractedrc.cpp:408
+msgid "Add taxes to sale (not included in price)"
+msgstr ""
+
+#. i18n: file: ui/prefs_db.ui:25
+#. i18n: ectx: property (text), widget (QLabel, label)
+#: po/extractedrc.cpp:417 extractedrc.cpp:417
+msgid "&Server:"
+msgstr "&Serveur :"
+
+#. i18n: file: ui/prefs_db.ui:38
+#. i18n: ectx: property (text), widget (QLabel, label_2)
+#: po/extractedrc.cpp:420 extractedrc.cpp:420
+msgid "&Username:"
+msgstr "Utilisateur :"
+
+#. i18n: file: ui/prefs_db.ui:51
+#. i18n: ectx: property (text), widget (QLabel, label_3)
+#: po/extractedrc.cpp:423 extractedrc.cpp:423
+msgid "&Password:"
+msgstr "&Mot de passe :"
+
+#. i18n: file: ui/prefs_db.ui:77
+#. i18n: ectx: property (text), widget (QLabel, label_4)
+#: po/extractedrc.cpp:426 extractedrc.cpp:426
+msgid "&Database Name:"
+msgstr "Nom de la B.&D :"
+
+#. i18n: file: ui/prefs_db.ui:93
+#. i18n: ectx: property (title), widget (QGroupBox, groupBox_2)
+#: po/extractedrc.cpp:429 extractedrc.cpp:429
+msgid "Extra options"
+msgstr "Options diverses"
+
+#. i18n: file: ui/pref_security.ui:19
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_allowAnyUserToQuit)
+#: po/extractedrc.cpp:438 extractedrc.cpp:438
+msgid "Allow any user to quit, asking for administrator's password"
+msgstr ""
+"Permettre à chaque utilisateur de quitter en demandant le mot de passe "
+"administrateur "
+
+#. i18n: file: ui/pref_security.ui:26
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_lowSecurityMode)
+#: po/extractedrc.cpp:441 extractedrc.cpp:441
+msgid "Do not ask for admin password (Low Security Mode)"
+msgstr ""
+
+#. i18n: file: ui/pref_style.ui:19
+#. i18n: ectx: property (title), widget (QGroupBox, kcfg_useStyle)
+#: po/extractedrc.cpp:447 extractedrc.cpp:447
+msgid "Use style sheet"
+msgstr "Utiliser un style"
+
+#. i18n: file: ui/printticket.ui:19
+#. i18n: ectx: property (text), widget (QCheckBox, chAllTerminals)
+#: po/extractedrc.cpp:453 extractedrc.cpp:453
+msgid "Tickets from all terminals"
+msgstr ""
+
+#. i18n: file: ui/printticket.ui:26
+#. i18n: ectx: property (text), widget (QLabel, label)
+#: po/extractedrc.cpp:456 extractedrc.cpp:456
+#, fuzzy
+msgid "Ticket Number"
+msgstr "Numéro de caisse"
+
+#. i18n: file: ui/printticket.ui:33
+#. i18n: ectx: property (text), widget (QLabel, label_2)
+#: po/extractedrc.cpp:459 extractedrc.cpp:459
+#, fuzzy
+msgid "Ticket Items"
+msgstr "Message du ticket"
+
+#. i18n: file: ui/resume.ui:24
+#. i18n: ectx: property (text), widget (QLabel, lblTitle)
+#: po/extractedrc.cpp:465 extractedrc.cpp:465
+#, fuzzy
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:8pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">The next sales are "
+"suspended. Please <span style=\" font-weight:600;\">select one to resume</"
+"span> and press the <span style=\" font-weight:600; font-style:italic;\">Ok</"
+"span> button; or press the <span style=\" font-weight:600; font-style:italic;"
+"\">cancel</span>  button to <span style=\" font-weight:600;\">start a new "
+"one</span>.</p></body></html>"
+msgstr ""
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"weight:600; color:#ff7f50;\">Total HT</span></p></body></html>"
+
+#. i18n: file: ui/resume.ui:65
+#. i18n: ectx: property (title), widget (QGroupBox, groupBox)
+#: po/extractedrc.cpp:472 extractedrc.cpp:472
+#, fuzzy
+msgid "Contents"
+msgstr "Continuer"
+
+#. i18n: file: ui/soselector.ui:32
+#. i18n: ectx: property (windowTitle), widget (QWidget, soSelector)
+#. i18n: file: ui/sostatus.ui:32
+#. i18n: ectx: property (windowTitle), widget (QWidget, soStatus)
+#. i18n: file: ui/special_order.ui:32
+#. i18n: ectx: property (windowTitle), widget (QWidget, specialOrderEditor)
+#. i18n: file: ui/soselector.ui:32
+#. i18n: ectx: property (windowTitle), widget (QWidget, soSelector)
+#. i18n: file: ui/sostatus.ui:32
+#. i18n: ectx: property (windowTitle), widget (QWidget, soStatus)
+#. i18n: file: ui/special_order.ui:32
+#. i18n: ectx: property (windowTitle), widget (QWidget, specialOrderEditor)
+#: po/extractedrc.cpp:481 po/extractedrc.cpp:496 po/extractedrc.cpp:514
+#: extractedrc.cpp:481 extractedrc.cpp:496 extractedrc.cpp:514
+msgid "Special Order"
+msgstr ""
+
+#. i18n: file: ui/soselector.ui:46
+#. i18n: ectx: property (text), widget (QRadioButton, rbAll)
+#. i18n: file: ui/sostatus.ui:46
+#. i18n: ectx: property (text), widget (QRadioButton, rbAll)
+#. i18n: file: ui/soselector.ui:46
+#. i18n: ectx: property (text), widget (QRadioButton, rbAll)
+#. i18n: file: ui/sostatus.ui:46
+#. i18n: ectx: property (text), widget (QRadioButton, rbAll)
+#: po/extractedrc.cpp:484 po/extractedrc.cpp:499 extractedrc.cpp:484
+#: extractedrc.cpp:499
+msgid "Show All"
+msgstr ""
+
+#. i18n: file: ui/soselector.ui:74
+#. i18n: ectx: property (text), widget (QRadioButton, rbSaleId)
+#. i18n: file: ui/sostatus.ui:74
+#. i18n: ectx: property (text), widget (QRadioButton, rbSaleId)
+#. i18n: file: ui/soselector.ui:74
+#. i18n: ectx: property (text), widget (QRadioButton, rbSaleId)
+#. i18n: file: ui/sostatus.ui:74
+#. i18n: ectx: property (text), widget (QRadioButton, rbSaleId)
+#: po/extractedrc.cpp:487 po/extractedrc.cpp:502 extractedrc.cpp:487
+#: extractedrc.cpp:502
+#, fuzzy
+msgid "filter by ticket #:"
+msgstr "filtrer par catégorie "
+
+#. i18n: file: ui/soselector.ui:124
+#. i18n: ectx: property (text), widget (QRadioButton, rbName)
+#. i18n: file: ui/sostatus.ui:124
+#. i18n: ectx: property (text), widget (QRadioButton, rbName)
+#. i18n: file: ui/soselector.ui:124
+#. i18n: ectx: property (text), widget (QRadioButton, rbName)
+#. i18n: file: ui/sostatus.ui:124
+#. i18n: ectx: property (text), widget (QRadioButton, rbName)
+#: po/extractedrc.cpp:490 po/extractedrc.cpp:505 extractedrc.cpp:490
+#: extractedrc.cpp:505
+#, fuzzy
+msgid "filter by name:"
+msgstr "filtrer par catégorie "
+
+#. i18n: file: ui/soselector.ui:179
+#. i18n: ectx: attribute (title), widget (QWidget, tab)
+#. i18n: file: ui/sostatus.ui:179
+#. i18n: ectx: attribute (title), widget (QWidget, tab)
+#. i18n: file: ui/soselector.ui:179
+#. i18n: ectx: attribute (title), widget (QWidget, tab)
+#. i18n: file: ui/sostatus.ui:179
+#. i18n: ectx: attribute (title), widget (QWidget, tab)
+#: po/extractedrc.cpp:493 po/extractedrc.cpp:508 soselector.cpp:45
+#: specialordereditor.cpp:60 extractedrc.cpp:493 extractedrc.cpp:508
+msgid "Special Orders"
+msgstr ""
+
+#. i18n: file: ui/sostatus.ui:216
+#. i18n: ectx: property (text), widget (QLabel, lblNewStatus)
+#: po/extractedrc.cpp:511 extractedrc.cpp:511
+msgid "New Status:"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:45
+#. i18n: ectx: attribute (title), widget (QWidget, tab_2)
+#: po/extractedrc.cpp:517 extractedrc.cpp:517
+#, fuzzy
+msgid "Special Item"
+msgstr "Chercher l'article"
+
+#. i18n: file: ui/special_order.ui:51
+#. i18n: ectx: property (text), widget (QLabel, lbl)
+#: po/extractedrc.cpp:520 extractedrc.cpp:520
+#, fuzzy
+msgid "Ticket :"
+msgstr "Ticket  # %1"
+
+#. i18n: file: ui/special_order.ui:69
+#. i18n: ectx: property (text), widget (QLabel, lblTransId)
+#: po/extractedrc.cpp:523 extractedrc.cpp:523
+msgid "#"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:79
+#. i18n: ectx: property (text), widget (QLabel, lblStatus)
+#: po/extractedrc.cpp:526 extractedrc.cpp:526
+msgid "Vendor:"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:110
+#. i18n: ectx: property (text), widget (QLabel, label_14)
+#: po/extractedrc.cpp:529 extractedrc.cpp:529
+#, fuzzy
+msgid "&Client:"
+msgstr "Client"
+
+#. i18n: file: ui/special_order.ui:135
+#. i18n: ectx: property (toolTip), widget (QToolButton, btnMoreClients)
+#: po/extractedrc.cpp:532 extractedrc.cpp:532
+msgid "launch a dialog with more options"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:138
+#. i18n: ectx: property (text), widget (QToolButton, btnMoreClients)
+#. i18n: file: ui/special_order.ui:474
+#. i18n: ectx: property (text), widget (QPushButton, btnFilter)
+#. i18n: file: ui/special_order.ui:138
+#. i18n: ectx: property (text), widget (QToolButton, btnMoreClients)
+#. i18n: file: ui/special_order.ui:474
+#. i18n: ectx: property (text), widget (QPushButton, btnFilter)
+#: po/extractedrc.cpp:535 po/extractedrc.cpp:587 extractedrc.cpp:535
+#: extractedrc.cpp:587
+msgid "..."
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:145
+#. i18n: ectx: property (text), widget (QPushButton, btnNewClient)
+#: po/extractedrc.cpp:538 extractedrc.cpp:538
+#, fuzzy
+msgid "New Client"
+msgstr "Client"
+
+#. i18n: file: ui/special_order.ui:154
+#. i18n: ectx: property (text), widget (QLabel, label_4)
+#: po/extractedrc.cpp:541 extractedrc.cpp:541
+#, fuzzy
+msgid "&Qty:"
+msgstr "Qantité."
+
+#. i18n: file: ui/special_order.ui:200
+#. i18n: ectx: property (text), widget (QLabel, label_6)
+#: po/extractedrc.cpp:544 extractedrc.cpp:544
+msgid "Delivery date:"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:265
+#. i18n: ectx: attribute (title), widget (QWidget, tab)
+#: po/extractedrc.cpp:550 extractedrc.cpp:550
+msgid "Components"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:280
+#. i18n: ectx: property (text), widget (QLabel, label_2)
+#: po/extractedrc.cpp:553 extractedrc.cpp:553
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:8pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-style:"
+"italic;\">Select</span> products from the left list and click the '&gt;' "
+"button to <span style=\" font-weight:600;\">add</span> them to the group on "
+"the right. You can<span style=\" font-style:italic;\"> </span><span style=\" "
+"font-weight:600; font-style:italic;\">increment</span><span style=\" font-"
+"weight:600;\"> </span>item quantities on the right table by <span style=\" "
+"font-weight:600;\">double clicking</span> on the item</p></body></html>"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:364
+#. i18n: ectx: property (toolTip), widget (QLineEdit, editAddQty)
+#: po/extractedrc.cpp:566 extractedrc.cpp:566
+msgid "Qty to add"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:396
+#. i18n: ectx: property (toolTip), widget (QToolButton, btnAdd)
+#: po/extractedrc.cpp:569 extractedrc.cpp:569
+msgid "Add selected products to the components"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:399
+#. i18n: ectx: property (text), widget (QToolButton, btnAdd)
+#: po/extractedrc.cpp:572 extractedrc.cpp:572
+msgid ">"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:424
+#. i18n: ectx: property (toolTip), widget (QToolButton, btnRemove)
+#: po/extractedrc.cpp:575 extractedrc.cpp:575
+msgid "Remove selected products from the components"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:427
+#. i18n: ectx: property (text), widget (QToolButton, btnRemove)
+#: po/extractedrc.cpp:578 extractedrc.cpp:578
+msgid "<"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:451
+#. i18n: ectx: property (text), widget (QLabel, label_3)
+#: po/extractedrc.cpp:581 extractedrc.cpp:581
+msgid "Filter:"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:458
+#. i18n: ectx: property (toolTip), widget (QLineEdit, editFilter)
+#: po/extractedrc.cpp:584 extractedrc.cpp:584
+#, fuzzy
+msgid "You can filter the products by description,"
+msgstr "filtrer par description"
+
+#. i18n: file: ui/special_order.ui:502
+#. i18n: ectx: property (title), widget (QGroupBox, groupBox)
+#: po/extractedrc.cpp:590 extractedrc.cpp:590
+msgid "Price and Payment"
+msgstr ""
+
+#. i18n: file: ui/special_order.ui:508
+#. i18n: ectx: property (text), widget (QLabel, lblPayment)
+#: po/extractedrc.cpp:593 extractedrc.cpp:593
+#, fuzzy
+msgid "Payment:"
+msgstr "<b>Paiement</b>"
+
+#. i18n: file: ui/special_order.ui:606
+#. i18n: ectx: property (toolTip), widget (QTextEdit, editClientAddress)
+#: po/extractedrc.cpp:602 extractedrc.cpp:602
+#, fuzzy
+msgid "Enter Client Address"
+msgstr "Nom du magasin"
+
+#. i18n: file: ui/store_data.ui:32
+#. i18n: ectx: property (text), widget (QLabel, label)
+#: po/extractedrc.cpp:614 extractedrc.cpp:614
+msgid "&Name:"
+msgstr "&Nom de la B.D.:"
+
+#. i18n: file: ui/store_data.ui:79
+#. i18n: ectx: property (text), widget (QLabel, label_2)
+#: po/extractedrc.cpp:617 extractedrc.cpp:617
+msgid "&Address:"
+msgstr ""
+
+#. i18n: file: ui/store_data.ui:126
+#. i18n: ectx: property (text), widget (QLabel, label_3)
+#: po/extractedrc.cpp:620 extractedrc.cpp:620
+#, fuzzy
+msgid "&Phone:"
+msgstr "&Códe :"
+
+#. i18n: file: ui/store_data.ui:173
+#. i18n: ectx: property (text), widget (QLabel, label_4)
+#: po/extractedrc.cpp:623 extractedrc.cpp:623
+msgid "Ticket &Message:"
+msgstr "&Message du ticket :"
+
+#. i18n: file: ui/store_data.ui:220
+#. i18n: ectx: property (text), widget (QLabel, label_5)
+#: po/extractedrc.cpp:626 extractedrc.cpp:626
+#, fuzzy
+msgid "Store Logo:"
+msgstr "Magasin"
+
+#. i18n: file: ui/store_data.ui:252
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_chLogoOnTop)
+#: po/extractedrc.cpp:629 extractedrc.cpp:629
+msgid "Print Logo on ticket top, otherwise at the right"
+msgstr ""
+
+#: po/extractedrc.cpp:630 extractedrc.cpp:630
+msgctxt "NAME OF TRANSLATORS"
+msgid "Your names"
+msgstr "Girard Henri"
+
+#: po/extractedrc.cpp:631 extractedrc.cpp:631
+msgctxt "EMAIL OF TRANSLATORS"
+msgid "Your emails"
+msgstr "girardhenri@free.fr"
+
+#: pricechecker.cpp:45
+#, fuzzy
+msgid "Price Checker"
+msgstr "Prix :"
+
+#: pricechecker.cpp:47
+#, fuzzy
+msgctxt "Price-Checker dialog"
+msgid "Price"
+msgstr "Prix"
+
+#: pricechecker.cpp:48
+#, fuzzy
+msgctxt "Price-Checker dialog"
+msgid "Checker"
+msgstr "Prix :"
+
+#: pricechecker.cpp:50
+msgid "Press ESC to Close"
+msgstr ""
+
+#: pricechecker.cpp:51
+msgid "Regular price:"
+msgstr ""
+
+#: pricechecker.cpp:52
+msgid "Final price:"
+msgstr ""
+
+#: productdelegate.cpp:119
+msgid " Out of stock "
+msgstr " Sortie du stock "
+
+#: productdelegate.cpp:149
+#, fuzzy
+msgid " Raw Product "
+msgstr "Produit"
+
+#: productdelegate.cpp:162
+msgid " Group "
+msgstr ""
+
+#: resume.cpp:152
+msgid "Tr. #"
+msgstr ""
+
+#: resume.cpp:155
+#, fuzzy
+msgid "Terminal"
+msgstr "Terminal #%1"
+
+#: soselector.cpp:168 sostatus.cpp:165
+msgid "Order #"
+msgstr ""
+
+#: soselector.cpp:169 sostatus.cpp:166
+#, fuzzy
+msgid "Name"
+msgstr "&Nom de la B.D.:"
+
+#: soselector.cpp:171 sostatus.cpp:168
+msgid "Status"
+msgstr ""
+
+#: soselector.cpp:172 sostatus.cpp:169
+msgid "Tr. Id"
+msgstr ""
+
+#: sostatus.cpp:45
+#, fuzzy
+msgid "Change Status"
+msgstr "Monaie :"
+
+#: specialordereditor.cpp:106
+#, fuzzy
+msgid "Enter client name here..."
+msgstr "Saisir le numéro du ticket à annuler"
+
+#: specialordereditor.cpp:107
+#, fuzzy
+msgid "Enter client phone here..."
+msgstr "Saisir le numéro du ticket à annuler"
+
+#: specialordereditor.cpp:108
+#, fuzzy
+msgid "Enter client cell phone here..."
+msgstr "Saisir le numéro du ticket à annuler"
+
+#: specialordereditor.cpp:244 specialordereditor.cpp:266
+msgid "<i>%1</i> rounded to %2"
+msgstr ""
+
+#: specialordereditor.cpp:252 specialordereditor.cpp:275
+msgid "<i>%1</i> <b>requested %2, on stock %3</b><br>"
+msgstr ""
+
+#: specialordereditor.cpp:334
+msgid ""
+"<b>Product sold by pieces</b>, qty must be an integer value: \n"
+"%1"
+msgstr ""
+
+#: specialordereditor.cpp:501
+msgid ""
+"<html><font color=red><b>The delivery date is in the past.</b></font></html>"
+msgstr ""
+""
+
+#: specialordereditor.cpp:648
+msgid "%1 chars of %2 allowed."
+msgstr ""
+
