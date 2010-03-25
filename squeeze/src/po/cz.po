@@ -3,123 +3,126 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: 0.9.2\n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?"
 "atid=1011570&group_id=209899&func=browse\n"
 "POT-Creation-Date: 2010-03-24 23:45-0600\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2010-03-24 22:06+0100\n"
+"Last-Translator: vn158 <vn158 at seznam dot cz>\n"
+"Language-Team:  <vn158 AT seznam DOT cz>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Czech\n"
+"X-Poedit-Country: CZECH REPUBLIC\n"
+"X-Poedit-SourceCharset: utf-8\n"
 
 #: clienteditor.cpp:41
 msgid "Client Editor"
-msgstr ""
+msgstr "Editor zákazníků"
 
 #: clienteditor.cpp:52
 msgid "Enter client full name"
-msgstr ""
+msgstr "Vložte celé jméno zákazníka"
 
 #: clienteditor.cpp:53
 msgid "Phone number"
-msgstr ""
+msgstr "Číslo telefonu"
 
 #: clienteditor.cpp:54
 msgid "Cell phone number"
-msgstr ""
+msgstr "Číslo mobilu"
 
 #: clienteditor.cpp:55
 msgid "Accumulated points"
-msgstr ""
+msgstr "Nasbírané body"
 
 #: clienteditor.cpp:56
 msgid "Personal discount"
-msgstr ""
+msgstr "Osobní sleva"
 
 #: main.cpp:30
 msgid "Squeeze your lemon!"
-msgstr ""
+msgstr "Vymáčkni svůj citrón!"
 
 #: main.cpp:36
 msgid "squeeze"
-msgstr ""
+msgstr "squeeze"
 
 #: main.cpp:36
 msgid "(C) 2007-2010 Miguel Chavez Gamboa"
-msgstr ""
+msgstr "(C) 2007-2010 Miguel Chavez Gamboa"
 
 #: main.cpp:37
 msgid "Miguel Chavez Gamboa"
-msgstr ""
+msgstr "Miguel Chavez Gamboa"
 
 #: main.cpp:40
 msgid "Roberto Aceves"
-msgstr ""
+msgstr "Roberto Aceves"
 
 #: main.cpp:40
 msgid "Many ideas and general help"
-msgstr ""
+msgstr "Spousta nápadů a všeobecná nápověda"
 
 #: main.cpp:41
 msgid "Biel Frontera"
-msgstr ""
+msgstr "Biel Frontera"
 
 #: main.cpp:41
 msgid "Code contributor"
-msgstr ""
+msgstr "Přispěvatel"
 
 #: main.cpp:42
 msgid "Jose Nivar"
 msgstr ""
 
 #: main.cpp:42
+#, fuzzy
 msgid "Many ideas, bug reports"
-msgstr ""
+msgstr "Spousta nápadů a všeobecná nápověda"
 
 #: main.cpp:45
 msgid "Document to open"
-msgstr ""
+msgstr "Otevřít dokument"
 
 #. i18n: file: squeezeui.rc:4
 #. i18n: ectx: ToolBar (aGeneral)
 #: po/extractedrc.cpp:3 extractedrc.cpp:3
 msgid "General ToolBar"
-msgstr ""
+msgstr "Obecné nástroje"
 
 #. i18n: file: squeezeui.rc:17
 #. i18n: ectx: ToolBar (bStockMovement)
 #: po/extractedrc.cpp:6 extractedrc.cpp:6
 msgid "Stock Movement"
-msgstr ""
+msgstr "Skladový pohyb"
 
 #. i18n: file: squeezeui.rc:24
 #. i18n: ectx: ToolBar (cReports)
 #: po/extractedrc.cpp:9 squeeze.cpp:327 squeezeview.cpp:511 extractedrc.cpp:9
 msgid "Reports"
-msgstr ""
+msgstr "Reporty"
 
 #. i18n: file: squeezeui.rc:29
 #. i18n: ectx: ToolBar (dOther)
 #: po/extractedrc.cpp:12 extractedrc.cpp:12
 msgid "Other Actions"
-msgstr ""
+msgstr "Další akce"
 
 #. i18n: file: squeezeui.rc:37
 #. i18n: ectx: Menu (Data)
 #: po/extractedrc.cpp:15 extractedrc.cpp:15
 msgid "&Data"
-msgstr ""
+msgstr "&Data"
 
 #. i18n: file: squeezeui.rc:47
 #. i18n: ectx: Menu (Reports)
 #: po/extractedrc.cpp:18 extractedrc.cpp:18
 msgid "&Reports"
-msgstr ""
+msgstr "&Reporty"
 
 #. i18n: file: ui/editclient_widget.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, clientEditor)
@@ -160,7 +163,7 @@ msgstr ""
 #: extractedrc.cpp:156 extractedrc.cpp:292 extractedrc.cpp:313
 #: extractedrc.cpp:457
 msgid "Form"
-msgstr ""
+msgstr "Formulář"
 
 #. i18n: file: ui/editclient_widget.ui:20
 #. i18n: ectx: property (text), widget (QLabel, label_14)
@@ -173,7 +176,7 @@ msgstr ""
 #: po/extractedrc.cpp:24 po/extractedrc.cpp:316 extractedrc.cpp:24
 #: extractedrc.cpp:316
 msgid "&Name:"
-msgstr ""
+msgstr "&Jméno:"
 
 #. i18n: file: ui/editclient_widget.ui:61
 #. i18n: ectx: property (text), widget (QLabel, label_16)
@@ -190,7 +193,7 @@ msgstr ""
 #: po/extractedrc.cpp:27 po/extractedrc.cpp:87 po/extractedrc.cpp:319
 #: extractedrc.cpp:27 extractedrc.cpp:87 extractedrc.cpp:319
 msgid "&Address:"
-msgstr ""
+msgstr "&Adresa"
 
 #. i18n: file: ui/editclient_widget.ui:87
 #. i18n: ectx: property (text), widget (QLabel, label_17)
@@ -203,7 +206,7 @@ msgstr ""
 #: po/extractedrc.cpp:30 po/extractedrc.cpp:90 extractedrc.cpp:30
 #: extractedrc.cpp:90
 msgid "Phone"
-msgstr ""
+msgstr "Telefon"
 
 #. i18n: file: ui/editclient_widget.ui:97
 #. i18n: ectx: property (text), widget (QLabel, label_18)
@@ -216,7 +219,7 @@ msgstr ""
 #: po/extractedrc.cpp:33 po/extractedrc.cpp:93 extractedrc.cpp:33
 #: extractedrc.cpp:93
 msgid "Cell Phone:"
-msgstr ""
+msgstr "Mobil:"
 
 #. i18n: file: ui/editclient_widget.ui:133
 #. i18n: ectx: property (text), widget (QPushButton, btnChangeClientPhoto)
@@ -229,7 +232,7 @@ msgstr ""
 #: po/extractedrc.cpp:36 po/extractedrc.cpp:84 extractedrc.cpp:36
 #: extractedrc.cpp:84
 msgid "Change &Photo"
-msgstr ""
+msgstr "Změnit &obrázek"
 
 #. i18n: file: ui/editclient_widget.ui:140
 #. i18n: ectx: property (text), widget (QLabel, label)
@@ -242,19 +245,19 @@ msgstr ""
 #: po/extractedrc.cpp:39 po/extractedrc.cpp:198 extractedrc.cpp:39
 #: extractedrc.cpp:198
 msgid "Points:"
-msgstr ""
+msgstr "Bodů:"
 
 #. i18n: file: ui/editclient_widget.ui:147
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #: po/extractedrc.cpp:42 extractedrc.cpp:42
 msgid "Discount:"
-msgstr ""
+msgstr "Sleva:"
 
 #. i18n: file: ui/editclient_widget.ui:180
 #. i18n: ectx: property (text), widget (QLabel, label_3)
 #: po/extractedrc.cpp:45 extractedrc.cpp:45
 msgid "Since:"
-msgstr ""
+msgstr "Od:"
 
 #. i18n: file: ui/editpromo_widget.ui:37
 #. i18n: ectx: property (text), widget (QLabel, label9)
@@ -267,7 +270,7 @@ msgstr ""
 #: po/extractedrc.cpp:51 po/extractedrc.cpp:295 extractedrc.cpp:51
 #: extractedrc.cpp:295
 msgid "Discount for product:"
-msgstr ""
+msgstr "Sleva na zboží:"
 
 #. i18n: file: ui/editpromo_widget.ui:49
 #. i18n: ectx: property (text), widget (QRadioButton, chByName)
@@ -280,7 +283,7 @@ msgstr ""
 #: po/extractedrc.cpp:54 po/extractedrc.cpp:298 extractedrc.cpp:54
 #: extractedrc.cpp:298
 msgid "Filter by name"
-msgstr ""
+msgstr "Filtr podle jména"
 
 #. i18n: file: ui/editpromo_widget.ui:62
 #. i18n: ectx: property (text), widget (QRadioButton, chByCat)
@@ -293,7 +296,7 @@ msgstr ""
 #: po/extractedrc.cpp:57 po/extractedrc.cpp:301 extractedrc.cpp:57
 #: extractedrc.cpp:301
 msgid "Filter by category"
-msgstr ""
+msgstr "Filtr podle kategorie"
 
 #. i18n: file: ui/editpromo_widget.ui:80
 #. i18n: ectx: property (text), widget (QLabel, label_9)
@@ -306,13 +309,13 @@ msgstr ""
 #: po/extractedrc.cpp:60 po/extractedrc.cpp:304 extractedrc.cpp:60
 #: extractedrc.cpp:304
 msgid "Discount percentage:"
-msgstr ""
+msgstr "Sleva v procentech"
 
 #. i18n: file: ui/editpromo_widget.ui:93
 #. i18n: ectx: property (text), widget (QLabel, label)
 #: po/extractedrc.cpp:63 extractedrc.cpp:63
 msgid "New product price:"
-msgstr ""
+msgstr "Nová cena zboží:"
 
 #. i18n: file: ui/editpromo_widget.ui:112
 #. i18n: ectx: property (title), widget (QGroupBox, groupValidDate_2)
@@ -325,7 +328,7 @@ msgstr ""
 #: po/extractedrc.cpp:66 po/extractedrc.cpp:307 extractedrc.cpp:66
 #: extractedrc.cpp:307
 msgid "Valid From"
-msgstr ""
+msgstr "Platnost od"
 
 #. i18n: file: ui/editpromo_widget.ui:142
 #. i18n: ectx: property (title), widget (QGroupBox, groupValidDate)
@@ -338,7 +341,7 @@ msgstr ""
 #: po/extractedrc.cpp:69 po/extractedrc.cpp:310 extractedrc.cpp:69
 #: extractedrc.cpp:310
 msgid "Valid Until"
-msgstr ""
+msgstr "Platnost do"
 
 #. i18n: file: ui/edituser_widget.ui:20
 #. i18n: ectx: property (text), widget (QLabel, label_14)
@@ -351,7 +354,7 @@ msgstr ""
 #: po/extractedrc.cpp:75 po/extractedrc.cpp:165 extractedrc.cpp:75
 #: extractedrc.cpp:165
 msgid "&Username:"
-msgstr ""
+msgstr "&Uživatel:"
 
 #. i18n: file: ui/edituser_widget.ui:61
 #. i18n: ectx: property (text), widget (QLabel, labelp)
@@ -364,153 +367,153 @@ msgstr ""
 #: po/extractedrc.cpp:78 po/extractedrc.cpp:168 extractedrc.cpp:78
 #: extractedrc.cpp:168
 msgid "&Password:"
-msgstr ""
+msgstr "&Heslo:"
 
 #. i18n: file: ui/edituser_widget.ui:74
 #. i18n: ectx: property (text), widget (QLabel, label_15)
 #: po/extractedrc.cpp:81 extractedrc.cpp:81
 msgid "&Full Name:"
-msgstr ""
+msgstr "&Celé jméno:"
 
 #. i18n: file: ui/edituser_widget.ui:159
 #. i18n: ectx: property (title), widget (QGroupBox, groupRoles)
 #: po/extractedrc.cpp:96 extractedrc.cpp:96
 msgid "User Role"
-msgstr ""
+msgstr "Role uživatele"
 
 #. i18n: file: ui/edituser_widget.ui:165
 #. i18n: ectx: property (text), widget (QRadioButton, chRoleBasic)
 #: po/extractedrc.cpp:99 squeezeview.cpp:1274 squeezeview.cpp:1423
 #: squeezeview.cpp:2457 extractedrc.cpp:99
 msgid "Vendor"
-msgstr ""
+msgstr "Prodavač"
 
 #. i18n: file: ui/edituser_widget.ui:175
 #. i18n: ectx: property (text), widget (QRadioButton, chRoleSupervisor)
 #: po/extractedrc.cpp:102 extractedrc.cpp:102
 msgid "Supervisor"
-msgstr ""
+msgstr "Supervizor"
 
 #. i18n: file: ui/edituser_widget.ui:182
 #. i18n: ectx: property (text), widget (QRadioButton, chRoleAdmin)
 #: po/extractedrc.cpp:105 extractedrc.cpp:105
 msgid "Administrator"
-msgstr ""
+msgstr "Administrátor"
 
 #. i18n: file: ui/pref_printers.ui:32
 #. i18n: ectx: property (title), widget (QGroupBox, kcfg_printTicket)
 #: po/extractedrc.cpp:111 extractedrc.cpp:111
 msgid "Print the ticket as"
-msgstr ""
+msgstr "Tisk účtenky jako"
 
 #. i18n: file: ui/pref_printers.ui:44
 #. i18n: ectx: property (text), widget (QRadioButton, kcfg_smallTicketCUPS)
 #: po/extractedrc.cpp:114 extractedrc.cpp:114
 msgid "Small receipt using a thermal ticket printer (using CUPS)"
-msgstr ""
+msgstr "Malá účtenka na pokladní termotiskárně (CUPS)"
 
 #. i18n: file: ui/pref_printers.ui:60
 #. i18n: ectx: property (text), widget (QRadioButton, kcfg_smallTicketDotMatrix)
 #: po/extractedrc.cpp:117 extractedrc.cpp:117
 msgid "Small receipt using a dot-matrix ticket printer (using /dev/lpX)"
-msgstr ""
+msgstr "Malá účtenka na jehličkové pokladní tiskárně (/dev/lpX)"
 
 #. i18n: file: ui/pref_printers.ui:75
 #. i18n: ectx: property (text), widget (QLabel, Printerdevice)
 #: po/extractedrc.cpp:120 extractedrc.cpp:120
 msgid "Printer Device:"
-msgstr ""
+msgstr "Tiskárna:"
 
 #. i18n: file: ui/pref_printers.ui:92
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #: po/extractedrc.cpp:123 extractedrc.cpp:123
 msgid "Printer Codec:"
-msgstr ""
+msgstr "Kodek tiskárny:"
 
 #. i18n: file: ui/pref_printers.ui:104
 #. i18n: ectx: property (text), widget (QRadioButton, kcfg_bigReceipt)
 #: po/extractedrc.cpp:126 extractedrc.cpp:126
 msgid "Big format [A4, Letter] receipt using normal printer (using CUPS)"
-msgstr ""
+msgstr "Velký formát [A4, Letter] na běžné tiskárně (CUPS)"
 
 #. i18n: file: ui/pref_printers.ui:127
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_printBalances)
 #: po/extractedrc.cpp:129 extractedrc.cpp:129
 msgid "Print Balances on your selected printer (above)."
-msgstr ""
+msgstr "Tisk bilance na vybrané tiskárně (výše)"
 
 #. i18n: file: ui/pref_printers.ui:137
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_printChangedDateTicket)
 #: po/extractedrc.cpp:132 extractedrc.cpp:132
 msgid "Print Date Changed Tickets"
-msgstr ""
+msgstr "Tisk účtenek se změněným datem"
 
 #. i18n: file: ui/prefs_base.ui:19
 #. i18n: ectx: property (text), widget (QLabel, label)
 #: po/extractedrc.cpp:135 extractedrc.cpp:135
 msgid "Style:"
-msgstr ""
+msgstr "Styl:"
 
 #. i18n: file: ui/prefs_base.ui:26
 #. i18n: ectx: property (text), widget (QLineEdit, kcfg_styleName)
 #: po/extractedrc.cpp:138 extractedrc.cpp:138
 msgid "simple"
-msgstr ""
+msgstr "jednoduché"
 
 #. i18n: file: ui/prefs_base.ui:38
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
 #: po/extractedrc.cpp:141 extractedrc.cpp:141
 msgid "Most Sold Products, Alert Range"
-msgstr ""
+msgstr "Nejvíce prodávané produkty, nízká zásoba"
 
 #. i18n: file: ui/prefs_base.ui:46
 #. i18n: ectx: property (text), widget (QLabel, label_3)
 #: po/extractedrc.cpp:144 extractedrc.cpp:144
 msgid "Min Value:"
-msgstr ""
+msgstr "Minimální hodnota:"
 
 #. i18n: file: ui/prefs_base.ui:73
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #: po/extractedrc.cpp:147 extractedrc.cpp:147
 msgid "Max Value:"
-msgstr ""
+msgstr "Maximální hodnota:"
 
 #. i18n: file: ui/prefs_base.ui:98
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_lowSecurityMode)
 #: po/extractedrc.cpp:150 extractedrc.cpp:150
 msgid "Low security mode"
-msgstr ""
+msgstr "Režim nízké bezpečnosti"
 
 #. i18n: file: ui/prefs_base.ui:105
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_isProductsGridDefault)
 #: po/extractedrc.cpp:153 extractedrc.cpp:153
 msgid "Grid is the default view for products"
-msgstr ""
+msgstr "Mřížka jako výchozí pohled na zboží"
 
 #. i18n: file: ui/prefs_db.ui:19
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
 #: po/extractedrc.cpp:159 squeeze.cpp:420 squeeze.cpp:444 extractedrc.cpp:159
 msgid "Database"
-msgstr ""
+msgstr "Databáze"
 
 #. i18n: file: ui/prefs_db.ui:25
 #. i18n: ectx: property (text), widget (QLabel, label)
 #: po/extractedrc.cpp:162 extractedrc.cpp:162
 msgid "&Server:"
-msgstr ""
+msgstr "&Server:"
 
 #. i18n: file: ui/prefs_db.ui:77
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: po/extractedrc.cpp:171 extractedrc.cpp:171
 msgid "&Database Name:"
-msgstr ""
+msgstr "Jméno &databáze:"
 
 #. i18n: file: ui/producteditor.ui:26
 #. i18n: ectx: property (windowTitle), widget (QWidget, productEditor)
 #: po/extractedrc.cpp:174 producteditor.cpp:57 providerseditor.cpp:53
 #: extractedrc.cpp:174
 msgid "Product Editor"
-msgstr ""
+msgstr "Editor zboží"
 
 #. i18n: file: ui/producteditor.ui:41
 #. i18n: ectx: property (text), widget (QLabel, label_5)
@@ -523,13 +526,13 @@ msgstr ""
 #: po/extractedrc.cpp:177 po/extractedrc.cpp:357 extractedrc.cpp:177
 #: extractedrc.cpp:357
 msgid "&Code:"
-msgstr ""
+msgstr "&Kód:"
 
 #. i18n: file: ui/producteditor.ui:96
 #. i18n: ectx: property (toolTip), widget (QPushButton, btnChangeCode)
 #: po/extractedrc.cpp:180 extractedrc.cpp:180
 msgid "Enable Code Editing"
-msgstr ""
+msgstr "Povolit editaci kódu"
 
 #. i18n: file: ui/producteditor.ui:144
 #. i18n: ectx: property (text), widget (QPushButton, btnPhoto)
@@ -542,7 +545,7 @@ msgstr ""
 #: po/extractedrc.cpp:183 po/extractedrc.cpp:363 extractedrc.cpp:183
 #: extractedrc.cpp:363
 msgid "Change photo"
-msgstr ""
+msgstr "Změnit obrázek"
 
 #. i18n: file: ui/producteditor.ui:162
 #. i18n: ectx: property (text), widget (QLabel, label_14)
@@ -555,25 +558,25 @@ msgstr ""
 #: po/extractedrc.cpp:186 po/extractedrc.cpp:366 extractedrc.cpp:186
 #: extractedrc.cpp:366
 msgid "&Description:"
-msgstr ""
+msgstr "&Popis:"
 
 #. i18n: file: ui/producteditor.ui:197
 #. i18n: ectx: property (text), widget (QLabel, labelStockQty)
 #: po/extractedrc.cpp:189 extractedrc.cpp:189
 msgid "&Stock Qty:"
-msgstr ""
+msgstr "&Skladové množství"
 
 #. i18n: file: ui/producteditor.ui:228
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editStockQty)
 #: po/extractedrc.cpp:192 extractedrc.cpp:192
 msgid "To change stock please use check-in/check-out"
-msgstr ""
+msgstr "Pro změnu stavu prosím použij příjem nebo výdej"
 
 #. i18n: file: ui/producteditor.ui:244
 #. i18n: ectx: property (toolTip), widget (QPushButton, btnStockCorrect)
 #: po/extractedrc.cpp:195 extractedrc.cpp:195
 msgid "Make a stock correction"
-msgstr ""
+msgstr "Korekce stavu skladu"
 
 #. i18n: file: ui/producteditor.ui:310
 #. i18n: ectx: property (text), widget (QLabel, label_8)
@@ -586,7 +589,7 @@ msgstr ""
 #: po/extractedrc.cpp:201 po/extractedrc.cpp:369 extractedrc.cpp:201
 #: extractedrc.cpp:369
 msgid "C&ategory:"
-msgstr ""
+msgstr "Skupin&a:"
 
 #. i18n: file: ui/producteditor.ui:342
 #. i18n: ectx: property (text), widget (QLabel, label_7)
@@ -599,7 +602,7 @@ msgstr ""
 #: po/extractedrc.cpp:204 po/extractedrc.cpp:372 extractedrc.cpp:204
 #: extractedrc.cpp:372
 msgid "So&ld by:"
-msgstr ""
+msgstr "Proda&l:"
 
 #. i18n: file: ui/producteditor.ui:374
 #. i18n: ectx: property (text), widget (QLabel, label_9)
@@ -612,20 +615,20 @@ msgstr ""
 #: po/extractedrc.cpp:207 po/extractedrc.cpp:378 extractedrc.cpp:207
 #: extractedrc.cpp:378
 msgid "C&ost:"
-msgstr ""
+msgstr "&Náklad:"
 
 #. i18n: file: ui/producteditor.ui:409
 #. i18n: ectx: property (text), widget (QCheckBox, chIsARaw)
 #: po/extractedrc.cpp:210 extractedrc.cpp:210
 msgid "It's A Raw Product"
-msgstr ""
+msgstr "Je to materiál"
 
 #. i18n: file: ui/producteditor.ui:425
 #. i18n: ectx: property (text), widget (QLabel, label_10)
 #: po/extractedrc.cpp:214 extractedrc.cpp:214
 #, no-c-format
 msgid "&Tax (%):"
-msgstr ""
+msgstr "&Daň (%):"
 
 #. i18n: file: ui/producteditor.ui:456
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editTax)
@@ -638,13 +641,13 @@ msgstr ""
 #: po/extractedrc.cpp:217 po/extractedrc.cpp:384 extractedrc.cpp:217
 #: extractedrc.cpp:384
 msgid "This is the tax in percentage."
-msgstr ""
+msgstr "Toto je daň v procentech."
 
 #. i18n: file: ui/producteditor.ui:475
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
 #: po/extractedrc.cpp:220 extractedrc.cpp:220
 msgid "Calcutate Price"
-msgstr ""
+msgstr "Výpočet ceny"
 
 #. i18n: file: ui/producteditor.ui:487
 #. i18n: ectx: property (text), widget (QLabel, label_3)
@@ -658,7 +661,7 @@ msgstr ""
 #: extractedrc.cpp:397
 #, no-c-format
 msgid "Pro&fit (%):"
-msgstr ""
+msgstr "&Zisk (%):"
 
 #. i18n: file: ui/producteditor.ui:886
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnCalculatePrice)
@@ -671,7 +674,7 @@ msgstr ""
 #: po/extractedrc.cpp:227 po/extractedrc.cpp:409 extractedrc.cpp:227
 #: extractedrc.cpp:409
 msgid "Calculate price based on utility"
-msgstr ""
+msgstr "Výpočet ceny podle utility"
 
 #. i18n: file: ui/producteditor.ui:889
 #. i18n: ectx: property (statusTip), widget (QToolButton, btnCalculatePrice)
@@ -684,7 +687,7 @@ msgstr ""
 #: po/extractedrc.cpp:230 po/extractedrc.cpp:412 extractedrc.cpp:230
 #: extractedrc.cpp:412
 msgid "Calculate price automatically"
-msgstr ""
+msgstr "Automatický výpočet ceny"
 
 #. i18n: file: ui/producteditor.ui:892
 #. i18n: ectx: property (text), widget (QToolButton, btnCalculatePrice)
@@ -715,7 +718,7 @@ msgstr ""
 #: extractedrc.cpp:233 extractedrc.cpp:415 extractedrc.cpp:642
 #: extractedrc.cpp:648 extractedrc.cpp:690 extractedrc.cpp:696
 msgid "$"
-msgstr ""
+msgstr "Kč"
 
 #. i18n: file: ui/producteditor.ui:908
 #. i18n: ectx: property (statusTip), widget (QLabel, label_12)
@@ -728,14 +731,14 @@ msgstr ""
 #: po/extractedrc.cpp:236 po/extractedrc.cpp:387 extractedrc.cpp:236
 #: extractedrc.cpp:387
 msgid "Special Tax"
-msgstr ""
+msgstr "Jiná daň"
 
 #. i18n: file: ui/producteditor.ui:914
 #. i18n: ectx: property (text), widget (QLabel, label_12)
 #: po/extractedrc.cpp:240 extractedrc.cpp:240
 #, no-c-format
 msgid "Ot&her Taxes (%):"
-msgstr ""
+msgstr "Další da&ně (%):"
 
 #. i18n: file: ui/producteditor.ui:945
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editExtraTaxes)
@@ -748,7 +751,7 @@ msgstr ""
 #: po/extractedrc.cpp:243 po/extractedrc.cpp:393 extractedrc.cpp:243
 #: extractedrc.cpp:393
 msgid "This is the extra tax in percentage."
-msgstr ""
+msgstr "Toto je ostatní daň v procentech."
 
 #. i18n: file: ui/producteditor.ui:961
 #. i18n: ectx: property (text), widget (QLabel, label_13)
@@ -761,7 +764,7 @@ msgstr ""
 #: po/extractedrc.cpp:246 po/extractedrc.cpp:403 extractedrc.cpp:246
 #: extractedrc.cpp:403
 msgid "&Public price:"
-msgstr ""
+msgstr "&Prodejní cena:"
 
 #. i18n: file: ui/producteditor.ui:992
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editFinalPrice)
@@ -774,13 +777,13 @@ msgstr ""
 #: po/extractedrc.cpp:249 po/extractedrc.cpp:406 extractedrc.cpp:249
 #: extractedrc.cpp:406
 msgid "Can be calculated with de + button"
-msgstr ""
+msgstr "Můžete počítat pomocí klávesy +"
 
 #. i18n: file: ui/producteditor.ui:1005
 #. i18n: ectx: property (text), widget (QCheckBox, chIsAGroup)
 #: po/extractedrc.cpp:252 extractedrc.cpp:252
 msgid "It's a Group/Pack"
-msgstr ""
+msgstr "Je to skupina/balení"
 
 #. i18n: file: ui/producteditor.ui:1021
 #. i18n: ectx: property (text), widget (QLabel, label)
@@ -802,54 +805,69 @@ msgid ""
 "weight:600;\"> </span>item quantities on the right table by <span style=\" "
 "font-weight:600;\">double clicking</span> on the item</p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:8pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-style:"
+"italic;\">Vyberte</span> zboží ze seznamu vlevo a klikněte '&gt;' tlačítko "
+"<span style=\" font-weight:600;\">přidání</span> do skupiny napravu. "
+"Můžete<span style=\" font-style:italic;\"> </span><span style=\" font-"
+"weight:600; font-style:italic;\">zvětšit</span><span style=\" font-"
+"weight:600;\"> </span>počet položek napravo <span style=\" font-weight:600;"
+"\"dvouklikem</span> na položku</p></body></html>"
 
 #. i18n: file: ui/producteditor.ui:1054
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnAdd)
 #: po/extractedrc.cpp:262 extractedrc.cpp:262
 msgid "Add selected products to the group"
-msgstr ""
+msgstr "Přidat vybrané zboží do skupiny"
 
 #. i18n: file: ui/producteditor.ui:1057
 #. i18n: ectx: property (text), widget (QToolButton, btnAdd)
 #: po/extractedrc.cpp:265 extractedrc.cpp:265
 msgid ">"
-msgstr ""
+msgstr ">"
 
 #. i18n: file: ui/producteditor.ui:1064
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnRemove)
 #: po/extractedrc.cpp:268 extractedrc.cpp:268
 msgid "Remove selected products from the group"
-msgstr ""
+msgstr "Odstranit zboží ze skupiny/balení"
 
 #. i18n: file: ui/producteditor.ui:1067
 #. i18n: ectx: property (text), widget (QToolButton, btnRemove)
 #: po/extractedrc.cpp:271 extractedrc.cpp:271
 msgid "<"
-msgstr ""
+msgstr "<"
 
 #. i18n: file: ui/producteditor.ui:1078
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #: po/extractedrc.cpp:274 extractedrc.cpp:274
 msgid "Filter:"
-msgstr ""
+msgstr "Filtr:"
 
 #. i18n: file: ui/producteditor.ui:1085
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editFilter)
 #: po/extractedrc.cpp:277 extractedrc.cpp:277
 msgid "You can filter the products by description,"
-msgstr ""
+msgstr "Filtr zboží podle popisu"
 
 #. i18n: file: ui/producteditor.ui:1097
 #. i18n: ectx: property (text), widget (QPushButton, btnCloseGroup)
 #: po/extractedrc.cpp:280 extractedrc.cpp:280
 msgid "Close this panel"
-msgstr ""
+msgstr "Zavřít tento panel"
 
 #. i18n: file: ui/producteditor.ui:1117
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
 #: po/extractedrc.cpp:283 squeezeview.cpp:1535 extractedrc.cpp:283
 msgid "Qty"
-msgstr ""
+msgstr "Množství"
 
 #. i18n: file: ui/producteditor.ui:1122
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
@@ -863,62 +881,62 @@ msgstr ""
 #: squeezeview.cpp:1171 squeezeview.cpp:2865 squeezeview.cpp:2927
 #: extractedrc.cpp:286 extractedrc.cpp:445
 msgid "Description"
-msgstr ""
+msgstr "Popis"
 
 #. i18n: file: ui/producteditor.ui:1133
 #. i18n: ectx: property (text), widget (QPushButton, btnShowGroup)
 #: po/extractedrc.cpp:289 extractedrc.cpp:289
 msgid "Show Group details"
-msgstr ""
+msgstr "Podrobnosti skupiny/balení"
 
 #. i18n: file: ui/providerseditor.ui:65
 #. i18n: ectx: property (text), widget (QLabel, label_17)
 #: po/extractedrc.cpp:322 extractedrc.cpp:322
 msgid "&Phone"
-msgstr ""
+msgstr "&Telefon"
 
 #. i18n: file: ui/providerseditor.ui:78
 #. i18n: ectx: property (text), widget (QLabel, label_18)
 #: po/extractedrc.cpp:325 extractedrc.cpp:325
 msgid "&Cell Phone:"
-msgstr ""
+msgstr "&Mobil:"
 
 #. i18n: file: ui/providerseditor.ui:97
 #. i18n: ectx: property (title), widget (QGroupBox, groupProducts)
 #: po/extractedrc.cpp:328 extractedrc.cpp:328
 msgid "Products "
-msgstr ""
+msgstr "Zboží"
 
 #. i18n: file: ui/providerseditor.ui:130
 #. i18n: ectx: property (text), widget (QPushButton, btnAttach)
 #: po/extractedrc.cpp:331 extractedrc.cpp:331
 msgid "Add selected"
-msgstr ""
+msgstr "Přidat vybrané"
 
 #. i18n: file: ui/providerseditor.ui:137
 #. i18n: ectx: property (text), widget (QPushButton, btnCancelAttach)
 #: po/extractedrc.cpp:334 ../../src/inputdialog.cpp:153 extractedrc.cpp:334
 msgid "Cancel"
-msgstr ""
+msgstr "Zrušit"
 
 #. i18n: file: ui/providerseditor.ui:154
 #. i18n: ectx: property (text), widget (QPushButton, btnAdd)
 #: po/extractedrc.cpp:337 extractedrc.cpp:337
 msgid "Add"
-msgstr ""
+msgstr "Přidat"
 
 #. i18n: file: ui/providerseditor.ui:161
 #. i18n: ectx: property (text), widget (QPushButton, btnRemove)
 #: po/extractedrc.cpp:340 extractedrc.cpp:340
 msgid "Remove"
-msgstr ""
+msgstr "Odstranit"
 
 #. i18n: file: ui/purchaseeditor.ui:38
 #. i18n: ectx: property (windowTitle), widget (QWidget, purchaseEditor)
 #: po/extractedrc.cpp:343 purchaseeditor.cpp:42 squeeze.cpp:309
 #: extractedrc.cpp:343
 msgid "Purchase"
-msgstr ""
+msgstr "Nákup"
 
 #. i18n: file: ui/purchaseeditor.ui:73
 #. i18n: ectx: property (text), widget (QLabel, label)
@@ -941,115 +959,131 @@ msgid ""
 "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
 "p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:8pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Vyplňte data pro každou "
+"položku a klikněte na <span style=\" font-weight:600;\">přidat toto zboží</"
+"span> pro další zboží. Pokud je zboží již v databázi, bude aktualizováno. "
+"<span style=\" font-weight:600;\">Na konci, klikněte na \"Ok\" tlačítko</"
+"span>.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
+"p></body></html>"
 
 #. i18n: file: ui/purchaseeditor.ui:93
 #. i18n: ectx: attribute (title), widget (QWidget, tab)
 #: po/extractedrc.cpp:354 extractedrc.cpp:354
 msgid "Product Information"
-msgstr ""
+msgstr "Informace o zboží"
 
 #. i18n: file: ui/purchaseeditor.ui:163
 #. i18n: ectx: property (text), widget (QLabel, label_12)
 #: po/extractedrc.cpp:360 extractedrc.cpp:360
 msgid "Pu&rchase Qty:"
-msgstr ""
+msgstr "Koupené množství:"
 
 #. i18n: file: ui/purchaseeditor.ui:411
 #. i18n: ectx: property (text), widget (QLabel, label_15)
 #: po/extractedrc.cpp:375 extractedrc.cpp:375
 msgid "&Points:"
-msgstr ""
+msgstr "&Body:"
 
 #. i18n: file: ui/purchaseeditor.ui:524
 #. i18n: ectx: property (text), widget (QLabel, label_10)
 #: po/extractedrc.cpp:381 extractedrc.cpp:381
 msgid "&Taxes 1).-"
-msgstr ""
+msgstr "&Daně 1).-"
 
 #. i18n: file: ui/purchaseeditor.ui:580
 #. i18n: ectx: property (text), widget (QLabel, label_14)
 #: po/extractedrc.cpp:390 extractedrc.cpp:390
 msgid "2).-"
-msgstr ""
+msgstr "2).-"
 
 #. i18n: file: ui/purchaseeditor.ui:665
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editUtility)
 #: po/extractedrc.cpp:400 extractedrc.cpp:400
 msgid "For price auto-calculation only"
-msgstr ""
+msgstr "Jen pro automatickou kalkulaci ceny"
 
 #. i18n: file: ui/purchaseeditor.ui:1125
 #. i18n: ectx: property (title), widget (QGroupBox, groupBoxedItem)
 #: po/extractedrc.cpp:418 extractedrc.cpp:418
 msgid "Boxed products"
-msgstr ""
+msgstr "Multibal."
 
 #. i18n: file: ui/purchaseeditor.ui:1143
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: po/extractedrc.cpp:421 extractedrc.cpp:421
 msgid "&Items/box:"
-msgstr ""
+msgstr "MJ/multibal."
 
 #. i18n: file: ui/purchaseeditor.ui:1168
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editItemsPerBox)
 #: po/extractedrc.cpp:424 extractedrc.cpp:424
 msgid "Items per box"
-msgstr ""
+msgstr "Položek v multibalení"
 
 #. i18n: file: ui/purchaseeditor.ui:1181
 #. i18n: ectx: property (text), widget (QLabel, label_7)
 #: po/extractedrc.cpp:427 extractedrc.cpp:427
 msgid "P&rice/box :"
-msgstr ""
+msgstr "Cena/multibal.:"
 
 #. i18n: file: ui/purchaseeditor.ui:1206
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editPricePerBox)
 #: po/extractedrc.cpp:430 extractedrc.cpp:430
 msgid "Price per box"
-msgstr ""
+msgstr "Cena za multibalení"
 
 #. i18n: file: ui/purchaseeditor.ui:1218
 #. i18n: ectx: property (text), widget (QCheckBox, chIsAGroup)
 #: po/extractedrc.cpp:433 extractedrc.cpp:433
 msgid "Group. There will be added all its grouped products to the purchase."
-msgstr ""
+msgstr "Skupina. Tady se přidává seskupené zboží pro nákup."
 
 #. i18n: file: ui/purchaseeditor.ui:1607
 #. i18n: ectx: property (text), widget (QPushButton, btnAddItem)
 #: po/extractedrc.cpp:436 extractedrc.cpp:436
 msgid "add this product"
-msgstr ""
+msgstr "přidat toto zboží"
 
 #. i18n: file: ui/purchaseeditor.ui:1616
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
 #: po/extractedrc.cpp:439 extractedrc.cpp:439
 msgid "Items in this purchase"
-msgstr ""
+msgstr "Položky v tomto nákupu"
 
 #. i18n: file: ui/purchaseeditor.ui:1638
 #. i18n: ectx: property (text), widget (QTableWidget, tableView)
 #: po/extractedrc.cpp:442 squeezeview.cpp:991 squeezeview.cpp:2864
 #: squeezeview.cpp:2926 extractedrc.cpp:442
 msgid "Code"
-msgstr ""
+msgstr "Kód"
 
 #. i18n: file: ui/purchaseeditor.ui:1648
 #. i18n: ectx: property (text), widget (QTableWidget, tableView)
 #: po/extractedrc.cpp:448 extractedrc.cpp:448
 msgid "Purchased Qty"
-msgstr ""
+msgstr "Koupeno MJ"
 
 #. i18n: file: ui/purchaseeditor.ui:1653
 #. i18n: ectx: property (text), widget (QTableWidget, tableView)
 #: po/extractedrc.cpp:451 extractedrc.cpp:451
 msgid "Total Qty"
-msgstr ""
+msgstr "Celkem MJ"
 
 #. i18n: file: ui/purchaseeditor.ui:1676
 #. i18n: ectx: property (text), widget (QPushButton, btnRemoveItem)
 #: po/extractedrc.cpp:454 extractedrc.cpp:454
 msgid "Remove Item from list"
-msgstr ""
+msgstr "Odstranit položku ze seznamu"
 
 #. i18n: file: ui/squeezeview_base.ui:58
 #. i18n: ectx: property (text), widget (QLabel, headerImg)
@@ -1066,68 +1100,68 @@ msgstr ""
 #: po/extractedrc.cpp:460 po/extractedrc.cpp:466 po/extractedrc.cpp:572
 #: extractedrc.cpp:460 extractedrc.cpp:466 extractedrc.cpp:572
 msgid "TextLabel"
-msgstr ""
+msgstr "TextPopis"
 
 #. i18n: file: ui/squeezeview_base.ui:71
 #. i18n: ectx: property (text), widget (QLabel, headerLabel)
 #: po/extractedrc.cpp:463 extractedrc.cpp:463
 msgid "welcome"
-msgstr ""
+msgstr "vítejte"
 
 #. i18n: file: ui/squeezeview_base.ui:161
 #. i18n: ectx: property (text), widget (QLabel, lblGraphSoldItems)
 #: po/extractedrc.cpp:469 extractedrc.cpp:469
 msgid "5 Most Sold Items"
-msgstr ""
+msgstr "Pět neprodávanějších"
 
 #. i18n: file: ui/squeezeview_base.ui:177
 #. i18n: ectx: property (text), widget (QLabel, lblGraphAlmostSoldOutItems)
 #: po/extractedrc.cpp:472 extractedrc.cpp:472
 msgid "Almost Sold Out Items (Top 5 sold items)"
-msgstr ""
+msgstr "Téměř vyprodané zboží (Top 5)"
 
 #. i18n: file: ui/squeezeview_base.ui:193
 #. i18n: ectx: property (text), widget (QLabel, lblGraphSales)
 #: po/extractedrc.cpp:475 extractedrc.cpp:475
 msgid "Sales"
-msgstr ""
+msgstr "Prodeje"
 
 #. i18n: file: ui/squeezeview_base.ui:209
 #. i18n: ectx: property (text), widget (QLabel, lblGraphProfit)
 #: po/extractedrc.cpp:478 squeezeview.cpp:1281 squeezeview.cpp:2593
 #: squeezeview.cpp:2701 squeezeview.cpp:2787 extractedrc.cpp:478
 msgid "Profit"
-msgstr ""
+msgstr "Zisk"
 
 #. i18n: file: ui/squeezeview_base.ui:693
 #. i18n: ectx: property (text), widget (QLabel, lblProd1)
 #: po/extractedrc.cpp:481 extractedrc.cpp:481
 msgid "1.-"
-msgstr ""
+msgstr "1.-"
 
 #. i18n: file: ui/squeezeview_base.ui:723
 #. i18n: ectx: property (text), widget (QLabel, lblProd2)
 #: po/extractedrc.cpp:484 extractedrc.cpp:484
 msgid "2.-"
-msgstr ""
+msgstr "2.-"
 
 #. i18n: file: ui/squeezeview_base.ui:750
 #. i18n: ectx: property (text), widget (QLabel, lblProd3)
 #: po/extractedrc.cpp:487 extractedrc.cpp:487
 msgid "3.-"
-msgstr ""
+msgstr "3.-"
 
 #. i18n: file: ui/squeezeview_base.ui:777
 #. i18n: ectx: property (text), widget (QLabel, lblProd4)
 #: po/extractedrc.cpp:490 extractedrc.cpp:490
 msgid "4.-"
-msgstr ""
+msgstr "4.-"
 
 #. i18n: file: ui/squeezeview_base.ui:804
 #. i18n: ectx: property (text), widget (QLabel, lblProd5)
 #: po/extractedrc.cpp:493 extractedrc.cpp:493
 msgid "5.-"
-msgstr ""
+msgstr "5.-"
 
 #. i18n: file: ui/squeezeview_base.ui:853
 #. i18n: ectx: property (title), widget (QGroupBox, groupFilterProducts)
@@ -1154,61 +1188,61 @@ msgstr ""
 #: extractedrc.cpp:548 extractedrc.cpp:624 extractedrc.cpp:654
 #: extractedrc.cpp:702
 msgid "Filter"
-msgstr ""
+msgstr "Filtr"
 
 #. i18n: file: ui/squeezeview_base.ui:874
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByDesc)
 #: po/extractedrc.cpp:499 extractedrc.cpp:499
 msgid "by description"
-msgstr ""
+msgstr "podle popisu"
 
 #. i18n: file: ui/squeezeview_base.ui:891
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByCategory)
 #: po/extractedrc.cpp:502 extractedrc.cpp:502
 msgid "by category"
-msgstr ""
+msgstr "podle kategorie"
 
 #. i18n: file: ui/squeezeview_base.ui:908
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByAvailable)
 #: po/extractedrc.cpp:505 extractedrc.cpp:505
 msgid "show available items"
-msgstr ""
+msgstr "ukázat dostupné zboží"
 
 #. i18n: file: ui/squeezeview_base.ui:915
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByAlmostSoldOut)
 #: po/extractedrc.cpp:508 extractedrc.cpp:508
 msgid "show almost sold out items"
-msgstr ""
+msgstr "ukázat téměř vyprodané"
 
 #. i18n: file: ui/squeezeview_base.ui:922
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByNotAvailable)
 #: po/extractedrc.cpp:511 extractedrc.cpp:511
 msgid "show sold out items"
-msgstr ""
+msgstr "ukázat vyprodané"
 
 #. i18n: file: ui/squeezeview_base.ui:929
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByLessSold)
 #: po/extractedrc.cpp:514 extractedrc.cpp:514
 msgid "show less sold"
-msgstr ""
+msgstr "ukázat nejméně prodávane"
 
 #. i18n: file: ui/squeezeview_base.ui:936
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByMostSold)
 #: po/extractedrc.cpp:517 extractedrc.cpp:517
 msgid "show most sold"
-msgstr ""
+msgstr "ukázat nejprodavanější"
 
 #. i18n: file: ui/squeezeview_base.ui:943
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByRaw)
 #: po/extractedrc.cpp:520 extractedrc.cpp:520
 msgid "show raw products only"
-msgstr ""
+msgstr "ukázat jen materiál"
 
 #. i18n: file: ui/squeezeview_base.ui:950
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByGroup)
 #: po/extractedrc.cpp:523 extractedrc.cpp:523
 msgid "show only group/pack products"
-msgstr ""
+msgstr "ukázat jen skupiny/balení"
 
 #. i18n: file: ui/squeezeview_base.ui:1003
 #. i18n: ectx: property (text), widget (QLabel, label)
@@ -1226,30 +1260,41 @@ msgid ""
 "weight:600; font-style:italic;\">View Products List As</span>:</p></body></"
 "html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:9pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"weight:600; font-style:italic;\">Zobrazit seznam zboží jako</span>:</p></"
+"body></html>"
 
 #. i18n: file: ui/squeezeview_base.ui:1010
 #. i18n: ectx: property (text), widget (QRadioButton, chViewProductsListAsTable)
 #: po/extractedrc.cpp:533 extractedrc.cpp:533
 msgid "Table"
-msgstr ""
+msgstr "Tabulka"
 
 #. i18n: file: ui/squeezeview_base.ui:1017
 #. i18n: ectx: property (text), widget (QRadioButton, chViewProductsListAsGrid)
 #: po/extractedrc.cpp:536 extractedrc.cpp:536
 msgid "Grid"
-msgstr ""
+msgstr "Mřížka"
 
 #. i18n: file: ui/squeezeview_base.ui:1064
 #. i18n: ectx: property (text), widget (QPushButton, btnAddProduct)
 #: po/extractedrc.cpp:539 extractedrc.cpp:539
 msgid "Add Product"
-msgstr ""
+msgstr "Přidat zboží"
 
 #. i18n: file: ui/squeezeview_base.ui:1071
 #. i18n: ectx: property (text), widget (QPushButton, btnDeleteProduct)
 #: po/extractedrc.cpp:542 extractedrc.cpp:542
 msgid "Delete Product"
-msgstr ""
+msgstr "Odstranit zboží"
 
 #. i18n: file: ui/squeezeview_base.ui:1078
 #. i18n: ectx: property (text), widget (QPushButton, btnExportProducts)
@@ -1285,55 +1330,55 @@ msgstr ""
 #: extractedrc.cpp:584 extractedrc.cpp:593 extractedrc.cpp:602
 #: extractedrc.cpp:611 extractedrc.cpp:738
 msgid "Export"
-msgstr ""
+msgstr "Export"
 
 #. i18n: file: ui/squeezeview_base.ui:1111
 #. i18n: ectx: property (text), widget (QRadioButton, chOffersFilterByProduct)
 #: po/extractedrc.cpp:551 extractedrc.cpp:551
 msgid "by product description"
-msgstr ""
+msgstr "podle popisu zboží"
 
 #. i18n: file: ui/squeezeview_base.ui:1133
 #. i18n: ectx: property (text), widget (QRadioButton, chOffersTodayDiscounts)
 #: po/extractedrc.cpp:554 extractedrc.cpp:554
 msgid "by today discounts"
-msgstr ""
+msgstr "podle dnešních slev"
 
 #. i18n: file: ui/squeezeview_base.ui:1143
 #. i18n: ectx: property (text), widget (QRadioButton, chOffersSelectDate)
 #: po/extractedrc.cpp:557 extractedrc.cpp:557
 msgid "by valid discount for date:"
-msgstr ""
+msgstr "podle slev platný ke dni:"
 
 #. i18n: file: ui/squeezeview_base.ui:1150
 #. i18n: ectx: property (text), widget (QRadioButton, chOffersOldDiscounts)
 #: po/extractedrc.cpp:560 extractedrc.cpp:560
 msgid "by old discounts"
-msgstr ""
+msgstr "podle starých slev"
 
 #. i18n: file: ui/squeezeview_base.ui:1211
 #. i18n: ectx: property (text), widget (QPushButton, btnAddOffer)
 #: po/extractedrc.cpp:563 extractedrc.cpp:563
 msgid "Create New Offer"
-msgstr ""
+msgstr "Vytvořit novou nabídku"
 
 #. i18n: file: ui/squeezeview_base.ui:1218
 #. i18n: ectx: property (text), widget (QPushButton, btnDeleteOffer)
 #: po/extractedrc.cpp:566 extractedrc.cpp:566
 msgid "Delete Selected Offer"
-msgstr ""
+msgstr "Smazat vybranou nabídku"
 
 #. i18n: file: ui/squeezeview_base.ui:1245
 #. i18n: ectx: property (toolTip), widget (QListView, usersView)
 #: po/extractedrc.cpp:575 extractedrc.cpp:575
 msgid "To edit an user, double click on it."
-msgstr ""
+msgstr "Editujte uživatele dvojklikem."
 
 #. i18n: file: ui/squeezeview_base.ui:1273
 #. i18n: ectx: property (text), widget (QPushButton, btnAddUser)
 #: po/extractedrc.cpp:578 extractedrc.cpp:578
 msgid "Add User"
-msgstr ""
+msgstr "Vytvořit uživatele"
 
 #. i18n: file: ui/squeezeview_base.ui:1280
 #. i18n: ectx: property (text), widget (QPushButton, btnDeleteUser)
@@ -1355,31 +1400,31 @@ msgstr ""
 #: po/extractedrc.cpp:608 extractedrc.cpp:581 extractedrc.cpp:590
 #: extractedrc.cpp:599 extractedrc.cpp:608
 msgid "Delete Selected"
-msgstr ""
+msgstr "Odstranit vybrané"
 
 #. i18n: file: ui/squeezeview_base.ui:1331
 #. i18n: ectx: property (text), widget (QPushButton, btnAddMeasure)
 #: po/extractedrc.cpp:587 extractedrc.cpp:587
 msgid "Add Measure"
-msgstr ""
+msgstr "Vytvořit jednotku"
 
 #. i18n: file: ui/squeezeview_base.ui:1386
 #. i18n: ectx: property (text), widget (QPushButton, btnAddCategory)
 #: po/extractedrc.cpp:596 extractedrc.cpp:596
 msgid "Add Category"
-msgstr ""
+msgstr "Vytvořit kategorii"
 
 #. i18n: file: ui/squeezeview_base.ui:1431
 #. i18n: ectx: property (text), widget (QPushButton, btnAddClient)
 #: po/extractedrc.cpp:605 extractedrc.cpp:605
 msgid "Add Client"
-msgstr ""
+msgstr "Vytvořit zákazníka"
 
 #. i18n: file: ui/squeezeview_base.ui:1476
 #. i18n: ectx: property (text), widget (QPushButton, btnAddRandomMsg)
 #: po/extractedrc.cpp:614 extractedrc.cpp:614
 msgid "Add New Message"
-msgstr ""
+msgstr "Vytvořit zprávu"
 
 #. i18n: file: ui/squeezeview_base.ui:1517
 #. i18n: ectx: property (text), widget (QLabel, label_2)
@@ -1397,18 +1442,29 @@ msgid ""
 "style=\" font-size:11pt; font-weight:600;\">Printed Reports</span></p></"
 "body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:9pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-"
+"left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span "
+"style=\" font-size:11pt; font-weight:600;\">Tiskové sestavy</span></p></"
+"body></html>"
 
 #. i18n: file: ui/squeezeview_base.ui:1612
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilterByState)
 #: po/extractedrc.cpp:627 extractedrc.cpp:627
 msgid "show not empty balances"
-msgstr ""
+msgstr "ukazát nenulové bilance"
 
 #. i18n: file: ui/squeezeview_base.ui:1619
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilterBySuspicious)
 #: po/extractedrc.cpp:630 extractedrc.cpp:630
 msgid "show suspicious balances"
-msgstr ""
+msgstr "ukázat podezřelé bilance"
 
 #. i18n: file: ui/squeezeview_base.ui:1643
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilterByDate)
@@ -1421,7 +1477,7 @@ msgstr ""
 #: po/extractedrc.cpp:633 po/extractedrc.cpp:678 extractedrc.cpp:633
 #: extractedrc.cpp:678
 msgid "by Date:"
-msgstr ""
+msgstr "podle data:"
 
 #. i18n: file: ui/squeezeview_base.ui:1650
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilterByUser)
@@ -1434,19 +1490,19 @@ msgstr ""
 #: po/extractedrc.cpp:636 po/extractedrc.cpp:681 extractedrc.cpp:636
 #: extractedrc.cpp:681
 msgid "by Vendor Name"
-msgstr ""
+msgstr "podle prodavače"
 
 #. i18n: file: ui/squeezeview_base.ui:1679
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilterByCashInLess)
 #: po/extractedrc.cpp:639 extractedrc.cpp:639
 msgid "Cash In <"
-msgstr ""
+msgstr "Příjmy <"
 
 #. i18n: file: ui/squeezeview_base.ui:1708
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilterByCashInGrater)
 #: po/extractedrc.cpp:645 extractedrc.cpp:645
 msgid "Cash In >"
-msgstr ""
+msgstr "Příjmy >"
 
 #. i18n: file: ui/squeezeview_base.ui:1737
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilgerByTerminalNum)
@@ -1459,140 +1515,140 @@ msgstr ""
 #: po/extractedrc.cpp:651 po/extractedrc.cpp:699 extractedrc.cpp:651
 #: extractedrc.cpp:699
 msgid "by Terminal Number"
-msgstr ""
+msgstr "podle čísla terminálu"
 
 #. i18n: file: ui/squeezeview_base.ui:1819
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransactionsFilterOnlySales)
 #: po/extractedrc.cpp:657 extractedrc.cpp:657
 msgid "Only Sales"
-msgstr ""
+msgstr "Jen prodeje"
 
 #. i18n: file: ui/squeezeview_base.ui:1826
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByStateFinished)
 #: po/extractedrc.cpp:660 extractedrc.cpp:660
 msgid "show finished transactions"
-msgstr ""
+msgstr "ukázat ukončené transakce"
 
 #. i18n: file: ui/squeezeview_base.ui:1833
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransactionsFilterOnlyPurchases)
 #: po/extractedrc.cpp:663 extractedrc.cpp:663
 msgid "Only Purchases"
-msgstr ""
+msgstr "Jen nákupy"
 
 #. i18n: file: ui/squeezeview_base.ui:1840
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByStateCancelled)
 #: po/extractedrc.cpp:666 extractedrc.cpp:666
 msgid "show cancelled transactions"
-msgstr ""
+msgstr "ukázat zrušené transakce"
 
 #. i18n: file: ui/squeezeview_base.ui:1847
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransactionsFilterOnlyChangesReturns)
 #: po/extractedrc.cpp:669 extractedrc.cpp:669
 msgid "Only Changes and Returns"
-msgstr ""
+msgstr "Jen výměny a vrátky"
 
 #. i18n: file: ui/squeezeview_base.ui:1854
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByPaidCredit)
 #: po/extractedrc.cpp:672 extractedrc.cpp:672
 msgid "show transactions paid with card"
-msgstr ""
+msgstr "ukázat transakce placené kartou"
 
 #. i18n: file: ui/squeezeview_base.ui:1861
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByPaidCash)
 #: po/extractedrc.cpp:675 extractedrc.cpp:675
 msgid "show transactions paid in cash"
-msgstr ""
+msgstr "ukázat transakce placené hotově"
 
 #. i18n: file: ui/squeezeview_base.ui:1915
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByClient)
 #: po/extractedrc.cpp:684 extractedrc.cpp:684
 msgid "by Client Name:"
-msgstr ""
+msgstr "podle zákazníka"
 
 #. i18n: file: ui/squeezeview_base.ui:1938
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByAmountLess)
 #: po/extractedrc.cpp:687 extractedrc.cpp:687
 msgid "Amount Paid <"
-msgstr ""
+msgstr "Platby <"
 
 #. i18n: file: ui/squeezeview_base.ui:1967
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByAmountGreater)
 #: po/extractedrc.cpp:693 extractedrc.cpp:693
 msgid "Amount Paid >"
-msgstr ""
+msgstr "Platby >"
 
 #. i18n: file: ui/squeezeview_base.ui:2057
 #. i18n: ectx: property (text), widget (QLabel, label_5)
 #: po/extractedrc.cpp:705 extractedrc.cpp:705
 msgid "By Date:"
-msgstr ""
+msgstr "Podle data:"
 
 #. i18n: file: ui/squeezeview_base.ui:2069
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByDate)
 #: po/extractedrc.cpp:708 extractedrc.cpp:708
 msgid "All orders for day:"
-msgstr ""
+msgstr "Všechny objednávky za den:"
 
 #. i18n: file: ui/squeezeview_base.ui:2099
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByThisWeek)
 #: po/extractedrc.cpp:711 extractedrc.cpp:711
 msgid "All orders whitin 7 days"
-msgstr ""
+msgstr "Všechny objednávky za posledních 7 dnů"
 
 #. i18n: file: ui/squeezeview_base.ui:2106
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByThisMonth)
 #: po/extractedrc.cpp:714 extractedrc.cpp:714
 msgid "All orders within 30 days"
-msgstr ""
+msgstr "Všechny objednávky za posledních 30 dnů"
 
 #. i18n: file: ui/squeezeview_base.ui:2135
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: po/extractedrc.cpp:717 extractedrc.cpp:717
 msgid "By Order Status:"
-msgstr ""
+msgstr "Podle stavu objednávky:"
 
 #. i18n: file: ui/squeezeview_base.ui:2147
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByStatusPending)
 #: po/extractedrc.cpp:720 extractedrc.cpp:720
 msgid "All Pending orders"
-msgstr ""
+msgstr "Všechny nezačaté objednávky"
 
 #. i18n: file: ui/squeezeview_base.ui:2154
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByStatusInProgress)
 #: po/extractedrc.cpp:723 extractedrc.cpp:723
 msgid "All In-Progress orders"
-msgstr ""
+msgstr "Všechny vyřizované objednávky"
 
 #. i18n: file: ui/squeezeview_base.ui:2161
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByStatusReady)
 #: po/extractedrc.cpp:726 extractedrc.cpp:726
 msgid "All Ready orders"
-msgstr ""
+msgstr "Všechny připravené objednávky"
 
 #. i18n: file: ui/squeezeview_base.ui:2168
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByStatusDelivered)
 #: po/extractedrc.cpp:729 extractedrc.cpp:729
 msgid "All Delivered orders"
-msgstr ""
+msgstr "Všechny doručené objednávky"
 
 #. i18n: file: ui/squeezeview_base.ui:2175
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByStatusCancelled)
 #: po/extractedrc.cpp:732 extractedrc.cpp:732
 msgid "All Cancelled orders"
-msgstr ""
+msgstr "Všechny zrušené objednávky"
 
 #. i18n: file: ui/squeezeview_base.ui:2215
 #. i18n: ectx: property (text), widget (QPushButton, btnPrintBalance)
 #: po/extractedrc.cpp:735 extractedrc.cpp:735
 msgid "Print"
-msgstr ""
+msgstr "Tisk"
 
 #. i18n: file: ui/squeezeview_base.ui:2255
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnCashFlow)
 #: po/extractedrc.cpp:741 squeeze.cpp:291 squeezeview.cpp:502
 #: extractedrc.cpp:741
 msgid "Cash Flow"
-msgstr ""
+msgstr "Cash Flow"
 
 #. i18n: file: ui/squeezeview_base.ui:2258
 #. i18n: ectx: property (text), widget (QToolButton, btnCashFlow)
@@ -1614,27 +1670,27 @@ msgstr ""
 #: po/extractedrc.cpp:762 extractedrc.cpp:744 extractedrc.cpp:750
 #: extractedrc.cpp:756 extractedrc.cpp:762
 msgid "..."
-msgstr ""
+msgstr "..."
 
 #. i18n: file: ui/squeezeview_base.ui:2277
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnTransactions)
 #: po/extractedrc.cpp:747 squeeze.cpp:297 squeezeview.cpp:467
 #: squeezeview.cpp:1429 extractedrc.cpp:747
 msgid "Transactions"
-msgstr ""
+msgstr "Transakce"
 
 #. i18n: file: ui/squeezeview_base.ui:2302
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnBalances)
 #: po/extractedrc.cpp:753 squeeze.cpp:285 squeezeview.cpp:479
 #: extractedrc.cpp:753
 msgid "Balances"
-msgstr ""
+msgstr "Bilance"
 
 #. i18n: file: ui/squeezeview_base.ui:2327
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnSO)
 #: po/extractedrc.cpp:759 squeezeview.cpp:490 extractedrc.cpp:759
 msgid "Special Orders"
-msgstr ""
+msgstr "Speciální objednávky"
 
 #. i18n: file: ui/squeezeview_base.ui:2363
 #. i18n: ectx: property (text), widget (QLabel, label_3)
@@ -1652,766 +1708,783 @@ msgid ""
 "style=\" font-size:11pt; font-weight:600;\">On Screen Reports</span></p></"
 "body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:9pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-"
+"left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span "
+"style=\" font-size:11pt; font-weight:600;\">Report na obrazovce</span></p></"
+"body></html>"
 
 #: po/extractedrc.cpp:770 extractedrc.cpp:770
 msgctxt "NAME OF TRANSLATORS"
 msgid "Your names"
-msgstr ""
+msgstr "Vaše jména"
 
 #: po/extractedrc.cpp:771 extractedrc.cpp:771
 msgctxt "EMAIL OF TRANSLATORS"
 msgid "Your emails"
-msgstr ""
+msgstr "Vaše emaily"
 
 #: producteditor.cpp:116
 msgid "Purchase Qty:"
-msgstr ""
+msgstr "Nakupované množství:"
 
 #: producteditor.cpp:118
 msgid "Stock Qty:"
-msgstr ""
+msgstr "Skladové množství:"
 
 #: producteditor.cpp:310 squeezeview.cpp:2024
 msgid ""
 "Enter the quantity and reason for the change, then press <ENTER> to accept, "
 "<ESC> to cancel"
 msgstr ""
+"Vložte množství a důvod změny, pak stiskni <ENTER> pro potvrzení, <ESC> pro "
+"zrušení"
 
 #: producteditor.cpp:365
 msgid "Code %1 already exists."
-msgstr ""
+msgstr "Kód %1 už existuje."
 
 #: promoeditor.cpp:41
 msgid "Discounts Editor"
-msgstr ""
+msgstr "Editor slev"
 
 #: providerseditor.cpp:146
 msgid "Product Name"
-msgstr ""
+msgstr "Název zboží"
 
 #: providerseditor.cpp:147
 msgid "Last Price"
-msgstr ""
+msgstr "Poslední cena"
 
 #: purchaseeditor.cpp:473 purchaseeditor.cpp:494
 msgid "Items in this purchase [ %1  items,  %2 ]"
-msgstr ""
+msgstr "Položky v tomto nákupu [ %1  položek,  %2 ]"
 
 #: purchaseeditor.cpp:512
 msgid "No Photo"
-msgstr ""
+msgstr "Bez obrázku"
 
 #: squeeze.cpp:243
 msgid "Login"
-msgstr ""
+msgstr "Přihlášení"
 
 #: squeeze.cpp:249
 msgid "Users"
-msgstr ""
+msgstr "Uživatelé"
 
 #: squeeze.cpp:255 squeezeview.cpp:457
 msgid "Clients"
-msgstr ""
+msgstr "Zákazníci"
 
 #: squeeze.cpp:261 squeezeview.cpp:405 squeezeview.cpp:624
 msgid "Products"
-msgstr ""
+msgstr "Zboží"
 
 #: squeeze.cpp:267
 msgid "Measures"
-msgstr ""
+msgstr "Jednotky"
 
 #: squeeze.cpp:273 squeezeview.cpp:448
 msgid "Categories"
-msgstr ""
+msgstr "Kategorie"
 
 #: squeeze.cpp:279 squeezeview.cpp:415
 msgid "Offers"
-msgstr ""
+msgstr "Nabídky"
 
 #: squeeze.cpp:303
 msgid "Quick Plots"
-msgstr ""
+msgstr "Grafy"
 
 #: squeeze.cpp:315
 msgid "Check Out"
-msgstr ""
+msgstr "Výdej"
 
 #: squeeze.cpp:321
 msgid "Stock Correction"
-msgstr ""
+msgstr "Korekce skladu"
 
 #: squeeze.cpp:333
 msgid "Print End of day report"
-msgstr ""
+msgstr "Tisk denního reporu"
 
 #: squeeze.cpp:339
 msgid "Print General end of day report"
-msgstr ""
+msgstr "Tisk obecného deního reportu"
 
 #: squeeze.cpp:345
 msgid "Print End of month report"
-msgstr ""
+msgstr "Tisk měsíčního reportu"
 
 #: squeeze.cpp:351
 msgid "Print Low stock products"
-msgstr ""
+msgstr "Tisk zboží s nízkým stavem"
 
 #: squeeze.cpp:357
 msgid "Print Sold out products"
-msgstr ""
+msgstr "Tisk vyprodaného zboží"
 
 #: squeeze.cpp:363
 msgid "Show Special Orders"
-msgstr ""
+msgstr "Zobrazit speciální objednávky"
 
 #: squeeze.cpp:369 squeezeview.cpp:523
 msgid "Ticket Messages"
-msgstr ""
+msgstr "Zprávy na účtenku"
 
 #: squeeze.cpp:375
 msgid "View Events Log"
-msgstr ""
+msgstr "Prohlížeč události"
 
 #: squeeze.cpp:440
 msgid "General"
-msgstr ""
+msgstr "Obecné"
 
 #: squeeze.cpp:448
 msgid "Printers"
-msgstr ""
+msgstr "Tiskárny"
 
 #: squeezeview.cpp:98
 msgid "Authorisation Required"
-msgstr ""
+msgstr "Nutná autorizace"
 
 #: squeezeview.cpp:99
 msgid "Enter administrator/supervisor user and password please."
-msgstr ""
+msgstr "Vložte prosím uživatele administrátora/supervizora a heslo."
 
 #: squeezeview.cpp:104
 msgid "Basic Information"
-msgstr ""
+msgstr "Základní informace"
 
 #: squeezeview.cpp:134
 msgid "End of Day"
-msgstr ""
+msgstr "Konec dne"
 
 #: squeezeview.cpp:135
 msgid "General End of Day"
-msgstr ""
+msgstr "Denní uzávěrka"
 
 #: squeezeview.cpp:136
 msgid "End of Month"
-msgstr ""
+msgstr "Konec měsíce"
 
 #: squeezeview.cpp:137 squeezeview.cpp:2925
 msgid "Sold Out Products"
-msgstr ""
+msgstr "Vyprodané zboží"
 
 #: squeezeview.cpp:138
 msgid "Low Stock Products"
-msgstr ""
+msgstr "Zboží s nízkým stavem"
 
 #: squeezeview.cpp:199
 msgid "Unable to connect to the database"
-msgstr ""
+msgstr "Nelze se připojit k databázi"
 
 #: squeezeview.cpp:390
 msgid "Quick Information"
-msgstr ""
+msgstr "Rychlý přehled"
 
 #: squeezeview.cpp:430
 msgid "Vendors"
-msgstr ""
+msgstr "Prodavači"
 
 #: squeezeview.cpp:439
 msgid "Weight and Measures"
-msgstr ""
+msgstr "Váhy a míry"
 
 #: squeezeview.cpp:609 squeezeview.cpp:615
 msgid "%1"
-msgstr ""
+msgstr "%1"
 
 #: squeezeview.cpp:610
 msgid "Month Sales (%1)"
-msgstr ""
+msgstr "Měsíční prodeje (%1)"
 
 #: squeezeview.cpp:616
 msgid "Month Profit (%1)"
-msgstr ""
+msgstr "Měsíční zisk (%1)"
 
 #: squeezeview.cpp:625 squeezeview.cpp:997 squeezeview.cpp:2929
 msgid "Sold Units"
-msgstr ""
+msgstr "Prodené množství"
 
 #: squeezeview.cpp:894
 msgid "Trying connection in %1 seconds..."
-msgstr ""
+msgstr "Zkouším připojení za %1 sekundu..."
 
 #: squeezeview.cpp:898
 msgid "Connecting..."
-msgstr ""
+msgstr "Připojuji..."
 
 #: squeezeview.cpp:933 squeezeview.cpp:1161 squeezeview.cpp:1188
 #: squeezeview.cpp:1216
 msgid ""
 "Squeeze has encountered an error, click details to see the error details."
-msgstr ""
+msgstr "Squeeze způsobil chybu, klikni na podrobnosti pro jejich zobrazení."
 
 #: squeezeview.cpp:933 squeezeview.cpp:1161 squeezeview.cpp:1188
 #: squeezeview.cpp:1216
 msgid "Error"
-msgstr ""
+msgstr "Chyba"
 
 #: squeezeview.cpp:992 squeezeview.cpp:1533
 msgid "Name"
-msgstr ""
+msgstr "Jméno"
 
 #: squeezeview.cpp:993
 msgid "Category"
-msgstr ""
+msgstr "Kategorie"
 
 #: squeezeview.cpp:994 squeezeview.cpp:1536
 msgid "Price"
-msgstr ""
+msgstr "Cena"
 
 #: squeezeview.cpp:995 squeezeview.cpp:1537
 msgid "Cost"
-msgstr ""
+msgstr "Náklad"
 
 #: squeezeview.cpp:996 squeezeview.cpp:2928
 msgid "Stock Qty"
-msgstr ""
+msgstr "Skladem"
 
 #: squeezeview.cpp:998
 msgid "Last Sold"
-msgstr ""
+msgstr "Poslední prodej"
 
 #: squeezeview.cpp:999
 msgid "Last Provider"
-msgstr ""
+msgstr "Poslední poskytovatel"
 
 #: squeezeview.cpp:1000
 msgid "Alpha Code"
-msgstr ""
+msgstr "Alfa kód"
 
 #: squeezeview.cpp:1114 squeezeview.cpp:1264 squeezeview.cpp:1421
 #: squeezeview.cpp:2454 squeezeview.cpp:2587 squeezeview.cpp:2695
 #: squeezeview.cpp:2781 squeezeview.cpp:3004 squeezeview.cpp:3041
 msgid "Id"
-msgstr ""
+msgstr "Id"
 
 #: squeezeview.cpp:1115
 msgid "Product Affected"
-msgstr ""
+msgstr "Přeceněné zboží"
 
 #: squeezeview.cpp:1116
 msgid "Discount Applied (%)"
-msgstr ""
+msgstr "Vypočtená sleva (%)"
 
 #: squeezeview.cpp:1117
 msgid "Valid from"
-msgstr ""
+msgstr "Platnost od"
 
 #: squeezeview.cpp:1118
 msgid "Valid until"
-msgstr ""
+msgstr "Platnost do"
 
 #: squeezeview.cpp:1265
 msgid "Client"
-msgstr ""
+msgstr "Zákazník"
 
 #: squeezeview.cpp:1266 squeezeview.cpp:2455 squeezeview.cpp:3018
 msgid "Type"
-msgstr ""
+msgstr "Typ"
 
 #: squeezeview.cpp:1267 squeezeview.cpp:2460 squeezeview.cpp:2592
 #: squeezeview.cpp:2700 squeezeview.cpp:2786 squeezeview.cpp:3006
 #: squeezeview.cpp:3041
 msgid "Amount"
-msgstr ""
+msgstr "Množství"
 
 #: squeezeview.cpp:1268 squeezeview.cpp:1422 squeezeview.cpp:1534
 #: squeezeview.cpp:2456 squeezeview.cpp:2788 squeezeview.cpp:3162
 msgid "Date"
-msgstr ""
+msgstr "Datum"
 
 #: squeezeview.cpp:1269 squeezeview.cpp:2458 squeezeview.cpp:2591
 #: squeezeview.cpp:2699 squeezeview.cpp:2785 squeezeview.cpp:3005
 #: squeezeview.cpp:3020 squeezeview.cpp:3163
 msgid "Time"
-msgstr ""
+msgstr "Čas"
 
 #: squeezeview.cpp:1270
 msgid "Paid with"
-msgstr ""
+msgstr "Placeno"
 
 #: squeezeview.cpp:1271
 msgid "Change Given"
-msgstr ""
+msgstr "Vráceno"
 
 #: squeezeview.cpp:1272
 msgid "Pay Method"
-msgstr ""
+msgstr "Způsob platby"
 
 #: squeezeview.cpp:1273
 msgid "State"
-msgstr ""
+msgstr "Stát"
 
 #: squeezeview.cpp:1275
 msgid "Card Num"
-msgstr ""
+msgstr "Číslo karty"
 
 #: squeezeview.cpp:1276
 msgid "Items Count"
-msgstr ""
+msgstr "Počet položek"
 
 #: squeezeview.cpp:1277
 msgid "Points"
-msgstr ""
+msgstr "Body"
 
 #: squeezeview.cpp:1278
 msgid "Discount %1"
-msgstr ""
+msgstr "Sleva %1"
 
 #: squeezeview.cpp:1279
 msgid "Discount %"
-msgstr ""
+msgstr "Sleva %"
 
 #: squeezeview.cpp:1280
 msgid "Card Authorization #"
-msgstr ""
+msgstr "Autorizace číslo #"
 
 #: squeezeview.cpp:1282 squeezeview.cpp:1430
 msgid "Terminal #"
-msgstr ""
+msgstr "Terminál #"
 
 #: squeezeview.cpp:1283
 msgid "Provider"
-msgstr ""
+msgstr "Poskytovatel"
 
 #: squeezeview.cpp:1424
 msgid "Initial amount"
-msgstr ""
+msgstr "Počáteční množství"
 
 #: squeezeview.cpp:1425 squeezeview.cpp:3000 squeezeview.cpp:3032
 msgid "In"
-msgstr ""
+msgstr "Příjem"
 
 #: squeezeview.cpp:1426 squeezeview.cpp:3001 squeezeview.cpp:3034
 msgid "Out"
-msgstr ""
+msgstr "Výdej"
 
 #: squeezeview.cpp:1427
 msgid "Cash in drawer"
-msgstr ""
+msgstr "Hotovost v zásuvce"
 
 #: squeezeview.cpp:1428
 msgid "Received by Card"
-msgstr ""
+msgstr "Placeno kartou"
 
 #: squeezeview.cpp:1532
 msgid "Order #"
-msgstr ""
+msgstr "Objednávka #"
 
 #: squeezeview.cpp:1538
 msgid "Sold by"
-msgstr ""
+msgstr "Prodejní MJ"
 
 #: squeezeview.cpp:1539
 msgid "Status"
-msgstr ""
+msgstr "Stav"
 
 #: squeezeview.cpp:1540
 msgid "Tr. Id"
-msgstr ""
+msgstr "Tr. č."
 
 #: squeezeview.cpp:1541
 msgid "Notes"
-msgstr ""
+msgstr "Poznámky"
 
 #: squeezeview.cpp:1542
 msgid "Payment"
-msgstr ""
+msgstr "Platba"
 
 #: squeezeview.cpp:1543
 msgid "Payment Complete"
-msgstr ""
+msgstr "Platba kompletní"
 
 #: squeezeview.cpp:1613
 msgid "Settings changed"
-msgstr ""
+msgstr "Nastavení změněno"
 
 #: squeezeview.cpp:2042
 msgid ""
 "The desired product is a group and its stock cannot be modified, try "
 "modifying each of its contents."
 msgstr ""
+"Vybraný produkt je skupina a jeho stav nemůže být změněn, změňte jeho "
+"jednotlivé položky."
 
 #: squeezeview.cpp:2042
 msgid "Cannot modify stock"
-msgstr ""
+msgstr "Nelze změnit stav skladu"
 
 #: squeezeview.cpp:2049
 msgid "Stock Correction: [%1] from %2 to %3. Reason:%4"
-msgstr ""
+msgstr "Korekce skladu: [%1] z %2 na %3. Důvod:%4"
 
 #: squeezeview.cpp:2192
 msgid "New Weight or Measure"
-msgstr ""
+msgstr "Nová váha nebo míra"
 
 #: squeezeview.cpp:2192
 msgid "Enter the new weight or measure to insert:"
-msgstr ""
+msgstr "Vložte novou váhu nebo míru:"
 
 #: squeezeview.cpp:2209
 msgid "New category"
-msgstr ""
+msgstr "Nová kategorie"
 
 #: squeezeview.cpp:2209
 msgid "Enter the new category to insert:"
-msgstr ""
+msgstr "Vložte novou kategorii:"
 
 #: squeezeview.cpp:2271
 msgid "Please select a client to delete, then press the delete button again."
-msgstr ""
+msgstr "Vyberte zákazníka ke smazání, pak stikněte tlačítko smazat znovu."
 
 #: squeezeview.cpp:2271 squeezeview.cpp:2284 squeezeview.cpp:2295
 #: squeezeview.cpp:2310 squeezeview.cpp:2322 squeezeview.cpp:2349
 #: squeezeview.cpp:2383 squeezeview.cpp:2398 squeezeview.cpp:2410
 #: squeezeview.cpp:2427
 msgid "Cannot delete"
-msgstr ""
+msgstr "Nelze odstranit"
 
 #: squeezeview.cpp:2277
 msgid "Do you really want to delete the client named %1?"
-msgstr ""
+msgstr "Opravdu chcete smazat zákazníka %1?"
 
 #: squeezeview.cpp:2278 squeezeview.cpp:2304 squeezeview.cpp:2327
 #: squeezeview.cpp:2353 squeezeview.cpp:2392 squeezeview.cpp:2420
 msgid "Delete"
-msgstr ""
+msgstr "Odstranit"
 
 #: squeezeview.cpp:2284
 msgid "Default client cannot be deleted."
-msgstr ""
+msgstr "Výchozí zákazník nemůže být smazán."
 
 #: squeezeview.cpp:2295
 msgid "Please select a user to delete, then press the delete button again."
-msgstr ""
+msgstr "Vyberte uživatele ke smazání, pak stikněte tlačítko smazat znovu."
 
 #: squeezeview.cpp:2303
 msgid "Do you really want to delete the user named %1?"
-msgstr ""
+msgstr "Chtete opravdu smazat uživatele %1?"
 
 #: squeezeview.cpp:2310
 msgid "Admin user cannot be deleted."
-msgstr ""
+msgstr "Administrátora nelze smazat."
 
 #: squeezeview.cpp:2322
 msgid "Please select an offer to delete, then press the delete button again."
-msgstr ""
+msgstr "Vyberte nabídku ke smazání, pak stikněte tlačítko smazat znovu."
 
 #: squeezeview.cpp:2326
 msgid "Do you really want to delete the selected discount?"
-msgstr ""
+msgstr "Chtete opravdu smazat vybranou slevu?"
 
 #: squeezeview.cpp:2349
 msgid "Please select a product to delete, then press the delete button."
-msgstr ""
+msgstr "Vyberte zboží ke smazání, pak stikněte tlačítko smazat znovu."
 
 #: squeezeview.cpp:2352
 msgid "Do you really want to delete the selected product?"
-msgstr ""
+msgstr "Chtete opravdu smazat vybrané zboží?"
 
 #: squeezeview.cpp:2383
 msgid "Please select a row to delete, then press the delete button again."
-msgstr ""
+msgstr "Vyberte řádek ke smazání, pak stikněte tlačítko smazat znovu."
 
 #: squeezeview.cpp:2391
 msgid "Do you really want to delete the measure '%1'?"
-msgstr ""
+msgstr "Chtete opravdu smazat vybranou jednotku?"
 
 #: squeezeview.cpp:2398
 msgid "Default measure cannot be deleted."
-msgstr ""
+msgstr "Výchozí jednotka nemůže být smazána."
 
 #: squeezeview.cpp:2410
 msgid "Please select a category to delete, then press the delete button again."
-msgstr ""
+msgstr "Vyberte kategorii ke smazání, pak stikněte tlačítko smazat znovu."
 
 #: squeezeview.cpp:2419
 msgid "Do you really want to delete the category '%1'?"
-msgstr ""
+msgstr "Chtete opravdu smazat vybranou kategorii?"
 
 #: squeezeview.cpp:2427
 msgid "Default category cannot be deleted."
-msgstr ""
+msgstr "Výchozí kategorie nejde smazat"
 
 #: squeezeview.cpp:2459 squeezeview.cpp:3019
 msgid "Reason"
-msgstr ""
+msgstr "Důvod"
 
 #: squeezeview.cpp:2461
 msgid "Terminal Num."
-msgstr ""
+msgstr "Terminál č."
 
 #: squeezeview.cpp:2504
 msgid "Save As"
-msgstr ""
+msgstr "Uložit jako"
 
 #: squeezeview.cpp:2504
 msgid "CSV files (*.csv)"
-msgstr ""
+msgstr "CSV soubory (*.csv)"
 
 #: squeezeview.cpp:2518
 msgid "Exporting data..."
-msgstr ""
+msgstr "Export dat..."
 
 #: squeezeview.cpp:2518
 msgid "Abort"
-msgstr ""
+msgstr "Zrušit"
 
 #: squeezeview.cpp:2586 squeezeview.cpp:2694
 msgid "End of day report"
-msgstr ""
+msgstr "Denní report"
 
 #: squeezeview.cpp:2589 squeezeview.cpp:2783
 msgid "All Terminals"
-msgstr ""
+msgstr "Všechny terminály"
 
 #: squeezeview.cpp:2594 squeezeview.cpp:2702 squeezeview.cpp:3008
 msgid "Method"
-msgstr ""
+msgstr "Způsob"
 
 #: squeezeview.cpp:2623 squeezeview.cpp:2731 squeezeview.cpp:2816
 msgid "Total Sales : %1"
-msgstr ""
+msgstr "Prodej celkem: %1"
 
 #: squeezeview.cpp:2624 squeezeview.cpp:2732 squeezeview.cpp:2817
 msgid "Total Profit: %1"
-msgstr ""
+msgstr "Zisk celkem: %1"
 
 #: squeezeview.cpp:2638 squeezeview.cpp:2647 squeezeview.cpp:2746
 #: squeezeview.cpp:2755
 msgid "Print end of day report"
-msgstr ""
+msgstr "Tisk denní uzávěrky"
 
 #: squeezeview.cpp:2661
 msgid ""
 "Enter the Terminal number for the end of day, then press <ENTER> to accept, "
 "<ESC> to cancel"
 msgstr ""
+"Vložte číslo terminálu pro denní uzávěrku, pak stiskněte <ENTER> pro "
+"potvrzení, <ESC> pro zrušení"
 
 #: squeezeview.cpp:2683
 msgid "No transactions to print!"
-msgstr ""
+msgstr "Žádné transakce pro tisk!"
 
 #: squeezeview.cpp:2684
 msgid "No transactions for  terminal #%1 for today."
-msgstr ""
+msgstr "Dnes žádné transakce na terminálu #%1."
 
 #: squeezeview.cpp:2697
 msgid "terminal # %1 "
-msgstr ""
+msgstr "terminál # %1 "
 
 #: squeezeview.cpp:2780
 msgid "End of Month report"
-msgstr ""
+msgstr "Měsíční report"
 
 #: squeezeview.cpp:2831 squeezeview.cpp:2840
 msgid "Print end of Month report"
-msgstr ""
+msgstr "Tisk měsíčního reportu"
 
 #: squeezeview.cpp:2862
 msgid "Low Stock Products (< %1)"
-msgstr ""
+msgstr "Málo skladem (< %1)"
 
 #: squeezeview.cpp:2866
 msgid "Stock Qty."
-msgstr ""
+msgstr "Skladem"
 
 #: squeezeview.cpp:2867
 msgid "Sold"
-msgstr ""
+msgstr "Prodáno"
 
 #: squeezeview.cpp:2868 squeezeview.cpp:2930
 msgid "Units"
-msgstr ""
+msgstr "Jednotek"
 
 #: squeezeview.cpp:2895 squeezeview.cpp:2904
 msgid "Print Low Stock Report"
-msgstr ""
+msgstr "Tisk nízkých skladových stavů"
 
 #: squeezeview.cpp:2958 squeezeview.cpp:2967
 msgid "Print Sold Out Products"
-msgstr ""
+msgstr "Tisk vyprodaných"
 
 #: squeezeview.cpp:2985
 msgid "Please select a balance to print, then press the print button again."
-msgstr ""
+msgstr "Vyberte bilanci pro tisk, pak stiskně znovu tisk."
 
 #: squeezeview.cpp:2985
 msgid "Cannot print"
-msgstr ""
+msgstr "Nelze tisknout"
 
 #: squeezeview.cpp:2994
 msgid "Balance Id:%1"
-msgstr ""
+msgstr "Bilance č. %1"
 
 #: squeezeview.cpp:2998 squeezeview.cpp:3025
 msgid "%1 at Terminal # %2"
-msgstr ""
+msgstr "%1 na terminálu # %2"
 
 #: squeezeview.cpp:2999
 msgid "Deposit"
-msgstr ""
+msgstr "Vklad"
 
 #: squeezeview.cpp:3002 squeezeview.cpp:3037
 msgid "In Drawer"
-msgstr ""
+msgstr "V zásuvce"
 
 #: squeezeview.cpp:3003 squeezeview.cpp:3039
 msgid "Transactions Details"
-msgstr ""
+msgstr "Detaily transakcí"
 
 #: squeezeview.cpp:3007 squeezeview.cpp:3041
 msgid "Paid"
-msgstr ""
+msgstr "Zaplaceno"
 
 #: squeezeview.cpp:3009
 msgid "Start: %1"
-msgstr ""
+msgstr "Začátek: %1"
 
 #: squeezeview.cpp:3010
 msgid "End  : %1"
-msgstr ""
+msgstr "Konec: %1"
 
 #: squeezeview.cpp:3017
 msgid "Cash flow Details"
-msgstr ""
+msgstr "Detaily cash flow"
 
 #: squeezeview.cpp:3029
 msgid "Initial Amount deposited:"
-msgstr ""
+msgstr "Základní vklad"
 
 #: squeezeview.cpp:3117
 msgid "Print Balance"
-msgstr ""
+msgstr "Tisk bilance"
 
 #: squeezeview.cpp:3142
 msgid "Events Log"
-msgstr ""
+msgstr "Seznam události"
 
 #: squeezeview.cpp:3161
 msgid "User"
-msgstr ""
+msgstr "Uživatel"
 
 #: squeezeview.cpp:3164
 msgid "Event"
-msgstr ""
+msgstr "Událost"
 
 #: squeezeview.cpp:3194
 msgid "Message"
-msgstr ""
+msgstr "Zpráva"
 
 #: squeezeview.cpp:3195
 msgid "Month"
-msgstr ""
+msgstr "Měsíc"
 
 #: squeezeview.cpp:3212
 msgid "Enter the new ticket message."
-msgstr ""
+msgstr "Vložte novou zprávu."
 
 #: usereditor.cpp:41
 msgid "User Editor"
-msgstr ""
+msgstr "Správa uživatelů"
 
 #: ../../src/productdelegate.cpp:119
 msgid " Out of stock "
-msgstr ""
+msgstr " Není skladem"
 
 #: ../../src/productdelegate.cpp:149
 msgid " Raw Product "
-msgstr ""
+msgstr " Materiál"
 
 #: ../../src/productdelegate.cpp:162
 msgid " Group "
-msgstr ""
+msgstr " Skupina"
 
 #: ../../src/loginwindow.cpp:64
 msgid "&Quit"
-msgstr ""
+msgstr "&Konec"
 
 #: ../../src/loginwindow.cpp:65
 msgid "&Ok"
-msgstr ""
+msgstr "&Ok"
 
 #: ../../src/loginwindow.cpp:171
 msgid "Username:"
-msgstr ""
+msgstr "Uživatel:"
 
 #: ../../src/loginwindow.cpp:172
 msgid "Password:"
-msgstr ""
+msgstr "Heslo:"
 
 #: ../../src/loginwindow.cpp:306
 msgid "Invalid username or password"
-msgstr ""
+msgstr "Špatný uživatel nebo heslo"
 
 #: ../../src/inputdialog.cpp:68
 msgid "Product Code:"
-msgstr ""
+msgstr "Kód zboží:"
 
 #: ../../src/inputdialog.cpp:70
 msgid "Month or Season:"
-msgstr ""
+msgstr "Měsíc nebo období:"
 
 #: ../../src/inputdialog.cpp:71
 msgid "New Stock Qty:"
-msgstr ""
+msgstr "Nový stav skladu:"
 
 #: ../../src/inputdialog.cpp:72
 msgid "Amount:"
-msgstr ""
+msgstr "Množství:"
 
 #: ../../src/inputdialog.cpp:74
 msgid "New Message:"
-msgstr ""
+msgstr "Nová zpráva:"
 
 #: ../../src/inputdialog.cpp:75
 msgid "Reason:"
-msgstr ""
+msgstr "Důvod:"
 
 #: ../../src/inputdialog.cpp:77
 msgid "Ticket #:"
-msgstr ""
+msgstr "Účtenka #:"
 
 #: ../../src/inputdialog.cpp:90
 msgid "valid amount between %1 and %2"
-msgstr ""
+msgstr "platné množství mezi %1 a %2"
 
 #: ../../src/inputdialog.cpp:97
 msgid "Enter the product code here..."
-msgstr ""
+msgstr "Zde vložte kód zboží..."
 
 #: ../../src/inputdialog.cpp:98
 msgid "Enter the new stock quantity here..."
-msgstr ""
+msgstr "Zde vložte nový stav skladu zboží..."
 
 #: ../../src/inputdialog.cpp:105
 msgid "Terminal Number:"
-msgstr ""
+msgstr "Číslo terminálu:"
 
 #: ../../src/inputdialog.cpp:106
 msgid "Enter the terminal number here..."
-msgstr ""
+msgstr "Vložte zde číslo terminálu ..."
 
 #: ../../src/inputdialog.cpp:113
 msgid "Enter the number of the month or season here..."
-msgstr ""
+msgstr "Zde vložte číslo měsíce nebo období..."
 
 #: ../../src/inputdialog.cpp:150
 msgid "Ok"
-msgstr ""
+msgstr "Ok"

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?"
 "atid=1011570&group_id=209899&func=browse\n"
-"POT-Creation-Date: 2010-03-23 21:55-0600\n"
+"POT-Creation-Date: 2010-03-24 23:44-0600\n"
 "PO-Revision-Date: 2007-11-22 23:17-0600\n"
 "Last-Translator: Miguel Chavez Gamboa <miguel@lemonpos.org>\n"
 "Language-Team: Español <es@lemonpos.org>\n"
@@ -123,13 +123,13 @@ msgstr "Escriba el numero de terminal aqui..."
 msgid "Enter the number of the month or season here..."
 msgstr "Escriba el nuevo numero de mes o temporada aquí..."
 
-#. i18n: file: ui/special_order.ui:662
+#. i18n: file: ui/special_order.ui:675
 #. i18n: ectx: property (text), widget (QPushButton, btnClientAdd)
 #: inputdialog.cpp:150 po/extractedrc.cpp:608 extractedrc.cpp:608
 msgid "Ok"
 msgstr "Aceptar"
 
-#. i18n: file: ui/special_order.ui:655
+#. i18n: file: ui/special_order.ui:668
 #. i18n: ectx: property (text), widget (QPushButton, btnClientCancel)
 #: inputdialog.cpp:153 po/extractedrc.cpp:605 extractedrc.cpp:605
 msgid "Cancel"
@@ -402,7 +402,7 @@ msgstr "Otros impuestos:"
 msgid "Sold by:"
 msgstr "Vendido por:"
 
-#. i18n: file: ui/special_order.ui:546
+#. i18n: file: ui/special_order.ui:559
 #. i18n: ectx: property (text), widget (QLabel, lblPriceLabel)
 #: lemonview.cpp:1353 po/extractedrc.cpp:596 extractedrc.cpp:596
 msgid "Price:"
@@ -485,13 +485,13 @@ msgstr "Vendedor: %1"
 #. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
 #. i18n: file: ui/resume.ui:72
 #. i18n: ectx: property (text), widget (QTableWidget, contentTable)
-#. i18n: file: ui/special_order.ui:324
+#. i18n: file: ui/special_order.ui:337
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
 #. i18n: file: ui/mainview.ui:779
 #. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
 #. i18n: file: ui/resume.ui:72
 #. i18n: ectx: property (text), widget (QTableWidget, contentTable)
-#. i18n: file: ui/special_order.ui:324
+#. i18n: file: ui/special_order.ui:337
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
 #: lemonview.cpp:1882 lemonview.cpp:2079 lemonview.cpp:2137 lemonview.cpp:2173
 #: po/extractedrc.cpp:216 po/extractedrc.cpp:475 po/extractedrc.cpp:560
@@ -575,7 +575,7 @@ msgid "SPECIAL ORDERS"
 msgstr "ORDENES ESPECIALES"
 
 #. i18n: file: ui/special_order.ui:224
-#. i18n: ectx: property (text), widget (QLabel, label)
+#. i18n: ectx: property (text), widget (QLabel, lblNotes)
 #: lemonview.cpp:1897 lemonview.cpp:3284 lemonview.cpp:3614
 #: po/extractedrc.cpp:547 extractedrc.cpp:547
 msgid "Notes:"
@@ -934,7 +934,7 @@ msgstr ""
 msgid "The sale %1 has been sucessfully suspended."
 msgstr "La venta %1 fue suspendida con éxito."
 
-#: lemonview.cpp:3892 specialordereditor.cpp:490
+#: lemonview.cpp:3892 specialordereditor.cpp:492
 msgid "Notes: %1"
 msgstr "Notas: %1"
 
@@ -1453,7 +1453,7 @@ msgstr "Código"
 #. i18n: ectx: property (text), widget (QTableWidget, tableReturnProducts)
 #. i18n: file: ui/resume.ui:77
 #. i18n: ectx: property (text), widget (QTableWidget, contentTable)
-#. i18n: file: ui/special_order.ui:329
+#. i18n: file: ui/special_order.ui:342
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
 #. i18n: file: ui/mainview.ui:769
 #. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
@@ -1463,7 +1463,7 @@ msgstr "Código"
 #. i18n: ectx: property (text), widget (QTableWidget, tableReturnProducts)
 #. i18n: file: ui/resume.ui:77
 #. i18n: ectx: property (text), widget (QTableWidget, contentTable)
-#. i18n: file: ui/special_order.ui:329
+#. i18n: file: ui/special_order.ui:342
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
 #: po/extractedrc.cpp:210 po/extractedrc.cpp:255 po/extractedrc.cpp:303
 #: po/extractedrc.cpp:478 po/extractedrc.cpp:563 extractedrc.cpp:210
@@ -1773,11 +1773,11 @@ msgstr "Mostrar mensaje de alerta cuando el nivel sea menor a"
 
 #. i18n: file: ui/prefs_base.ui:186
 #. i18n: ectx: property (prefix), widget (QDoubleSpinBox, kcfg_cashMinLevel)
-#. i18n: file: ui/special_order.ui:556
+#. i18n: file: ui/special_order.ui:569
 #. i18n: ectx: property (text), widget (QLabel, lblPrice)
 #. i18n: file: ui/prefs_base.ui:186
 #. i18n: ectx: property (prefix), widget (QDoubleSpinBox, kcfg_cashMinLevel)
-#. i18n: file: ui/special_order.ui:556
+#. i18n: file: ui/special_order.ui:569
 #. i18n: ectx: property (text), widget (QLabel, lblPrice)
 #: po/extractedrc.cpp:402 po/extractedrc.cpp:599 extractedrc.cpp:402
 #: extractedrc.cpp:599
@@ -2017,11 +2017,11 @@ msgstr "Lanzar diálogo con más opciones"
 
 #. i18n: file: ui/special_order.ui:138
 #. i18n: ectx: property (text), widget (QToolButton, btnMoreClients)
-#. i18n: file: ui/special_order.ui:461
+#. i18n: file: ui/special_order.ui:474
 #. i18n: ectx: property (text), widget (QPushButton, btnFilter)
 #. i18n: file: ui/special_order.ui:138
 #. i18n: ectx: property (text), widget (QToolButton, btnMoreClients)
-#. i18n: file: ui/special_order.ui:461
+#. i18n: file: ui/special_order.ui:474
 #. i18n: ectx: property (text), widget (QPushButton, btnFilter)
 #: po/extractedrc.cpp:535 po/extractedrc.cpp:587 extractedrc.cpp:535
 #: extractedrc.cpp:587
@@ -2046,13 +2046,13 @@ msgstr "Cant."
 msgid "Delivery date:"
 msgstr "Fecha de entrega:"
 
-#. i18n: file: ui/special_order.ui:252
+#. i18n: file: ui/special_order.ui:265
 #. i18n: ectx: attribute (title), widget (QWidget, tab)
 #: po/extractedrc.cpp:550 extractedrc.cpp:550
 msgid "Components"
 msgstr "Componentes"
 
-#. i18n: file: ui/special_order.ui:267
+#. i18n: file: ui/special_order.ui:280
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #: po/extractedrc.cpp:553 extractedrc.cpp:553
 msgid ""
@@ -2089,61 +2089,61 @@ msgstr ""
 "\" font-weight:600;\">haciendo doble click</span> sobre el artículo.</p></"
 "body></html>"
 
-#. i18n: file: ui/special_order.ui:351
+#. i18n: file: ui/special_order.ui:364
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editAddQty)
 #: po/extractedrc.cpp:566 extractedrc.cpp:566
 msgid "Qty to add"
 msgstr "Cant. a agregar"
 
-#. i18n: file: ui/special_order.ui:383
+#. i18n: file: ui/special_order.ui:396
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnAdd)
 #: po/extractedrc.cpp:569 extractedrc.cpp:569
 msgid "Add selected products to the components"
 msgstr "Agregar productos seleccionados a los componentes"
 
-#. i18n: file: ui/special_order.ui:386
+#. i18n: file: ui/special_order.ui:399
 #. i18n: ectx: property (text), widget (QToolButton, btnAdd)
 #: po/extractedrc.cpp:572 extractedrc.cpp:572
 msgid ">"
 msgstr ""
 
-#. i18n: file: ui/special_order.ui:411
+#. i18n: file: ui/special_order.ui:424
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnRemove)
 #: po/extractedrc.cpp:575 extractedrc.cpp:575
 msgid "Remove selected products from the components"
 msgstr "Quitar productos seleccionados de los componentes"
 
-#. i18n: file: ui/special_order.ui:414
+#. i18n: file: ui/special_order.ui:427
 #. i18n: ectx: property (text), widget (QToolButton, btnRemove)
 #: po/extractedrc.cpp:578 extractedrc.cpp:578
 msgid "<"
 msgstr ""
 
-#. i18n: file: ui/special_order.ui:438
+#. i18n: file: ui/special_order.ui:451
 #. i18n: ectx: property (text), widget (QLabel, label_3)
 #: po/extractedrc.cpp:581 extractedrc.cpp:581
 msgid "Filter:"
 msgstr "Filtro"
 
-#. i18n: file: ui/special_order.ui:445
+#. i18n: file: ui/special_order.ui:458
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editFilter)
 #: po/extractedrc.cpp:584 extractedrc.cpp:584
 msgid "You can filter the products by description,"
 msgstr "Puede filtrar los productos por descripción"
 
-#. i18n: file: ui/special_order.ui:489
+#. i18n: file: ui/special_order.ui:502
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
 #: po/extractedrc.cpp:590 extractedrc.cpp:590
 msgid "Price and Payment"
 msgstr "Precio y Pago"
 
-#. i18n: file: ui/special_order.ui:495
+#. i18n: file: ui/special_order.ui:508
 #. i18n: ectx: property (text), widget (QLabel, lblPayment)
 #: po/extractedrc.cpp:593 extractedrc.cpp:593
 msgid "Payment:"
 msgstr "Pago:"
 
-#. i18n: file: ui/special_order.ui:593
+#. i18n: file: ui/special_order.ui:606
 #. i18n: ectx: property (toolTip), widget (QTextEdit, editClientAddress)
 #: po/extractedrc.cpp:602 extractedrc.cpp:602
 msgid "Enter Client Address"
@@ -2262,27 +2262,27 @@ msgstr "Tr. Num."
 msgid "Change Status"
 msgstr "Cambiar Estado"
 
-#: specialordereditor.cpp:104
+#: specialordereditor.cpp:106
 msgid "Enter client name here..."
 msgstr "Escriba el numero de cliente aqui..."
 
-#: specialordereditor.cpp:105
+#: specialordereditor.cpp:107
 msgid "Enter client phone here..."
 msgstr "Escriba el teléfono aqui..."
 
-#: specialordereditor.cpp:106
+#: specialordereditor.cpp:108
 msgid "Enter client cell phone here..."
 msgstr "Escriba el numero de celular aqui..."
 
-#: specialordereditor.cpp:242 specialordereditor.cpp:264
+#: specialordereditor.cpp:244 specialordereditor.cpp:266
 msgid "<i>%1</i> rounded to %2"
 msgstr "<i>%1</i> redondeado a %2"
 
-#: specialordereditor.cpp:250 specialordereditor.cpp:273
+#: specialordereditor.cpp:252 specialordereditor.cpp:275
 msgid "<i>%1</i> <b>requested %2, on stock %3</b><br>"
 msgstr "<i>%1</i> <b> requerido %2, en inventario %3</b><br>"
 
-#: specialordereditor.cpp:332
+#: specialordereditor.cpp:334
 msgid ""
 "<b>Product sold by pieces</b>, qty must be an integer value: \n"
 "%1"
@@ -2290,9 +2290,13 @@ msgstr ""
 "<b>Producto vendido por piezas</b>, la cantidad debe ser un número entero:\n"
 " %1"
 
-#: specialordereditor.cpp:499
+#: specialordereditor.cpp:501
 msgid ""
 "<html><font color=red><b>The delivery date is in the past.</b></font></html>"
 msgstr ""
 "<html><font color=red><b>La fecha de entrega esta en el pasado.</b></font></"
 "html>"
+
+#: specialordereditor.cpp:648
+msgid "%1 chars of %2 allowed."
+msgstr ""

@@ -1,24 +1,16 @@
-# translation of fr.po to français
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-#
-# Miguel Chavez Gamboa <miguel.chavez.gamboa@gmail.com>, 2007.
-# Girard Henri <girardhenri@free.fr>, 2007.
-# This is not updated since 0.5 version.
 msgid ""
 msgstr ""
-"Project-Id-Version: fr\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?"
 "atid=1011570&group_id=209899&func=browse\n"
-"POT-Creation-Date: 2010-03-23 21:55-0600\n"
-"PO-Revision-Date: 2007-12-25 11:08+0100\n"
-"Last-Translator: girard henri <girardhenri@free.fr>\n"
-"Language-Team: français <fr@li.org>\n"
+"POT-Creation-Date: 2010-03-24 23:44-0600\n"
+"PO-Revision-Date: \n"
+"Last-Translator: vn158 <vn158 at seznam dot cz>\n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
-"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2\n"
 
 #: ../../dataAccess/azahar.cpp:111 ../../dataAccess/azahar.cpp:135
 #: ../../dataAccess/azahar.cpp:173 ../../dataAccess/azahar.cpp:757
@@ -37,484 +29,465 @@ msgid ""
 "Error #%1, Type:%2\n"
 "'%3'"
 msgstr ""
+"Chyba #%1, Typ:%2\n"
+"'%3'"
 
 #: ../../dataAccess/azahar.cpp:114 ../../dataAccess/azahar.cpp:760
 msgid "Error serching product id %1, Rows affected: %2"
-msgstr ""
+msgstr "Chyba při hledání zboží %1, chybných řádků: %2"
 
 #: ../../dataAccess/azahar.cpp:138
 msgid "Error serching offer id %1, Rows affected: %2"
-msgstr ""
+msgstr "Chyba při hledání nabídky %1, chybných řádků: %2"
 
 #: ../../dataAccess/azahar.cpp:174
 msgid "Error getting product information for code %1, Rows affected: %2"
-msgstr ""
+msgstr "Chyba při získávaní informací o zboží s kódem %1, chybných řádků: %2"
 
 #: ../../dataAccess/azahar.cpp:981
 msgid "Error deleting offer id %1, Rows affected: %2"
-msgstr ""
+msgstr "Chyba při mazání nabídky %1, chybných řádků: %2"
 
 #: ../../dataAccess/azahar.cpp:2021
 msgid "Money return on cancelling ticket #%1 "
-msgstr ""
+msgstr "Vrátka peněz za storno účtenky #%1"
 
 #: ../../dataAccess/azahar.cpp:2028
 msgid "Ticket #%1 was already canceled."
-msgstr ""
+msgstr "Účtenka #%1 už byla stornována."
 
 #: ../../dataAccess/azahar.cpp:2855 ../../dataAccess/azahar.cpp:2883
 #: ../../dataAccess/azahar.cpp:2909 ../../dataAccess/azahar.cpp:3085
 msgid "Error getting special Order information, id: %1, Rows affected: %2"
-msgstr ""
+msgstr "Chyba při získání informací o speciální objednávce %1, řádků : %2"
 
 #: inputdialog.cpp:68
-#, fuzzy
 msgid "Product Code:"
-msgstr "Produit"
+msgstr "Kód zboží:"
 
 #: inputdialog.cpp:70
 msgid "Month or Season:"
-msgstr ""
+msgstr "Měsíc nebo období:"
 
 #: inputdialog.cpp:71
 msgid "New Stock Qty:"
-msgstr ""
+msgstr "Nové skladové množství:"
 
 #: inputdialog.cpp:72
-#, fuzzy
 msgid "Amount:"
-msgstr "Montant"
+msgstr "Množství:"
 
 #: inputdialog.cpp:74
-#, fuzzy
 msgid "New Message:"
-msgstr "&Message du ticket :"
+msgstr "Nová zpráva:"
 
 #: inputdialog.cpp:75
 msgid "Reason:"
-msgstr ""
+msgstr "Důvod:"
 
 #: inputdialog.cpp:77
-#, fuzzy
 msgid "Ticket #:"
-msgstr "Ticket  # %1"
+msgstr "Účtenka č:"
 
 #: inputdialog.cpp:90
 msgid "valid amount between %1 and %2"
-msgstr ""
+msgstr "platné množství mezi %1 a %2"
 
 #: inputdialog.cpp:97
-#, fuzzy
 msgid "Enter the product code here..."
-msgstr "Saisir le numéro du ticket à annuler"
+msgstr "Vložte nový kód zboží ..."
 
 #: inputdialog.cpp:98
 msgid "Enter the new stock quantity here..."
-msgstr ""
+msgstr "Vložte nový stav skladu ..."
 
 #: inputdialog.cpp:105
-#, fuzzy
 msgid "Terminal Number:"
-msgstr "Numéro de &terminal:"
+msgstr "Číslo pokladny:"
 
 #: inputdialog.cpp:106
-#, fuzzy
 msgid "Enter the terminal number here..."
-msgstr "Saisir le numéro du ticket à annuler"
+msgstr "Vložte číslo pokladny zde..."
 
 #: inputdialog.cpp:113
-#, fuzzy
 msgid "Enter the number of the month or season here..."
-msgstr "Saisir le numéro du ticket à annuler"
+msgstr "Vložte číslo měsíce nebo období ..."
 
-#. i18n: file: ui/special_order.ui:662
+#. i18n: file: ui/special_order.ui:675
 #. i18n: ectx: property (text), widget (QPushButton, btnClientAdd)
 #: inputdialog.cpp:150 po/extractedrc.cpp:608 extractedrc.cpp:608
 msgid "Ok"
 msgstr "OK"
 
-#. i18n: file: ui/special_order.ui:655
+#. i18n: file: ui/special_order.ui:668
 #. i18n: ectx: property (text), widget (QPushButton, btnClientCancel)
 #: inputdialog.cpp:153 po/extractedrc.cpp:605 extractedrc.cpp:605
 msgid "Cancel"
-msgstr "Annuler"
+msgstr "Zrušit"
 
 #: lemon.cpp:156
 msgid "Login"
-msgstr "Login"
+msgstr "Uživatel"
 
 #: lemon.cpp:162
 msgctxt "Account balance"
 msgid "Balance"
-msgstr "Solde"
+msgstr "Stav pokladny"
 
 #: lemon.cpp:168
 msgid "Enter Code"
-msgstr "Entrer le code"
+msgstr "Vložte kód"
 
 #: lemon.cpp:174
 msgid "Search Item"
-msgstr "Chercher l'article"
+msgstr "Hledat položku"
 
 #: lemon.cpp:180
 msgid "Delete Selected Item"
-msgstr "Effacer l'article sélectionné"
+msgstr "Smazat vybranou položku"
 
 #: lemon.cpp:190
 msgid "Finish transaction"
-msgstr "Terminer la transaction"
+msgstr "Ukončení transakce"
 
 #: lemon.cpp:196
 msgid "Cancel transaction"
-msgstr "Annuler la transaction"
+msgstr "Zrušení transakce"
 
 #: lemon.cpp:202
 msgid "Cancel a ticket"
-msgstr "Annuler un ticket"
+msgstr "Storno účtenky"
 
 #: lemon.cpp:209
 msgid "Start Operation"
-msgstr "Commencer les opérations"
+msgstr "Začátek práce"
 
 #: lemon.cpp:215
 msgid "Pay focus"
-msgstr "Payer"
+msgstr "Na platbu"
 
 #: lemon.cpp:222
 msgid "Show/Hide Products Grid"
-msgstr "Montrer/Cacher la grille de produits "
+msgstr "Ukázat/skrýt mřížku"
 
 #: lemon.cpp:229
 msgid "Show Price Checker"
-msgstr ""
+msgstr "Ukaž Zobrazovač cen"
 
 #: lemon.cpp:235
 msgid "Reprint ticket"
-msgstr ""
+msgstr "Vytiskni znovu účtenku"
 
 #: lemon.cpp:241 lemonview.cpp:3356
-#, fuzzy
 msgid "Cash Out"
-msgstr "Caisse"
+msgstr "Výdej hotovosti"
 
 #: lemon.cpp:247
-#, fuzzy
 msgid "Cash in drawer"
-msgstr "dans la caisse"
+msgstr "Hotovost v zásuvce"
 
 #: lemon.cpp:253 lemonview.cpp:3398
-#, fuzzy
 msgid "Cash In"
-msgstr "Caisse"
+msgstr "Příjem hotovosti"
 
 #: lemon.cpp:259 lemonview.cpp:2783
 msgid "End of day report"
-msgstr ""
+msgstr "Denní report"
 
 #: lemon.cpp:266
 msgid "Add Special Order"
-msgstr ""
+msgstr "Přidej speciální objednávku"
 
 #: lemon.cpp:274
 msgid "Complete Special Order"
-msgstr ""
+msgstr "Ukončit speciální objednávku"
 
 #: lemon.cpp:281
 msgid "Lock Screen"
-msgstr ""
+msgstr "Uzamknout"
 
 #: lemon.cpp:288
 msgid "Suspend Sale"
-msgstr ""
+msgstr "Odložit prodej"
 
 #: lemon.cpp:295 lemon.cpp:302
 msgid "Change Special Order Status"
-msgstr ""
+msgstr "Změnit stav speciální objednávky"
 
 #. i18n: file: ui/resume.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, resumeDialog)
 #: lemon.cpp:309 po/extractedrc.cpp:462 resume.cpp:46 extractedrc.cpp:462
 msgid "Resume Sale"
-msgstr ""
+msgstr "Obnovit prodej"
 
 #. i18n: file: ui/prefs_db.ui:19
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
 #: lemon.cpp:396 lemon.cpp:423 po/extractedrc.cpp:414 extractedrc.cpp:414
 msgid "Database"
-msgstr "Base de données"
+msgstr "Databáze"
 
 #: lemon.cpp:414
 msgid "General"
-msgstr "Général"
+msgstr "Obecné"
 
 #: lemon.cpp:419
 msgid "Store"
-msgstr "Magasin"
+msgstr "Obchod"
 
 #: lemon.cpp:427
 msgid "Appearence"
-msgstr "Apparence"
+msgstr "Vzhled"
 
 #. i18n: file: ui/pref_security.ui:13
 #. i18n: ectx: property (windowTitle), widget (QWidget, pref_security)
 #: lemon.cpp:434 po/extractedrc.cpp:435 extractedrc.cpp:435
 msgid "Security"
-msgstr "Securité"
+msgstr "Bezpečnost"
 
 #: lemon.cpp:438
 msgid "Printer"
-msgstr "Imprimante"
+msgstr "Tiskárna"
 
 #: lemon.cpp:503
-#, fuzzy
 msgid ""
 "Administrator or Supervisor needs to start operation before you can start "
 "selling..."
 msgstr ""
-"L'administrateur doit commencer les opérations avant de pouvoir vendre..."
+"Administrátor nebo Supervisor musí začít operace před začátkem prodeje..."
 
 #: lemon.cpp:720
 msgid "Transaction #%1"
-msgstr "Transaction #%1"
+msgstr "Transakce #%1"
 
 #: lemonview.cpp:98
 msgid "Continue"
-msgstr "Continuer"
+msgstr "Pokračovat"
 
 #: lemonview.cpp:151
 msgid "Welcome to Lemon"
-msgstr "Bienvenue dans Lémon"
+msgstr "Lemon Vás vítá"
 
 #: lemonview.cpp:152
 msgid "Enter username and password to start using the system."
-msgstr ""
-"Entrer un nom d'utilisateur et un mot de passe pour utiliser le logiciel."
+msgstr "Vložte jméno a heslo"
 
 #: lemonview.cpp:155
 msgid "Authorisation Required"
-msgstr "Autorisation nécessaire"
+msgstr "Vyžadováno oprávnění"
 
 #: lemonview.cpp:156
 msgid "Enter administrator password please."
-msgstr "Entrer le mot de passe admin SVP"
+msgstr "Vložte administrátorské heslo."
 
 #: lemonview.cpp:233 lemonview.cpp:234
 msgid "Enter code or qty*code. <Enter> or <+> Keys to go pay"
-msgstr ""
+msgstr "Vložte kód nebo množství*kód. <Enter> nebo <+> přejde k platbě"
 
 #: lemonview.cpp:475
 msgid "No product selected"
-msgstr "Aucun produit sélectionné "
+msgstr "Není nic vybráno"
 
 #: lemonview.cpp:503
 msgid "Enter the ticket number to cancel"
-msgstr "Saisir le numéro du ticket à annuler"
+msgstr "Vložte číslo účtenky pro storno"
 
 #: lemonview.cpp:535
-#, fuzzy
 msgid "Enter the ticket number"
-msgstr "Saisir le numéro du ticket à annuler"
+msgstr "Vložte číslo účtenky"
 
 #: lemonview.cpp:636
 msgid ""
 "Could not connect to database, please press 'login' button again to raise a "
 "database configuration."
 msgstr ""
+"Nelze se připojit k datbázi, stiskni znovu 'login' pro zobrazení konfigurace."
 
 #: lemonview.cpp:637
-#, fuzzy
 msgid "Error:"
-msgstr "Erreur"
+msgstr "Chyba:"
 
 #: lemonview.cpp:726
 msgid "%1 item found"
 msgid_plural "%1 items found."
-msgstr[0] "%1 artícle trouvé."
-msgstr[1] "%1 artículos encontrados."
+msgstr[0] "%1 položka nalezena"
+msgstr[1] "%1 položky nalezeny."
+msgstr[2] "%1 položek nalezeno."
 
 #: lemonview.cpp:727
 msgid "No items found."
-msgstr "Aucun article trouvé"
+msgstr "Nic nenalezeno."
 
 #: lemonview.cpp:864 lemonview.cpp:1001
 msgid "%1 has %2 %3 but requested %4 + %5"
-msgstr ""
+msgstr "%1 má %2 %3 ale je požadováno %4 + %5"
 
 #: lemonview.cpp:879 lemonview.cpp:1009
-#, fuzzy
 msgid ""
 "<html><font color=red><b>The group/pack is not available because:<br>%1</b></"
 "font></html>"
 msgstr ""
-"<html><font color=red weight=bold>Produit non disponible en inventaire.</"
-"font></html>"
+"<html><font color=red><b>Tahle skupina/balení není dostupná, protože:<br>%1</"
+"b></font></html>"
 
 #: lemonview.cpp:881 lemonview.cpp:1017
-#, fuzzy
 msgid ""
 "<html><font color=red><b>There are only %1 articles of your choice at stock."
 "<br> You requested %2</b></font></html>"
 msgstr ""
-"<html><font color=red weight=bold>Produit non disponible en inventaire.</"
-"font></html>"
+"<html><font color=red><b>Na skladě je pouze %1 zboží z vašeho výběru.<br> "
+"Vybral jste %2</b></font></html>"
 
 #: lemonview.cpp:924
 msgid ""
 "Only Special Orders can be added. Please finish the current special order "
 "before adding any other product."
 msgstr ""
+"Pouze speciální objednávky mohou být přidány. Dokončete speciální objednávku "
+"před přidáním dalšího zboží."
 
 #: lemonview.cpp:974
-#, fuzzy
 msgid ""
 "<html><font color=red><b>Product not found in database.</b></font></html>"
 msgstr ""
-"<html><font color=red weight=bold>Produit non présent dans la base de "
-"données.</font></html>"
+"<html><font color=red><b>Zboží nenalezeno v databázi.</b></font></html>"
 
 #: lemonview.cpp:1162
 msgid "Removing an Special Item from shopping list. Authorized by %1"
-msgstr ""
+msgstr "Odstraňuji speciální položku z nákupu. Autorizoval %1"
 
 #: lemonview.cpp:1223
 msgid "Removing an article from shopping list. Authorized by %1"
-msgstr ""
+msgstr "Odstraňuji zboží z nákupu. Autorizoval %1"
 
 #: lemonview.cpp:1274
 msgid "Enter the number of %1"
-msgstr "Numéro : %1"
+msgstr "Vložte číslo %1"
 
 #: lemonview.cpp:1308
-#, fuzzy
 msgid ""
 "<html><font color=red><b>Product not available in stock for the requested "
 "quantity.</b></font></html>"
 msgstr ""
-"<html><font color=red weight=bold>Produit non disponible en inventaire.</"
-"font></html>"
+"<html><font color=red><b>Požadované množství zboží není skladem.</b></font></"
+"html>"
 
 #. i18n: file: ui/mainview.ui:1106
 #. i18n: ectx: property (text), widget (QLabel, lblSaleTaxesPre)
 #: lemonview.cpp:1349 po/extractedrc.cpp:237 extractedrc.cpp:237
 msgid "Taxes:"
-msgstr "Taxes :"
+msgstr "Daně:"
 
 #: lemonview.cpp:1350
 msgid "Tax:"
-msgstr "TVA :"
+msgstr "Daň:"
 
 #: lemonview.cpp:1351
 msgid "Other taxes:"
-msgstr "Autres taxes :"
+msgstr "Jiné daně:"
 
 #: lemonview.cpp:1352
 msgid "Sold by:"
-msgstr "Vendu par :"
+msgstr "MJ:"
 
-#. i18n: file: ui/special_order.ui:546
+#. i18n: file: ui/special_order.ui:559
 #. i18n: ectx: property (text), widget (QLabel, lblPriceLabel)
 #: lemonview.cpp:1353 po/extractedrc.cpp:596 extractedrc.cpp:596
 msgid "Price:"
-msgstr "Prix :"
+msgstr "Cena:"
 
 #: lemonview.cpp:1354 lemonview.cpp:2949 pricechecker.cpp:53
 msgid "Discount:"
-msgstr "Remise :"
+msgstr "Sleva:"
 
 #: lemonview.cpp:1355
 msgid "Points:"
-msgstr "Avoir :"
+msgstr "Bodů:"
 
 #: lemonview.cpp:1441
 msgid ""
 "Lemon has encountered an error when openning database, click details to see "
 "the error details."
 msgstr ""
-"Lemon a rencontré une erreur en ouvrant la base de données. Cliquer sur "
-"détails pour voir l'erreur."
+"Lemon se nemůže připojit k databázi, klikni na podrobnosti pro podrobnosti."
 
 #: lemonview.cpp:1441
 msgid "Create New Transaction: Error"
-msgstr "Créer une nouvelle transaction : Erreur"
+msgstr "Vytvoření nové transakce: chyba"
 
 #: lemonview.cpp:1470
-#, fuzzy
 msgid ""
 "<html><font color=red><b>Please fill the correct pay amount before finishing "
 "a transaction.</b></font></html>"
 msgstr ""
-"<html><font color=red weight=bold>Saisir le montant exact avant de terminer "
-"la transaction SVP.</font></html>"
+"<html><font color=red><b>Zadejte správnou částku před ukončením transakce.</"
+"b></font></html>"
 
 #: lemonview.cpp:1479
 msgid ""
 "Please be sure to enter an appropiate amount in this field. The number seems "
 "to be a barcode entered by mistake in the amount field."
 msgstr ""
+"Ujistěte se, že máte množství v tomto poli. Číslo vypadá jako čárový kód "
+"vložený do pole množství."
 
 #: lemonview.cpp:1495
-#, fuzzy
 msgid ""
 "<html><font color=red><b>Please enter the card number.</b></font></html>"
-msgstr ""
-"<html><font color=red weight=bold>Entrer le numéro de carte SVP.</font></"
-"html>"
+msgstr "<html><font color=red><b>Vložte číslo karty.</b></font></html>"
 
 #: lemonview.cpp:1503
-#, fuzzy
 msgid ""
 "<html><font color=red><b>Please enter the Authorisation number from the bank "
 "voucher.</b></font></html>"
 msgstr ""
-"<html><font color=red weight=bold>Entrer le numéro confidentiel de la banque "
-"SVP.</font></html>"
+"<html><font color=red><b>Vložte autorizační číslo z bankovního poukazu.</b></"
+"font></html>"
 
 #: lemonview.cpp:1511
 msgid "Before selling, you must start operations."
-msgstr "Avant de vendre vous devez initialiser les opérations."
+msgstr "Před prodejem musíte začít operace."
 
 #: lemonview.cpp:1798
 msgid "The Drawer is not initialized, please start operation first."
-msgstr ""
-"Le tiroir caisse n'est pas initialisé, effectuer cette opération d'abord SVP."
+msgstr "Zásuvka není inicializována, nejdříve začněte operace."
 
 #: lemonview.cpp:1853
 msgid "Cash level in drawer is low."
-msgstr ""
+msgstr "Hotovost v zásuvce je malá."
 
 #: lemonview.cpp:1872
 msgid ""
 "The ticket was not printed because it is ZERO in the amount to pay. Just to "
 "save trees."
-msgstr ""
+msgstr "Účtenka se nevytiskla, protože součet je nula. Chraňte lesy."
 
 #: lemonview.cpp:1881
 msgid "Salesperson: %1"
-msgstr "Vendeur : %1"
+msgstr "Prodavač: %1"
 
 #. i18n: file: ui/mainview.ui:779
 #. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
 #. i18n: file: ui/resume.ui:72
 #. i18n: ectx: property (text), widget (QTableWidget, contentTable)
-#. i18n: file: ui/special_order.ui:324
+#. i18n: file: ui/special_order.ui:337
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
 #. i18n: file: ui/mainview.ui:779
 #. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
 #. i18n: file: ui/resume.ui:72
 #. i18n: ectx: property (text), widget (QTableWidget, contentTable)
-#. i18n: file: ui/special_order.ui:324
+#. i18n: file: ui/special_order.ui:337
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
 #: lemonview.cpp:1882 lemonview.cpp:2079 lemonview.cpp:2137 lemonview.cpp:2173
 #: po/extractedrc.cpp:216 po/extractedrc.cpp:475 po/extractedrc.cpp:560
 #: extractedrc.cpp:216 extractedrc.cpp:475 extractedrc.cpp:560
 msgid "Qty"
-msgstr "Qantité."
+msgstr "Množství"
 
 #. i18n: file: ui/mainview.ui:79
 #. i18n: ectx: property (title), widget (QGroupBox, groupDetails)
 #: lemonview.cpp:1883 po/extractedrc.cpp:141 extractedrc.cpp:141
 msgid "Product"
-msgstr "Produit"
+msgstr "Produkt"
 
 #. i18n: file: ui/mainview.ui:774
 #. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
@@ -532,633 +505,613 @@ msgstr "Produit"
 #: po/extractedrc.cpp:309 extractedrc.cpp:213 extractedrc.cpp:258
 #: extractedrc.cpp:309
 msgid "Price"
-msgstr "Prix"
+msgstr "Cena"
 
 #: lemonview.cpp:1885
 msgid "Offer"
-msgstr ""
+msgstr "Nabídka"
 
 #. i18n: file: ui/mainview.ui:794
 #. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
 #: lemonview.cpp:1886 lemonview.cpp:3178 po/extractedrc.cpp:225
 #: extractedrc.cpp:225
 msgid "Total"
-msgstr "Total"
+msgstr "Celkem"
 
 #: lemonview.cpp:1887
-#, fuzzy
 msgid "Your Personal Discount"
-msgstr "Votre escompte : %1"
+msgstr "Vaše osobní sleva"
 
 #: lemonview.cpp:1888
 msgid "Your points this buy: %1"
-msgstr "Vos points pour cet achat : %1"
+msgstr "Bodů za tento nákup: %1"
 
 #: lemonview.cpp:1889
 msgid "Your total points: %1"
-msgstr "Avoir total : %1:"
+msgstr "Bodů celkem: %1"
 
 #: lemonview.cpp:1890
 msgid "# %1"
-msgstr ""
+msgstr "# %1"
 
 #: lemonview.cpp:1891
 msgid "Terminal #%1"
-msgstr "Terminal #%1"
+msgstr "Pokladna #%1"
 
 #: lemonview.cpp:1892
 msgid "  PRE PAYMENT OF  "
-msgstr ""
+msgstr " PŘEDPLATBA"
 
 #: lemonview.cpp:1893
 msgid "  COMPLETED PAYMENT WITH "
-msgstr ""
+msgstr " DOPACENO"
 
 #: lemonview.cpp:1894
 msgid "  To complete your payment"
-msgstr ""
+msgstr " Dokončit vaši platbu"
 
 #: lemonview.cpp:1895
 msgid "  Your pre-payment"
-msgstr ""
+msgstr " Vaše předplatba"
 
 #: lemonview.cpp:1896
 msgid "SPECIAL ORDERS"
-msgstr ""
+msgstr "SPECIÁLNÍ OBJEDNÁVKY"
 
 #. i18n: file: ui/special_order.ui:224
-#. i18n: ectx: property (text), widget (QLabel, label)
+#. i18n: ectx: property (text), widget (QLabel, lblNotes)
 #: lemonview.cpp:1897 lemonview.cpp:3284 lemonview.cpp:3614
 #: po/extractedrc.cpp:547 extractedrc.cpp:547
-#, fuzzy
 msgid "Notes:"
-msgstr "Avoir :"
+msgstr "Poznámky:"
 
 #: lemonview.cpp:1898
 msgid "  Delivery: "
-msgstr ""
+msgstr "  Doručení: "
 
 #: lemonview.cpp:1899
-#, fuzzy
 msgid "Tax"
-msgstr "TVA :"
+msgstr "Daň"
 
 #: lemonview.cpp:2008 lemonview.cpp:2085 lemonview.cpp:2143
 msgid "%1 article."
 msgid_plural "%1 articles."
-msgstr[0] "%1 artícle"
-msgstr[1] "%1 artículos"
+msgstr[0] "%1 zboží."
+msgstr[1] "%1 zboží."
+msgstr[2] "%1 zboží."
 
 #: lemonview.cpp:2009
 msgid "A total of"
-msgstr "Total"
+msgstr "Celkem z"
 
 #: lemonview.cpp:2012
 msgid "<br>Paid with %1, your change is <b>%2</b><br>"
-msgstr "<br>Paiement en %1, votre monaie est <b>%2</b><br>"
+msgstr "<br>Zaplaceno %1, vrátit <b>%2</b><br>"
 
 #: lemonview.cpp:2021
-#, fuzzy
 msgid "You saved %1"
-msgstr "Vous avez économisé %1"
+msgstr "Ušetřil jste %1"
 
 #: lemonview.cpp:2028 lemonview.cpp:2086
 msgid "Paid with %1, your change is %2"
-msgstr "<br>Paiement en %1, votre monaie est <b>%2</b><br>"
+msgstr "Zaplaceno %1, vrátit %2"
 
 #: lemonview.cpp:2033
 msgid "<br>Card # %1<br>Authorisation # %2"
-msgstr "<br>Carte# %1<br>Autorisation # %2"
+msgstr "<br>Karta # %1<br>Autorizace # %2"
 
 #: lemonview.cpp:2034
-#, fuzzy
 msgid ""
 "Card Number:%1 \n"
 "Authorisation #:%2"
-msgstr "<br>Carte# %1<br>Autorisation # %2"
+msgstr ""
+"Číslo karty:%1 \n"
+"Autorizace #:%2"
 
 #: lemonview.cpp:2075 lemonview.cpp:2133
 msgid "Phone: "
-msgstr ""
+msgstr "Telefon:"
 
 #: lemonview.cpp:2084 lemonview.cpp:2142
 msgid " %3 [ %4 ]| You got %1 points | Your accumulated is :%2 | "
-msgstr ""
+msgstr " %3 [ %4 ]| Získávané body: %1 | Celkem již máte :%2 | "
 
 #: lemonview.cpp:2088
-#, fuzzy
 msgid "Card Number  : %1"
-msgstr "&Numéro de carte :"
+msgstr "Číslo karty: %1"
 
 #: lemonview.cpp:2089
-#, fuzzy
 msgid "Authorization : %1"
-msgstr "Numéro d'autorisation :"
+msgstr "Autorizace : %1"
 
 #: lemonview.cpp:2108 lemonview.cpp:2155
-#, fuzzy
 msgid "Print Receipt"
-msgstr "Imprimante"
+msgstr "Tisk účtenky"
 
 #: lemonview.cpp:2189
 msgid "Print Special Order Instructions "
-msgstr ""
+msgstr "Tisk instrukcí speciální objednávky"
 
 #: lemonview.cpp:2290
 msgid ""
 "Lemon has encountered an error when querying the database, click details to "
 "see the error details."
 msgstr ""
-"Lemon a rencontré une erreur en interrogeant la base de données. Cliquer sur "
-"détails pour savoir l'erreur."
+"Lemon narazil na chybu při čtení z databáze, pro podrobnosti klnkni na "
+"podrobnosti."
 
 #: lemonview.cpp:2290
 msgid "Delete Transaction: Error"
-msgstr "Effacer la transaction : Erreur"
+msgstr "Mazání transakce: chyba"
 
 #: lemonview.cpp:2328
 msgid ""
 "The ticket cannot be cancelled because it was paid with a credit/debit card."
-msgstr ""
+msgstr "Ǔčtenka nemůže být stornována, protože byla placena kartou."
 
 #: lemonview.cpp:2339
 msgid "Cancelling transaction #%1. Authorized by %2"
-msgstr ""
+msgstr "Storno transakce #%1. Autorizoval %2"
 
 #: lemonview.cpp:2349
 msgid "The ticket was sucessfully cancelled."
-msgstr ""
+msgstr "Účtenka byla úspěšně stornována."
 
 #: lemonview.cpp:2361
 msgid "Error cancelling ticket: %1"
-msgstr ""
+msgstr "Chyba při stornování účtenky: %1"
 
 #: lemonview.cpp:2383
 msgid "There is not enough cash available in the drawer."
-msgstr ""
+msgstr "V zásuvce není dost peněz."
 
 #: lemonview.cpp:2385
 msgid "Ticket to cancel does not exists!"
-msgstr ""
+msgstr "Účtenka neexistuje!"
 
 #: lemonview.cpp:2403
 msgid "Enter the amount of money to deposit in the drawer"
-msgstr "Entrer le montant à déposer dans le tiroir caisse :"
+msgstr "Vložte velikost peněžního vkladu v zásuvce"
 
 #: lemonview.cpp:2426
 msgid "Operation Started by %1 at terminal %2"
-msgstr ""
+msgstr "Operace začal %1 na terminálu %2"
 
 #: lemonview.cpp:2549
-#, fuzzy
 msgid "Balance Id:%1"
-msgstr "Solde"
+msgstr "Bilance:%1"
 
 #: lemonview.cpp:2555
-#, fuzzy
 msgid "%1 at Terminal # %2"
-msgstr "Terminal #%1"
+msgstr "%1 na pokladně # %2"
 
 #: lemonview.cpp:2556
 msgid "Initial Amount deposited:"
-msgstr "Montant initial déposé :"
+msgstr "Počáteční vklad:"
 
 #: lemonview.cpp:2557
 msgid "Deposit"
-msgstr "Dépôt"
+msgstr "Vklad"
 
 #: lemonview.cpp:2558
 msgid "In"
-msgstr "recette"
+msgstr "Přijem"
 
 #: lemonview.cpp:2559
 msgid "Out"
-msgstr "dépense"
+msgstr "Výdej"
 
 #: lemonview.cpp:2560
 msgid "In Drawer"
-msgstr "dans la caisse"
+msgstr "V zásuvce"
 
 #: lemonview.cpp:2561
 msgid "Drawer Balance"
-msgstr "Solde de la caisse"
+msgstr "Stav zásuvky"
 
 #: lemonview.cpp:2562
 msgid "Transactions Details"
-msgstr "Détails des transactions "
+msgstr "Detaily transakce"
 
 #: lemonview.cpp:2563
 msgid "Transactions"
-msgstr "Transactions "
+msgstr "Transakce"
 
 #: lemonview.cpp:2564 lemonview.cpp:2784
 msgid "Id"
-msgstr "Numéro"
+msgstr "Id"
 
 #: lemonview.cpp:2565 lemonview.cpp:2598 lemonview.cpp:2788 resume.cpp:153
 msgid "Time"
-msgstr "Heure"
+msgstr "Čas"
 
 #: lemonview.cpp:2566 lemonview.cpp:2789
 msgid "Amount"
-msgstr "Montant"
+msgstr "Množství"
 
 #: lemonview.cpp:2567
-#, fuzzy
 msgid "Paid"
-msgstr "Payé par Pagado con"
+msgstr "Zaplaceno"
 
 #: lemonview.cpp:2568 lemonview.cpp:2791
-#, fuzzy
 msgid "Method"
-msgstr "mode de paiement"
+msgstr "Metoda"
 
 #: lemonview.cpp:2587
 msgid "Start: %1"
-msgstr ""
+msgstr "Počátek: %1"
 
 #: lemonview.cpp:2588
 msgid "End  : %1"
-msgstr ""
+msgstr "Konec: %1"
 
 #: lemonview.cpp:2595
 msgid "Cash flow Details"
-msgstr ""
+msgstr "Podrobnosti Cash flow"
 
 #: lemonview.cpp:2596
 msgid "Type"
-msgstr ""
+msgstr "Typ"
 
 #: lemonview.cpp:2597
 msgid "Reason"
-msgstr ""
+msgstr "Důvod"
 
 #: lemonview.cpp:2734
-#, fuzzy
 msgid "Print Balance"
-msgstr "Solde"
+msgstr "Tisk stavu"
 
 #: lemonview.cpp:2767
 msgid "End of Day report printed by %1 at terminal %2 on %3"
-msgstr ""
+msgstr "Denní uzávěrka vytištěna %1 na terminálu %2 %3"
 
 #: lemonview.cpp:2786
-#, fuzzy
 msgid "at terminal # %1"
-msgstr "Terminal #%1"
+msgstr "na pokladně # %1"
 
 #: lemonview.cpp:2790
-#, fuzzy
 msgid "Profit"
-msgstr "Imprimante"
+msgstr "Zisk"
 
 #: lemonview.cpp:2821
 msgid "Total Sales : %1"
-msgstr ""
+msgstr "Celkový prodej: %1 "
 
 #: lemonview.cpp:2822
-#, fuzzy
 msgid "Total Profit: %1"
-msgstr "Avoir total : %1:"
+msgstr "Celkový zisk: %1"
 
 #: lemonview.cpp:2837 lemonview.cpp:2846
 msgid "Print end of day report"
-msgstr ""
+msgstr "Tisk denní uzávěrky"
 
 #: lemonview.cpp:2947
 msgid "Price: "
-msgstr "Prix :"
+msgstr "Cena:"
 
 #: lemonview.cpp:2948
 msgid "Available: "
-msgstr "Disponible :"
+msgstr "Dispozice:"
 
 #: lemonview.cpp:2950
 msgid "Category:"
-msgstr "Catégorie :"
+msgstr "Kategorie:"
 
 #: lemonview.cpp:2951
 msgid "in stock"
-msgstr ""
+msgstr "skladem"
 
 #: lemonview.cpp:2952
 msgid "in your shopping cart, Total Available"
-msgstr ""
+msgstr "v košíku, celkem k dispozici"
 
 #: lemonview.cpp:3146
-#, fuzzy
 msgid "%1 points"
-msgstr "Avoir :"
+msgstr "%1 bodů"
 
 #: lemonview.cpp:3147
-#, fuzzy
 msgid "Discount: %1% "
-msgstr "Remise : %1%"
+msgstr "Sleva: %1%"
 
 #: lemonview.cpp:3149
 msgid "[%1]"
-msgstr ""
+msgstr "[%1]"
 
 #: lemonview.cpp:3173
 msgid "Tr"
-msgstr ""
+msgstr "Tr"
 
 #. i18n: file: ui/mainview.ui:814
 #. i18n: ectx: property (title), widget (QGroupBox, groupClient)
 #: lemonview.cpp:3174 po/extractedrc.cpp:228 resume.cpp:156
 #: extractedrc.cpp:228
 msgid "Client"
-msgstr "Client"
+msgstr "Zákazník"
 
 #: lemonview.cpp:3175 resume.cpp:154 soselector.cpp:170 sostatus.cpp:167
-#, fuzzy
 msgid "Date"
-msgstr "Base de données"
+msgstr "Datum"
 
 #: lemonview.cpp:3176
-#, fuzzy
 msgid "User"
-msgstr "Nom utilisateur :"
+msgstr "Uživatel"
 
 #: lemonview.cpp:3177
 msgid "Items"
-msgstr ""
+msgstr "Položky"
 
 #. i18n: file: ui/mainview.ui:789
 #. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
 #: lemonview.cpp:3179 po/extractedrc.cpp:222 extractedrc.cpp:222
 msgid "Discount"
-msgstr "remise"
+msgstr "Sleva"
 
 #: lemonview.cpp:3230
 msgid "Please select a ticket to print."
-msgstr ""
+msgstr "Vyberte účtenku na tisk."
 
 #: lemonview.cpp:3230
-#, fuzzy
 msgid "Cannot print ticket"
-msgstr "Annuler un ticket"
+msgstr "Nemůžu tisknout účet"
 
 #: lemonview.cpp:3350
 msgid "Cash not available at drawer!"
-msgstr ""
+msgstr "Žádná hotovost v zásuvce!"
 
 #: lemonview.cpp:3377
 msgid "Cash-OUT by %1 at terminal %2 on %3"
-msgstr ""
+msgstr "Výdaje hotovosti %1 na terminálu %2 v %3"
 
 #: lemonview.cpp:3420
 msgid "Cash-IN [%1] by %2 at terminal %3 on %4"
-msgstr ""
+msgstr "Příjmy hotovosti [%1] %2 na terminálu %3 v %4"
 
 #: lemonview.cpp:3430
 msgid "There are <b> %1 in cash </b> available at the drawer."
-msgstr ""
+msgstr "V pokladně je <b> %1 v hotovosti </b>."
 
 #: lemonview.cpp:3451
 msgid "Please finish the current transaction before creating a special order."
-msgstr ""
+msgstr "Ukončete tuto transakci před vytvořením speciální objednávky."
 
 #: lemonview.cpp:3550
 msgid ""
 "Please finish the current transaction before completing a special order."
-msgstr ""
+msgstr "Ukončente transakci před dokončením speciální objednávky. "
 
 #: lemonview.cpp:3567
 msgid "The given ticket number does not contains any special order."
-msgstr ""
+msgstr "Zadané číslo účtenky neobsahuje žádnou speciální objednávku."
 
 #: lemonview.cpp:3574
 msgid "These special orders cannot be completed because:"
-msgstr ""
+msgstr "Tyto speciální objednávky nemohou být dokončeny protože:"
 
 #: lemonview.cpp:3581
 msgid "<b>is Cancelled</b>"
-msgstr ""
+msgstr "<b>je stornováno</b>"
 
 #: lemonview.cpp:3583
 msgid "is already <b>Delivered</b>"
-msgstr ""
+msgstr "je už <b>dodáno</b>"
 
 #: lemonview.cpp:3584
 msgid "%1 %2."
-msgstr ""
+msgstr "%1 %2."
 
 #: lemonview.cpp:3595
 msgid ""
 "The special order %1 in ticket %2 is completely paid. Marked as delivered."
 msgstr ""
+"Tato speciální objednávka %1 na účtence %2 je zaplacena. Označena jako "
+"doručená."
 
 #: lemonview.cpp:3669
 msgid ""
 "<b>This terminal is locked.</b> <br><i>Please enter the user's password to "
 "unlock it</i>."
 msgstr ""
+"<b>Tento terminál je uzamčen.</b> <br><i>Vložte heslo uživatele pro odemčení."
+"</i>."
 
 #: lemonview.cpp:3837
 msgid "The sale %1 has been sucessfully suspended."
-msgstr ""
+msgstr "Prodej %1 byl úspěšne odložen."
 
-#: lemonview.cpp:3892 specialordereditor.cpp:490
-#, fuzzy
+#: lemonview.cpp:3892 specialordereditor.cpp:492
 msgid "Notes: %1"
-msgstr "Points: %1"
+msgstr "Poznámky: %1"
 
 #: lemonview.cpp:3920
 msgid ""
 "Please finish the current transaction before changing state for a special "
 "order."
-msgstr ""
+msgstr "Ukončete tuto transakci před změnou stavu speciální objednávky."
 
 #: lemonview.cpp:3956
-#, fuzzy
 msgid "Enter the discount percentage to apply"
-msgstr "Saisir le numéro du ticket à annuler"
+msgstr "Vlož slevu v procentech"
 
 #: lemonview.cpp:3971
+#, fuzzy
 msgid "Applying occasional discount. Authorized by %1"
-msgstr ""
+msgstr "Započtena mimořádná sleva. Autorizoval %1"
 
 #: loginwindow.cpp:64
 msgid "&Quit"
-msgstr ""
+msgstr "&Konec"
 
 #: loginwindow.cpp:65
 msgid "&Ok"
-msgstr "&Accepter"
+msgstr "&Ok"
 
 #: loginwindow.cpp:171
 msgid "Username:"
-msgstr "Nom utilisateur :"
+msgstr "Jméno:"
 
 #: loginwindow.cpp:172
 msgid "Password:"
-msgstr "Mot de passe :"
+msgstr "Heslo:"
 
 #: loginwindow.cpp:306
 msgid "Invalid username or password"
-msgstr "Utilisateur ou mot de passe invalide"
+msgstr "Chybné jméno nebo heslo"
 
 #: main.cpp:35
 msgid "Lemon, A point of sale for linux"
-msgstr "Lemon point de vente pour linux"
+msgstr "Lemon, prodejní terminál pro linux"
 
 #: main.cpp:42
 msgid "lemon"
 msgstr "lemon"
 
 #: main.cpp:42
-#, fuzzy
 msgid "(C) 2007-2010 Miguel Chavez Gamboa"
-msgstr "(C) 2007 Miguel Chávez Gamboa"
+msgstr "(C) 2007-2010 Miguel Chavez Gamboa"
 
 #: main.cpp:43
 msgid "Miguel Chavez Gamboa"
-msgstr "Miguel Chávez Gamboa"
+msgstr "Miguel Chavez Gamboa"
 
 #: main.cpp:46
 msgid "Biel Frontera"
-msgstr ""
+msgstr "Biel Frontera"
 
 #: main.cpp:46
 msgid "Code contributor"
-msgstr ""
+msgstr "Přispěvatel"
 
 #. i18n: file: lemon.kcfg:9
 #. i18n: ectx: label, entry (SplitterSizes), group (lemon)
 #: po/extractedrc.cpp:3 extractedrc.cpp:3
 msgid "How the main window is divided."
-msgstr "Division de la fenêtre principale"
+msgstr "Rozdělení hlavního okna"
 
 #. i18n: file: lemon.kcfg:14
 #. i18n: ectx: label, entry (editStoreName), group (Store Preferences)
 #: po/extractedrc.cpp:6 extractedrc.cpp:6
 msgid "Store Name"
-msgstr "Nom du magasin"
+msgstr "Název prodejny"
 
 #. i18n: file: lemon.kcfg:18
 #. i18n: ectx: label, entry (storePhone), group (Store Preferences)
 #: po/extractedrc.cpp:9 extractedrc.cpp:9
-#, fuzzy
 msgid "Store Phone Number"
-msgstr "Numéro de succursale"
+msgstr "Telefon prodejny"
 
 #. i18n: file: lemon.kcfg:22
 #. i18n: ectx: label, entry (storeAddress), group (Store Preferences)
 #: po/extractedrc.cpp:12 extractedrc.cpp:12
-#, fuzzy
 msgid "Store Address"
-msgstr "Nom du magasin"
+msgstr "Adresa prodejny"
 
 #. i18n: file: lemon.kcfg:26
 #. i18n: ectx: label, entry (editTicketMessage), group (Store Preferences)
 #: po/extractedrc.cpp:15 extractedrc.cpp:15
 msgid "Ticket Message"
-msgstr "Message du ticket"
+msgstr "Zpráva na účtence"
 
 #. i18n: file: lemon.kcfg:30
 #. i18n: ectx: label, entry (storeLogo), group (Store Preferences)
 #: po/extractedrc.cpp:18 extractedrc.cpp:18
 msgid "Store Logo file"
-msgstr ""
+msgstr "Soubor loga"
 
 #. i18n: file: lemon.kcfg:34
 #. i18n: ectx: label, entry (chLogoOnTop), group (Store Preferences)
 #: po/extractedrc.cpp:21 extractedrc.cpp:21
-#, fuzzy
 msgid "Print Logo on ticket Top"
-msgstr "Saisir le numéro du ticket à annuler"
+msgstr "Tisk loga na počátku účtenky"
 
 #. i18n: file: lemon.kcfg:40
 #. i18n: ectx: label, entry (editTerminalNumber), group (General Preferences)
 #: po/extractedrc.cpp:24 extractedrc.cpp:24
 msgid "POS Number"
-msgstr "Numéro de caisse"
+msgstr "Číslo pokladny"
 
 #. i18n: file: lemon.kcfg:44
 #. i18n: ectx: label, entry (requiereDelAuth), group (General Preferences)
 #: po/extractedrc.cpp:27 extractedrc.cpp:27
 msgid "Requiere delete authorisation"
-msgstr "Autorisation nécessaire pour effacer des articles de la liste "
+msgstr "Vzžadovat autorizaci mazání"
 
 #. i18n: file: lemon.kcfg:48
 #. i18n: ectx: label, entry (lowSecurityMode), group (General Preferences)
 #: po/extractedrc.cpp:30 extractedrc.cpp:30
-#, fuzzy
 msgid "Low Security Mode"
-msgstr "Securité"
+msgstr "Režim nízkého zabezpečení"
 
 #. i18n: file: lemon.kcfg:52
 #. i18n: ectx: label, entry (showCurrencyOnTotal), group (General Preferences)
 #: po/extractedrc.cpp:33 extractedrc.cpp:33
 msgid "Show Currency"
-msgstr "Afficher la monnaie "
+msgstr "Ukazovat měnu"
 
 #. i18n: file: lemon.kcfg:56
 #. i18n: ectx: label, entry (editCurrencyFull), group (General Preferences)
 #: po/extractedrc.cpp:36 extractedrc.cpp:36
 msgid "Full Currency String"
-msgstr "Type de monaie "
+msgstr "Název měny"
 
 #. i18n: file: lemon.kcfg:60
 #. i18n: ectx: label, entry (editCurrencyShort), group (General Preferences)
 #: po/extractedrc.cpp:39 extractedrc.cpp:39
 msgid "Short Currency String"
-msgstr "Abréviation du type de monnaie"
+msgstr "Zkratka měny"
 
 #. i18n: file: lemon.kcfg:64
 #. i18n: ectx: label, entry (showGrid), group (General Preferences)
 #: po/extractedrc.cpp:42 extractedrc.cpp:42
 msgid "Show Products Grid"
-msgstr "Afficher la grille de produits"
+msgstr "Zobraz mřížku produktů"
 
 #. i18n: file: lemon.kcfg:68
 #. i18n: ectx: label, entry (stockAlertValue), group (General Preferences)
 #: po/extractedrc.cpp:45 extractedrc.cpp:45
 msgid "Low Stock Alert"
-msgstr ""
+msgstr "Hlášení nízkého stavu skladu"
 
 #. i18n: file: lemon.kcfg:72
 #. i18n: ectx: label, entry (cashMinLevel), group (General Preferences)
 #: po/extractedrc.cpp:48 extractedrc.cpp:48
 msgid "Low Cash Level"
-msgstr ""
+msgstr "Minimální stav hotovosti"
 
 #. i18n: file: lemon.kcfg:76
 #. i18n: ectx: label, entry (displayWarningOnLowCash), group (General Preferences)
 #: po/extractedrc.cpp:51 extractedrc.cpp:51
 msgid "Display Low Cash Warning"
-msgstr ""
+msgstr "Zobrazit upozornění na nedostatek hotovosti"
 
 #. i18n: file: lemon.kcfg:80
 #. i18n: ectx: label, entry (addTax), group (General Preferences)
 #: po/extractedrc.cpp:54 extractedrc.cpp:54
 msgid "Add tax to prices. Tax is not included in price"
-msgstr ""
+msgstr "Přičítat daň k cenám. Daň není obsažena v ceně"
 
 #. i18n: file: lemon.kcfg:86
 #. i18n: ectx: label, entry (editDBServer), group (Database)
 #: po/extractedrc.cpp:57 extractedrc.cpp:57
 msgid "DB Server Name"
-msgstr "Nom du serveur de BD"
+msgstr "DB server"
 
 #. i18n: file: lemon.kcfg:90
 #. i18n: ectx: label, entry (editDBUsername), group (Database)
 #: po/extractedrc.cpp:60 extractedrc.cpp:60
 msgid "DB Username"
-msgstr "Utilisateur de la B.D."
+msgstr "DB uživatel"
 
 #. i18n: file: lemon.kcfg:94
 #. i18n: ectx: label, entry (editDBPassword), group (Database)
 #: po/extractedrc.cpp:63 extractedrc.cpp:63
 msgid "DB Password"
-msgstr "Mot de passe de la B.D."
+msgstr "DB heslo"
 
 #. i18n: file: lemon.kcfg:98
 #. i18n: ectx: label, entry (editDBName), group (Database)
 #: po/extractedrc.cpp:66 extractedrc.cpp:66
 msgid "DB Name"
-msgstr "Nom de la B.D."
+msgstr "DB jméno"
 
 #. i18n: file: lemon.kcfg:102
 #. i18n: ectx: label, entry (deleteEmptyCancelledTransactions), group (Database)
@@ -1171,132 +1124,127 @@ msgstr "Nom de la B.D."
 #: po/extractedrc.cpp:69 po/extractedrc.cpp:432 extractedrc.cpp:69
 #: extractedrc.cpp:432
 msgid "Delete empty cancelled transactions"
-msgstr "Effacer les transactions annulées vides "
+msgstr "Vymazat prázdné stornované transakce"
 
 #. i18n: file: lemon.kcfg:108
 #. i18n: ectx: label, entry (useStyle), group (Styles)
 #: po/extractedrc.cpp:72 extractedrc.cpp:72
 msgid "Use style"
-msgstr "Utiliser un style"
+msgstr "Použít styl"
 
 #. i18n: file: lemon.kcfg:112
 #. i18n: ectx: label, entry (styleName), group (Styles)
 #: po/extractedrc.cpp:75 extractedrc.cpp:75
 msgid "Get Stylesheet Name"
-msgstr "Obtenir le nom d'un style"
+msgstr "Zvol název stylu"
 
 #. i18n: file: lemon.kcfg:118
 #. i18n: ectx: label, entry (allowAnyUserToQuit), group (security)
 #: po/extractedrc.cpp:78 extractedrc.cpp:78
 msgid "Allow any user to quit application"
-msgstr "Permettre n'importe-quel utilisateur de quitter l'application"
+msgstr "Povolit všem ukončit aplikaci"
 
 #. i18n: file: lemon.kcfg:124
 #. i18n: ectx: label, entry (showDialogOnPrinting), group (printer)
 #: po/extractedrc.cpp:81 extractedrc.cpp:81
 msgid "Show a dialog when printing the ticket"
-msgstr "Afficher un dialogue à l'impression"
+msgstr "Ukázat dialog při tisku účtenky"
 
 #. i18n: file: lemon.kcfg:128
 #. i18n: ectx: label, entry (ticketTime), group (printer)
 #: po/extractedrc.cpp:84 extractedrc.cpp:84
 msgid "Time showing the ticket dialog"
-msgstr ""
+msgstr "Čas ukazující účtenkový dialog."
 
 #. i18n: file: lemon.kcfg:132
 #. i18n: ectx: label, entry (openDrawer), group (printer)
 #: po/extractedrc.cpp:87 extractedrc.cpp:87
 msgid "There is a drawer and use it"
-msgstr ""
+msgstr "Máte zásuvku a používejte ji"
 
 #. i18n: file: lemon.kcfg:136
 #. i18n: ectx: label, entry (smallTicketDotMatrix), group (printer)
 #: po/extractedrc.cpp:90 extractedrc.cpp:90
-#, fuzzy
 msgid "Print a small receipt using a ticket printer -dot matrix-."
-msgstr "Imprimer le ticket"
+msgstr "Tisk malé účtenky na jehličkové tiskárně -dot matrix-."
 
 #. i18n: file: lemon.kcfg:140
 #. i18n: ectx: label, entry (smallTicketCUPS), group (printer)
 #: po/extractedrc.cpp:93 extractedrc.cpp:93
-#, fuzzy
 msgid "Print a small receipt using a thermal ticket printer -CUPS-"
-msgstr "Imprimer le ticket"
+msgstr "Tisk malé účtenky na termotiskárně -CUPS-"
 
 #. i18n: file: lemon.kcfg:144
 #. i18n: ectx: label, entry (bigReceipt), group (printer)
 #: po/extractedrc.cpp:96 extractedrc.cpp:96
 msgid "Print a big receipt using a normal printer"
-msgstr ""
+msgstr "Tisk účtenky na normální tiskárně"
 
 #. i18n: file: lemon.kcfg:148
 #. i18n: ectx: label, entry (printBalances), group (printer)
 #: po/extractedrc.cpp:99 extractedrc.cpp:99
-#, fuzzy
 msgid "Print balances using ticket printer"
-msgstr "Imprimer le ticket"
+msgstr "Tisk bilance na malé tiskárně"
 
 #. i18n: file: lemon.kcfg:152
 #. i18n: ectx: label, entry (printZeroTicket), group (printer)
 #: po/extractedrc.cpp:102 extractedrc.cpp:102
 msgid "Print tickets with ZERO in the TOTAL"
-msgstr ""
+msgstr "Tisk účtenek s CELKOVOU hodnotou NULA."
 
 #. i18n: file: lemon.kcfg:156
 #. i18n: ectx: label, entry (printPackContents), group (printer)
 #: po/extractedrc.cpp:105 extractedrc.cpp:105
-#, fuzzy
 msgid "Print Group/Pack Contents on tickets"
-msgstr "Saisir le numéro du ticket à annuler"
+msgstr "Tisk obsahu skupiny/balení na účtenku."
 
 #. i18n: file: lemon.kcfg:160
 #. i18n: ectx: label, entry (printSO), group (printer)
 #: po/extractedrc.cpp:108 extractedrc.cpp:108
 msgid "Print SpecialOrders Instructions"
-msgstr ""
+msgstr "Tisk intrukcí ke speiální objednávce"
 
 #. i18n: file: lemon.kcfg:164
 #. i18n: ectx: label, entry (printRandomMsg), group (printer)
 #: po/extractedrc.cpp:111 extractedrc.cpp:111
-#, fuzzy
 msgid "Print Random Messages on tickets"
-msgstr "Saisir le numéro du ticket à annuler"
+msgstr "Tisk náhodných zpráv na účtenku"
 
 #. i18n: file: lemon.kcfg:168
 #. i18n: ectx: label, entry (printTicket), group (printer)
 #: po/extractedrc.cpp:114 extractedrc.cpp:114
 msgid "Print Ticket (dou you have a ticket printer?)"
-msgstr "Imprimer Ie ticket"
+msgstr "Tisk účtenky (máte tiskárnu na účtenky?)"
 
 #. i18n: file: lemon.kcfg:172
 #. i18n: ectx: label, entry (printChangedDateTicket), group (printer)
 #: po/extractedrc.cpp:117 extractedrc.cpp:117
 msgid "Print Date Changed Ticket"
-msgstr ""
+msgstr "Tisk účtenky se změnou datumu"
 
 #. i18n: file: lemon.kcfg:176
 #. i18n: ectx: label, entry (printerDevice), group (printer)
 #: po/extractedrc.cpp:120 extractedrc.cpp:120
 msgid "Get printer device to use for printing"
-msgstr ""
+msgstr "Zvol zařízení tiskárny"
 
 #. i18n: file: lemon.kcfg:180
 #. i18n: ectx: label, entry (printerCodec), group (printer)
 #: po/extractedrc.cpp:123 extractedrc.cpp:123
 msgid "Get Printer Codec to use"
-msgstr ""
+msgstr "Zvol kodek tiskárny"
 
 #. i18n: file: lemonui.rc:4
 #. i18n: ectx: ToolBar (aBasicToolBar)
 #: po/extractedrc.cpp:126 extractedrc.cpp:126
 msgid "Basic Use Toolbar"
-msgstr "Barre à outils de base "
+msgstr "Základní nástroje"
 
 #. i18n: file: lemonui.rc:23
 #. i18n: ectx: ToolBar (adminToolBar)
 #: po/extractedrc.cpp:129 extractedrc.cpp:129
 msgid "Administrator's Toolbar"
-msgstr "Barre d'outils de l'administrateur"
+msgstr "Nástroje administrátora"
 
 #. i18n: file: ui/checker.ui:31
 #. i18n: ectx: property (windowTitle), widget (QWidget, priceChecker)
@@ -1332,13 +1280,13 @@ msgstr "Barre d'outils de l'administrateur"
 #: extractedrc.cpp:321 extractedrc.cpp:411 extractedrc.cpp:444
 #: extractedrc.cpp:450 extractedrc.cpp:611
 msgid "Form"
-msgstr ""
+msgstr "Formulář"
 
 #. i18n: file: ui/mainview.ui:42
 #. i18n: ectx: property (text), widget (QLabel, label)
 #: po/extractedrc.cpp:138 pricechecker.cpp:49 extractedrc.cpp:138
 msgid "&Code:"
-msgstr "&Códe :"
+msgstr "Kó&d:"
 
 #. i18n: file: ui/mainview.ui:106
 #. i18n: ectx: property (text), widget (QLabel, labelDetailDesc)
@@ -1379,87 +1327,85 @@ msgstr "&Códe :"
 #: extractedrc.cpp:156 extractedrc.cpp:159 extractedrc.cpp:162
 #: extractedrc.cpp:165
 msgid "label"
-msgstr ""
+msgstr "štítek"
 
 #. i18n: file: ui/mainview.ui:307
 #. i18n: ectx: property (title), widget (QGroupBox, groupPayment)
 #: po/extractedrc.cpp:168 extractedrc.cpp:168
-#, fuzzy
 msgid "Payment"
-msgstr "<b>Paiement</b>"
+msgstr "Platba"
 
 #. i18n: file: ui/mainview.ui:333
 #. i18n: ectx: property (text), widget (QRadioButton, checkCash)
 #: po/extractedrc.cpp:171 extractedrc.cpp:171
 msgid "Ca&sh"
-msgstr "&Espèces"
+msgstr "&Hotovost"
 
 #. i18n: file: ui/mainview.ui:365
 #. i18n: ectx: property (text), widget (QRadioButton, checkCard)
 #: po/extractedrc.cpp:174 extractedrc.cpp:174
 msgid "Ca&rd"
-msgstr "&Carte"
+msgstr "Ka&rta"
 
 #. i18n: file: ui/mainview.ui:430
 #. i18n: ectx: property (text), widget (QLabel, labelCashAmount)
 #: po/extractedrc.cpp:177 extractedrc.cpp:177
 msgid "Cash &Amount:"
-msgstr "&Quantité :"
+msgstr "&Množství peněz:"
 
 #. i18n: file: ui/mainview.ui:500
 #. i18n: ectx: property (text), widget (QLabel, labelCardNumber)
 #: po/extractedrc.cpp:180 extractedrc.cpp:180
 msgid "Card &Number:"
-msgstr "&Numéro de carte :"
+msgstr "Číslo &karty:"
 
 #. i18n: file: ui/mainview.ui:528
 #. i18n: ectx: property (inputMask), widget (QLineEdit, editCardNumber)
 #: po/extractedrc.cpp:183 extractedrc.cpp:183
 msgid "0000-0000-0000-0000; "
-msgstr ""
+msgstr "0000-0000-0000-0000; "
 
 #. i18n: file: ui/mainview.ui:531
 #. i18n: ectx: property (text), widget (QLineEdit, editCardNumber)
 #: po/extractedrc.cpp:186 extractedrc.cpp:186
 msgid "---"
-msgstr ""
+msgstr "---"
 
 #. i18n: file: ui/mainview.ui:541
 #. i18n: ectx: property (text), widget (QLabel, labelAuthNumber)
 #: po/extractedrc.cpp:189 extractedrc.cpp:189
 msgid "Authorization number:"
-msgstr "Numéro d'autorisation :"
+msgstr "Číslo oprávnění:"
 
 #. i18n: file: ui/mainview.ui:577
 #. i18n: ectx: property (title), widget (QGroupBox, groupSaleDate)
 #: po/extractedrc.cpp:192 extractedrc.cpp:192
 msgid "Sale Date"
-msgstr ""
+msgstr "Datum prodeje"
 
 #. i18n: file: ui/mainview.ui:593
 #. i18n: ectx: property (text), widget (QPushButton, btnChangeSaleDate)
 #: po/extractedrc.cpp:195 extractedrc.cpp:195
 msgid "Change Sale Date"
-msgstr ""
+msgstr "Změna data prodeje"
 
 #. i18n: file: ui/mainview.ui:676
 #. i18n: ectx: property (text), widget (QRadioButton, rbFilterByDesc)
 #: po/extractedrc.cpp:198 extractedrc.cpp:198
 msgid "filter by description"
-msgstr "filtrer par description"
+msgstr "filtr podle popisu"
 
 #. i18n: file: ui/mainview.ui:686
 #. i18n: ectx: property (text), widget (QRadioButton, rbFilterByCategory)
 #: po/extractedrc.cpp:201 extractedrc.cpp:201
 msgid "filter by category"
-msgstr "filtrer par catégorie "
+msgstr "filtr podle kategorie"
 
 #. i18n: file: ui/mainview.ui:699
 #. i18n: ectx: property (text), widget (QRadioButton, rbFilterByPopularity)
 #: po/extractedrc.cpp:204 extractedrc.cpp:204
-#, fuzzy
 msgid "filter by popularity this month"
-msgstr "filtrer par description"
+msgstr "filtr podle popularity tento měsíc"
 
 #. i18n: file: ui/mainview.ui:764
 #. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
@@ -1476,7 +1422,7 @@ msgstr "filtrer par description"
 #: po/extractedrc.cpp:207 po/extractedrc.cpp:261 po/extractedrc.cpp:300
 #: extractedrc.cpp:207 extractedrc.cpp:261 extractedrc.cpp:300
 msgid "Code"
-msgstr "Code"
+msgstr "Kód"
 
 #. i18n: file: ui/mainview.ui:769
 #. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
@@ -1486,7 +1432,7 @@ msgstr "Code"
 #. i18n: ectx: property (text), widget (QTableWidget, tableReturnProducts)
 #. i18n: file: ui/resume.ui:77
 #. i18n: ectx: property (text), widget (QTableWidget, contentTable)
-#. i18n: file: ui/special_order.ui:329
+#. i18n: file: ui/special_order.ui:342
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
 #. i18n: file: ui/mainview.ui:769
 #. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
@@ -1496,32 +1442,32 @@ msgstr "Code"
 #. i18n: ectx: property (text), widget (QTableWidget, tableReturnProducts)
 #. i18n: file: ui/resume.ui:77
 #. i18n: ectx: property (text), widget (QTableWidget, contentTable)
-#. i18n: file: ui/special_order.ui:329
+#. i18n: file: ui/special_order.ui:342
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
 #: po/extractedrc.cpp:210 po/extractedrc.cpp:255 po/extractedrc.cpp:303
 #: po/extractedrc.cpp:478 po/extractedrc.cpp:563 extractedrc.cpp:210
 #: extractedrc.cpp:255 extractedrc.cpp:303 extractedrc.cpp:478
 #: extractedrc.cpp:563
 msgid "Description"
-msgstr "Description"
+msgstr "Popis"
 
 #. i18n: file: ui/mainview.ui:784
 #. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
 #: po/extractedrc.cpp:219 extractedrc.cpp:219
 msgid "Units"
-msgstr "Unité "
+msgstr "Jednotky"
 
 #. i18n: file: ui/mainview.ui:958
 #. i18n: ectx: property (text), widget (QLabel, labelTotalpre)
 #: po/extractedrc.cpp:231 extractedrc.cpp:231
 msgid "Total:"
-msgstr "Total :"
+msgstr "Celkem:"
 
 #. i18n: file: ui/mainview.ui:1045
 #. i18n: ectx: property (text), widget (QLabel, labelChangepre)
 #: po/extractedrc.cpp:234 extractedrc.cpp:234
 msgid "Change:"
-msgstr "Monaie :"
+msgstr "Vrátit:"
 
 #. i18n: file: ui/mainview.ui:1142
 #. i18n: ectx: property (text), widget (QLabel, labelImageSearch)
@@ -1548,24 +1494,23 @@ msgstr "Monaie :"
 #: extractedrc.cpp:282 extractedrc.cpp:288 extractedrc.cpp:294
 #: extractedrc.cpp:318
 msgid "TextLabel"
-msgstr ""
+msgstr "TextovýPopisek"
 
 #. i18n: file: ui/mainview.ui:1155
 #. i18n: ectx: property (text), widget (QPushButton, buttonSearchDone)
 #: po/extractedrc.cpp:243 extractedrc.cpp:243
 msgid "Go back"
-msgstr "Retour "
+msgstr "Zpět"
 
 #. i18n: file: ui/mainview.ui:1168
 #. i18n: ectx: property (text), widget (QLabel, label_5)
 #: po/extractedrc.cpp:246 extractedrc.cpp:246
 msgid "Enter item description:"
-msgstr "Descripcion :"
+msgstr "Vlož popis položky"
 
 #. i18n: file: ui/mainview.ui:1188
 #. i18n: ectx: property (text), widget (QLabel, labelSearchMsg)
 #: po/extractedrc.cpp:249 extractedrc.cpp:249
-#, fuzzy
 msgid ""
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
 "\">\n"
@@ -1582,351 +1527,331 @@ msgstr ""
 "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
 "weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
-"weight:600; color:#ff7f50;\">Total HT</span></p></body></html>"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">.<span style=\" font-"
+"weight:600; color:#ff6347;\">.</span></p></body></html>"
 
 #. i18n: file: ui/mainview.ui:1233
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #: po/extractedrc.cpp:264 extractedrc.cpp:264
-#, fuzzy
 msgid "Reprint Ticket"
-msgstr "Annuler un ticket"
+msgstr "Opakuj tisk účtenky"
 
 #. i18n: file: ui/mainview.ui:1245
 #. i18n: ectx: property (text), widget (QLabel, lblTicketDatePicker)
 #: po/extractedrc.cpp:267 extractedrc.cpp:267
 msgid "Show tickets before"
-msgstr ""
+msgstr "Ukázat účtenky před"
 
 #. i18n: file: ui/mainview.ui:1272
 #. i18n: ectx: property (text), widget (QPushButton, btnTicketPrint)
 #: po/extractedrc.cpp:270 extractedrc.cpp:270
 msgid "Print selected ticket"
-msgstr ""
+msgstr "Tiskni zvolenou účtenku"
 
 #. i18n: file: ui/mainview.ui:1279
 #. i18n: ectx: property (text), widget (QPushButton, btnTicketDone)
 #: po/extractedrc.cpp:273 extractedrc.cpp:273
 msgid "Back"
-msgstr ""
+msgstr "Zpět"
 
 #. i18n: file: ui/mainview.ui:1295
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: po/extractedrc.cpp:276 extractedrc.cpp:276
-#, fuzzy
 msgid "Return Products"
-msgstr "Produit"
+msgstr "Vrácení zboží"
 
 #. i18n: file: ui/mainview.ui:1321
 #. i18n: ectx: property (text), widget (QLabel, label_6)
 #: po/extractedrc.cpp:279 extractedrc.cpp:279
-#, fuzzy
 msgid "Ticket number:"
-msgstr "Numéro de caisse"
+msgstr "Číslo účtenky:"
 
 #. i18n: file: ui/mainview.ui:1355
 #. i18n: ectx: property (text), widget (QLabel, label_7)
 #: po/extractedrc.cpp:285 extractedrc.cpp:285
-#, fuzzy
 msgid "Date and time:"
-msgstr "Nom de la B.&D :"
+msgstr "Datum a čas:"
 
 #. i18n: file: ui/mainview.ui:1389
 #. i18n: ectx: property (text), widget (QLabel, label_8)
 #: po/extractedrc.cpp:291 extractedrc.cpp:291
-#, fuzzy
 msgid "Client:"
-msgstr "Client"
+msgstr "Zákazník:"
 
 #. i18n: file: ui/mainview.ui:1437
 #. i18n: ectx: property (text), widget (QLabel, label_3)
 #: po/extractedrc.cpp:297 extractedrc.cpp:297
 msgid "Select the products to return"
-msgstr ""
+msgstr "Zvolte vracené zboží"
 
 #. i18n: file: ui/mainview.ui:1455
 #. i18n: ectx: property (text), widget (QTableWidget, tableReturnProducts)
 #: po/extractedrc.cpp:306 extractedrc.cpp:306
 msgid "Qty on purchase"
-msgstr ""
+msgstr "Množství v nákupu"
 
 #. i18n: file: ui/mainview.ui:1465
 #. i18n: ectx: property (text), widget (QTableWidget, tableReturnProducts)
 #: po/extractedrc.cpp:312 extractedrc.cpp:312
 msgid "Qty to return"
-msgstr ""
+msgstr "Množství k vrácení"
 
 #. i18n: file: ui/mainview.ui:1479
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
 #: po/extractedrc.cpp:315 extractedrc.cpp:315
 msgid "Selected products details"
-msgstr ""
+msgstr "Detaily vybraného zboží"
 
 #. i18n: file: ui/pref_printers.ui:32
 #. i18n: ectx: property (title), widget (QGroupBox, kcfg_printTicket)
 #: po/extractedrc.cpp:324 extractedrc.cpp:324
-#, fuzzy
 msgid "Print the ticket as"
-msgstr "Saisir le numéro du ticket à annuler"
+msgstr "Tisk účtenky jako"
 
 #. i18n: file: ui/pref_printers.ui:44
 #. i18n: ectx: property (text), widget (QRadioButton, kcfg_smallTicketCUPS)
 #: po/extractedrc.cpp:327 extractedrc.cpp:327
-#, fuzzy
 msgid "Small receipt using a thermal ticket printer (using CUPS)"
-msgstr "Imprimer le ticket"
+msgstr "Malá účtenka na termotiskárně (CUPS)"
 
 #. i18n: file: ui/pref_printers.ui:60
 #. i18n: ectx: property (text), widget (QRadioButton, kcfg_smallTicketDotMatrix)
 #: po/extractedrc.cpp:330 extractedrc.cpp:330
-#, fuzzy
 msgid "Small receipt using a dot-matrix ticket printer (using /dev/lpX)"
-msgstr "Imprimer le ticket"
+msgstr "Malá účtenka na jehličkové tiskárně (/dev/lpX)"
 
 #. i18n: file: ui/pref_printers.ui:75
 #. i18n: ectx: property (text), widget (QLabel, Printerdevice)
 #: po/extractedrc.cpp:333 extractedrc.cpp:333
-#, fuzzy
 msgid "Printer Device:"
-msgstr "Imprimante"
+msgstr "Zařízení tiskárny:"
 
 #. i18n: file: ui/pref_printers.ui:92
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #: po/extractedrc.cpp:336 extractedrc.cpp:336
-#, fuzzy
 msgid "Printer Codec:"
-msgstr "Entrer le code"
+msgstr "Kódování tiskárny:"
 
 #. i18n: file: ui/pref_printers.ui:122
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_openDrawer)
 #: po/extractedrc.cpp:339 extractedrc.cpp:339
-#, fuzzy
 msgid "Open drawer"
-msgstr "dans la caisse"
+msgstr "Otevírat zásuvku"
 
 #. i18n: file: ui/pref_printers.ui:131
 #. i18n: ectx: property (text), widget (QRadioButton, kcfg_bigReceipt)
 #: po/extractedrc.cpp:342 extractedrc.cpp:342
 msgid "Big format [A4, Letter] receipt using normal printer (using CUPS)"
-msgstr ""
+msgstr "Velká účtenka [A4, Letter] na běžné tiskárně (CUPS)"
 
 #. i18n: file: ui/pref_printers.ui:154
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_printBalances)
 #: po/extractedrc.cpp:345 extractedrc.cpp:345
-#, fuzzy
 msgid "Print Balances on your selected printer (above)."
-msgstr "Imprimer le ticket"
+msgstr "Tisk bilance na zvolené tiskárně (výše)"
 
 #. i18n: file: ui/pref_printers.ui:164
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_printChangedDateTicket)
 #: po/extractedrc.cpp:348 extractedrc.cpp:348
 msgid "Print Date Changed Tickets"
-msgstr ""
+msgstr "Tisk účtenek se změnou datumu"
 
 #. i18n: file: ui/pref_printers.ui:171
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_printSO)
 #: po/extractedrc.cpp:351 extractedrc.cpp:351
 msgid "Print Special Orders"
-msgstr ""
+msgstr "Tisk speciálních objednávek"
 
 #. i18n: file: ui/pref_printers.ui:178
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_printZeroTicket)
 #: po/extractedrc.cpp:354 extractedrc.cpp:354
 msgid "Print tickets with a ZERO total payment."
-msgstr ""
+msgstr "Tisk účtenek s celkovou platbou NULA."
 
 #. i18n: file: ui/pref_printers.ui:185
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_printPackContents)
 #: po/extractedrc.cpp:357 extractedrc.cpp:357
 msgid "Print Group/Pack Contents on tickets."
-msgstr ""
+msgstr "Tisk obsahu skupiny/balení na účtenky."
 
 #. i18n: file: ui/pref_printers.ui:192
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_printRandomMsg)
 #: po/extractedrc.cpp:360 extractedrc.cpp:360
-#, fuzzy
 msgid "Print a random message on tickets."
-msgstr "Saisir le numéro du ticket à annuler"
+msgstr "Tisk náhodných textů na účtenky."
 
 #. i18n: file: ui/prefs_base.ui:31
 #. i18n: ectx: property (text), widget (QLabel, label_3)
 #: po/extractedrc.cpp:363 extractedrc.cpp:363
 msgid "This is the &Terminal Number:"
-msgstr "Numéro de &terminal:"
+msgstr "Toto je &terminál číslo:"
 
 #. i18n: file: ui/prefs_base.ui:41
 #. i18n: ectx: property (inputMask), widget (QLineEdit, kcfg_editTerminalNumber)
 #: po/extractedrc.cpp:366 extractedrc.cpp:366
 msgid "0000; "
-msgstr ""
+msgstr "0000;"
 
 #. i18n: file: ui/prefs_base.ui:56
 #. i18n: ectx: property (title), widget (QGroupBox, groupBoxOb)
 #: po/extractedrc.cpp:369 extractedrc.cpp:369
 msgid "Dialogs and Authorizations"
-msgstr "Dialogues et autorisations"
+msgstr "Dialogy a oprávnění"
 
 #. i18n: file: ui/prefs_base.ui:68
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_showDialogOnPrinting)
 #: po/extractedrc.cpp:372 extractedrc.cpp:372
 msgid "Show a dialog when printing ticket"
-msgstr "Afficher le dialogue d'impression"
+msgstr "Ukázat dialog při tisku účtenky"
 
 #. i18n: file: ui/prefs_base.ui:77
 #. i18n: ectx: property (text), widget (QLabel, label_5)
 #: po/extractedrc.cpp:375 extractedrc.cpp:375
 msgid "Time showing the dialog:"
-msgstr ""
+msgstr "Zobrazení času v dialogu:"
 
 #. i18n: file: ui/prefs_base.ui:87
 #. i18n: ectx: property (suffix), widget (QSpinBox, kcfg_ticketTime)
 #: po/extractedrc.cpp:378 extractedrc.cpp:378
 msgid " seconds"
-msgstr ""
+msgstr " sekund"
 
 #. i18n: file: ui/prefs_base.ui:96
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_requiereDelAuth)
 #: po/extractedrc.cpp:381 extractedrc.cpp:381
 msgid "Requiere authorisation to delete items from shopping list"
-msgstr ""
-"Nécessite une autorisation pour effacer un élément de la liste d'achats"
+msgstr "Vyžadovat oprávnění ke smazání položky z aktuálního prodeje"
 
 #. i18n: file: ui/prefs_base.ui:106
 #. i18n: ectx: property (title), widget (QGroupBox, groupMatrix)
 #: po/extractedrc.cpp:384 extractedrc.cpp:384
 msgid "Products Grid"
-msgstr "Grille de produits"
+msgstr "Produktová mřížka"
 
 #. i18n: file: ui/prefs_base.ui:118
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_showGrid)
 #: po/extractedrc.cpp:387 extractedrc.cpp:387
 msgid "Show products grid"
-msgstr "Afficher la grille de produits"
+msgstr "Ukaž mřížku zboží"
 
 #. i18n: file: ui/prefs_base.ui:128
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox_2)
 #: po/extractedrc.cpp:390 extractedrc.cpp:390
 msgid "Low Stock"
-msgstr ""
+msgstr "Málo skladem"
 
 #. i18n: file: ui/prefs_base.ui:142
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: po/extractedrc.cpp:393 extractedrc.cpp:393
 msgid "Minimum value for alert"
-msgstr ""
+msgstr "Minimální hodnota pro upozornění"
 
 #. i18n: file: ui/prefs_base.ui:173
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox_3)
 #: po/extractedrc.cpp:396 extractedrc.cpp:396
 msgid "Drawer Cash Level"
-msgstr ""
+msgstr "Stav hotovosti v zásuvce"
 
 #. i18n: file: ui/prefs_base.ui:179
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_displayWarningOnLowCash)
 #: po/extractedrc.cpp:399 extractedrc.cpp:399
 msgid "Display warning message whe level is lower than"
-msgstr ""
+msgstr "Zobrazit upozornění, když je stav menší než"
 
 #. i18n: file: ui/prefs_base.ui:186
 #. i18n: ectx: property (prefix), widget (QDoubleSpinBox, kcfg_cashMinLevel)
-#. i18n: file: ui/special_order.ui:556
+#. i18n: file: ui/special_order.ui:569
 #. i18n: ectx: property (text), widget (QLabel, lblPrice)
 #. i18n: file: ui/prefs_base.ui:186
 #. i18n: ectx: property (prefix), widget (QDoubleSpinBox, kcfg_cashMinLevel)
-#. i18n: file: ui/special_order.ui:556
+#. i18n: file: ui/special_order.ui:569
 #. i18n: ectx: property (text), widget (QLabel, lblPrice)
 #: po/extractedrc.cpp:402 po/extractedrc.cpp:599 extractedrc.cpp:402
 #: extractedrc.cpp:599
 msgid "$"
-msgstr ""
+msgstr "Kč"
 
 #. i18n: file: ui/prefs_base.ui:199
 #. i18n: ectx: property (title), widget (QGroupBox, groupTax)
 #: po/extractedrc.cpp:405 extractedrc.cpp:405
-#, fuzzy
 msgid "Taxes"
-msgstr "Taxes :"
+msgstr "Daně"
 
 #. i18n: file: ui/prefs_base.ui:205
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_addTax)
 #: po/extractedrc.cpp:408 extractedrc.cpp:408
 msgid "Add taxes to sale (not included in price)"
-msgstr ""
+msgstr "Přičítat daně při prodeji (nejsou zahrnuty v ceně)"
 
 #. i18n: file: ui/prefs_db.ui:25
 #. i18n: ectx: property (text), widget (QLabel, label)
 #: po/extractedrc.cpp:417 extractedrc.cpp:417
 msgid "&Server:"
-msgstr "&Serveur :"
+msgstr "&Server:"
 
 #. i18n: file: ui/prefs_db.ui:38
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #: po/extractedrc.cpp:420 extractedrc.cpp:420
 msgid "&Username:"
-msgstr "Utilisateur :"
+msgstr "&Uživatel:"
 
 #. i18n: file: ui/prefs_db.ui:51
 #. i18n: ectx: property (text), widget (QLabel, label_3)
 #: po/extractedrc.cpp:423 extractedrc.cpp:423
 msgid "&Password:"
-msgstr "&Mot de passe :"
+msgstr "&Heslo:"
 
 #. i18n: file: ui/prefs_db.ui:77
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: po/extractedrc.cpp:426 extractedrc.cpp:426
 msgid "&Database Name:"
-msgstr "Nom de la B.&D :"
+msgstr "&Databáze:"
 
 #. i18n: file: ui/prefs_db.ui:93
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox_2)
 #: po/extractedrc.cpp:429 extractedrc.cpp:429
 msgid "Extra options"
-msgstr "Options diverses"
+msgstr "Další volby"
 
 #. i18n: file: ui/pref_security.ui:19
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_allowAnyUserToQuit)
 #: po/extractedrc.cpp:438 extractedrc.cpp:438
 msgid "Allow any user to quit, asking for administrator's password"
-msgstr ""
-"Permettre à chaque utilisateur de quitter en demandant le mot de passe "
-"administrateur "
+msgstr "Povol všem uživatelům odejít, ale žádej heslo administrátora"
 
 #. i18n: file: ui/pref_security.ui:26
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_lowSecurityMode)
 #: po/extractedrc.cpp:441 extractedrc.cpp:441
 msgid "Do not ask for admin password (Low Security Mode)"
-msgstr ""
+msgstr "Neptej se na heslo administrátora (režim nízkého zabezpečení)"
 
 #. i18n: file: ui/pref_style.ui:19
 #. i18n: ectx: property (title), widget (QGroupBox, kcfg_useStyle)
 #: po/extractedrc.cpp:447 extractedrc.cpp:447
 msgid "Use style sheet"
-msgstr "Utiliser un style"
+msgstr "Použít soubor stylu"
 
 #. i18n: file: ui/printticket.ui:19
 #. i18n: ectx: property (text), widget (QCheckBox, chAllTerminals)
 #: po/extractedrc.cpp:453 extractedrc.cpp:453
 msgid "Tickets from all terminals"
-msgstr ""
+msgstr "Účtenky ze všech pokladen"
 
 #. i18n: file: ui/printticket.ui:26
 #. i18n: ectx: property (text), widget (QLabel, label)
 #: po/extractedrc.cpp:456 extractedrc.cpp:456
-#, fuzzy
 msgid "Ticket Number"
-msgstr "Numéro de caisse"
+msgstr "Číslo účtenky"
 
 #. i18n: file: ui/printticket.ui:33
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #: po/extractedrc.cpp:459 extractedrc.cpp:459
-#, fuzzy
 msgid "Ticket Items"
-msgstr "Message du ticket"
+msgstr "Položky účtenky"
 
 #. i18n: file: ui/resume.ui:24
 #. i18n: ectx: property (text), widget (QLabel, lblTitle)
 #: po/extractedrc.cpp:465 extractedrc.cpp:465
-#, fuzzy
 msgid ""
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
 "REC-html40/strict.dtd\">\n"
@@ -1943,21 +1868,26 @@ msgid ""
 "\">cancel</span>  button to <span style=\" font-weight:600;\">start a new "
 "one</span>.</p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
 "\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
-"weight:400; font-style:normal;\">\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:8pt; "
+"font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
-"weight:600; color:#ff7f50;\">Total HT</span></p></body></html>"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Následující prodeje jsou "
+"odložené. Prosím <span style=\" font-weight:600;\">zvolte jeden pro "
+"pokračováni</span> a stiskni <span style=\" font-weight:600; font-style:"
+"italic;\">Ok</span> tlačítko; nebo stiskni <span style=\" font-weight:600; "
+"font-style:italic;\">cancel</span>  tlačítko <span style=\" font-weight:600;"
+"\">začni nový</span>.</p></body></html>"
 
 #. i18n: file: ui/resume.ui:65
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
 #: po/extractedrc.cpp:472 extractedrc.cpp:472
-#, fuzzy
 msgid "Contents"
-msgstr "Continuer"
+msgstr "Obsah"
 
 #. i18n: file: ui/soselector.ui:32
 #. i18n: ectx: property (windowTitle), widget (QWidget, soSelector)
@@ -1974,7 +1904,7 @@ msgstr "Continuer"
 #: po/extractedrc.cpp:481 po/extractedrc.cpp:496 po/extractedrc.cpp:514
 #: extractedrc.cpp:481 extractedrc.cpp:496 extractedrc.cpp:514
 msgid "Special Order"
-msgstr ""
+msgstr "Speciální objednávka"
 
 #. i18n: file: ui/soselector.ui:46
 #. i18n: ectx: property (text), widget (QRadioButton, rbAll)
@@ -1987,7 +1917,7 @@ msgstr ""
 #: po/extractedrc.cpp:484 po/extractedrc.cpp:499 extractedrc.cpp:484
 #: extractedrc.cpp:499
 msgid "Show All"
-msgstr ""
+msgstr "Ukaž vše"
 
 #. i18n: file: ui/soselector.ui:74
 #. i18n: ectx: property (text), widget (QRadioButton, rbSaleId)
@@ -1999,9 +1929,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QRadioButton, rbSaleId)
 #: po/extractedrc.cpp:487 po/extractedrc.cpp:502 extractedrc.cpp:487
 #: extractedrc.cpp:502
-#, fuzzy
 msgid "filter by ticket #:"
-msgstr "filtrer par catégorie "
+msgstr "filtr podle účtenky #:"
 
 #. i18n: file: ui/soselector.ui:124
 #. i18n: ectx: property (text), widget (QRadioButton, rbName)
@@ -2013,9 +1942,8 @@ msgstr "filtrer par catégorie "
 #. i18n: ectx: property (text), widget (QRadioButton, rbName)
 #: po/extractedrc.cpp:490 po/extractedrc.cpp:505 extractedrc.cpp:490
 #: extractedrc.cpp:505
-#, fuzzy
 msgid "filter by name:"
-msgstr "filtrer par catégorie "
+msgstr "filtr podle názvu:"
 
 #. i18n: file: ui/soselector.ui:179
 #. i18n: ectx: attribute (title), widget (QWidget, tab)
@@ -2028,93 +1956,88 @@ msgstr "filtrer par catégorie "
 #: po/extractedrc.cpp:493 po/extractedrc.cpp:508 soselector.cpp:45
 #: specialordereditor.cpp:60 extractedrc.cpp:493 extractedrc.cpp:508
 msgid "Special Orders"
-msgstr ""
+msgstr "Speciální objednávky"
 
 #. i18n: file: ui/sostatus.ui:216
 #. i18n: ectx: property (text), widget (QLabel, lblNewStatus)
 #: po/extractedrc.cpp:511 extractedrc.cpp:511
 msgid "New Status:"
-msgstr ""
+msgstr "Nový stav:"
 
 #. i18n: file: ui/special_order.ui:45
 #. i18n: ectx: attribute (title), widget (QWidget, tab_2)
 #: po/extractedrc.cpp:517 extractedrc.cpp:517
-#, fuzzy
 msgid "Special Item"
-msgstr "Chercher l'article"
+msgstr "Speciální položka"
 
 #. i18n: file: ui/special_order.ui:51
 #. i18n: ectx: property (text), widget (QLabel, lbl)
 #: po/extractedrc.cpp:520 extractedrc.cpp:520
-#, fuzzy
 msgid "Ticket :"
-msgstr "Ticket  # %1"
+msgstr "Účtenka:"
 
 #. i18n: file: ui/special_order.ui:69
 #. i18n: ectx: property (text), widget (QLabel, lblTransId)
 #: po/extractedrc.cpp:523 extractedrc.cpp:523
 msgid "#"
-msgstr ""
+msgstr "#"
 
 #. i18n: file: ui/special_order.ui:79
 #. i18n: ectx: property (text), widget (QLabel, lblStatus)
 #: po/extractedrc.cpp:526 extractedrc.cpp:526
 msgid "Vendor:"
-msgstr ""
+msgstr "Prodavač:"
 
 #. i18n: file: ui/special_order.ui:110
 #. i18n: ectx: property (text), widget (QLabel, label_14)
 #: po/extractedrc.cpp:529 extractedrc.cpp:529
-#, fuzzy
 msgid "&Client:"
-msgstr "Client"
+msgstr "Zákazník:"
 
 #. i18n: file: ui/special_order.ui:135
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnMoreClients)
 #: po/extractedrc.cpp:532 extractedrc.cpp:532
 msgid "launch a dialog with more options"
-msgstr ""
+msgstr "spusť dialog s více možnostmi"
 
 #. i18n: file: ui/special_order.ui:138
 #. i18n: ectx: property (text), widget (QToolButton, btnMoreClients)
-#. i18n: file: ui/special_order.ui:461
+#. i18n: file: ui/special_order.ui:474
 #. i18n: ectx: property (text), widget (QPushButton, btnFilter)
 #. i18n: file: ui/special_order.ui:138
 #. i18n: ectx: property (text), widget (QToolButton, btnMoreClients)
-#. i18n: file: ui/special_order.ui:461
+#. i18n: file: ui/special_order.ui:474
 #. i18n: ectx: property (text), widget (QPushButton, btnFilter)
 #: po/extractedrc.cpp:535 po/extractedrc.cpp:587 extractedrc.cpp:535
 #: extractedrc.cpp:587
 msgid "..."
-msgstr ""
+msgstr "..."
 
 #. i18n: file: ui/special_order.ui:145
 #. i18n: ectx: property (text), widget (QPushButton, btnNewClient)
 #: po/extractedrc.cpp:538 extractedrc.cpp:538
-#, fuzzy
 msgid "New Client"
-msgstr "Client"
+msgstr "Nový zákazník"
 
 #. i18n: file: ui/special_order.ui:154
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: po/extractedrc.cpp:541 extractedrc.cpp:541
-#, fuzzy
 msgid "&Qty:"
-msgstr "Qantité."
+msgstr "MJ:"
 
 #. i18n: file: ui/special_order.ui:200
 #. i18n: ectx: property (text), widget (QLabel, label_6)
 #: po/extractedrc.cpp:544 extractedrc.cpp:544
 msgid "Delivery date:"
-msgstr ""
+msgstr "Datum doručení:"
 
-#. i18n: file: ui/special_order.ui:252
+#. i18n: file: ui/special_order.ui:265
 #. i18n: ectx: attribute (title), widget (QWidget, tab)
 #: po/extractedrc.cpp:550 extractedrc.cpp:550
 msgid "Components"
-msgstr ""
+msgstr "Komponenty"
 
-#. i18n: file: ui/special_order.ui:267
+#. i18n: file: ui/special_order.ui:280
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #: po/extractedrc.cpp:553 extractedrc.cpp:553
 msgid ""
@@ -2134,302 +2057,228 @@ msgid ""
 "weight:600;\"> </span>item quantities on the right table by <span style=\" "
 "font-weight:600;\">double clicking</span> on the item</p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:8pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-style:"
+"italic;\">Vyberte</span> zboží ze seznamu vlevo klikněte na '&gt;' tlačítko "
+"pro <span style=\" font-weight:600;\">přidání</span> do skupiny vpravo. "
+"Můžete<span style=\" font-style:italic;\"> </span><span style=\" font-"
+"weight:600; font-style:italic;\">zvýšit</span><span style=\" font-weight:600;"
+"\"> </span>v pravém okně <span style=\" font-weight:600;\">dvojklikem</span> "
+"na položce</p></body></html>"
 
-#. i18n: file: ui/special_order.ui:351
+#. i18n: file: ui/special_order.ui:364
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editAddQty)
 #: po/extractedrc.cpp:566 extractedrc.cpp:566
 msgid "Qty to add"
-msgstr ""
+msgstr "Přidat množství"
 
-#. i18n: file: ui/special_order.ui:383
+#. i18n: file: ui/special_order.ui:396
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnAdd)
 #: po/extractedrc.cpp:569 extractedrc.cpp:569
 msgid "Add selected products to the components"
-msgstr ""
+msgstr "Přidej zvolené zboží jako komponenty"
 
-#. i18n: file: ui/special_order.ui:386
+#. i18n: file: ui/special_order.ui:399
 #. i18n: ectx: property (text), widget (QToolButton, btnAdd)
 #: po/extractedrc.cpp:572 extractedrc.cpp:572
 msgid ">"
-msgstr ""
+msgstr ">"
 
-#. i18n: file: ui/special_order.ui:411
+#. i18n: file: ui/special_order.ui:424
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnRemove)
 #: po/extractedrc.cpp:575 extractedrc.cpp:575
 msgid "Remove selected products from the components"
-msgstr ""
+msgstr "Odeber zvolené zboží z komponentů"
 
-#. i18n: file: ui/special_order.ui:414
+#. i18n: file: ui/special_order.ui:427
 #. i18n: ectx: property (text), widget (QToolButton, btnRemove)
 #: po/extractedrc.cpp:578 extractedrc.cpp:578
 msgid "<"
-msgstr ""
+msgstr "<"
 
-#. i18n: file: ui/special_order.ui:438
+#. i18n: file: ui/special_order.ui:451
 #. i18n: ectx: property (text), widget (QLabel, label_3)
 #: po/extractedrc.cpp:581 extractedrc.cpp:581
 msgid "Filter:"
-msgstr ""
+msgstr "Filtr:"
 
-#. i18n: file: ui/special_order.ui:445
+#. i18n: file: ui/special_order.ui:458
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editFilter)
 #: po/extractedrc.cpp:584 extractedrc.cpp:584
-#, fuzzy
 msgid "You can filter the products by description,"
-msgstr "filtrer par description"
+msgstr "Můžete filtrovat zboží podle popisu,"
 
-#. i18n: file: ui/special_order.ui:489
+#. i18n: file: ui/special_order.ui:502
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
 #: po/extractedrc.cpp:590 extractedrc.cpp:590
 msgid "Price and Payment"
-msgstr ""
+msgstr "Cena a platba"
 
-#. i18n: file: ui/special_order.ui:495
+#. i18n: file: ui/special_order.ui:508
 #. i18n: ectx: property (text), widget (QLabel, lblPayment)
 #: po/extractedrc.cpp:593 extractedrc.cpp:593
-#, fuzzy
 msgid "Payment:"
-msgstr "<b>Paiement</b>"
+msgstr "Platba:"
 
-#. i18n: file: ui/special_order.ui:593
+#. i18n: file: ui/special_order.ui:606
 #. i18n: ectx: property (toolTip), widget (QTextEdit, editClientAddress)
 #: po/extractedrc.cpp:602 extractedrc.cpp:602
-#, fuzzy
 msgid "Enter Client Address"
-msgstr "Nom du magasin"
+msgstr "Vložte adresu zákazníka"
 
 #. i18n: file: ui/store_data.ui:32
 #. i18n: ectx: property (text), widget (QLabel, label)
 #: po/extractedrc.cpp:614 extractedrc.cpp:614
 msgid "&Name:"
-msgstr "&Nom de la B.D.:"
+msgstr "&Jméno:"
 
 #. i18n: file: ui/store_data.ui:79
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #: po/extractedrc.cpp:617 extractedrc.cpp:617
 msgid "&Address:"
-msgstr ""
+msgstr "&Adresa:"
 
 #. i18n: file: ui/store_data.ui:126
 #. i18n: ectx: property (text), widget (QLabel, label_3)
 #: po/extractedrc.cpp:620 extractedrc.cpp:620
-#, fuzzy
 msgid "&Phone:"
-msgstr "&Códe :"
+msgstr "&Telefon:"
 
 #. i18n: file: ui/store_data.ui:173
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: po/extractedrc.cpp:623 extractedrc.cpp:623
 msgid "Ticket &Message:"
-msgstr "&Message du ticket :"
+msgstr "Te&xt na účtence:"
 
 #. i18n: file: ui/store_data.ui:220
 #. i18n: ectx: property (text), widget (QLabel, label_5)
 #: po/extractedrc.cpp:626 extractedrc.cpp:626
-#, fuzzy
 msgid "Store Logo:"
-msgstr "Magasin"
+msgstr "Logo obchodu:"
 
 #. i18n: file: ui/store_data.ui:252
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_chLogoOnTop)
 #: po/extractedrc.cpp:629 extractedrc.cpp:629
 msgid "Print Logo on ticket top, otherwise at the right"
-msgstr ""
+msgstr "Tisknout logo na vrch účtenky, jinak napravo"
 
 #: po/extractedrc.cpp:630 extractedrc.cpp:630
 msgctxt "NAME OF TRANSLATORS"
 msgid "Your names"
-msgstr "Girard Henri"
+msgstr "Vaše jména"
 
 #: po/extractedrc.cpp:631 extractedrc.cpp:631
 msgctxt "EMAIL OF TRANSLATORS"
 msgid "Your emails"
-msgstr "girardhenri@free.fr"
+msgstr "Vaše emaily"
 
 #: pricechecker.cpp:45
-#, fuzzy
 msgid "Price Checker"
-msgstr "Prix :"
+msgstr "Zkoušeč cen"
 
 #: pricechecker.cpp:47
-#, fuzzy
 msgctxt "Price-Checker dialog"
 msgid "Price"
-msgstr "Prix"
+msgstr "Cena"
 
 #: pricechecker.cpp:48
-#, fuzzy
 msgctxt "Price-Checker dialog"
 msgid "Checker"
-msgstr "Prix :"
+msgstr "Zkoušeč"
 
 #: pricechecker.cpp:50
 msgid "Press ESC to Close"
-msgstr ""
+msgstr "Stiskni ESC pro uzavření"
 
 #: pricechecker.cpp:51
 msgid "Regular price:"
-msgstr ""
+msgstr "Běžná cena:"
 
 #: pricechecker.cpp:52
 msgid "Final price:"
-msgstr ""
+msgstr "Koncová cena:"
 
 #: productdelegate.cpp:119
 msgid " Out of stock "
-msgstr " Sortie du stock "
+msgstr "Není skladem"
 
 #: productdelegate.cpp:149
-#, fuzzy
 msgid " Raw Product "
-msgstr "Produit"
+msgstr " Materiál"
 
 #: productdelegate.cpp:162
 msgid " Group "
-msgstr ""
+msgstr " Skupina"
 
 #: resume.cpp:152
 msgid "Tr. #"
-msgstr ""
+msgstr "Tr. #"
 
 #: resume.cpp:155
-#, fuzzy
 msgid "Terminal"
-msgstr "Terminal #%1"
+msgstr "Terminál"
 
 #: soselector.cpp:168 sostatus.cpp:165
 msgid "Order #"
-msgstr ""
+msgstr "Objednávka #"
 
 #: soselector.cpp:169 sostatus.cpp:166
-#, fuzzy
 msgid "Name"
-msgstr "&Nom de la B.D.:"
+msgstr "Jméno"
 
 #: soselector.cpp:171 sostatus.cpp:168
 msgid "Status"
-msgstr ""
+msgstr "Stav"
 
 #: soselector.cpp:172 sostatus.cpp:169
 msgid "Tr. Id"
-msgstr ""
+msgstr "Tr. Id"
 
 #: sostatus.cpp:45
-#, fuzzy
 msgid "Change Status"
-msgstr "Monaie :"
-
-#: specialordereditor.cpp:104
-#, fuzzy
-msgid "Enter client name here..."
-msgstr "Saisir le numéro du ticket à annuler"
-
-#: specialordereditor.cpp:105
-#, fuzzy
-msgid "Enter client phone here..."
-msgstr "Saisir le numéro du ticket à annuler"
+msgstr "Změna stavu"
 
 #: specialordereditor.cpp:106
-#, fuzzy
+msgid "Enter client name here..."
+msgstr "Vložte jméno zákazníka"
+
+#: specialordereditor.cpp:107
+msgid "Enter client phone here..."
+msgstr "Vložte telefon zákazníka"
+
+#: specialordereditor.cpp:108
 msgid "Enter client cell phone here..."
-msgstr "Saisir le numéro du ticket à annuler"
+msgstr "Vložte mobil zákazníka"
 
-#: specialordereditor.cpp:242 specialordereditor.cpp:264
+#: specialordereditor.cpp:244 specialordereditor.cpp:266
 msgid "<i>%1</i> rounded to %2"
-msgstr ""
+msgstr "<i>%1</i> zaokrouhleno na %2"
 
-#: specialordereditor.cpp:250 specialordereditor.cpp:273
+#: specialordereditor.cpp:252 specialordereditor.cpp:275
 msgid "<i>%1</i> <b>requested %2, on stock %3</b><br>"
-msgstr ""
+msgstr "<i>%1</i> <b>žádáno %2, skladem %3</b><br>"
 
-#: specialordereditor.cpp:332
+#: specialordereditor.cpp:334
 msgid ""
 "<b>Product sold by pieces</b>, qty must be an integer value: \n"
 "%1"
 msgstr ""
+"<b>Zboží se prodává na kusy</b>, množství musí být celé číslo: \n"
+"%1"
 
-#: specialordereditor.cpp:499
-#, fuzzy
+#: specialordereditor.cpp:501
 msgid ""
 "<html><font color=red><b>The delivery date is in the past.</b></font></html>"
 msgstr ""
-"<html><font color=red weight=bold>Entrer le numéro de carte SVP.</font></"
-"html>"
+"<html><font color=red><b>Datum dodání je v minulosti.</b></font></html>"
 
-#, fuzzy
-#~ msgid "<html><font color=red><b>Product not available in stock.</b></font>"
-#~ msgstr ""
-#~ "<html><font color=red weight=bold>Produit non disponible dans "
-#~ "l'inventaire.</font>"
-
-#~ msgid "Ticket # %1"
-#~ msgstr "Ticket  # %1"
-
-#~ msgid "Warning:"
-#~ msgstr "Attention"
-
-#, fuzzy
-#~ msgid "Amount Discounted: %1"
-#~ msgstr "Rabais effectué : %1 %2"
-
-#~ msgid "Cancel Transaction: Error"
-#~ msgstr "Annuler la transaction : Erreur"
-
-#~ msgid "Pay Method"
-#~ msgstr "mode de paiement"
-
-#, fuzzy
-#~ msgid "Transaction Id"
-#~ msgstr "Transactions "
-
-#, fuzzy
-#~ msgid "Balance for user %1 at Terminal # %2"
-#~ msgstr "Solde pour le client  %1"
-
-#, fuzzy
-#~ msgid "%1 Articles"
-#~ msgstr "%1 artícle"
-
-#, fuzzy
-#~ msgid "Totals"
-#~ msgstr "Total"
-
-#~ msgid "Currency: %1"
-#~ msgstr "Monaie : %1"
-
-#~ msgid "Error"
-#~ msgstr "Erreur"
-
-#, fuzzy
-#~ msgid "Currency:"
-#~ msgstr "Monaie "
-
-#~ msgid "Currency"
-#~ msgstr "Monaie "
-
-#~ msgid "&Short currency string:"
-#~ msgstr "&Abreviación du type de monaie :"
-
-#~ msgid "&Full currency string:"
-#~ msgstr "&Type de monaie (descrip. grande):"
-
-#~ msgid ""
-#~ "If checked the short currency is shown aside the total due, otherwise "
-#~ "only full currency is shown above it."
-#~ msgstr ""
-#~ "La monaie est vérifiée à côté du total due seulement si le montant total "
-#~ "est montré au-dessus"
-
-#~ msgid ""
-#~ "This is an option which If checked the short currency is shown aside the "
-#~ "total due, otherwise only full currency is shown above it."
-#~ msgstr "Option pour afficher la monaie"
-
-#~ msgid "Show the short currency on the total label"
-#~ msgstr "Afficher la description abbrégée de la monaie"
-
-#~ msgid "Card"
-#~ msgstr "Carte"
-
-#~ msgid "Unknown"
-#~ msgstr "Inconnu"
+#: specialordereditor.cpp:648
+msgid "%1 chars of %2 allowed."
+msgstr ""
