@@ -923,7 +923,15 @@ QString Azahar::getCategoryStr(qulonglong id)
   return result;
 }
 
-
+bool Azahar::deleteCategory(qulonglong id)
+{
+  bool result = false;
+  if (!db.isOpen()) db.open();
+  QSqlQuery query(db);
+  query = QString("DELETE FROM categories WHERE catid=%1").arg(id);
+  if (!query.exec()) setError(query.lastError().text()); else result=true;
+  return result;
+}
 
 //MEASURES
 bool Azahar::insertMeasure(QString text)
@@ -997,6 +1005,16 @@ QStringList Azahar::getMeasuresList()
       qDebug()<<"ERROR: "<<myQuery.lastError();
     }
   }
+  return result;
+}
+
+bool Azahar::deleteMeasure(qulonglong id)
+{
+  bool result = false;
+  if (!db.isOpen()) db.open();
+  QSqlQuery query(db);
+  query = QString("DELETE FROM measures WHERE id=%1").arg(id);
+  if (!query.exec()) setError(query.lastError().text()); else result=true;
   return result;
 }
 
@@ -1683,6 +1701,16 @@ int Azahar::getUserRole(const qulonglong &userid)
   return role;
 }
 
+bool Azahar::deleteUser(qulonglong id)
+{
+  bool result = false;
+  if (!db.isOpen()) db.open();
+  QSqlQuery query(db);
+  query = QString("DELETE FROM users WHERE id=%1").arg(id);
+  if (!query.exec()) setError(query.lastError().text()); else result=true;
+  return result;
+}
+
 
 //CLIENTS
 bool Azahar::insertClient(ClientInfo info)
@@ -1881,6 +1909,16 @@ unsigned int Azahar::getClientId(QString uname)
     }
   } else { setError(db.lastError().text()); }
   return iD;
+}
+
+bool Azahar::deleteClient(qulonglong id)
+{
+  bool result = false;
+  if (!db.isOpen()) db.open();
+  QSqlQuery query(db);
+  query = QString("DELETE FROM clients WHERE id=%1").arg(id);
+  if (!query.exec()) setError(query.lastError().text()); else result=true;
+  return result;
 }
 
 
