@@ -91,12 +91,14 @@ class Azahar : public QObject
     qulonglong  getCategoryId(QString texto);
     QString     getCategoryStr(qulonglong id);
     bool        insertCategory(QString text);
+    bool        deleteCategory(qulonglong id);
 
     //MEASURES
     QStringList getMeasuresList();
     qulonglong  getMeasureId(QString texto);
     QString     getMeasureStr(qulonglong id);
     bool        insertMeasure(QString text);
+    bool        deleteMeasure(qulonglong id);
 
     //OFFERS
     bool         createOffer(OfferInfo info);
@@ -115,6 +117,7 @@ class Azahar : public QObject
     bool         insertUser(UserInfo info);
     int          getUserRole(const qulonglong &userid);
     UserInfo     getUserInfo(const qulonglong &userid);
+    bool         deleteUser(qulonglong id);
 
     //CLIENTS
     bool         insertClient(ClientInfo info);
@@ -126,6 +129,7 @@ class Azahar : public QObject
     QStringList  getClientsList();
     QString      getMainClient();
     unsigned int getClientId(QString uname);
+    bool         deleteClient(qulonglong id);
 
     //TRANSACTIONS
     TransactionInfo getTransactionInfo(qulonglong id);

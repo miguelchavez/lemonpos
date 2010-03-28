@@ -2276,9 +2276,17 @@ void squeezeView::deleteSelectedClient()
         int answer = KMessageBox::questionYesNo(this, i18n("Do you really want to delete the client named %1?",uname),
                                               i18n("Delete"));
         if (answer == KMessageBox::Yes) {
-          clientsModel->removeRow(index.row());
+          Azahar *myDb = new Azahar;
+          myDb->setDatabase(db);
+          qulonglong  iD = clientsModel->record(index.row()).value("id").toULongLong();
+          if (!clientsModel->removeRow(index.row(), index)) {
+            // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 ..
+            bool d = myDb->deleteClient(iD); qDebug()<<"Deleteing client ("<<iD<<") manually...";
+            if (d) qDebug()<<"Deletion succed...";
+          }
           clientsModel->submitAll();
           clientsModel->select();
+          delete myDb;
         }
     } else KMessageBox::information(this, i18n("Default client cannot be deleted."), i18n("Cannot delete"));
    }
@@ -2302,9 +2310,17 @@ void squeezeView::deleteSelectedUser()
         int answer = KMessageBox::questionYesNo(this, i18n("Do you really want to delete the user named %1?",uname),
                                               i18n("Delete"));
         if (answer == KMessageBox::Yes) {
-          usersModel->removeRow(index.row());
+          Azahar *myDb = new Azahar;
+          myDb->setDatabase(db);
+          qulonglong  iD = usersModel->record(index.row()).value("id").toULongLong();
+          if (!usersModel->removeRow(index.row(), index)) {
+            // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 ..
+            bool d = myDb->deleteUser(iD); qDebug()<<"Deleteing user ("<<iD<<") manually...";
+            if (d) qDebug()<<"Deletion succed...";
+          }
           usersModel->submitAll();
           usersModel->select();
+          delete myDb;
         }
       } else KMessageBox::information(this, i18n("Admin user cannot be deleted."), i18n("Cannot delete"));
    }
@@ -2325,9 +2341,17 @@ void squeezeView::deleteSelectedOffer()
       int answer = KMessageBox::questionYesNo(this, i18n("Do you really want to delete the selected discount?"),
                                               i18n("Delete"));
       if (answer == KMessageBox::Yes) {
-        offersModel->removeRow(index.row());
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
+        qulonglong  iD = offersModel->record(index.row()).value("id").toULongLong();
+        if (!offersModel->removeRow(index.row(), index)) {
+          // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 ..
+          bool d = myDb->deleteOffer(iD); qDebug()<<"Deleteing offer ("<<iD<<") manually...";
+          if (d) qDebug()<<"Deletion succed...";
+        }
         offersModel->submitAll();
         offersModel->select();
+        delete myDb;
       }
     }
   }
@@ -2336,6 +2360,8 @@ void squeezeView::deleteSelectedOffer()
 void squeezeView::deleteSelectedProduct()
 {
   if (db.isOpen()) {
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
     QModelIndex index;
     if (ui_mainview.productsView->isHidden()) {
       index = ui_mainview.productsViewAlt->currentIndex();
@@ -2353,13 +2379,16 @@ void squeezeView::deleteSelectedProduct()
       if (answer == KMessageBox::Yes) {
         //first we obtain the product code to be deleted.
         qulonglong  iD = productsModel->record(index.row()).value("code").toULongLong();
-        productsModel->removeRow(index.row());
+        if (!productsModel->removeRow(index.row(), index)) {
+          // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 ..
+          bool d = myDb->deleteProduct(iD); qDebug()<<"Deleteing product ("<<iD<<") manually...";
+          if (d) qDebug()<<"Deletion succed...";
+        }
         productsModel->submitAll();
         productsModel->select();
         //We must delete the product's offers also.
 
-         Azahar *myDb = new Azahar;
-         myDb->setDatabase(db);
+
          qulonglong oID = myDb->getProductOfferCode(iD);
          while (oID != 0) {
            qDebug()<<"DELETING product code:"<<oID<<" offer code:"<<oID;
@@ -2367,9 +2396,9 @@ void squeezeView::deleteSelectedProduct()
            if (myDb->deleteOffer(oID)) qDebug()<<"Ok, offer also deleted...";
            else qDebug()<<"DEBUG:"<<myDb->lastError();
          }
-         delete myDb;
       }
     }
+    delete myDb;
   }
 }
 
@@ -2390,7 +2419,12 @@ void squeezeView::deleteSelectedMeasure()
         int answer = KMessageBox::questionYesNo(this, i18n("Do you really want to delete the measure '%1'?", measureText),
                                                 i18n("Delete"));
         if (answer == KMessageBox::Yes) {
-          measuresModel->removeRow(index.row());
+          qulonglong  iD = measuresModel->record(index.row()).value("id").toULongLong();
+          if (!measuresModel->removeRow(index.row(), index)) {
+            // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 ..
+            bool d = myDb->deleteMeasure(iD); qDebug()<<"Deleteing Measure ("<<iD<<") manually...";
+            if (d) qDebug()<<"Deletion succed...";
+          }
           measuresModel->submitAll();
           measuresModel->select();
         }
@@ -2413,17 +2447,22 @@ void squeezeView::deleteSelectedCategory()
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
       qulonglong catId = myDb->getCategoryId(catText);
-      delete myDb;
       if (catId >0) {
         int answer = KMessageBox::questionYesNo(this, i18n("Do you really want to delete the category '%1'?", catText),
                                                 i18n("Delete"));
         if (answer == KMessageBox::Yes) {
-          categoriesModel->removeRow(index.row());
+          qulonglong  iD = categoriesModel->record(index.row()).value("catid").toULongLong();
+          if (!categoriesModel->removeRow(index.row(), index)) {
+            // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 ..
+            bool d = myDb->deleteCategory(iD); qDebug()<<"Deleteing Category ("<<iD<<") manually...";
+            if (d) qDebug()<<"Deletion succed...";
+          }
           categoriesModel->submitAll();
           categoriesModel->select();
           updateCategoriesCombo();
         }
       } else KMessageBox::information(this, i18n("Default category cannot be deleted."), i18n("Cannot delete"));
+      delete myDb;
     }
   }
 }
