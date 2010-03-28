@@ -244,6 +244,7 @@ void MibitFloatPanel::keyPressEvent ( QKeyEvent * event )
 void MibitFloatPanel::reParent(QWidget *newparent)
 {
   setParent(newparent);
+  m_parent = newparent;
   //update
   reposition();
 }

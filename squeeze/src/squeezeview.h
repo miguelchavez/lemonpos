@@ -221,6 +221,8 @@ signals:
    void createFloatingPanels();
    void reSelectModels();
 
+   void checkDefaultView();
+
    void updateCategoriesModel() { categoriesModel->select(); populateCategoriesHash(); }
    void updateMeasuresModel() { measuresModel->select(); }
    void updateProvidersModel() { providersModel->select(); updateProvidersCombo(); }

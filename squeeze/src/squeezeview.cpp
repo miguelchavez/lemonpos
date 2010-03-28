@@ -144,19 +144,23 @@ squeezeView::squeezeView(QWidget *parent)
   ui_mainview.btnTransactions->setIcon(DesktopIcon("wallet-open", 32));
   ui_mainview.btnSO->setIcon(DesktopIcon("lemon-box", 32));
 
+  QTimer::singleShot(500,this, SLOT(createFloatingPanels()) );
+  QTimer::singleShot(1000,this, SLOT(checkDefaultView()) );
+
+}
+
+void squeezeView::checkDefaultView()
+{
   if (Settings::isProductsGridDefault()) {
     ui_mainview.productsView->show();
     ui_mainview.productsViewAlt->hide();
     ui_mainview.chViewProductsListAsGrid->setChecked(true);
-    ui_mainview.chViewProductsListAsTable->setChecked(false);
   } else {
     ui_mainview.productsView->hide();
     ui_mainview.productsViewAlt->show();
-    ui_mainview.chViewProductsListAsGrid->setChecked(false);
+    fpFilterProducts->reParent(ui_mainview.productsViewAlt);
     ui_mainview.chViewProductsListAsTable->setChecked(true);
   }
-
-  QTimer::singleShot(500,this, SLOT(createFloatingPanels()) );
 }
 
 
@@ -410,7 +414,8 @@ void squeezeView::showProductsPage()
   ui_mainview.headerLabel->setText(i18n("Products"));
   ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-box",48)));
   ui_mainview.btnPrintBalance->hide();
-  QTimer::singleShot(200,fpFilterProducts, SLOT(fixPos()));
+  QTimer::singleShot(200,this, SLOT(adjustProductsTable()));
+  QTimer::singleShot(500,fpFilterProducts, SLOT(fixPos()));
 }
 
 void squeezeView::showOffersPage()
@@ -581,22 +586,26 @@ void squeezeView::adjustOffersTable()
 
 void squeezeView::showProdListAsGrid()
 {
- ui_mainview.productsView->show();
- ui_mainview.productsViewAlt->hide();
- //reparent the filter panel
- fpFilterProducts->reParent(ui_mainview.productsView);
- QTimer::singleShot(200,fpFilterProducts, SLOT(fixPos()));
+  if (ui_mainview.chViewProductsListAsGrid->isChecked()) {
+    ui_mainview.productsView->show();
+    ui_mainview.productsViewAlt->hide();
+    //reparent the filter panel
+    fpFilterProducts->reParent(ui_mainview.productsView);
+    QTimer::singleShot(200,fpFilterProducts, SLOT(fixPos()));
+  }
 }
 
 void squeezeView::showProdListAsTable()
 {
-  ui_mainview.productsViewAlt->show();
-  ui_mainview.productsView->hide();
-  // BFB: There's no need to adjust product table. We could do a resizeColumnsToContents() after model.select()
-  QTimer::singleShot(200,this, SLOT(adjustProductsTable()));
-  //reparent the filter panel
-  fpFilterProducts->setParent(ui_mainview.productsViewAlt);
-  QTimer::singleShot(200,fpFilterProducts, SLOT(fixPos()));
+  if (ui_mainview.chViewProductsListAsTable->isChecked()) {
+    ui_mainview.productsViewAlt->show();
+    ui_mainview.productsView->hide();
+    // BFB: There's no need to adjust product table. We could do a resizeColumnsToContents() after model.select()
+    QTimer::singleShot(200,this, SLOT(adjustProductsTable()));
+    //reparent the filter panel
+    fpFilterProducts->reParent(ui_mainview.productsViewAlt);
+    QTimer::singleShot(200,fpFilterProducts, SLOT(fixPos()));
+  }
 }
 
 squeezeView::~squeezeView()
