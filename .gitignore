@@ -1,4 +1,17 @@
 *~
 .*~
 .directory
+*.diff
+*.bak
+*.bkp
+*.alt
+*.list
+*.modif-stock
+*.bz2
+release.sh
+comandos.git
 build/*
+tmp/*
+downloads
+downloads.save
+squeeze/src/piechart.*
