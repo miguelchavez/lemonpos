@@ -211,6 +211,8 @@ signals:
 
    void createFloatingPanels();
    void reSelectModels();
+
+   void checkDefaultView();
    
 };
 
