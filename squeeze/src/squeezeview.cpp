@@ -2278,10 +2278,9 @@ void squeezeView::deleteSelectedClient()
         if (answer == KMessageBox::Yes) {
           Azahar *myDb = new Azahar;
           myDb->setDatabase(db);
-          qulonglong  iD = clientsModel->record(index.row()).value("id").toULongLong();
           if (!clientsModel->removeRow(index.row(), index)) {
             // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 ..
-            bool d = myDb->deleteClient(iD); qDebug()<<"Deleteing client ("<<iD<<") manually...";
+            bool d = myDb->deleteClient(clientId); qDebug()<<"Deleteing client ("<<clientId<<") manually...";
             if (d) qDebug()<<"Deletion succed...";
           }
           clientsModel->submitAll();
@@ -2333,25 +2332,21 @@ void squeezeView::deleteSelectedOffer()
     QModelIndex index = ui_mainview.tableBrowseOffers->currentIndex();
     if (offersModel->tableName().isEmpty()) setupOffersModel();
     if (index == offersModel->index(-1,-1) ) {
-      //FIXME: Hey, I think the word "offer" does not mean what i mean... (special..)
+      //NOTE: Hey, I think the word "offer" does not mean what i mean...
       KMessageBox::information(this, i18n("Please select an offer to delete, then press the delete button again."), i18n("Cannot delete"));
-      //TODO: Present a dialog to select which user to delete...
+      //NOTE: Present a dialog to select which user to delete?...
     }
     else  {
       int answer = KMessageBox::questionYesNo(this, i18n("Do you really want to delete the selected discount?"),
                                               i18n("Delete"));
       if (answer == KMessageBox::Yes) {
+        //same weird error when deleting offers that the products! :S
         Azahar *myDb = new Azahar;
         myDb->setDatabase(db);
-        qulonglong  iD = offersModel->record(index.row()).value("id").toULongLong();
-        if (!offersModel->removeRow(index.row(), index)) {
-          // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 ..
-          bool d = myDb->deleteOffer(iD); qDebug()<<"Deleteing offer ("<<iD<<") manually...";
-          if (d) qDebug()<<"Deletion succed...";
-        }
+        qulonglong  code = offersModel->record(index.row()).value("id").toULongLong();
+        if (!offersModel->removeRow(index.row(), index)) myDb->deleteOffer(code);
         offersModel->submitAll();
         offersModel->select();
-        delete myDb;
       }
     }
   }
