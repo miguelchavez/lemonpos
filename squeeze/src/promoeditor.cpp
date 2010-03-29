@@ -42,14 +42,15 @@ PromoEditor::PromoEditor( QWidget *parent )
     setButtons( KDialog::Ok|KDialog::Cancel );
 
     // BFB: New spinboxPrice: I've created new slots to control when discount, price or product are changed
-    connect( ui->spinboxDiscount, SIGNAL(editingFinished()),this, SLOT(discountChanged()) );
-    connect( ui->spinboxPrice, SIGNAL(editingFinished()),this, SLOT(priceChanged()) );
+    connect( ui->spinboxDiscount, SIGNAL(valueChanged(double)),this, SLOT(discountChanged()) );
+    connect( ui->spinboxPrice, SIGNAL(/*editingFinished*/valueChanged(double)),this, SLOT(priceChanged()) );
     connect(ui->offersDatepickerStart, SIGNAL(dateChanged(const QDate & )), this, SLOT(checkValid()));
     connect(ui->offersDatepickerEnd, SIGNAL(dateChanged(const QDate & )), this, SLOT(checkValid()));
     connect(ui->productsList, SIGNAL(clicked(const QModelIndex &)), this, SLOT(productChanged()));
     connect(ui->productsList, SIGNAL(activated(const QModelIndex &)), this, SLOT(productChanged()));
     connect(ui->productsList, SIGNAL(entered(const QModelIndex &)), this, SLOT(productChanged()));
 
+    enableButtonOk(false);
     QTimer::singleShot(750, this, SLOT(checkValid()));
 }
 
@@ -144,10 +145,14 @@ void PromoEditor::priceChanged()
 
 void PromoEditor::checkValid()
 {
-  qDebug()<<"Selected Product Code:"<<getSelectedProductCode();
-  if ((isProductSelected()) && ((ui->spinboxDiscount->value() > 0.0) || (ui->spinboxPrice->value() > 0.0)) && (getDateStart() < getDateEnd()) && (getDateStart() >= QDate::currentDate()) )
-    enableButtonOk(true);
-  else enableButtonOk(false);
+  bool validAmount = ui->spinboxDiscount->value() > 0.0 ? true : false;
+  bool validDate   = ((getDateStart() < getDateEnd()) && (getDateEnd() > QDate::currentDate())) ? true : false;
+  bool valid = isProductSelected() && validAmount && validDate;
+
+  qDebug()<<"Valid Amount:"<<validAmount<<" Valid Date:"<<validDate<<" finally is valid="<<valid;
+  
+  enableButtonOk(valid);
+    
 }
 
 bool PromoEditor::isProductSelected()
