@@ -128,7 +128,9 @@ void MibitPasswordDialog::showDialog(const QString &msg, AnimationTypeP animatio
             break;
     }
 
-    /// QTimeLine: Hacer una curva de movimiento armonico criticamente amortiguado.
+    #if QT_VERSION >= 0x040600
+      timeLine->setEasingCurve(QEasingCurve::OutBounce); // QEasingCurve::OutBounce is since Qt 4.6 only.. will not compile with Qt 4.5 or earlier
+    #endif
     timeLine->setFrameRange(minStep,maxStep);
     //make it grow...
     timeLine->setDirection(QTimeLine::Forward);

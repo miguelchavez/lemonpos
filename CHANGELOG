@@ -1,4 +1,4 @@
-CHANGELOG FOR LEMONPOS VERSION 0.9.3
+CHANGELOG FOR LEMONPOS VERSION 0.9.3 
 -----------------------------------------------------
 - BUGFIX       : Taxes for SpecialOrders/CustomProducts are now calculated and printed on tickets.
 - BUGFIX       : SpecialOrders (extra ticket) notes printing fixed.
@@ -17,7 +17,6 @@ CHANGELOG FOR LEMONPOS VERSION 0.9.3
 - IMPROVEMENT  : Now specialOrders notes are up to 800 characters long.
 - IMPROVEMENT  : Some important fields (group elements, items in transactions...) are expanded to 1000 chars, and other to 255 from lower values.
 - UPDATE       : Some translations where updated (de,es).
-
 
 
 
