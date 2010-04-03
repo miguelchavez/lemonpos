@@ -252,6 +252,13 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
     qDebug()<<"hiding subtotal label, not using addTax option.";
   }
 
+  //checking if is the first run.
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  if (myDb->getConfigFirstRun())  syncSettingsOnDb();
+
+  delete myDb;
+
   //excluded list for the random messages on tickets.
   rmExcluded.clear();
   //NOTE: this list is populated by the Azahar::getRandomMessage() method.
@@ -382,6 +389,12 @@ void lemonView::settingsChanged()
   insertBalance(); //this updates the currentBalanceId
   startAgain();
 
+  syncSettingsOnDb();
+
+}
+
+void lemonView::syncSettingsOnDb()
+{
   //save new settings on db -to avoid double settings on lemon and squeeze-
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
@@ -395,6 +408,8 @@ void lemonView::settingsChanged()
   myDb->setConfigSmallPrint(!Settings::bigReceipt());
   myDb->setConfigUseCUPS(!Settings::smallTicketDotMatrix());
   myDb->setConfigLogoOnTop(Settings::chLogoOnTop());
+  myDb->setConfigTaxIsIncludedInPrice(!Settings::addTax());//NOTE: the AddTax means the tax is NOT included in price, thats why this is negated.
+  
   delete myDb;
 }
 

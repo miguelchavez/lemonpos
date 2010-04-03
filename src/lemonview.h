@@ -330,6 +330,7 @@ public:
     double getTotalQtyOnList(const ProductInfo &info);
 
     void log(const qulonglong &uid, const QDate &date, const QTime &time, const QString &text);
+    void syncSettingsOnDb();
 
 };
 
