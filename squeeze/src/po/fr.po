@@ -422,13 +422,13 @@ msgstr "Petit reçu en utilisant une imprimante matriciel (utilisant /dev/lpX)"
 #. i18n: ectx: property (text), widget (QLabel, Printerdevice)
 #: po/extractedrc.cpp:120 extractedrc.cpp:120
 msgid "Printer Device:"
-msgstr "Imprimante"
+msgstr "Imprimante :"
 
 #. i18n: file: ui/pref_printers.ui:92
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #: po/extractedrc.cpp:123 extractedrc.cpp:123
 msgid "Printer Codec:"
-msgstr "Codec d'imprimante"
+msgstr "Codec d'imprimante :"
 
 #. i18n: file: ui/pref_printers.ui:104
 #. i18n: ectx: property (text), widget (QRadioButton, kcfg_bigReceipt)
@@ -628,7 +628,7 @@ msgstr "C'est un produit brut"
 #: po/extractedrc.cpp:214 extractedrc.cpp:214
 #, no-c-format
 msgid "&Tax (%):"
-msgstr "&TVA :"
+msgstr "&Taxe(%) :"
 
 #. i18n: file: ui/producteditor.ui:456
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editTax)
@@ -1000,7 +1000,7 @@ msgstr "&Points :"
 #. i18n: ectx: property (text), widget (QLabel, label_10)
 #: po/extractedrc.cpp:381 extractedrc.cpp:381
 msgid "&Taxes 1).-"
-msgstr "&Taxes 1)"
+msgstr "&Taxes 1),-"
 
 #. i18n: file: ui/purchaseeditor.ui:580
 #. i18n: ectx: property (text), widget (QLabel, label_14)
@@ -1024,19 +1024,19 @@ msgstr "Produits en boite"
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: po/extractedrc.cpp:421 extractedrc.cpp:421
 msgid "&Items/box:"
-msgstr ""
+msgstr "Art&icles/boite :"
 
 #. i18n: file: ui/purchaseeditor.ui:1168
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editItemsPerBox)
 #: po/extractedrc.cpp:424 extractedrc.cpp:424
 msgid "Items per box"
-msgstr "&Articles/boite :"
+msgstr "&Articles par boite :"
 
 #. i18n: file: ui/purchaseeditor.ui:1181
 #. i18n: ectx: property (text), widget (QLabel, label_7)
 #: po/extractedrc.cpp:427 extractedrc.cpp:427
 msgid "P&rice/box :"
-msgstr "Article par boite"
+msgstr "P&rix/boite"
 
 #. i18n: file: ui/purchaseeditor.ui:1206
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editPricePerBox)
@@ -1415,7 +1415,7 @@ msgstr "Ajouter une mesure "
 msgid "Add Category"
 msgstr "Ajouter une catégorie "
 
-#. i18n: file: ui/squeezeview_base.ui:1431
+#. i18n: file: ui/squeezeview_base."Enter code or qty*code. <Enter> or <+> Keys to go pay"ui:1431
 #. i18n: ectx: property (text), widget (QPushButton, btnAddClient)
 #: po/extractedrc.cpp:605 extractedrc.cpp:605
 msgid "Add Client"
@@ -1491,13 +1491,13 @@ msgstr "par date :"
 #: po/extractedrc.cpp:636 po/extractedrc.cpp:681 extractedrc.cpp:636
 #: extractedrc.cpp:681
 msgid "by Vendor Name"
-msgstr ""
+msgstr "Par nom de vendeur"
 
 #. i18n: file: ui/squeezeview_base.ui:1679
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilterByCashInLess)
 #: po/extractedrc.cpp:639 extractedrc.cpp:639
 msgid "Cash In <"
-msgstr "Par nom de vendeur"
+msgstr "En caisse <"
 
 #. i18n: file: ui/squeezeview_base.ui:1708
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilterByCashInGrater)
@@ -1732,7 +1732,7 @@ msgstr "girardhenri@free.fr"
 
 #: producteditor.cpp:116
 msgid "Purchase Qty:"
-msgstr "Qté en achat"
+msgstr "Qté en achat :"
 
 #: producteditor.cpp:118
 msgid "Stock Qty:"
@@ -2078,11 +2078,11 @@ msgstr "Montant en caisse"
 
 #: squeezeview.cpp:1428
 msgid "Received by Card"
-msgstr ""
+msgstr "Reçu par carte"
 
 #: squeezeview.cpp:1532
 msgid "Order #"
-msgstr ""
+msgstr "Commande #"
 
 #: squeezeview.cpp:1538
 msgid "Sold by"
@@ -2134,7 +2134,7 @@ msgstr "Nouveau poids et mesures "
 
 #: squeezeview.cpp:2192
 msgid "Enter the new weight or measure to insert:"
-msgstr ""
+msgstr "Entrer le nouveau poid ou mesure à insérer :"
 
 #: squeezeview.cpp:2209
 msgid "New category"
@@ -2167,7 +2167,7 @@ msgstr "Effacer "
 
 #: squeezeview.cpp:2284
 msgid "Default client cannot be deleted."
-msgstr ""
+msgstr "Le client par défaut ne peut pas etre effacé"
 
 #: squeezeview.cpp:2295
 msgid "Please select a user to delete, then press the delete button again."
@@ -2254,11 +2254,10 @@ msgstr "Annuler"
 
 #: squeezeview.cpp:2586 squeezeview.cpp:2694
 msgid "End of day report"
-msgstr ""
-
+msgstr "Rapport de fin de journée"
 #: squeezeview.cpp:2589 squeezeview.cpp:2783
 msgid "All Terminals"
-msgstr "Rapport de fin de journée"
+msgstr "Tous les terminaux"
 
 #: squeezeview.cpp:2594 squeezeview.cpp:2702 squeezeview.cpp:3008
 msgid "Method"
@@ -2301,11 +2300,11 @@ msgstr "Rapport de fin de mois"
 
 #: squeezeview.cpp:2831 squeezeview.cpp:2840
 msgid "Print end of Month report"
-msgstr ""
+msgstr "Imprimer le rapport de fin de mois"
 
 #: squeezeview.cpp:2862
 msgid "Low Stock Products (< %1)"
-msgstr ""
+msgstr "Produit en faible stock"
 
 #: squeezeview.cpp:2866
 msgid "Stock Qty."
@@ -2494,4 +2493,4 @@ msgstr "Entrer le nombre de mois ou saison ici ..."
 
 #: ../../src/inputdialog.cpp:150
 msgid "Ok"
-msgstr "OK"
+msgstr "Ok"

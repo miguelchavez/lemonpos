@@ -24,8 +24,7 @@ msgstr ""
 msgid ""
 "Error #%1, Type:%2\n"
 "'%3'"
-msgstr ""
-"Erreur #%1, Type : %2\n"
+msgstr "Erreur #%1, Type : %2\n"
 "'%3'"
 
 msgid "Error serching product id %1, Rows affected: %2"
@@ -62,11 +61,11 @@ msgstr "Code produit :"
 
 #: inputdialog.cpp:70
 msgid "Month or Season:"
-msgstr "Mois ou saison"
+msgstr "Mois ou saison :"
 
 #: inputdialog.cpp:71
 msgid "New Stock Qty:"
-msgstr "Nouvelle Qté en stock"
+msgstr "Nouvelle Qté en stock :"
 
 #: inputdialog.cpp:72
 msgid "Amount:"
@@ -112,7 +111,7 @@ msgstr "Saisir le numéro du mois ou de la saison ici..."
 #. i18n: ectx: property (text), widget (QPushButton, btnClientAdd)
 #: inputdialog.cpp:150 po/extractedrc.cpp:608 extractedrc.cpp:608
 msgid "Ok"
-msgstr "OK"
+msgstr "Ok"
 
 #. i18n: file: ui/special_order.ui:655
 #. i18n: ectx: property (text), widget (QPushButton, btnClientCancel)
@@ -277,7 +276,7 @@ msgstr "Entrer le mot de passe admin SVP"
 
 #: lemonview.cpp:233 lemonview.cpp:234
 msgid "Enter code or qty*code. <Enter> or <+> Keys to go pay"
-msgstr ""
+msgstr "Entrer le code ou la qté*code. <Enter> ou <+> les clés pour pouvoir payer"
 
 #: lemonview.cpp:469
 msgid "No product selected"
@@ -356,7 +355,7 @@ msgstr "Effacer l'article de la liste d'achat. Autoriser par %1"
 
 #: lemonview.cpp:1241
 msgid "Enter the number of %1"
-msgstr "Numéro : %1"
+msgstr "Entrer le Numéro de %1"
 
 #: lemonview.cpp:1275
 msgid ""
@@ -479,7 +478,7 @@ msgstr "Vendeur : %1"
 #: po/extractedrc.cpp:216 po/extractedrc.cpp:475 po/extractedrc.cpp:560
 #: extractedrc.cpp:216 extractedrc.cpp:475 extractedrc.cpp:560
 msgid "Qty"
-msgstr "Qantité."
+msgstr "Qté"
 
 #. i18n: file: ui/mainview.ui:79
 #. i18n: ectx: property (title), widget (QGroupBox, groupDetails)
@@ -530,7 +529,7 @@ msgstr "Avoir total : %1:"
 
 #: lemonview.cpp:1850
 msgid "# %1"
-msgstr ""
+msgstr "# %1"
 
 #: lemonview.cpp:1851
 msgid "Terminal #%1"
@@ -542,7 +541,7 @@ msgstr " PREPAIEMENT DE"
 
 #: lemonview.cpp:1853
 msgid "  COMPLETED PAYMENT WITH "
-msgstr "PAIEMENT COMPLETE AVEC"
+msgstr "PAIEMENT TOTAL AVEC"
 
 #: lemonview.cpp:1854
 msgid "  To complete your payment"
@@ -600,10 +599,10 @@ msgstr "<br>Carte# %1<br>Autorisation # %2"
 #: lemonview.cpp:1994
 msgid ""
 "Card Number:%1 \n"
-"Authorisation #:%2"
+"Autorisation :%1"
 msgstr ""
 "<br>numéro de Carte :# %1\n"
-"<br>Autorisation # : %2"
+"<br>Autorisation :# %2"
 
 #: lemonview.cpp:2035 lemonview.cpp:2093
 msgid "Phone: "
@@ -626,7 +625,7 @@ msgid "Print Receipt"
 msgstr "Imprimer le reçu"
 
 #: lemonview.cpp:2149
-msgid "Print Special Order Instructions "
+msgid "Print Special Order Instruction""s "
 msgstr "Imprimer les instructions de commandes spéciales "
 
 #: lemonview.cpp:2250
@@ -680,7 +679,7 @@ msgstr "Solde id : %1"
 
 #: lemonview.cpp:2515
 msgid "%1 at Terminal # %2"
-msgstr "Au terminal # %2"
+msgstr "%1 Au terminal # %2"
 
 #: lemonview.cpp:2516
 msgid "Initial Amount deposited:"
@@ -732,7 +731,7 @@ msgstr "Payé"
 
 #: lemonview.cpp:2528 lemonview.cpp:2751
 msgid "Method"
-msgstr "Méthode :"
+msgstr "Méthode"
 
 #: lemonview.cpp:2547
 msgid "Start: %1"
@@ -760,7 +759,7 @@ msgstr "Imprimer le solde "
 
 #: lemonview.cpp:2727
 msgid "End of Day report printed by %1 at terminal %2 on %3"
-msgstr ""
+msgstr "Rapport de fin de journée imprimé par  %1 au terminal %2 on %3"
 
 #: lemonview.cpp:2746
 msgid "at terminal # %1"
@@ -772,7 +771,7 @@ msgstr "Bénéfice"
 
 #: lemonview.cpp:2781
 msgid "Total Sales : %1"
-msgstr ""
+msgstr "Ventes totales"
 
 #: lemonview.cpp:2782
 msgid "Total Profit: %1"
@@ -780,7 +779,7 @@ msgstr "Bénéfice total : %1:"
 
 #: lemonview.cpp:2797 lemonview.cpp:2806
 msgid "Print end of day report"
-msgstr ""
+msgstr "Impression du rapport de fin de journée"
 
 #: lemonview.cpp:2907
 msgid "Price: "
@@ -796,11 +795,11 @@ msgstr "Catégorie :"
 
 #: lemonview.cpp:2911
 msgid "in stock"
-msgstr ""
+msgstr "En stock"
 
 #: lemonview.cpp:2912
 msgid "in your shopping cart, Total Available"
-msgstr ""
+msgstr "Total disponible dans votre carte d'achat"
 
 #: lemonview.cpp:3106
 msgid "%1 points"
@@ -830,7 +829,7 @@ msgstr "Date"
 
 #: lemonview.cpp:3136
 msgid "User"
-msgstr "Nom utilisateur :"
+msgstr "utilisateur"
 
 #: lemonview.cpp:3137
 msgid "Items"
@@ -936,11 +935,11 @@ msgstr "&Quitter"
 
 #: loginwindow.cpp:65
 msgid "&Ok"
-msgstr "&Accepter"
+msgstr "&Ok"
 
 #: loginwindow.cpp:171
 msgid "Username:"
-msgstr "Nom utilisateur :"
+msgstr "Nom :"
 
 #: loginwindow.cpp:172
 msgid "Password:"
@@ -968,11 +967,11 @@ msgstr "Miguel Chávez Gamboa"
 
 #: main.cpp:46
 msgid "Biel Frontera"
-msgstr ""
+msgstr "Biel Frontera"
 
 #: main.cpp:46
 msgid "Code contributor"
-msgstr ""
+msgstr "Contributeur de code"
 
 #. i18n: file: lemon.kcfg:9
 #. i18n: ectx: label, entry (SplitterSizes), group (lemon)
@@ -1341,28 +1340,28 @@ msgid "Ca&rd"
 msgstr "&Carte"
 
 #. i18n: file: ui/mainview.ui:430
-#. i18n: ectx: property (text), widget (QLabel, labelCashAmount)
+#. i18n: ectx: property (text), widget (QLabel, labelCas""hAmount)
 #: po/extractedrc.cpp:177 extractedrc.cpp:177
 msgid "Cash &Amount:"
-msgstr "&Quantité :"
+msgstr "&Montant :"
 
 #. i18n: file: ui/mainview.ui:500
 #. i18n: ectx: property (text), widget (QLabel, labelCardNumber)
 #: po/extractedrc.cpp:180 extractedrc.cpp:180
 msgid "Card &Number:"
-msgstr "&Numéro de carte :"
+msgstr "&Numéro carte :"
 
 #. i18n: file: ui/mainview.ui:528
 #. i18n: ectx: property (inputMask), widget (QLineEdit, editCardNumber)
 #: po/extractedrc.cpp:183 extractedrc.cpp:183
 msgid "0000-0000-0000-0000; "
-msgstr ""
+msgstr "0000-0000-0000-0000;"
 
 #. i18n: file: ui/mainview.ui:531
 #. i18n: ectx: property (text), widget (QLineEdit, editCardNumber)
 #: po/extractedrc.cpp:186 extractedrc.cpp:186
 msgid "---"
-msgstr ""
+msgstr "---"
 
 #. i18n: file: ui/mainview.ui:541
 #. i18n: ectx: property (text), widget (QLabel, labelAuthNumber)
@@ -1522,7 +1521,7 @@ msgstr ""
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; "
 "margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" "
 "font-weight:600; color:#ff7f50;\">Total HT</span></p></body></html>"
-
+"Enter code or qty*code. <Enter> or <+> Keys to go pay"
 #. i18n: file: ui/mainview.ui:1233
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #: po/extractedrc.cpp:264 extractedrc.cpp:264
@@ -1787,7 +1786,7 @@ msgstr "&Serveur :"
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #: po/extractedrc.cpp:420 extractedrc.cpp:420
 msgid "&Username:"
-msgstr "Utilisateur :"
+msgstr "Nom :"
 
 #. i18n: file: ui/prefs_db.ui:51
 #. i18n: ectx: property (text), widget (QLabel, label_3)
@@ -1976,7 +1975,7 @@ msgstr "#"
 #. i18n: ectx: property (text), widget (QLabel, lblStatus)
 #: po/extractedrc.cpp:526 extractedrc.cpp:526
 msgid "Vendor:"
-msgstr "Vendeur"
+msgstr "Vendeur :"
 
 #. i18n: file: ui/special_order.ui:110
 #. i18n: ectx: property (text), widget (QLabel, label_14)
@@ -2013,7 +2012,7 @@ msgstr "Nouveau client :"
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: po/extractedrc.cpp:541 extractedrc.cpp:541
 msgid "&Qty:"
-msgstr "Qantité."
+msgstr "Qantité :"
 
 #. i18n: file: ui/special_order.ui:200
 #. i18n: ectx: property (text), widget (QLabel, label_6)
@@ -2238,13 +2237,7 @@ msgid "Change Status"
 msgstr "Status changé"
 
 #: specialordereditor.cpp:104
-
 msgid "Enter client name here..."
-
-
-
-
-
 msgstr "Entrer le nom du client ici..."
 
 #: specialordereditor.cpp:105
@@ -2252,15 +2245,12 @@ msgid "Enter client phone here..."
 msgstr "Entrer le N° téléphone ici..."
 
 #: specialordereditor.cpp:106
-
-
 msgid "Enter client cell phone here..."
 msgstr "Entrer le N° portable ici..."
 
 #: specialordereditor.cpp:242 specialordereditor.cpp:264
 msgid "<i>%1</i> rounded to %2"
 msgstr "<i>%1</i> arrondi à %2"
-
 #: specialordereditor.cpp:250 specialordereditor.cpp:273
 msgid "<i>%1</i> <b>requested %2, on stock %3</b><br>"
 msgstr "<i>%1</i> <b>Demandé %2, en stock %3</b><br>"
