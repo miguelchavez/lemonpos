@@ -63,14 +63,14 @@ LoginWindow#loginDialog > QLabel#labelPrompt {
   font-size:18px;
 }
 
-QLabel#lblSaleTaxes
+QLabel#lblSaleTaxes, QLabel#lblSubtotal
 {
  color: darkGray;
  font-weight: bold;
  font-size:30px;
 }
 
-QLabel#lblSaleTaxesPre
+QLabel#lblSaleTaxesPre, QLabel#lblSubtotalPre
 {
  color: darkGray;
  font-weight: bold;

@@ -216,9 +216,6 @@ ProductInfo Azahar::getProductInfo(qulonglong code)
           info.tax = getGroupAverageTax(code);
           info.extratax = 0; //this is included in the average tax.
         }
-        //NOTE: totaltax will not be correct if addTax config option is true.
-        double pWOtax = info.price/(1+((info.tax+info.extratax)/100));
-        info.totaltax = pWOtax*((info.tax+info.extratax)/100); // in money...
         QString geStr = query.value(fieldGroupE).toString();
         // groupElements is a list like: '1/3,2/1'
         if (!geStr.isEmpty()) {
@@ -273,6 +270,23 @@ ProductInfo Azahar::getProductInfo(qulonglong code)
            info.disc = round((info.discpercentage/100 * info.price)*100)/100; //FIXME:This is not necesary VALID.
          } else {info.disc = 0; info.validDiscount =false;}
      }
+     ///tax calculation - it depends on discounts...
+     double pWOtax = 0;
+     if (getConfigTaxIsIncludedInPrice()) //added on jan 28 2010. Also on db we have other setting
+       pWOtax= info.price/(1+((info.tax+info.extratax)/100));
+     else
+       pWOtax = info.price;
+     //take into account the discount.
+     if (info.validDiscount) {
+       double iDisc=0;
+       iDisc = (info.discpercentage/100)*pWOtax;
+       pWOtax = pWOtax - iDisc;
+     }
+     //finally we have on pWOtax the price without tax and discount for 1 item
+     double tax1m = (info.tax/100)*pWOtax;
+     double tax2m = (info.extratax/100)*pWOtax;
+     info.totaltax = tax1m + tax2m;
+     ///end of tax calculation
     }
   }
   return info;

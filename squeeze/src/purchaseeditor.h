@@ -65,6 +65,7 @@ class PurchaseEditor : public KDialog
     QHash<qulonglong, ProductInfo> getHash()    { return productsHash; };
     double  getTotalBuy()    { return totalBuy; };
     double  getItemCount()   { return itemCount; };
+    double  getTotalTaxes()  { return totalTaxes; };
 
     void    populateCategoriesCombo();
     void    populateMeasuresCombo();
@@ -109,6 +110,7 @@ protected slots:
     bool productExists;
     double totalBuy;
     double itemCount;
+    double totalTaxes;
     QString gelem;
     QHash<qulonglong, ProductInfo> productsHash;
 };

@@ -244,6 +244,14 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   frameLeft = ui_mainview.frameLeft;
   frame     = ui_mainview.frame;
 
+
+  //hide or show the subtotal labels
+  if (!Settings::addTax()) {
+    ui_mainview.lblSubtotalPre->hide();
+    ui_mainview.lblSubtotal->hide();
+    qDebug()<<"hiding subtotal label, not using addTax option.";
+  }
+
   //excluded list for the random messages on tickets.
   rmExcluded.clear();
   //NOTE: this list is populated by the Azahar::getRandomMessage() method.
@@ -774,9 +782,10 @@ void lemonView::refreshTotalLabel()
         pWOtax= i.value().price/(1+((info.tax+info.extratax)/100));
       //take into account the discount, user discount.
       if (i.value().validDiscount || clientInfo.discount>0 ) { //UPDATED: Jan 4 2010.
-        double cDisc = (clientInfo.discount/100)*pWOtax;
-        double iDisc = (i.value().discpercentage/100)*pWOtax;
-        if (!i.value().validDiscount) iDisc = 0;
+        double iDisc=0; double cDisc=0;
+        cDisc = (clientInfo.discount/100)*pWOtax;
+        if (i.value().validDiscount )
+          iDisc = (i.value().discpercentage/100)*pWOtax; //item discount depends on the discount valid-ness
         pWOtax = pWOtax - iDisc - cDisc;
       }
       //finally we have on pWOtax the price without tax and discount for 1 item
@@ -807,8 +816,15 @@ void lemonView::refreshTotalLabel()
   buyPoints = points;
   totalSumWODisc = sum;
   discMoney = (clientInfo.discount/100)*sum;
-  totalSum = sum - discMoney;
+  //totalSum = sum - discMoney;
+  subTotalSum = sum - discMoney;
+  if (Settings::addTax())
+    totalSum    = subTotalSum + totalTax;
+  else
+    totalSum    = subTotalSum;
+  
   ui_mainview.labelTotal->setText(QString("%1").arg(KGlobal::locale()->formatMoney(totalSum)));
+  ui_mainview.lblSubtotal->setText(QString("%1").arg(KGlobal::locale()->formatMoney(subTotalSum)));
   long double paid, change;
   bool isNum;
   paid = ui_mainview.editAmount->text().toDouble(&isNum);

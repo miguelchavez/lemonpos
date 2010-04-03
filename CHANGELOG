@@ -11,7 +11,9 @@ CHANGELOG FOR LEMONPOS VERSION 0.9.3
                  and the mouse need to be moved during the 'add user' action.
 - BUGFIX       : Unable to delete offers. This bug was present on older versions but with the Products table. This is
                  Related to QSqlTableModel class. To fix it, an own delete method was coded.
-- BUGFIX       : Offers Editor's validate check (date,amount,product) fixed.
+- BUGFIX       : Offers Editor's validate method (date,amount,product) fixed.
+- BUGFIX       : Undefined values for balanceId and totalTax in the transaction table, only for purchases.
+- BUGFIX       : AddTax feature is adding the tax to the total amount.
 - IMPROVEMENT  : Increased refresh time for the model views (all tables on Squeeze), they refresh every 2 minutes instead of 5 seconds.
 - IMPROVEMENT  : SpecialOrders delivery date now is printed in the format: 'Mon 21 May, 4:30 PM'.
 - IMPROVEMENT  : SpecalOrders are now allowed to be marked as delivered on the same day.

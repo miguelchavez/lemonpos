@@ -2015,6 +2015,8 @@ void squeezeView::doPurchase()
         tInfo.providerid  = 1; //FIXME!
         //tInfo.groups      = ""; //DEPRECATED
         tInfo.specialOrders = "";
+        tInfo.balanceId = 0;
+        tInfo.totalTax  = purchaseEditorDlg->getTotalTaxes();
         myDb->insertTransaction(tInfo);
 
     }

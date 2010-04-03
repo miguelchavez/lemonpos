@@ -81,6 +81,7 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
     resetEdits();
     totalBuy = 0.0;
     itemCount = 0.0;
+    totalTaxes = 0.0;
     QTimer::singleShot(500, this, SLOT(setupTable()));
 }
 
@@ -188,6 +189,7 @@ QString PurchaseEditor::getMeasureStr(int c)
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   QString str = myDb->getMeasureStr(c);
+  delete myDb;
   return str;
 }
 
@@ -263,33 +265,57 @@ void PurchaseEditor::calculatePrice()
 
   if (costOk && profitOk && taxOk && etaxOk ) {
   //TODO: if TAXes are included in cost...
-  double cost    = ui->editCost->text().toDouble();
-  double utility = ui->editUtility->text().toDouble();
+  double cWOTax = 0;
   double tax     = ui->editTax->text().toDouble();
   double tax2    = ui->editExtraTaxes->text().toDouble();
-  //Utility is calculated before taxes... Taxes include utility... is it ok?
+  double utility = ui->editUtility->text().toDouble();
+
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+
+  // We assume that tax rules for prices also apply to costs.
+  if (myDb->getConfigTaxIsIncludedInPrice())
+    cWOTax= (ui->editCost->text().toDouble())/(1+((tax+tax2)/100));
+  else
+    cWOTax = ui->editCost->text().toDouble();
+  
+  double cost    = cWOTax;
   utility = ((utility/100)*cost);
   double cu=cost+utility;
-  tax     = ((tax/100)*(cu));
-  tax2    = ((tax2/100)*(cu));
+  //We need the tax recalculated from the costs+utility, this time taxes are expressed in $
+  tax     = ((tax/100)*(cost)); ///NOTE fixed:when paying for a product we pay taxes for the cost not the cost+profit
+  tax2    = ((tax2/100)*(cost));
+
 
   if (ui->groupBoxedItem->isChecked()){
     double itemsPerBox = 0;
     double pricePerBox = 0;
     if (!ui->editItemsPerBox->text().isEmpty()) itemsPerBox = ui->editItemsPerBox->text().toDouble();
     if (!ui->editPricePerBox->text().isEmpty()) pricePerBox = ui->editPricePerBox->text().toDouble();
-    if (itemsPerBox>0 || pricePerBox>0) cost = pricePerBox/itemsPerBox;
+    if (!ui->editItemsPerBox->text().isEmpty() || !ui->editPricePerBox->text().isEmpty()) return;
+    tax     = ui->editTax->text().toDouble();
+    tax2    = ui->editExtraTaxes->text().toDouble();
+    if (myDb->getConfigTaxIsIncludedInPrice())
+      cWOTax= (pricePerBox/itemsPerBox)/(1+((tax+tax2)/100));
+    else
+      cWOTax = pricePerBox/itemsPerBox;
+
+    cost = cWOTax;
     ui->editCost->setText(QString::number(cost));
     utility = ((ui->editUtility->text().toDouble()/100)*cost);
     cu = cost + utility;
-    tax     = ((ui->editTax->text().toDouble()/100)*(cu));
-    tax2    = ((ui->editExtraTaxes->text().toDouble()/100)*(cu));
+    tax     = ((tax/100)*(cost));///NOTE fixed:when paying for a product we pay taxes for the cost not the cost+profit
+    tax2    = ((tax2/100)*(cost));
     finalPrice = cu + tax + tax2;
+    
   }
   else finalPrice = cost + utility + tax + tax2;
 
+  qDebug()<<"cWOTax ="<<cWOTax<<" tax1="<<tax<<" tax2="<<tax2<<" FinalPrice:"<<finalPrice;
+
   ui->editFinalPrice->setText(QString::number(finalPrice));
   ui->editFinalPrice->selectAll();
+  delete myDb;
   }
 }
 
@@ -380,8 +406,9 @@ void PurchaseEditor::addItemToList()
   if (ok) {
     ProductInfo info = myDb->getProductInfo(getCode());
     //FIX BUG: dont allow enter new products.. dont know why? new code on 'continue' statement.
-    if (info.code == 0) {
+    if (info.code == 0) { //new product
       info.code = getCode();
+      info.stockqty = 0; //new product
       info.lastProviderId=1; //for now.. fixme in the future
     }
     //update p.info from the dialog
@@ -433,6 +460,20 @@ void PurchaseEditor::insertProduct(ProductInfo info)
       itemCount += info.purchaseQty;
       totalBuy = totalBuy + info.cost*info.purchaseQty;
     }
+
+    //calculate taxes for this item. Calculated from the costs.
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    double cWOTax = 0;
+    if (myDb->getConfigTaxIsIncludedInPrice())
+      cWOTax= (info.cost)/(1+((info.tax+info.extratax)/100));
+    else
+      cWOTax = info.cost;
+    double tax = cWOTax*info.purchaseQty*(info.tax/100);
+    double tax2= cWOTax*info.purchaseQty*(info.extratax/100);
+    totalTaxes += tax + tax2; // add this product taxes to the total taxes in the purchase.
+    qDebug()<<"Total taxes updated:"<<totalTaxes<<" Taxes for this product:"<<tax+tax2;
+    delete myDb;
     
     double finalCount = info.purchaseQty + info.stockqty;
     info.groupElementsStr=""; //grouped products cannot be a group.
@@ -491,6 +532,19 @@ void PurchaseEditor::deleteSelectedItem() //added on dec 3, 2009
       //update qty and $ of the purchase
       totalBuy  -= (info.cost*info.purchaseQty);
       itemCount -= info.purchaseQty;
+      //calculate taxes for this item. Calculated from the costs.
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      double cWOTax = 0;
+      if (myDb->getConfigTaxIsIncludedInPrice())
+        cWOTax= (info.cost)/(1+((info.tax+info.extratax)/100));
+      else
+        cWOTax = info.cost;
+      double tax = cWOTax*info.purchaseQty*(info.tax/100);
+      double tax2= cWOTax*info.purchaseQty*(info.extratax/100);
+      totalTaxes = totalTaxes - tax - tax2;
+      qDebug()<<"Total taxes updated:"<<totalTaxes;
+      delete myDb;
       ui->groupBox->setTitle( i18n("Items in this purchase [ %1  items,  %2 ]",itemCount,
                                    KGlobal::locale()->formatMoney(totalBuy, QString(), 2)
                                    ) );

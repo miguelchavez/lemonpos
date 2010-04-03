@@ -99,6 +99,7 @@ public:
     qulonglong buyPoints;
     double discMoney;
     double totalSumWODisc;
+    double subTotalSum;
     QDateTime transDateTime;
 
     QHash<qulonglong, SpecialOrderInfo> specialOrders;
