@@ -252,12 +252,6 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
     qDebug()<<"hiding subtotal label, not using addTax option.";
   }
 
-  //checking if is the first run.
-  Azahar *myDb = new Azahar;
-  myDb->setDatabase(db);
-  if (myDb->getConfigFirstRun())  syncSettingsOnDb();
-
-  delete myDb;
 
   //excluded list for the random messages on tickets.
   rmExcluded.clear();
@@ -3121,6 +3115,12 @@ void lemonView::connectToDb()
     //pass db to login/pass dialogs
     dlgLogin->setDb(db);
     dlgPassword->setDb(db);
+
+    //checking if is the first run.
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    if (myDb->getConfigFirstRun())  syncSettingsOnDb();
+    delete myDb;
   }
 }
 

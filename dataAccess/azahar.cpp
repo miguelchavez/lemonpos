@@ -2599,6 +2599,7 @@ bool Azahar::getConfigFirstRun()
       while (myQuery.next()) {
         int fieldText = myQuery.record().indexOf("firstrun");
         QString value = myQuery.value(fieldText).toString();
+        qDebug()<<"firstRun VALUE="<<value;
         if (value == "yes, it is February 6 1978")
           result = true;
       }
