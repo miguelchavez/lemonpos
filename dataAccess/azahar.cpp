@@ -211,11 +211,12 @@ ProductInfo Azahar::getProductInfo(qulonglong code)
         info.soldUnits = query.value(fieldSoldUnits).toDouble();
         info.isARawProduct = query.value(fieldIsARaw).toBool();
         info.isAGroup = query.value(fieldIsAGroup).toBool();
-        if (info.isAGroup) {
-          //get group average tax
-          info.tax = getGroupAverageTax(code);
-          info.extratax = 0; //this is included in the average tax.
-        }
+        ///if is a group, now the tax is calculated when editing the group. getting the right compound tax. SEE: producteditor.cpp file.
+        //if (info.isAGroup) {
+        //  //get group average tax
+        //  info.tax = getGroupAverageTax(code);
+        // info.extratax = 0; //this is included in the average tax.
+        //}
         QString geStr = query.value(fieldGroupE).toString();
         // groupElements is a list like: '1/3,2/1'
         if (!geStr.isEmpty()) {
@@ -286,6 +287,7 @@ ProductInfo Azahar::getProductInfo(qulonglong code)
      double tax1m = (info.tax/100)*pWOtax;
      double tax2m = (info.extratax/100)*pWOtax;
      info.totaltax = tax1m + tax2m;
+     //qDebug()<<" Total tax for product "<<info.desc<<info.tax+info.extratax<< " $:"<<info.totaltax;
      ///end of tax calculation
     }
   }
@@ -742,6 +744,17 @@ QList<ProductInfo> Azahar::getGroupProductsList(qulonglong id)
   return pList;
 }
 
+//NOTE: This method just get the average tax, it does not make any other calculation.
+//      When all the products in the group has a same tax rate, the average tax is the same and
+//      tax in money for the group is fine (not unbalanced), but when is not the same and the difference is much
+//      then the average tax would have an impact, For example:
+//      A group with TWO products :
+//         product 1: Price: 10, tax:15%
+//         product 2: Price  100, tax 1%
+//     The average tax is 8%, its equally for the two products but the second one has a lower tax.
+//     The tax charged to the group with the average tax is $8.8
+//     The tax charged to the group with each product tax is $2.15
+//     So the tax is not fine in this case. This means this method is not accurate for all cases.
 double Azahar::getGroupAverageTax(qulonglong id)
 {
   qDebug()<<"Getting averate tax for id:"<<id;
@@ -757,6 +770,23 @@ double Azahar::getGroupAverageTax(qulonglong id)
   
   return result;
 }
+
+double Azahar::getGroupTotalTax(qulonglong id)
+{
+  qDebug()<<"Getting total tax for id:"<<id;
+  double result = 0;
+  double sum = 0;
+  QList<ProductInfo> pList = getGroupProductsList(id);
+  foreach( ProductInfo info, pList) {
+    sum += info.tax + info.extratax;
+  }
+  
+  result = sum;
+  qDebug()<<" TOTAL tax:"<<sum;
+  
+  return result;
+}
+
 
 QString Azahar::getProductGroupElementsStr(qulonglong id)
 {

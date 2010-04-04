@@ -374,6 +374,8 @@ struct GroupInfo
   QString name;
   double  cost;
   double  price;
+  double  taxMoney;
+  double  tax;
   double  count; // total of items in the group
   bool    isAvailable; //based on stockqty for each product (and its qtys).
   QHash<qulonglong, ProductInfo> productsList;

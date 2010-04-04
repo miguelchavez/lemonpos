@@ -79,6 +79,7 @@ class Azahar : public QObject
     bool         updateProductLastProviderId(qulonglong code, qulonglong provId);
     QList<ProductInfo> getGroupProductsList(qulonglong id);
     double       getGroupAverageTax(qulonglong id);
+    double       getGroupTotalTax(qulonglong id);
     QString      getProductGroupElementsStr(qulonglong id);
 
     
