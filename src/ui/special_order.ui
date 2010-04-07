@@ -523,6 +523,9 @@ p, li { white-space: pre-wrap; }
         <property name="prefix">
          <string/>
         </property>
+        <property name="minimum">
+         <double>1.000000000000000</double>
+        </property>
         <property name="maximum">
          <double>999999999.990000009536743</double>
         </property>

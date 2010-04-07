@@ -147,7 +147,7 @@ qulonglong Azahar::getProductOfferCode(qulonglong code)
 }
 
 
-ProductInfo Azahar::getProductInfo(qulonglong code)
+ProductInfo Azahar::getProductInfo(qulonglong code, bool notConsiderDiscounts)
 {
   ProductInfo info;
   info.code=0;
@@ -211,12 +211,6 @@ ProductInfo Azahar::getProductInfo(qulonglong code)
         info.soldUnits = query.value(fieldSoldUnits).toDouble();
         info.isARawProduct = query.value(fieldIsARaw).toBool();
         info.isAGroup = query.value(fieldIsAGroup).toBool();
-        ///if is a group, now the tax is calculated when editing the group. getting the right compound tax. SEE: producteditor.cpp file.
-        //if (info.isAGroup) {
-        //  //get group average tax
-        //  info.tax = getGroupAverageTax(code);
-        // info.extratax = 0; //this is included in the average tax.
-        //}
         QString geStr = query.value(fieldGroupE).toString();
         // groupElements is a list like: '1/3,2/1'
         if (!geStr.isEmpty()) {
@@ -242,6 +236,15 @@ ProductInfo Azahar::getProductInfo(qulonglong code)
           info.unitStr=query3.value(fieldUD).toString(); //Added: Dec 15 2007
         }//query3 - get descritptions
       }
+
+      ///NOTE FOR DISCOUNTS:  TODO: ADD THIS TO THE USER MANUAL
+      //     If a group contains product with discounts THOSE ARE NOT TAKEN INTO CONSIDERATION,
+      //     The only DISCOUNT for a GROUP is the DISCOUNT created for the GROUP PRODUCT -not for its contents-.
+      //     The discounts for GROUPS are PERPETUAL.
+      //     Another way to assign a "discount" for a group is reducing the price in the product editor
+      //     this is not considered a discount but a lower price, and both can coexist so
+      ///    be CAREFUL with this!
+      
      //get discount info... if have one.
      QSqlQuery query2(db);
      if (query2.exec(QString("Select * from offers where product_id=%1").arg(info.code) )) {
@@ -256,7 +259,10 @@ ProductInfo Azahar::getProductInfo(qulonglong code)
            QDate dateEnd   = query2.value(fieldDateEnd).toDate();
            QDate now = QDate::currentDate();
            //See if the offer is in a valid range...
-           if ((dateStart<dateEnd) && (dateStart<=now) && (dateEnd>=now)  ) {
+           if (info.isAGroup) { /// if produc is a group, the discount has NO DATE LIMITS!!! its valid forever.
+             descuentos.append(descP);
+           } 
+           else if ((dateStart<dateEnd) && (dateStart<=now) && (dateEnd>=now)  ) {
              //save all discounts here and decide later to return the bigger valid discount.
              descuentos.append(descP);
            }
@@ -268,8 +274,22 @@ ProductInfo Azahar::getProductInfo(qulonglong code)
            //get the first item, which is the greater one.
            info.validDiscount = true;
            info.discpercentage = descuentos.first();
-           info.disc = round((info.discpercentage/100 * info.price)*100)/100; //FIXME:This is not necesary VALID.
+           info.disc =       (info.discpercentage/100) * (info.price);
+           //round((info.discpercentage/100) * (info.price*100))/100; //FIXME:This is not necesary VALID.
+           //double temporal = round( (info.discpercentage/100 * info.price )*100)/100;
+           //double temporal = ((((info.discpercentage+1.2547)/100) * (info.price+5437.2547))*100)/100;
+           //qDebug()<<" round:"<< info.disc<<" temporal:"<< temporal;
+           //qDebug()<<" ** PRODUCT DISCOUNT:"<< info.disc;
          } else {info.disc = 0; info.validDiscount =false;}
+     }
+     /// If is a group, calculate the right price first.
+     if (info.isAGroup) {
+      //get each content price and tax percentage.
+      GroupInfo gInfo = getGroupPriceAndTax(info.code);
+      info.price = gInfo.price;
+      info.tax   = gInfo.tax;
+      info.extratax = 0; //accumulated in tax...
+      qDebug()<<"=================== Group: price:"<<info.price<<" tax:"<<info.tax<<"======================";
      }
      ///tax calculation - it depends on discounts...
      double pWOtax = 0;
@@ -280,14 +300,15 @@ ProductInfo Azahar::getProductInfo(qulonglong code)
      //take into account the discount.
      if (info.validDiscount) {
        double iDisc=0;
-       iDisc = (info.discpercentage/100)*pWOtax;
+       iDisc = (notConsiderDiscounts) ? 0 : (info.discpercentage/100)*pWOtax;
+       if (notConsiderDiscounts) qDebug()<<" ================= WARNING: NOT CONSIDERING DISCOUNT FOR TAX CALCULATION! ======================= ";
        pWOtax = pWOtax - iDisc;
      }
      //finally we have on pWOtax the price without tax and discount for 1 item
      double tax1m = (info.tax/100)*pWOtax;
      double tax2m = (info.extratax/100)*pWOtax;
      info.totaltax = tax1m + tax2m;
-     //qDebug()<<" Total tax for product "<<info.desc<<info.tax+info.extratax<< " $:"<<info.totaltax;
+     qDebug()<<"  getProductInfo() :: Total tax for product "<<info.desc<<info.tax+info.extratax<< " $:"<<info.totaltax;
      ///end of tax calculation
     }
   }
@@ -721,7 +742,7 @@ bool Azahar::updateProductLastProviderId(qulonglong code, qulonglong provId)
   return result;
 }
 
-QList<ProductInfo> Azahar::getGroupProductsList(qulonglong id)
+QList<ProductInfo> Azahar::getGroupProductsList(qulonglong id, bool notConsiderDiscounts)
 {
   qDebug()<<"getGroupProductsList...";
   QList<ProductInfo> pList;
@@ -735,7 +756,7 @@ QList<ProductInfo> Azahar::getGroupProductsList(qulonglong id)
       qulonglong c = str.section('/',0,0).toULongLong();
       double     q = str.section('/',1,1).toDouble();
       //get info
-      ProductInfo pi = getProductInfo(c);
+      ProductInfo pi = getProductInfo(c, notConsiderDiscounts);
       pi.qtyOnList = q;
       pList.append(pi);
       qDebug()<<" code:"<<c<<" qty:"<<q;
@@ -787,6 +808,29 @@ double Azahar::getGroupTotalTax(qulonglong id)
   return result;
 }
 
+GroupInfo Azahar::getGroupPriceAndTax(qulonglong id)
+{
+  GroupInfo gInfo;
+  gInfo.price = 0;
+  gInfo.taxMoney = 0;
+  gInfo.tax = 0;
+  
+  if ( id <= 0 ) return gInfo;
+  
+  QList<ProductInfo> pList = getGroupProductsList(id, true); //for getting products with taxes not including discounts.
+  foreach( ProductInfo info, pList) {
+    gInfo.price    += info.price*info.qtyOnList;
+    gInfo.taxMoney += info.totaltax*info.qtyOnList;
+    qDebug()<<" < GROUP - EACH ONE > Product: "<<info.desc<<" | Price: "<<info.price*info.qtyOnList<<" taxMoney: "<<info.totaltax*info.qtyOnList;
+  }
+  
+  foreach(ProductInfo info, pList) {
+    gInfo.tax += (info.totaltax*info.qtyOnList/gInfo.price)*100;
+    qDebug()<<" < GROUP TAX >  qtyOnList:"<<info.qtyOnList<<" tax money for product: "<<info.totaltax<<" group price:"<<gInfo.price<<" taxMoney for group:"<<gInfo.taxMoney<<" tax % for group:"<< gInfo.tax;
+  }
+  
+  return gInfo;
+}
 
 QString Azahar::getProductGroupElementsStr(qulonglong id)
 {
@@ -3201,6 +3245,8 @@ SpecialOrderInfo Azahar::getSpecialOrderInfo(qulonglong id)
         info.notes = query.value(fieldNotes).toString();
         info.clientId = query.value(fieldClientId).toULongLong();
         info.userId = query.value(fieldUserId).toULongLong();
+        //get specialOrder Discounts
+        info.disc = getSpecialOrderAverageDiscount(info.orderid)/100; //in percentage.
       }
       //get units descriptions
       qry = QString("SELECT * from measures WHERE id=%1").arg(info.units);
@@ -3216,37 +3262,66 @@ SpecialOrderInfo Azahar::getSpecialOrderInfo(qulonglong id)
   return info;
 }
 
+// NOTE: This returns the compound tax that effectively apply to the amount for the specialOrder,
+//       regardless of the equitative tax for each product. It means that the tax returned is the
+//       EFFECTIVE tax for the total amount, instead of an average tax (total/numberOfProducts)..
+//       The average tax is not accurate if there are different products with very different taxes.
+//       For example:
+//              A SO with TWO products :
+//                      product 1: Price: 10, tax:15%
+//                      product 2: Price  100, tax 1%
+//              The average tax is 8%, its equally for the two products but the second one has a lower tax.
+//              The tax charged to the group with the average tax is $8.8
+//              The tax charged to the group with each product tax is $2.15
+//              This means the average tax is not accurate for all cases.
+//       Thats why this 'effective' tax average is returned.
 double Azahar::getSpecialOrderAverageTax(qulonglong id)
 {
-  double result = 0;
-  double sum = 0;
+  double price = 0;
+  double taxMoney = 0;
+  double tax = 0;
+
+  if ( id <= 0 ) return 0;
+  
   QList<ProductInfo> pList = getSpecialOrderProductsList(id);
   foreach( ProductInfo info, pList) {
-    sum += info.tax + info.extratax;
+    price += info.price*info.qtyOnList;
+    taxMoney += info.totaltax*info.qtyOnList;
+    qDebug()<<" < EACH ONE > price: "<<info.price*info.qtyOnList<<" taxMoney: "<<info.totaltax*info.qtyOnList;
   }
 
-  result = sum/pList.count();
-  qDebug()<<"SO average tax: "<<result <<" sum:"<<sum<<" count:"<<pList.count();
-
-  return result;
+  foreach(ProductInfo info, pList) {
+    tax += (info.totaltax*info.qtyOnList/price)*100;
+    qDebug()<<" < SO TAX >  qtyOnList:"<<info.qtyOnList<<" tax money for product: "<<info.totaltax<<" group price:"<<price<<" taxMoney for group:"<<taxMoney<<" tax % for group:"<< tax;
+  }
+  
+  return tax;
 }
 
 ///This gets discounts on a special order based on its raw products discount, returned in %.
+///NOTE: This methods suffers from the same as the average tax!
 double Azahar::getSpecialOrderAverageDiscount(qulonglong id)
 {
-  double result = 0;
-  double sum = 0;
+  double price = 0;
+  double discMoney = 0;
+  double disc = 0;
+
+  if ( id <= 0 ) return 0;
+  
   QList<ProductInfo> pList = getSpecialOrderProductsList(id);
   foreach( ProductInfo info, pList) {
-    if (info.validDiscount) {
-      sum += info.discpercentage;
-    }
+    price += info.price*info.qtyOnList;
+    if (info.validDiscount)
+      discMoney += (info.discpercentage/100)*info.price*info.qtyOnList;
+    qDebug()<<" < EACH ONE > price: "<<info.price*info.qtyOnList<<" discMoney: "<<(info.discpercentage/100)*info.price*info.qtyOnList;
   }
   
-  result = sum/pList.count();
-  qDebug()<<"SO average discount: "<<result <<" sum:"<<sum<<" count:"<<pList.count();
+  foreach(ProductInfo info, pList) {
+    disc += ( ((info.discpercentage/100)*info.price*info.qtyOnList)/price )*100;
+    qDebug()<<" < SO DISCOUNT >  qtyOnList:"<<info.qtyOnList<<" discMoney for product: "<<(info.discpercentage/100)*info.price*info.qtyOnList<<" SO price:"<<price<<" discMoney for group:"<<discMoney<<" DISCOUNT % for group:"<< disc;
+  }
   
-  return result;
+  return disc;
 }
 
 

@@ -530,9 +530,11 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       // The negative qty is one of the next:
       //     * When completing the SO: the amount of the pre-payment.
       //     * When starting the SO:   the remaining amount to pay.
+      double nextPayment = tLine.gtotal-tLine.payment*tLine.qty; //(/*tLine.price*/tLine.gtotal-tLine.payment/*+tLine.partialDisc*/)*tLine.qty
+      sp2 = (nextPayment >0) ? sp2 : "";
       if (isGroup) sp2  = ""; ///hack!
       painter.drawText(Margin, Margin+yPos, sp2);
-      sp = QString::number(-((tLine.price-tLine.payment)*tLine.qty), 'f',2);
+      sp  = (nextPayment >0) ? QString::number(-nextPayment, 'f',2) : "";
       if (isGroup) sp  = ""; ///hack!
       painter.drawText((printer.width()/3)+columnTotal, Margin+yPos, sp);
       tmpFont = QFont("Bitstream Vera Sans", 17 );

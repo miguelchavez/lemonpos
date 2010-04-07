@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `offers` (
   `datestart` date NOT NULL default '2009-01-01',
   `dateend` date NOT NULL default '2009-01-01',
   `product_id` bigint(20) unsigned NOT NULL,
-  PRIMARY KEY  (`id`, `product_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `measures` (
@@ -335,15 +335,17 @@ select * from `special_orders`
 group by `special_orders`.`saleid`;
 
 CREATE OR REPLACE VIEW `v_transS` AS
-select `transactions`.`id`,
+select
+ `transactions`.`id`,
  `transactions`.`userid`,
  `transactions`.`clientid`,
  `transactions`.`date`,
  `transactions`.`time`,
  `transactions`.`state`,
  `transactions`.`itemslist`,
- `transactions`.`terminalnum`
- from `transactions` WHERE (`transactions`.`state`= 1) AND (`transactions`.`type` = 1)
+ `transactions`.`terminalnum`,
+ `transactions`.`itemcount`
+ from `transactions` WHERE (`transactions`.`state`= 1) AND (`transactions`.`type` = 1) AND (`transactions`.`itemcount` > 0)
 order by `transactions`.`id`;
 
 # ---------------------------------------------

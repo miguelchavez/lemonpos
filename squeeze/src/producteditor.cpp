@@ -119,7 +119,8 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
       disableStockCorrection();
     } else ui->labelStockQty->setText(i18n("Stock Qty:"));
 
-    QTimer::singleShot(450, this, SLOT(checkIfCodeExists()));
+    QTimer::singleShot(350, this, SLOT(checkIfCodeExists()));
+    QTimer::singleShot(450, this, SLOT(applyFilter()));
 
     ui->editStockQty->setText("0.0");
     ui->editPoints->setText("0.0");
@@ -140,8 +141,23 @@ void ProductEditor::applyFilter(const QString &text)
 {
   QRegExp regexp = QRegExp(text);
   if (!regexp.isValid())  ui->editFilter->setText("");
-  if (text == "*" || text == "") m_model->setFilter("");
-  else  m_model->setFilter(QString("products.name REGEXP '%1'").arg(text));
+  if (ui->chIsAGroup->isChecked()) {
+    if (text == "*" || text == "") m_model->setFilter("products.isAGroup=0 AND products.isARawProduct=0");
+    else  m_model->setFilter(QString("products.name REGEXP '%1' AND products.isAGroup=0 AND products.isARawProduct=0").arg(text));
+  } else {
+    m_model->setFilter("");
+  }
+
+  m_model->select();
+}
+
+void ProductEditor::applyFilter()
+{
+  if (ui->chIsAGroup->isChecked()) {
+     m_model->setFilter("products.isAGroup=0 AND products.isARawProduct=0");
+  } else {
+    m_model->setFilter("");
+  }
   
   m_model->select();
 }
@@ -336,7 +352,7 @@ void ProductEditor::checkIfCodeExists()
 
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
-  ProductInfo pInfo = myDb->getProductInfo(codeStr.toULongLong());
+  ProductInfo pInfo = myDb->getProductInfo(codeStr.toULongLong(), true); //the 2nd parameter is to get the taxes for the group (not considering discounts)
 
   if (pInfo.code > 0) {
     //code exists...
@@ -355,6 +371,7 @@ void ProductEditor::checkIfCodeExists()
       ui->chIsAGroup->setChecked(pInfo.isAGroup);
       ui->btnShowGroup->setEnabled(pInfo.isAGroup);
       ui->btnStockCorrect->setDisabled(pInfo.isAGroup); //dont allow grouped products to make stock correction
+      ui->chIsARaw->setChecked(pInfo.isARawProduct);
       setGroupElements(pInfo.groupElementsStr);
       if (!pInfo.photo.isEmpty()) {
         QPixmap photo;
@@ -481,7 +498,7 @@ void ProductEditor::addItem()
       pInfo.qtyOnList += 1; //increment it
       exists = true;
     } else {
-      pInfo = myDb->getProductInfo(code);
+      pInfo = myDb->getProductInfo(code, true); //the 2nd parameter is to get the taxes for the group (not considering discounts)
       pInfo.qtyOnList = 1;
     }
     //check if the product to be added is not the same of the pack product
@@ -704,6 +721,11 @@ void ProductEditor::toggleGroup(bool checked)
     ui->btnShowGroup->setDisabled(true);
     ui->chIsARaw->setEnabled(true);
   }
+
+  ui->editTax->setReadOnly(checked);
+  ui->editExtraTaxes->setReadOnly(checked);
+  ui->editCost->setReadOnly(checked);
+
 }
 
 void ProductEditor::toggleRaw(bool checked)
@@ -731,8 +753,9 @@ void ProductEditor::setIsARaw(bool value)
 
 void ProductEditor::setGroupElements(QString e)
 {
+  if (!ui->chIsAGroup->isChecked()) return;
   QStringList list = e.split(",");
-  if ( !list.isEmpty() ) {
+  if ( list.count() > 0 && e != "" ) {
     qDebug()<<"Its a non-empty group. Disabling tax/cost editing...";//NOTE:Add a warning in the MANUAL.
     ui->editTax->setReadOnly(true);
     ui->editExtraTaxes->setReadOnly(true);
@@ -746,7 +769,7 @@ void ProductEditor::setGroupElements(QString e)
     if (tmp.count() == 2) { //ok 2 fields
       qulonglong  code  = tmp.at(0).toULongLong();
       double      qty   = tmp.at(1).toDouble();
-      pInfo = myDb->getProductInfo(code);
+      pInfo = myDb->getProductInfo(code, true); //the 2nd parameter is to get the taxes for the group (not considering discounts)
       pInfo.qtyOnList = qty;
       
       //Insert it to the hash

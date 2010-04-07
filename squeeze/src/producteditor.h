@@ -111,6 +111,7 @@ private slots:
     void    toggleGroup(bool checked);
     void    toggleRaw(bool checked);
     void    applyFilter(const QString &text);
+    void    applyFilter();
     void    addItem();
     void    removeItem();
     void    itemDoubleClicked(QTableWidgetItem* item);

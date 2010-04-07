@@ -35,7 +35,7 @@ class QString;
  *
  * @short Database access class
  * @author Miguel Chavez Gamboa <miguel.chavez.gamboa@gmail.com>
- * @version 0.8
+ * @version 0.9
  */
 
 class Azahar : public QObject
@@ -55,7 +55,7 @@ class Azahar : public QObject
     void setDatabase(const QSqlDatabase& database);
 
     // PRODUCTS
-    ProductInfo  getProductInfo(qulonglong code);
+    ProductInfo  getProductInfo(qulonglong code, bool notConsiderDiscounts = false); //the 2nd parameter is to get the taxes for the group (not considering discounts)
     qulonglong   getProductOfferCode(qulonglong code);
     qulonglong   getProductCode(QString text);
     QList<qulonglong> getProductsCode(QString regExpName);
@@ -77,9 +77,10 @@ class Azahar : public QObject
     double       getProductStockQty(qulonglong code);
     qulonglong   getLastProviderId(qulonglong code);
     bool         updateProductLastProviderId(qulonglong code, qulonglong provId);
-    QList<ProductInfo> getGroupProductsList(qulonglong id);
+    QList<ProductInfo> getGroupProductsList(qulonglong id, bool notConsiderDiscounts = false);
     double       getGroupAverageTax(qulonglong id);
     double       getGroupTotalTax(qulonglong id);
+    GroupInfo    getGroupPriceAndTax(qulonglong id);
     QString      getProductGroupElementsStr(qulonglong id);
 
     

@@ -802,7 +802,7 @@ void lemonView::refreshTotalLabel()
       double tax2m = (i.value().extratax/100)*pWOtax;
       totalTax += (tax1m + tax2m)*i.value().qtyOnList;
       //totalTax is the tax in money (discount applied if apply) for the qtyOnList items
-      qDebug()<<"total tax for product:"<<i.value().totaltax<<"% accumulated tax $:"<<totalTax;
+      qDebug()<<" refreshTotal() :: total tax for product: $"<<i.value().totaltax<<" % "<<((i.value().tax/100)+(i.value().extratax/100))<<" Accumulated tax $:"<<totalTax;
     }
     //Taxes for SO.
     foreach(SpecialOrderInfo soInfo, specialOrders) {
@@ -811,15 +811,22 @@ void lemonView::refreshTotalLabel()
         pWOtax = soInfo.payment;
       else
         pWOtax= soInfo.payment/(1+((soInfo.averageTax)/100));
+
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      double soDiscount = myDb->getSpecialOrderAverageDiscount(soInfo.orderid)/100;
+      qDebug()<<"  ***  Average DISCOUNT for SO:"<<soDiscount<<" $"<<soDiscount*pWOtax;
+      delete myDb;
+      
       //take into account the discount, user discount. 
-      if ( clientInfo.discount>0 ) {
-        double cDisc = (clientInfo.discount/100)*pWOtax;
-        double iDisc = 0; //FIXME: myDb->getSpecialOrderAverageDiscount(soInfo.orderid)*soInfo.;
-        pWOtax = pWOtax - iDisc - cDisc;
-        qDebug()<<"Client discount:"<<cDisc<<" pWOtax:"<<pWOtax;
-      }
+      double cDisc = 0; double iDisc = 0;
+      if (clientInfo.discount>0) cDisc = (clientInfo.discount/100)*pWOtax; 
+      if (soDiscount > 0)        iDisc = soDiscount*pWOtax;
+      pWOtax = pWOtax - iDisc - cDisc;
+      qDebug()<<"Client discount:"<<cDisc;
+      
       totalTax += ((soInfo.averageTax/100) * pWOtax * soInfo.qty); // average is in percentage
-      qDebug()<<"Average tax for Special Order:"<<soInfo.averageTax<<"% accumulated tax $:"<<totalTax;
+      qDebug()<<"Average tax for Special Order:"<<soInfo.averageTax<<"% accumulated tax $:"<<totalTax<<" pWOtax:"<<pWOtax;
     }
   }
   buyPoints = points;
@@ -1717,6 +1724,7 @@ void lemonView::finishCurrentTransaction()
         if (siInfo.units == 1) cantidad += siInfo.qty; else cantidad +=1;
         //from Biel
         // save transactionItem
+        tItemInfo.disc = 0;
         tItemInfo.transactionid   = tInfo.id;
         tItemInfo.position        = position;
         tItemInfo.productCode     = 0; //are qulonlong... and they are not normal products
@@ -1725,15 +1733,18 @@ void lemonView::finishCurrentTransaction()
         tItemInfo.qty             = siInfo.qty;
         tItemInfo.cost            = siInfo.cost;
         tItemInfo.price           = siInfo.price;
-        tItemInfo.disc            = 0;
-        tItemInfo.total           = (siInfo.price) * siInfo.qty;
+        tItemInfo.disc            = siInfo.disc * siInfo.price * siInfo.qty;
+        double disc2              = siInfo.disc * siInfo.payment * siInfo.qty;
+        tItemInfo.total           = (siInfo.price-(siInfo.disc * siInfo.price * siInfo.qty)) * siInfo.qty;
+        tItemInfo.tax             = myDb->getSpecialOrderAverageTax(siInfo.orderid);
         tItemInfo.name            = siInfo.name;
         tItemInfo.soId            = "so."+QString::number(siInfo.orderid);
-        tItemInfo.payment         = siInfo.payment;
+        tItemInfo.payment         = siInfo.payment-disc2+((tItemInfo.tax/100)*siInfo.qty*(siInfo.payment-disc2));
         tItemInfo.completePayment = siInfo.completePayment;
         tItemInfo.deliveryDateTime= siInfo.deliveryDateTime;
         tItemInfo.isGroup         = false;
-        tItemInfo.tax             = myDb->getSpecialOrderAverageTax(siInfo.orderid);
+        if (!Settings::addTax()) tItemInfo.payment -= ((tItemInfo.tax/100)*siInfo.qty*(siInfo.payment-disc2));
+        
 
         if (siInfo.completePayment && siInfo.status == stReady) completePayments++;
         
@@ -1742,18 +1753,28 @@ void lemonView::finishCurrentTransaction()
         historyTicketsModel->select();
         // add line to ticketLines
         TicketLineInfo tLineInfo;
+        tLineInfo.disc = 0;
         tLineInfo.qty     = siInfo.qty;
         tLineInfo.unitStr = siInfo.unitStr;
         tLineInfo.desc    = siInfo.name;
         tLineInfo.price   = siInfo.price;
-        tLineInfo.disc    = 0;
+        tLineInfo.disc    = siInfo.disc * siInfo.price * siInfo.qty; // april 5 2005: Now SO can have discounts
+        tLineInfo.partialDisc =disc2;
         tLineInfo.total   = tItemInfo.total;
+        double gtotal     = tItemInfo.total + (tItemInfo.tax/100)*tItemInfo.total*tItemInfo.qty;
+        tLineInfo.gtotal  =  Settings::addTax()  ? gtotal : tLineInfo.total;
         tLineInfo.geForPrint = siInfo.geForPrint;
         tLineInfo.completePayment = siInfo.completePayment;
-        tLineInfo.payment = siInfo.payment;
+        tLineInfo.payment = siInfo.payment-disc2+((tItemInfo.tax/100)*siInfo.qty*(siInfo.payment-disc2));
         tLineInfo.isGroup = false;
         tLineInfo.deliveryDateTime = siInfo.deliveryDateTime;
         tLineInfo.tax     = tItemInfo.tax;
+        if (!Settings::addTax()) tLineInfo.payment -= ((tItemInfo.tax/100)*siInfo.qty*(siInfo.payment-disc2));
+        //qDebug()<<" =============================================\n   disc:"<<disc2<<" tax :"<<(tItemInfo.tax/100)<<" Payment:"<< tLineInfo.payment;
+        qDebug()<<" =============================\n   Price:"<<siInfo.price<<"total:"<<tLineInfo.total<<" Payment:"<< tLineInfo.payment<<" siInfo.payment:"<<siInfo.payment<<" pDisc:"<<disc2<< "tax :"<<tItemInfo.tax<<"% tax $"<<(tItemInfo.tax/100)*siInfo.qty*(siInfo.payment-disc2)<<" Gran Total:"<<gtotal;
+        ///NOTE: Testing with addTax setting and using a sample SO, there is a DIFFERENCE of 18 cents ( the client pays 18 cents less of the real price)
+        ///      (REAL PRICE = 285.18, PAID: 285 ). This is the result of the 'rounding' in multiple operations done during the process.
+        ///      The error is 0.063 % (285.18 * .00063 = .18)
         
         ticketLines.append(tLineInfo);
 
@@ -1888,7 +1909,6 @@ void lemonView::finishCurrentTransaction()
 }
 
 
-///The big question: Print tickets with a payment of ZERO?
 void lemonView::printTicket(TicketInfo ticket)
 {
   if (ticket.total == 0 && !Settings::printZeroTicket()) {
@@ -3530,7 +3550,7 @@ void lemonView::addSpecialOrder()
 
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
-    
+
     //for the user discount, change user on transaction.
     clientInfo = myDb->getClientInfo(soInfo.clientId);
     int idx = ui_mainview.comboClients->findText(clientInfo.name,Qt::MatchCaseSensitive);
@@ -3543,13 +3563,17 @@ void lemonView::addSpecialOrder()
 
     soInfo.orderid = newSOId;
 
+    //discount from SO elements
+    soInfo.disc = myDb->getSpecialOrderAverageDiscount(soInfo.orderid)/100; //in percentage.
+    double soDiscount = soInfo.disc * soInfo.payment * soInfo.qty;
+
     //add info to the buy list
 
     int insertedAtRow = -1;
     QString codeX = QString("so.%1").arg(QString::number(soInfo.orderid));
     QString newName = soInfo.name+"\n"+soEditor->getContentNames();
     /// here we insert the product at  its payment - can be 50%  pre-payment
-    insertedAtRow = doInsertItem(codeX, newName, soInfo.qty, soInfo.payment, 0, soInfo.unitStr);
+    insertedAtRow = doInsertItem(codeX, newName, soInfo.qty, soInfo.payment, soDiscount, soInfo.unitStr); //April 5 2010: Now SO can have DISCOUNTS on its elements...
     soInfo.insertedAtRow = insertedAtRow;
     newName = newName.replace("\n", "|");
     soInfo.geForPrint = newName;

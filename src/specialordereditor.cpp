@@ -184,10 +184,8 @@ void SpecialOrderEditor::calculateCost()
 void SpecialOrderEditor::checkFieldsState()
 {
   bool ready = false;
-  if (groupInfo.count > 0)
-  {
-    ready = true;
-  }
+  if (groupInfo.count > 0 && ui->editPayment->value() > 0) ready = true;
+  
   enableButtonOk(ready);
 }
 
@@ -612,7 +610,6 @@ void SpecialOrderEditor::checkValidInfo()
     ready = ready && false; //only one can be empty..
     else
       ready = ready && true;
-
 
   ui->btnClientAdd->setEnabled(ready);
 }

@@ -16,3 +16,20 @@ ALTER TABLE users         CHANGE name name                    varchar(255) colla
 ALTER TABLE cashflow      CHANGE reason reason                varchar(255) collate utf8_general_ci default '';
 ALTER TABLE providers     CHANGE name name                    varchar(255) collate utf8_general_ci default '';
 ALTER TABLE stock_corrections CHANGE reason reason            varchar(255) collate utf8_general_ci NOT NULL;
+
+ALTER TABLE offers DROP PRIMARY KEY, ADD PRIMARY KEY(`id`);
+
+CREATE OR REPLACE VIEW `v_transS` AS
+select
+`transactions`.`id`,
+`transactions`.`userid`,
+`transactions`.`clientid`,
+`transactions`.`date`,
+`transactions`.`time`,
+`transactions`.`state`,
+`transactions`.`itemslist`,
+`transactions`.`terminalnum`,
+`transactions`.`itemcount`
+from `transactions` WHERE (`transactions`.`state`= 1) AND (`transactions`.`type` = 1) AND (`transactions`.`itemcount` > 0)
+order by `transactions`.`id`;
+

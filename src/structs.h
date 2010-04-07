@@ -194,7 +194,9 @@ struct TicketLineInfo {
   QString desc;
   double price;
   double disc;
+  double partialDisc;
   double total;
+  double gtotal;
   QString geForPrint;
   bool   completePayment;
   bool   isGroup;
@@ -367,6 +369,7 @@ struct SpecialOrderInfo
   qulonglong userId;
   qulonglong clientId;
   double     averageTax;
+  double     disc;
 };
 
 struct GroupInfo
