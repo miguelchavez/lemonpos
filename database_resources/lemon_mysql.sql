@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   `isARawProduct` bool NOT NULL default false,
   `isAGroup` bool NOT NULL default false, #this is not necesary, with groupElements we can know if its a group
   `groupElements` varchar(1000) collate utf8_general_ci default '',
+  `groupPriceDrop` double unsigned NOT NULL default '10',
   PRIMARY KEY  (`code`),
   KEY `SEC` (`category`, `name`, `alphacode`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;

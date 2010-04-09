@@ -57,6 +57,7 @@ struct ProductInfo {
   bool isAGroup;
   bool isARawProduct;
   QString groupElementsStr;
+  double groupPriceDrop;
 };
 
 struct UserInfo
@@ -379,6 +380,7 @@ struct GroupInfo
   double  price;
   double  taxMoney;
   double  tax;
+  double  priceDrop;
   double  count; // total of items in the group
   bool    isAvailable; //based on stockqty for each product (and its qtys).
   QHash<qulonglong, ProductInfo> productsList;

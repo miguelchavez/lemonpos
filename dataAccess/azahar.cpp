@@ -160,6 +160,7 @@ ProductInfo Azahar::getProductInfo(qulonglong code, bool notConsiderDiscounts)
   info.lastProviderId = 0;
   info.isAGroup = false;
   info.isARawProduct = false;
+  info.groupPriceDrop = 0;
   QString rawCondition;
 
   if (!db.isOpen()) db.open();
@@ -191,6 +192,7 @@ ProductInfo Azahar::getProductInfo(qulonglong code, bool notConsiderDiscounts)
         int fieldIsARaw = query.record().indexOf("isARawProduct");
         int fieldIsAGroup = query.record().indexOf("isAGroup");
         int fieldGroupE = query.record().indexOf("groupElements");
+        int fieldGroupPD = query.record().indexOf("groupPriceDrop");
         info.code=code;
         info.alphaCode = query.value(fieldAlphaCode).toString();
         info.desc     = query.value(fieldDesc).toString();
@@ -212,19 +214,10 @@ ProductInfo Azahar::getProductInfo(qulonglong code, bool notConsiderDiscounts)
         info.isARawProduct = query.value(fieldIsARaw).toBool();
         info.isAGroup = query.value(fieldIsAGroup).toBool();
         QString geStr = query.value(fieldGroupE).toString();
+        info.groupPriceDrop = query.value(fieldGroupPD).toDouble();
         // groupElements is a list like: '1/3,2/1'
         if (!geStr.isEmpty()) {
-          //QStringList geList = geStr.split(",");
           info.groupElementsStr = geStr;
-          //for (int i = 0; i < geList.size(); ++i) {
-            //QStringList l = geList.at(i).split("/");
-            //if ( l.count()==2 ) { //==2 means its complete, having product and qty
-              //groupedInfo gInfo;
-              //gInfo.pInfo = getProductInfo(l.count(0).toULongLong());
-              //gInfo.qty   = l.at(1).toDouble();
-              //info.groupElements.append( gInfo );
-           // }
-          //}//for each element
         } //groupedElements are not empty
       }
       //get units descriptions
@@ -274,19 +267,14 @@ ProductInfo Azahar::getProductInfo(qulonglong code, bool notConsiderDiscounts)
            //get the first item, which is the greater one.
            info.validDiscount = true;
            info.discpercentage = descuentos.first();
-           info.disc =       (info.discpercentage/100) * (info.price);
-           //round((info.discpercentage/100) * (info.price*100))/100; //FIXME:This is not necesary VALID.
-           //double temporal = round( (info.discpercentage/100 * info.price )*100)/100;
-           //double temporal = ((((info.discpercentage+1.2547)/100) * (info.price+5437.2547))*100)/100;
-           //qDebug()<<" round:"<< info.disc<<" temporal:"<< temporal;
-           //qDebug()<<" ** PRODUCT DISCOUNT:"<< info.disc;
+           info.disc =       (info.discpercentage/100) * (info.price); //round((info.discpercentage/100) * (info.price*100))/100; //FIXME:This is not necesary VALID.
          } else {info.disc = 0; info.validDiscount =false;}
      }
-     /// If is a group, calculate the right price first.
+     /// If its a group, calculate the right price first.
      if (info.isAGroup) {
       //get each content price and tax percentage.
-      GroupInfo gInfo = getGroupPriceAndTax(info.code);
-      info.price = gInfo.price;
+      GroupInfo gInfo = getGroupPriceAndTax(info);
+      info.price = gInfo.price; //it includes price drop!
       info.tax   = gInfo.tax;
       info.extratax = 0; //accumulated in tax...
       qDebug()<<"=================== Group: price:"<<info.price<<" tax:"<<info.tax<<"======================";
@@ -400,7 +388,7 @@ bool Azahar::insertProduct(ProductInfo info)
   if (!groupValueOK) info.isAGroup = 0;
   if (!rawValueOK) info.isARawProduct = 0;
   
-  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, category, points, alphacode, lastproviderid, isARawProduct,isAGroup, groupElements ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastsold, :units, :tax1, :tax2, :photo, :category, :points, :alphacode, :lastproviderid, :isARaw, :isAGroup, :groupE);");
+  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, category, points, alphacode, lastproviderid, isARawProduct,isAGroup, groupElements, groupPriceDrop ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastsold, :units, :tax1, :tax2, :photo, :category, :points, :alphacode, :lastproviderid, :isARaw, :isAGroup, :groupE, :groupPriceDrop);");
   query.bindValue(":code", info.code);
   query.bindValue(":name", info.desc);
   query.bindValue(":price", info.price);
@@ -419,10 +407,21 @@ bool Azahar::insertProduct(ProductInfo info)
   query.bindValue(":isAGroup", info.isAGroup);
   query.bindValue(":isARaw", info.isARawProduct);
   query.bindValue(":groupE", info.groupElementsStr);
+  query.bindValue(":groupPriceDrop", info.groupPriceDrop);
 
   if (!query.exec()) setError(query.lastError().text()); else result=true;
+
+  QSqlQuery queryX(db);
+  if (queryX.exec(QString("Select id from offers where product_id=%1").arg(info.code) )) {
+    while (queryX.next()) {
+      int fieldId    = queryX.record().indexOf("id");
+      qulonglong oId = queryX.value(fieldId).toULongLong();
+      deleteOffer(oId);
+      qDebug()<<" Deleting Existing Offer for the new Product";
+    }
+  }
+  
   return result;
-  //NOTE: Is it necesary to check if there was an offer for this product code? and delete it.
 }
 
 
@@ -441,7 +440,7 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   if (!groupValueOK) info.isAGroup = 0;
   if (!rawValueOK) info.isARawProduct = 0;
   
-  query.prepare("UPDATE products SET code=:newcode, photo=:photo, name=:name, price=:price, stockqty=:stock, cost=:cost, units=:measure, taxpercentage=:tax1, extrataxes=:tax2, category=:category, points=:points, alphacode=:alphacode, lastproviderid=:lastproviderid , isARawProduct=:isRaw, isAGroup=:isGroup, groupElements=:ge WHERE code=:id");
+  query.prepare("UPDATE products SET code=:newcode, photo=:photo, name=:name, price=:price, stockqty=:stock, cost=:cost, units=:measure, taxpercentage=:tax1, extrataxes=:tax2, category=:category, points=:points, alphacode=:alphacode, lastproviderid=:lastproviderid , isARawProduct=:isRaw, isAGroup=:isGroup, groupElements=:ge, groupPriceDrop=:groupPriceDrop WHERE code=:id");
   query.bindValue(":newcode", info.code);
   query.bindValue(":name", info.desc);
   query.bindValue(":price", info.price);
@@ -459,6 +458,7 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   query.bindValue(":isGroup", info.isAGroup);
   query.bindValue(":isRaw", info.isARawProduct);
   query.bindValue(":ge", info.groupElementsStr);
+  query.bindValue(":groupPriceDrop", info.groupPriceDrop);
 
   if (!query.exec()) setError(query.lastError().text()); else result=true;
   return result;
@@ -808,27 +808,30 @@ double Azahar::getGroupTotalTax(qulonglong id)
   return result;
 }
 
-GroupInfo Azahar::getGroupPriceAndTax(qulonglong id)
+GroupInfo Azahar::getGroupPriceAndTax(ProductInfo pi)
 {
   GroupInfo gInfo;
   gInfo.price = 0;
   gInfo.taxMoney = 0;
   gInfo.tax = 0;
+  gInfo.priceDrop = pi.groupPriceDrop;
   
-  if ( id <= 0 ) return gInfo;
-  
-  QList<ProductInfo> pList = getGroupProductsList(id, true); //for getting products with taxes not including discounts.
+  if ( pi.code <= 0 ) return gInfo;
+
+  QList<ProductInfo> pList = getGroupProductsList(pi.code, true); //for getting products with taxes not including discounts.
   foreach( ProductInfo info, pList) {
-    gInfo.price    += info.price*info.qtyOnList;
+    gInfo.price    += (info.price -info.price*(pi.groupPriceDrop/100)) * info.qtyOnList;
     gInfo.taxMoney += info.totaltax*info.qtyOnList;
     qDebug()<<" < GROUP - EACH ONE > Product: "<<info.desc<<" | Price: "<<info.price*info.qtyOnList<<" taxMoney: "<<info.totaltax*info.qtyOnList;
   }
+
+  //gInfo.price = gInfo.price - gInfo.price*(pi.groupPriceDrop/100);
   
   foreach(ProductInfo info, pList) {
     gInfo.tax += (info.totaltax*info.qtyOnList/gInfo.price)*100;
     qDebug()<<" < GROUP TAX >  qtyOnList:"<<info.qtyOnList<<" tax money for product: "<<info.totaltax<<" group price:"<<gInfo.price<<" taxMoney for group:"<<gInfo.taxMoney<<" tax % for group:"<< gInfo.tax;
   }
-  
+
   return gInfo;
 }
 

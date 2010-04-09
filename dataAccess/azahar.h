@@ -80,7 +80,7 @@ class Azahar : public QObject
     QList<ProductInfo> getGroupProductsList(qulonglong id, bool notConsiderDiscounts = false);
     double       getGroupAverageTax(qulonglong id);
     double       getGroupTotalTax(qulonglong id);
-    GroupInfo    getGroupPriceAndTax(qulonglong id);
+    GroupInfo    getGroupPriceAndTax(ProductInfo pi);
     QString      getProductGroupElementsStr(qulonglong id);
 
     

@@ -725,7 +725,8 @@ void ProductEditor::toggleGroup(bool checked)
   ui->editTax->setReadOnly(checked);
   ui->editExtraTaxes->setReadOnly(checked);
   ui->editCost->setReadOnly(checked);
-
+  ui->editFinalPrice->setReadOnly(checked);
+  ui->groupBox->setDisabled(checked);
 }
 
 void ProductEditor::toggleRaw(bool checked)

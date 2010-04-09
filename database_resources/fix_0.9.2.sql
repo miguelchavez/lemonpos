@@ -17,6 +17,9 @@ ALTER TABLE cashflow      CHANGE reason reason                varchar(255) colla
 ALTER TABLE providers     CHANGE name name                    varchar(255) collate utf8_general_ci default '';
 ALTER TABLE stock_corrections CHANGE reason reason            varchar(255) collate utf8_general_ci NOT NULL;
 
+ALTER TABLE products ADD  `groupPriceDrop` double unsigned NOT NULL default '10' after groupElements;
+UPDATE products set groupPriceDrop=0 where isAGroup=false;
+
 ALTER TABLE offers DROP PRIMARY KEY, ADD PRIMARY KEY(`id`);
 
 CREATE OR REPLACE VIEW `v_transS` AS
