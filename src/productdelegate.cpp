@@ -38,7 +38,12 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
 
     //Painting frame
     painter->setRenderHint(QPainter::Antialiasing);
-    QString pixName = KStandardDirs::locate("appdata", "images/itemBox.png");
+    QString pixName;
+    if (option.state & QStyle::State_Selected) 
+      pixName = KStandardDirs::locate("appdata", "images/itemBox_selected.png");
+    else
+      pixName = KStandardDirs::locate("appdata", "images/itemBox.png");
+    
     painter->drawPixmap(option.rect.x()+5,option.rect.y()+5, QPixmap(pixName));
 
     //get item data
@@ -92,7 +97,7 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     int boxSize = option.rect.width()-15; //minus margin and frame-lines
     if (strSize > boxSize) {
       int excess = strSize-boxSize;
-      int charEx = (excess/aproxPerChar)+2;
+      int charEx = (excess/aproxPerChar)+4;
       nameToDisplay = name.left(name.length()-charEx-7) +"...";
       //qDebug()<<"Text does not fit, strSize="<<strSize<<" boxSize:"
       //<<boxSize<<" excess="<<excess<<" charEx="<<charEx<<"nameToDisplay="<<nameToDisplay;
@@ -100,11 +105,11 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     painter->setFont(font);
     if (option.state & QStyle::State_Selected) {
       painter->setPen(Qt::yellow);
-      painter->drawText(option.rect.x()+10,option.rect.y()+145, 150,20,  Qt::AlignCenter, nameToDisplay);
+      painter->drawText(option.rect.x()+10,option.rect.y()+138, 150,20,  Qt::AlignCenter, nameToDisplay);
     }
     else {
       painter->setPen(Qt::white);
-      painter->drawText(option.rect.x()+10,option.rect.y()+145, 150,20,  Qt::AlignCenter, nameToDisplay);
+      painter->drawText(option.rect.x()+10,option.rect.y()+138, 150,20,  Qt::AlignCenter, nameToDisplay);
     }
 
     //painting stock Availability
@@ -115,7 +120,7 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
       painter->setFont(font);
       painter->setBackgroundMode(Qt::OpaqueMode);
       painter->setPen(Qt::red);
-      painter->setBackground(QColor(255,225,0,160));
+      painter->setBackground(QColor(255,180,0,160));
       QString naStr = i18n(" Out of stock ");
       painter->drawText(option.rect.x()+10,
                       option.rect.y()+(option.rect.height()/2)-10,
@@ -129,10 +134,10 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     font.setItalic(true);
     painter->setFont(font);
     painter->setBackgroundMode(Qt::TransparentMode);
-    painter->setPen(Qt::white);
+    painter->setPen(Qt::darkGray);
     painter->setBackground(QColor(255,225,0,160));
     painter->drawText(option.rect.x()+10,
-                      option.rect.y()+5,
+                      option.rect.y()+10,
                       150, 20, Qt::AlignCenter, strCode);
     painter->setBackgroundMode(Qt::TransparentMode);
 
@@ -145,10 +150,10 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
       painter->setFont(font);
       painter->setBackgroundMode(Qt::OpaqueMode);
       painter->setPen(Qt::blue);
-      painter->setBackground(QColor(255,225,0,160));
+      painter->setBackground(QColor(255,180,0,160));
       QString naStr = i18n(" Raw Product ");
       painter->drawText(option.rect.x()+10,
-                        option.rect.y()+20,
+                        option.rect.y()+22,
                         150, 20, Qt::AlignCenter, naStr);
                         painter->setBackgroundMode(Qt::TransparentMode);
     } else if (isGroup) {

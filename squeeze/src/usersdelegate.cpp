@@ -38,7 +38,13 @@ void UsersDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 
     //Painting frame
     painter->setRenderHint(QPainter::Antialiasing);
-    QString pixName = KStandardDirs::locate("appdata", "images/itemBox.png");
+    QString pixName;
+
+    if (option.state & QStyle::State_Selected)
+      pixName = KStandardDirs::locate("appdata", "images/itemBox_selected.png");
+    else
+      pixName = KStandardDirs::locate("appdata", "images/itemBox.png");
+    
     painter->drawPixmap(option.rect.x()+5,option.rect.y()+5, QPixmap(pixName));
 
     //get item data
@@ -89,17 +95,15 @@ void UsersDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
       int excess = strSize-boxSize;
       int charEx = (excess/aproxPerChar)+2;
       nameToDisplay = name.left(name.length()-charEx-5) +"...";
-      //qDebug()<<"Text does not fit, strSize="<<strSize<<" boxSize:"
-      //<<boxSize<<" excess="<<excess<<" charEx="<<charEx<<"nameToDisplay="<<nameToDisplay;
     }
     painter->setFont(font);
     if (option.state & QStyle::State_Selected) {
       painter->setPen(Qt::yellow);
-      painter->drawText(option.rect.x()+10,option.rect.y()+145, 150,20,  Qt::AlignCenter, nameToDisplay);
+      painter->drawText(option.rect.x()+10,option.rect.y()+138, 150,20,  Qt::AlignCenter, nameToDisplay);
     }
     else {
       painter->setPen(Qt::white);
-      painter->drawText(option.rect.x()+10,option.rect.y()+145, 150,20,  Qt::AlignCenter, nameToDisplay);
+      painter->drawText(option.rect.x()+10,option.rect.y()+138, 150,20,  Qt::AlignCenter, nameToDisplay);
     }
 
 }
