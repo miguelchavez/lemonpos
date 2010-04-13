@@ -71,7 +71,7 @@ void MibitFloatPanel::reposition()
     if ((midPointX-(maxWidth/2)) < 0) newX = 0; else newX = midPointX - (maxWidth/2);
     if ((midPointY-(maxHeight/2)) < 0) newY = 0; else newY = midPointY - (maxHeight/2);
 
-    qDebug()<<"parent geometry:"<<windowGeom;
+    //qDebug()<<"parent geometry:"<<windowGeom;
 
     switch (m_position) {
         case Top:
