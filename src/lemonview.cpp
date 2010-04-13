@@ -126,12 +126,10 @@ class BalanceDialog : public QDialog
 
 void lemonView::cancelByExit()
 {
- preCancelCurrentTransaction(); //WE DONT NEED TO CANCEL on exit, we are saving to restore session.
+ preCancelCurrentTransaction();
  Azahar * myDb = new Azahar;
  myDb->setDatabase(db);
  myDb->deleteEmptyTransactions();
- //updateTransaction();
- //updateBalance(false);
   if (db.isOpen()) {
     qDebug()<<"Sending close connection to database...";
     db.close();
@@ -2296,7 +2294,6 @@ void lemonView::cancelCurrentTransaction()
 void lemonView::preCancelCurrentTransaction()
 {
   if (ui_mainview.tableWidget->rowCount()==0 ) { //empty transaction
-    qDebug()<<"Entering empty transaction cancel";
     productsHash.clear();
     specialOrders.clear();
     setupClients(); //clear the clientInfo (sets the default client info)
@@ -2311,10 +2308,9 @@ void lemonView::preCancelCurrentTransaction()
     //else cancelCurrentTransaction();
   }
   else {
-    //cancelCurrentTransaction();
-    //instead of cancelling the transaction we suspend it.
-    updateTransaction();
-    updateBalance(false);
+    cancelCurrentTransaction();
+    //updateTransaction();
+    //updateBalance(false);
   }
 
   //if change sale date is in progress (but cancelled), hide it.
@@ -2348,7 +2344,7 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
   //get amount to return
   TransactionInfo tinfo = myDb->getTransactionInfo(transactionNumber);
   if (tinfo.state == tCancelled && tinfo.id >0) transCompleted = true;
-  
+
   if (getCurrentTransaction() == transactionNumber) {
     ///this transaction is not saved yet (more than the initial data when transaction is created)
     //UPDATE: Now each time a product is inserted or screen locked, transaction and balance is saved.
@@ -2378,6 +2374,7 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
   }
   
   if  (enoughCashAvailable || transToCancelIsInProgress) {
+    qDebug()<<" ok, trans is in progress or cash is enough";
     if (myDb->cancelTransaction(transactionNumber, transToCancelIsInProgress)) {
       QString authBy = dlgPassword->username();
       if (authBy.isEmpty()) authBy = myDb->getUserName(1); //default admin.

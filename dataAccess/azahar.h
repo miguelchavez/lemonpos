@@ -82,6 +82,8 @@ class Azahar : public QObject
     double       getGroupTotalTax(qulonglong id);
     GroupInfo    getGroupPriceAndTax(ProductInfo pi);
     QString      getProductGroupElementsStr(qulonglong id);
+    void         updateGroupPriceDrop(qulonglong code, double pd);
+    void         updateGroupElements(qulonglong code, QString elementsStr);
 
     
     //PRODUCT STOCK CORRECTION

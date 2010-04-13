@@ -66,11 +66,13 @@ class ProductEditor : public KDialog
     bool    isCorrectingStock() {return correctingStockOk;};
     double  getOldStock()    { return oldStockQty; };
     double  getGRoupStockMax();
+    double  getGroupPriceDrop() { return groupInfo.priceDrop; };
     void    setStockQtyReadOnly(bool enabled) { ui->editStockQty->setReadOnly(enabled); };
     
 
     void    populateCategoriesCombo();
     void    populateMeasuresCombo();
+    void    calculateGroupValues();
 
     void    setDb(QSqlDatabase database);
     void    setCode(qulonglong c)      {ui->editCode->setText(QString::number(c)); };
@@ -88,7 +90,7 @@ class ProductEditor : public KDialog
     void    setPhoto(QPixmap p);
     void    setIsAGroup(bool value);
     void    setIsARaw(bool value);
-    void    setGroupElements(QString e);
+    void    setGroupElements(ProductInfo pi);
     
     void    disableCode()              { ui->editCode->setReadOnly(true); modifyCode=false; };
     void    enableCode()               { ui->editCode->setReadOnly(false); modifyCode=true;};
@@ -97,7 +99,6 @@ class ProductEditor : public KDialog
     void    setModel(QSqlRelationalTableModel *model);
     GroupInfo getGroupHash();
     QString getGroupElementsStr();
-    QString getSpecialOrdersStr();
     bool    isGroup();
     bool    isRaw();
     
@@ -115,6 +116,7 @@ private slots:
     void    addItem();
     void    removeItem();
     void    itemDoubleClicked(QTableWidgetItem* item);
+    void    updatePriceDrop(double value);
 protected slots:
     virtual void slotButtonClicked(int button);
   private:

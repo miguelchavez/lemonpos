@@ -1779,33 +1779,33 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     int row = index.row();
     QModelIndex indx = model->index(row, productsModel->fieldIndex("code"));
     qulonglong id = model->data(indx, Qt::DisplayRole).toULongLong();
-    indx = model->index(row, productsModel->fieldIndex("name"));
-    QString name = model->data(indx, Qt::DisplayRole).toString();
-    indx = model->index(row, productsModel->fieldIndex("price"));
-    double price = model->data(indx, Qt::DisplayRole).toDouble();
-    indx = model->index(row, productsModel->fieldIndex("stockqty"));
-    double stockQty = model->data(indx, Qt::DisplayRole).toDouble();
-    indx = model->index(row, productsModel->fieldIndex("cost"));
-    double cost = model->data(indx, Qt::DisplayRole).toDouble();
-    indx = model->index(row, productsModel->fieldIndex("datelastsold"));
-    QString datelastsold = model->data(indx, Qt::DisplayRole).toString();
-    indx = model->index(row, productsModel->fieldIndex("units"));
-    int units = model->data(indx, Qt::DisplayRole).toInt();
-    indx = model->index(row, productsModel->fieldIndex("taxpercentage"));
-    double tax1 = model->data(indx, Qt::DisplayRole).toDouble();
-    indx = model->index(row, productsModel->fieldIndex("extrataxes"));
-    double tax2 = model->data(indx, Qt::DisplayRole).toDouble();
-    indx = model->index(row, productsModel->fieldIndex("category"));
-    int category = model->data(indx, Qt::DisplayRole).toInt();
-    indx = model->index(row, productsModel->fieldIndex("points"));
-    qulonglong points = model->data(indx, Qt::DisplayRole).toULongLong();
+//     indx = model->index(row, productsModel->fieldIndex("name"));
+//     QString name = model->data(indx, Qt::DisplayRole).toString();
+//     indx = model->index(row, productsModel->fieldIndex("price"));
+//     double price = model->data(indx, Qt::DisplayRole).toDouble();
+//     indx = model->index(row, productsModel->fieldIndex("stockqty"));
+//     double stockQty = model->data(indx, Qt::DisplayRole).toDouble();
+//     indx = model->index(row, productsModel->fieldIndex("cost"));
+//     double cost = model->data(indx, Qt::DisplayRole).toDouble();
+//     indx = model->index(row, productsModel->fieldIndex("datelastsold"));
+//     QString datelastsold = model->data(indx, Qt::DisplayRole).toString();
+//     indx = model->index(row, productsModel->fieldIndex("units"));
+//     int units = model->data(indx, Qt::DisplayRole).toInt();
+//     indx = model->index(row, productsModel->fieldIndex("taxpercentage"));
+//     double tax1 = model->data(indx, Qt::DisplayRole).toDouble();
+//     indx = model->index(row, productsModel->fieldIndex("extrataxes"));
+//     double tax2 = model->data(indx, Qt::DisplayRole).toDouble();
+//     indx = model->index(row, productsModel->fieldIndex("category"));
+//     int category = model->data(indx, Qt::DisplayRole).toInt();
+//     indx = model->index(row, productsModel->fieldIndex("points"));
+//     qulonglong points = model->data(indx, Qt::DisplayRole).toULongLong();
 
-    indx = model->index(row, productsModel->fieldIndex("isAGroup"));
-    bool isAGroup = model->data(indx, Qt::DisplayRole).toBool();
-    indx = model->index(row, productsModel->fieldIndex("isARawProduct"));
-    bool isARaw = model->data(indx, Qt::DisplayRole).toBool();
-    indx = model->index(row, productsModel->fieldIndex("groupElements"));
-    QString gelements = model->data(indx, Qt::DisplayRole).toString();
+//     indx = model->index(row, productsModel->fieldIndex("isAGroup"));
+//     bool isAGroup = model->data(indx, Qt::DisplayRole).toBool();
+//     indx = model->index(row, productsModel->fieldIndex("isARawProduct"));
+//     bool isARaw = model->data(indx, Qt::DisplayRole).toBool();
+//     indx = model->index(row, productsModel->fieldIndex("groupElements"));
+//     QString gelements = model->data(indx, Qt::DisplayRole).toString();
     
     indx = model->index(row, productsModel->fieldIndex("photo"));
     QByteArray photoBA = model->data(indx, Qt::DisplayRole).toByteArray();
@@ -1822,21 +1822,7 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     productEditorDlg->setStockQtyReadOnly(true); //on edit, cannot change qty to force use stockCorrection
     productEditorDlg->setDb(db);
     productEditorDlg->setCode(id);
-    //The next lines are commented because some data is not correctly obtained from the model. Anyway this data is obtained by the productEditor when code is set.
-    /*productEditorDlg->setDescription(name);
-    productEditorDlg->setStockQty(stockQty);
-    productEditorDlg->setPrice(price);
-    productEditorDlg->setCost(cost);
-    productEditorDlg->setMeasure(units);
-    productEditorDlg->setTax1(tax1);
-    productEditorDlg->setTax2(tax2);
-    productEditorDlg->setCategory(category);
-    productEditorDlg->setPhoto(photo);
-    productEditorDlg->setPoints(points);
-    productEditorDlg->setIsAGroup(isAGroup);
-    productEditorDlg->setIsARaw(isARaw);
-    productEditorDlg->setGroupElements(gelements);*/
-
+   
     qulonglong newcode=0;
     //Launch dialog, and if dialog is accepted...
     if (productEditorDlg->exec() ) {
@@ -1846,10 +1832,16 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
       pInfo.desc     = productEditorDlg->getDescription();
       //be aware of grouped products related to stock.
       if (productEditorDlg->isGroup()) {
-        pInfo.stockqty = productEditorDlg->getGRoupStockMax();
+        pInfo.stockqty = productEditorDlg->getGRoupStockMax(); //FIXME!!!! returns 1
+        pInfo.groupElementsStr = productEditorDlg->getGroupElementsStr();
+        pInfo.groupPriceDrop = productEditorDlg->getGroupPriceDrop(); 
       }
-      else
+      else {
         pInfo.stockqty = productEditorDlg->getStockQty();
+        pInfo.groupElementsStr = "";
+        pInfo.groupPriceDrop = 0;
+      }
+      
       pInfo.price    = productEditorDlg->getPrice();
       pInfo.cost     = productEditorDlg->getCost();
       pInfo.units    = productEditorDlg->getMeasureId();
@@ -1865,7 +1857,7 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
       //Next lines are for groups
       pInfo.isAGroup = productEditorDlg->isGroup();
       pInfo.isARawProduct = productEditorDlg->isRaw();
-      pInfo.groupElementsStr = productEditorDlg->getGroupElementsStr();
+      
 
       //Update database
       Azahar *myDb = new Azahar;
@@ -2155,10 +2147,19 @@ void squeezeView::createProduct()
     switch (resultado) {
       case QDialog::Accepted:
       case statusNormal:
+        if (prodEditorDlg->isGroup()) {
+          info.stockqty = prodEditorDlg->getGRoupStockMax(); //FIXME!!!! returns 1
+          info.groupElementsStr = prodEditorDlg->getGroupElementsStr();
+          info.groupPriceDrop = prodEditorDlg->getGroupPriceDrop();
+        }
+        else {
+          info.stockqty = prodEditorDlg->getStockQty();
+          info.groupElementsStr = "";
+          info.groupPriceDrop = 0;
+        }
         info.code = newcode;
         info.desc    = prodEditorDlg->getDescription();
         info.price   = prodEditorDlg->getPrice();
-        info.stockqty= prodEditorDlg->getStockQty();
         info.cost    = prodEditorDlg->getCost();
         info.units   = prodEditorDlg->getMeasureId();
         info.tax     = prodEditorDlg->getTax1();
@@ -2172,7 +2173,6 @@ void squeezeView::createProduct()
         //Next lines are for groups
         info.isAGroup         = prodEditorDlg->isGroup();
         info.isARawProduct    = prodEditorDlg->isRaw();
-        info.groupElementsStr = prodEditorDlg->getGroupElementsStr();
         
         if (!myDb->insertProduct(info)) qDebug()<<"ERROR:"<<myDb->lastError();
         productsModel->select();
@@ -2390,19 +2390,10 @@ void squeezeView::deleteSelectedProduct()
           // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 ..
           bool d = myDb->deleteProduct(iD); qDebug()<<"Deleteing product ("<<iD<<") manually...";
           if (d) qDebug()<<"Deletion succed...";
+          //on deleteProduct the offers are also deleted.
         }
         productsModel->submitAll();
         productsModel->select();
-        //We must delete the product's offers also.
-
-
-         qulonglong oID = myDb->getProductOfferCode(iD);
-         while (oID != 0) {
-           qDebug()<<"DELETING product code:"<<oID<<" offer code:"<<oID;
-           qulonglong oID = myDb->getProductOfferCode(iD);
-           if (myDb->deleteOffer(oID)) qDebug()<<"Ok, offer also deleted...";
-           else qDebug()<<"DEBUG:"<<myDb->lastError();
-         }
       }
     }
     delete myDb;

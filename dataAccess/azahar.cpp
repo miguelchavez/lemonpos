@@ -277,7 +277,7 @@ ProductInfo Azahar::getProductInfo(qulonglong code, bool notConsiderDiscounts)
       info.price = gInfo.price; //it includes price drop!
       info.tax   = gInfo.tax;
       info.extratax = 0; //accumulated in tax...
-      qDebug()<<"=================== Group: price:"<<info.price<<" tax:"<<info.tax<<"======================";
+      //qDebug()<<"=================== GROUP Price:"<<info.price<<" Tax:"<<info.tax<<"======================";
      }
      ///tax calculation - it depends on discounts...
      double pWOtax = 0;
@@ -289,14 +289,14 @@ ProductInfo Azahar::getProductInfo(qulonglong code, bool notConsiderDiscounts)
      if (info.validDiscount) {
        double iDisc=0;
        iDisc = (notConsiderDiscounts) ? 0 : (info.discpercentage/100)*pWOtax;
-       if (notConsiderDiscounts) qDebug()<<" ================= WARNING: NOT CONSIDERING DISCOUNT FOR TAX CALCULATION! ======================= ";
+       //if (notConsiderDiscounts) qDebug()<<" ================= WARNING: NOT CONSIDERING DISCOUNT FOR TAX CALCULATION! ======================= ";
        pWOtax = pWOtax - iDisc;
      }
      //finally we have on pWOtax the price without tax and discount for 1 item
      double tax1m = (info.tax/100)*pWOtax;
      double tax2m = (info.extratax/100)*pWOtax;
      info.totaltax = tax1m + tax2m;
-     qDebug()<<"  getProductInfo() :: Total tax for product "<<info.desc<<info.tax+info.extratax<< " $:"<<info.totaltax;
+     //qDebug()<<"  getProductInfo() :: Total tax for product "<<info.desc<<info.tax+info.extratax<< " $:"<<info.totaltax;
      ///end of tax calculation
     }
   }
@@ -541,6 +541,17 @@ bool Azahar::deleteProduct(qulonglong code)
   QSqlQuery query(db);
   query = QString("DELETE FROM products WHERE code=%1").arg(code);
   if (!query.exec()) setError(query.lastError().text()); else result=true;
+
+  QSqlQuery queryX(db);
+  if (queryX.exec(QString("Select id from offers where product_id=%1").arg(code) )) {
+    while (queryX.next()) {
+      int fieldId    = queryX.record().indexOf("id");
+      qulonglong oId = queryX.value(fieldId).toULongLong();
+      deleteOffer(oId);
+      qDebug()<<" Deleting Existing Offer for the new Product";
+    }
+  }
+  
   return result;
 }
 
@@ -744,12 +755,12 @@ bool Azahar::updateProductLastProviderId(qulonglong code, qulonglong provId)
 
 QList<ProductInfo> Azahar::getGroupProductsList(qulonglong id, bool notConsiderDiscounts)
 {
-  qDebug()<<"getGroupProductsList...";
+  //qDebug()<<"getGroupProductsList...";
   QList<ProductInfo> pList;
   if (!db.isOpen()) db.open();
   if (db.isOpen()) {
     QString ge = getProductGroupElementsStr(id); //DONOT USE getProductInfo... this will cause an infinite loop because at that method this method is called trough getGroupAverageTax
-    qDebug()<<"elements:"<<ge;
+    //qDebug()<<"elements:"<<ge;
     if (ge.isEmpty()) return pList;
     QStringList pq = ge.split(",");
     foreach(QString str, pq) {
@@ -759,7 +770,7 @@ QList<ProductInfo> Azahar::getGroupProductsList(qulonglong id, bool notConsiderD
       ProductInfo pi = getProductInfo(c, notConsiderDiscounts);
       pi.qtyOnList = q;
       pList.append(pi);
-      qDebug()<<" code:"<<c<<" qty:"<<q;
+      //qDebug()<<" code:"<<c<<" qty:"<<q;
     }
   }
   return pList;
@@ -814,20 +825,28 @@ GroupInfo Azahar::getGroupPriceAndTax(ProductInfo pi)
   gInfo.price = 0;
   gInfo.taxMoney = 0;
   gInfo.tax = 0;
+  gInfo.cost = 0;
+  gInfo.count = 0;
   gInfo.priceDrop = pi.groupPriceDrop;
+  gInfo.name = pi.desc;
   
   if ( pi.code <= 0 ) return gInfo;
 
-  QList<ProductInfo> pList = getGroupProductsList(pi.code, true); //for getting products with taxes not including discounts.
-  foreach( ProductInfo info, pList) {
+  QList<ProductInfo> plist = getGroupProductsList(pi.code, true); //for getting products with taxes not including discounts.
+  foreach(ProductInfo info, plist) {
     gInfo.price    += (info.price -info.price*(pi.groupPriceDrop/100)) * info.qtyOnList;
+    gInfo.cost     += info.cost * info.qtyOnList;
     gInfo.taxMoney += info.totaltax*info.qtyOnList;
-    qDebug()<<" < GROUP - EACH ONE > Product: "<<info.desc<<" | Price: "<<info.price*info.qtyOnList<<" taxMoney: "<<info.totaltax*info.qtyOnList;
+    gInfo.count    += info.qtyOnList;
+    info.price = (info.price -info.price*(pi.groupPriceDrop/100)); //store new price..
+    bool yes = false;
+    if (info.stockqty >= info.qtyOnList ) yes = true;
+    gInfo.isAvailable = (gInfo.isAvailable && yes );
+    qDebug()<<" < GROUP - EACH ONE > Product: "<<info.desc<<" | g. Price: "<<(info.price -info.price*(pi.groupPriceDrop/100))<<" taxMoney: "<<info.totaltax*info.qtyOnList;
+    gInfo.productsList.insert( info.code, info );
   }
 
-  //gInfo.price = gInfo.price - gInfo.price*(pi.groupPriceDrop/100);
-  
-  foreach(ProductInfo info, pList) {
+  foreach(ProductInfo info, plist) {
     gInfo.tax += (info.totaltax*info.qtyOnList/gInfo.price)*100;
     qDebug()<<" < GROUP TAX >  qtyOnList:"<<info.qtyOnList<<" tax money for product: "<<info.totaltax<<" group price:"<<gInfo.price<<" taxMoney for group:"<<gInfo.taxMoney<<" tax % for group:"<< gInfo.tax;
   }
@@ -857,6 +876,30 @@ QString Azahar::getProductGroupElementsStr(qulonglong id)
     }
   }
   return result;
+}
+
+void Azahar::updateGroupPriceDrop(qulonglong code, double pd)
+{
+  if (db.isOpen()) {
+    QSqlQuery query(db);
+    query.prepare("UPDATE products SET groupPriceDrop=:pdrop WHERE code=:id");
+    query.bindValue(":id", code);
+    query.bindValue(":pdrop", pd);
+    if (!query.exec()) setError(query.lastError().text());
+    qDebug()<<"<*> updateGroupPriceDrop  | Rows Affected:"<<query.numRowsAffected();
+  }
+}
+
+void Azahar::updateGroupElements(qulonglong code, QString elementsStr)
+{
+  if (db.isOpen()) {
+    QSqlQuery query(db);
+    query.prepare("UPDATE products SET groupElements=:elements WHERE code=:id");
+    query.bindValue(":id", code);
+    query.bindValue(":elements", elementsStr);
+    if (!query.exec()) setError(query.lastError().text());
+    qDebug()<<"<*> updateGroupElements  | Rows Affected:"<<query.numRowsAffected();
+  }
 }
 
 
