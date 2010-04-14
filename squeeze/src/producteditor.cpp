@@ -748,8 +748,6 @@ void ProductEditor::calculateGroupValues()
   groupInfo.tax = 0;
   groupInfo.taxMoney = 0;
 
-  //qDebug()<<" **************** MANUAL CALCULATION for prices and taxes *******************";
-
   while (ui->groupView->rowCount() > 0) ui->groupView->removeRow(0);
   foreach(ProductInfo info, groupInfo.productsList) {
     //update groupInfo
