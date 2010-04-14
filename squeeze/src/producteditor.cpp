@@ -700,7 +700,7 @@ void ProductEditor::setGroupElements(ProductInfo pi)
 void ProductEditor::updatePriceDrop(double value)
 {
   //NOTE: When changing the pricedrop and cancelling the product editor (not saving product changes) the pricedrop IS CHANGED ANYWAY
-  //      This is because we are updateing price drop on change and not until the product is saved (dialog OK) for re-calculateGroupValues
+  //      This is because we are updating price drop on change and not until the product is saved (dialog OK) for re-calculateGroupValues
   //      So, the cancel button on the product will not prevent or UNDO these changes.
   //      TODO: Add this note to the manuals.
   
