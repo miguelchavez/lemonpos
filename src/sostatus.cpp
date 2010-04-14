@@ -58,7 +58,7 @@ SOStatus::SOStatus( QWidget *parent )
     connect( ui->rbName, SIGNAL(toggled(bool)), SLOT(applyFilter()) );
     connect( ui->rbSaleId, SIGNAL(toggled(bool)), SLOT(applyFilter()) );
 
-    connect( ui->tableWidget, SIGNAL(activated(const QModelIndex &)), SLOT(itemClicked(const QModelIndex &)) );
+    connect( ui->tableWidget, SIGNAL(clicked(const QModelIndex &)), SLOT(itemClicked(const QModelIndex &)) );
 
     setDefaultButton(KDialog::Ok);
     ui->datePicker->setDate(QDate::currentDate());

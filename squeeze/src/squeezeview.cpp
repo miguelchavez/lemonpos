@@ -249,6 +249,10 @@ void squeezeView::login(){
 
 void squeezeView::setupSignalConnections()
 {
+  //NOTE: Use activated or double clicked??? sometimes doubleclicked does not work! by using activated and setting "double clicks activate" on
+  //      kde systemsettings preference dialog (mose and keyboard config) is fine for squeeze, but not for lemon using a touchscreen. In this
+  //      last case, it make sense to let "single click activates" setting on kde systemsettings since is rarely used lemon and squeeze in the same pc.
+  
   connect(ui_mainview.usersView, SIGNAL(activated(const QModelIndex &)), SLOT(usersViewOnSelected(const QModelIndex &)));
   connect(ui_mainview.clientsView, SIGNAL(activated(const QModelIndex &)), SLOT(clientsViewOnSelected(const QModelIndex &)));
   connect(ui_mainview.productsView, SIGNAL(activated(const QModelIndex &)), SLOT(productsViewOnSelected(const QModelIndex &)));
