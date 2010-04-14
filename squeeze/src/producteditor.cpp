@@ -388,7 +388,6 @@ void ProductEditor::checkIfCodeExists()
       }
     }//if !modifyCode
     else {
-      //ui->labelError->show();
       errorPanel->showTip(i18n("Code %1 already exists.", codeStr),3000);
       enableButtonOk( false );
     }
@@ -685,7 +684,6 @@ void ProductEditor::setGroupElements(ProductInfo pi)
     ui->groupView->insertRow(rowCount);
     ui->groupView->setItem(rowCount, 0, new QTableWidgetItem(QString::number(info.qtyOnList)));
     ui->groupView->setItem(rowCount, 1, new QTableWidgetItem(info.desc));
-    //qDebug()<<" 00000000000000 ::setGroupElements::     Product Price:"<<info.price<<" tax:"<<info.tax;
   }
   ui->groupView->resizeRowsToContents();
   ui->groupView->resizeColumnsToContents();
@@ -717,7 +715,6 @@ void ProductEditor::updatePriceDrop(double value)
   //if there is a new product, it will not be updated because it does not exists on db yet... so fix the groupPrice drop
   if (info.code == 0 ) {
     groupInfo.priceDrop = ui->editGroupPriceDrop->value();
-    //qDebug()<<"************************* New PRODUCT! Manual calculation... PriceDrop:"<<value<<"  pi.code :"<<info.code<<" pi.desc:"<<info.desc;
     calculateGroupValues();
   } else {
     //then update prices on UI
