@@ -271,12 +271,14 @@ ProductInfo Azahar::getProductInfo(qulonglong code, bool notConsiderDiscounts)
          } else {info.disc = 0; info.validDiscount =false;}
      }
      /// If its a group, calculate the right price first.
+     double priceDrop = 0;
      if (info.isAGroup) {
       //get each content price and tax percentage.
       GroupInfo gInfo = getGroupPriceAndTax(info);
       info.price = gInfo.price; //it includes price drop!
       info.tax   = gInfo.tax;
       info.extratax = 0; //accumulated in tax...
+      priceDrop = gInfo.priceDrop;
       //qDebug()<<"=================== GROUP Price:"<<info.price<<" Tax:"<<info.tax<<"======================";
      }
      ///tax calculation - it depends on discounts...
@@ -834,19 +836,21 @@ GroupInfo Azahar::getGroupPriceAndTax(ProductInfo pi)
 
   QList<ProductInfo> plist = getGroupProductsList(pi.code, true); //for getting products with taxes not including discounts.
   foreach(ProductInfo info, plist) {
-    gInfo.price    += (info.price -info.price*(pi.groupPriceDrop/100)) * info.qtyOnList;
-    gInfo.cost     += info.cost * info.qtyOnList;
+    info.price      = (info.price -info.price*(pi.groupPriceDrop/100));
+    info.totaltax   = info.price * info.qtyOnList *  (info.tax/100) + info.price * info.qtyOnList *  (info.extratax/100);
+    
+    gInfo.price    += info.price * info.qtyOnList;
+    gInfo.cost     += info.cost  * info.qtyOnList;
     gInfo.taxMoney += info.totaltax*info.qtyOnList;
     gInfo.count    += info.qtyOnList;
-    info.price = (info.price -info.price*(pi.groupPriceDrop/100)); //store new price..
     bool yes = false;
     if (info.stockqty >= info.qtyOnList ) yes = true;
     gInfo.isAvailable = (gInfo.isAvailable && yes );
-    qDebug()<<" < GROUP - EACH ONE > Product: "<<info.desc<<" | g. Price: "<<(info.price -info.price*(pi.groupPriceDrop/100))<<" taxMoney: "<<info.totaltax*info.qtyOnList;
+    qDebug()<<" < GROUP - EACH ONE > Product: "<<info.desc<<" Price with p-drop: "<<info.price<<" taxMoney: "<<info.totaltax*info.qtyOnList<<" info.tax:"<<info.tax<<" info.extataxes:"<<info.extratax;
     gInfo.productsList.insert( info.code, info );
   }
 
-  foreach(ProductInfo info, plist) {
+  foreach(ProductInfo info, gInfo.productsList) {
     gInfo.tax += (info.totaltax*info.qtyOnList/gInfo.price)*100;
     qDebug()<<" < GROUP TAX >  qtyOnList:"<<info.qtyOnList<<" tax money for product: "<<info.totaltax<<" group price:"<<gInfo.price<<" taxMoney for group:"<<gInfo.taxMoney<<" tax % for group:"<< gInfo.tax;
   }
