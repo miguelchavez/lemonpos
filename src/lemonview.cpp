@@ -3665,8 +3665,13 @@ void lemonView::specialOrderComplete()
         }
         newName = newName+"\n"+i18n("Notes:")+soInfo.notes;
 
+        ///discount from SO elements
+        //soInfo.disc = myDb->getSpecialOrderAverageDiscount(soInfo.orderid)/100; //in percentage.
+        double toPay = soInfo.price-soInfo.payment;
+        double soDiscount = soInfo.disc * toPay;
+
         /// here we insert the product with the appropiate payment.
-        insertedAtRow = doInsertItem(codeX, newName, soInfo.qty, soInfo.price-soInfo.payment, 0, soInfo.unitStr);
+        insertedAtRow = doInsertItem(codeX, newName, soInfo.qty, toPay, soDiscount, soInfo.unitStr);
         //modify SpecialOrder info for database update.
         soInfo.insertedAtRow = insertedAtRow;
         soInfo.payment = soInfo.price-soInfo.payment; //the final payment is what we save on db.
@@ -3675,11 +3680,15 @@ void lemonView::specialOrderComplete()
         soInfo.completedOnTrNum = currentTransaction;
         newName = newName.replace("\n", "|");
         soInfo.geForPrint = newName;
+
+        ///after inserting so in the db, calculate tax.
+        soInfo.averageTax = myDb->getSpecialOrderAverageTax(soInfo.orderid);
         
         //add to the hash
         specialOrders.insert(soInfo.orderid, soInfo);
-      }
-    }
+        refreshTotalLabel();
+      } //else if cancelled or delivered
+    } //foreach soInfo
 
     //for the client discount.NOTE:This only for the first SO. We assume all so in the transaction are for the same client.
     if (clientIdForDiscount == 0) {
