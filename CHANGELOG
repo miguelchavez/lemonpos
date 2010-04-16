@@ -35,13 +35,15 @@ CHANGELOG FOR LEMONPOS VERSION 0.9.3
 - UPDATE       : Some translations where updated (de,es,fr).
 
 
-- NOTE         : Special Orders can have two types of discounts simultaneously:
+NOTES:
+
+- NOTE 1       : Special Orders can have two types of discounts simultaneously:
                    1.- On each component of the order (raw product)
                    2.- Occasional discount OR Client discount. Occasional discount only for the current
                        transaction ( prepayment, completing the order ) if you need on BOTH is needed to
                        add the occasional discount on each stage (prepayment, completing the order)
                        
-- NOTE         : Groups can have two types of discounts simultaneously:
+- NOTE 2       : Groups can have two types of discounts simultaneously:
                    1.- On the group product (the container).
                    2.- Occasional discount OR Client discount.
                  Group price and tax is calculated based on its components, at the needed moment.
