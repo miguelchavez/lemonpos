@@ -1675,7 +1675,7 @@ void lemonView::finishCurrentTransaction()
       tItemInfo.payment         = 0; //not used
       tItemInfo.completePayment = true;
       tItemInfo.isGroup = i.value().isAGroup;
-      tItemInfo.tax = i.value().tax + i.value().extratax; //all taxes in percentage.
+      tItemInfo.tax = ((i.value().tax + i.value().extratax)/100)*tItemInfo.total;
 
       myDb->insertTransactionItem(tItemInfo);
 
@@ -1736,7 +1736,7 @@ void lemonView::finishCurrentTransaction()
         tItemInfo.disc            = siInfo.disc * siInfo.price * siInfo.qty;
         double disc2              = siInfo.disc * siInfo.payment * siInfo.qty;
         tItemInfo.total           = (siInfo.price-(siInfo.disc * siInfo.price * siInfo.qty)) * siInfo.qty;
-        tItemInfo.tax             = myDb->getSpecialOrderAverageTax(siInfo.orderid);
+        tItemInfo.tax             = (myDb->getSpecialOrderAverageTax(siInfo.orderid)/100)*tItemInfo.total;
         tItemInfo.name            = siInfo.name;
         tItemInfo.soId            = "so."+QString::number(siInfo.orderid);
         tItemInfo.payment         = siInfo.payment-disc2+((tItemInfo.tax/100)*siInfo.qty*(siInfo.payment-disc2));

@@ -447,10 +447,13 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     // note: QLocale has a method that does this locale aware! if the locale is set correctly
     if (iqty.endsWith(".00") || iqty.endsWith(",00")) { iqty.chop(3); iqty += "   ";}//we chop the trailing zeroes...
     if (itax.endsWith(".00") || itax.endsWith(",00")) { itax.chop(3); }//we chop the trailing zeroes...
-    iqty = iqty; //+tLine.unitStr;
+    if (iprice.endsWith(".00") || iprice.endsWith(",00")) { iprice.chop(3); }//we chop the trailing zeroes...
+    //iqty = iqty + tLine.unitStr;
     QString idiscount =  localeForPrinting.toString(-(tLine.qty*tLine.disc),'f',2);
     if (tLine.disc <= 0) idiscount = ""; // dont print 0.0
+    if (idiscount.endsWith(".00") || idiscount.endsWith(",00")) { idiscount.chop(3); }//we chop the trailing zeroes...
     QString idue =  localeForPrinting.toString(tLine.total,'f',2);
+    if (idue.endsWith(".00") || idue.endsWith(",00")) { idue.chop(3); }//we chop the trailing zeroes...
     if (ptInfo.totDisc > 0) {
       while (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, idesc).width() >= ((printer.width()/3)-Margin-50)) { idesc.chop(2); }
     } else 
@@ -463,8 +466,8 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     }
     painter.drawText((printer.width()/3)+columnTotal-50, Margin+yPos, idue);
     //taxes
-    text = itax+"%";
-    painter.drawText(printer.width()-(fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text).width())-Margin, Margin + yPos, text);
+    text = itax;
+    painter.drawText(printer.width()-(fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text).width())-10, Margin + yPos, text);
 
     yPos = yPos + fm.lineSpacing();
     ///check if there is a Special Order or group, to print contents
