@@ -500,7 +500,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
         }
         if (!otherList.isEmpty()) strList << otherList;
         if (trozos < 1) strList << strTmp;
-        qDebug()<<"Trozos:"<<trozos<<" tamTrozo:"<<tamTrozo<<" realTrozos:"<<QString::number(realTrozos,'f', 2)<<" maxL:"<<maxL<<" strTmp.width in pixels:"<<fm.size(Qt::TextExpandTabs | Qt::TextDontClip, strTmp).width()<<" diff:"<<diff;
+        //qDebug()<<"Trozos:"<<trozos<<" tamTrozo:"<<tamTrozo<<" realTrozos:"<<QString::number(realTrozos,'f', 2)<<" maxL:"<<maxL<<" strTmp.width in pixels:"<<fm.size(Qt::TextExpandTabs | Qt::TextDontClip, strTmp).width()<<" diff:"<<diff;
       }
 
       foreach(QString str, strList) {
@@ -513,13 +513,14 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
         yPos = 0;                       // back to top of page
       }
       QString sp; QString sp2;
+      double nextPayment = tLine.gtotal-tLine.payment*tLine.qty; //(/*tLine.price*/tLine.gtotal-tLine.payment/*+tLine.partialDisc*/)*tLine.qty
       if (tLine.completePayment) {
         sp  = ptInfo.paymentStrComplete + QString::number(tLine.payment*tLine.qty, 'f',2);
-        sp2 = ptInfo.lastPaymentStr;
+        sp2 = ptInfo.lastPaymentStr+ ": "+QString::number(tLine.payment*tLine.qty, 'f',2);
       }
       else {
         sp = ptInfo.paymentStrPrePayment + QString::number(tLine.payment*tLine.qty, 'f',2);
-        sp2 = ptInfo.nextPaymentStr;
+        sp2 = ptInfo.nextPaymentStr+ ": "+QString::number(nextPayment, 'f',2);
       }
       if (isGroup) sp  = ""; ///hack!
       //change font for the PAYMENT MSG
@@ -533,13 +534,13 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       // The negative qty is one of the next:
       //     * When completing the SO: the amount of the pre-payment.
       //     * When starting the SO:   the remaining amount to pay.
-      double nextPayment = tLine.gtotal-tLine.payment*tLine.qty; //(/*tLine.price*/tLine.gtotal-tLine.payment/*+tLine.partialDisc*/)*tLine.qty
+      //double nextPayment = tLine.gtotal-tLine.payment*tLine.qty; //(/*tLine.price*/tLine.gtotal-tLine.payment/*+tLine.partialDisc*/)*tLine.qty
       sp2 = (nextPayment >0) ? sp2 : "";
       if (isGroup) sp2  = ""; ///hack!
       painter.drawText(Margin, Margin+yPos, sp2);
-      sp  = (nextPayment >0) ? QString::number(-nextPayment, 'f',2) : "";
-      if (isGroup) sp  = ""; ///hack!
-      painter.drawText((printer.width()/3)+columnTotal, Margin+yPos, sp);
+      //sp  = (nextPayment >0) ? QString::number(nextPayment, 'f',2) : "";
+      //if (isGroup) sp  = ""; ///hack!
+      //painter.drawText((printer.width()/3)+columnTotal-50, Margin+yPos, sp);
       tmpFont = QFont("Bitstream Vera Sans", 17 );
       tmpFont.setWeight(QFont::Normal);
       painter.setFont(tmpFont);

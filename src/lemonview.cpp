@@ -1735,16 +1735,16 @@ void lemonView::finishCurrentTransaction()
         tItemInfo.price           = siInfo.price;
         tItemInfo.disc            = siInfo.disc * siInfo.price * siInfo.qty;
         double disc2              = siInfo.disc * siInfo.payment * siInfo.qty;
+        double taxPercentage      = (myDb->getSpecialOrderAverageTax(siInfo.orderid)/100);
         tItemInfo.total           = (siInfo.price-(siInfo.disc * siInfo.price * siInfo.qty)) * siInfo.qty;
-        tItemInfo.tax             = (myDb->getSpecialOrderAverageTax(siInfo.orderid)/100)*tItemInfo.total;
+        tItemInfo.tax             = taxPercentage * tItemInfo.total;
         tItemInfo.name            = siInfo.name;
         tItemInfo.soId            = "so."+QString::number(siInfo.orderid);
-        tItemInfo.payment         = siInfo.payment-disc2+((tItemInfo.tax/100)*siInfo.qty*(siInfo.payment-disc2));
+        tItemInfo.payment         = siInfo.payment-disc2+(taxPercentage*siInfo.qty*(siInfo.payment-disc2));
         tItemInfo.completePayment = siInfo.completePayment;
         tItemInfo.deliveryDateTime= siInfo.deliveryDateTime;
         tItemInfo.isGroup         = false;
-        if (!Settings::addTax()) tItemInfo.payment -= ((tItemInfo.tax/100)*siInfo.qty*(siInfo.payment-disc2));
-        
+        if (!Settings::addTax()) tItemInfo.payment -= tItemInfo.tax; //((tItemInfo.tax/100)*siInfo.qty*(siInfo.payment-disc2));
 
         if (siInfo.completePayment && siInfo.status == stReady) completePayments++;
         
@@ -1761,17 +1761,17 @@ void lemonView::finishCurrentTransaction()
         tLineInfo.disc    = siInfo.disc * siInfo.price * siInfo.qty; // april 5 2005: Now SO can have discounts
         tLineInfo.partialDisc =disc2;
         tLineInfo.total   = tItemInfo.total;
-        double gtotal     = tItemInfo.total + (tItemInfo.tax/100)*tItemInfo.total*tItemInfo.qty;
+        double gtotal     = tItemInfo.total + tItemInfo.tax; //(tItemInfo.tax/100)*tItemInfo.total*tItemInfo.qty;
         tLineInfo.gtotal  =  Settings::addTax()  ? gtotal : tLineInfo.total;
         tLineInfo.geForPrint = siInfo.geForPrint;
         tLineInfo.completePayment = siInfo.completePayment;
-        tLineInfo.payment = siInfo.payment-disc2+((tItemInfo.tax/100)*siInfo.qty*(siInfo.payment-disc2));
+        tLineInfo.payment = tItemInfo.payment;
         tLineInfo.isGroup = false;
         tLineInfo.deliveryDateTime = siInfo.deliveryDateTime;
         tLineInfo.tax     = tItemInfo.tax;
-        if (!Settings::addTax()) tLineInfo.payment -= ((tItemInfo.tax/100)*siInfo.qty*(siInfo.payment-disc2));
+        if (!Settings::addTax()) tLineInfo.payment -= tItemInfo.tax;
         //qDebug()<<" =============================================\n   disc:"<<disc2<<" tax :"<<(tItemInfo.tax/100)<<" Payment:"<< tLineInfo.payment;
-        qDebug()<<" =============================\n   Price:"<<siInfo.price<<"total:"<<tLineInfo.total<<" Payment:"<< tLineInfo.payment<<" siInfo.payment:"<<siInfo.payment<<" pDisc:"<<disc2<< "tax :"<<tItemInfo.tax<<"% tax $"<<(tItemInfo.tax/100)*siInfo.qty*(siInfo.payment-disc2)<<" Gran Total:"<<gtotal;
+        qDebug()<<" =============================\n   Price:"<<siInfo.price<<"total:"<<tLineInfo.total<<" Payment:"<< tLineInfo.payment<<" siInfo.payment:"<<siInfo.payment<<" pDisc:"<<disc2<<" % tax $"<<tItemInfo.tax<<" Gran Total:"<<gtotal;
         ///NOTE: Testing with addTax setting and using a sample SO, there is a DIFFERENCE of 18 cents ( the client pays 18 cents less of the real price)
         ///      (REAL PRICE = 285.18, PAID: 285 ). This is the result of the 'rounding' in multiple operations done during the process.
         ///      The error is 0.063 % (285.18 * .00063 = .18)
