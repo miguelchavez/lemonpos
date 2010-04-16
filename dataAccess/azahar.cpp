@@ -852,7 +852,7 @@ GroupInfo Azahar::getGroupPriceAndTax(ProductInfo pi)
 
   foreach(ProductInfo info, gInfo.productsList) {
     gInfo.tax += (info.totaltax*info.qtyOnList/gInfo.price)*100;
-    qDebug()<<" < GROUP TAX >  qtyOnList:"<<info.qtyOnList<<" tax money for product: "<<info.totaltax<<" group price:"<<gInfo.price<<" taxMoney for group:"<<gInfo.taxMoney<<" tax % for group:"<< gInfo.tax;
+    qDebug()<<" < GROUP TAX >  qtyOnList:"<<info.qtyOnList<<" tax money for product: "<<info.totaltax<<" group price:"<<gInfo.price<<" taxMoney for group:"<<gInfo.taxMoney<<" tax % for group:"<< gInfo.tax<<" Group cost:"<<gInfo.cost;
   }
 
   return gInfo;

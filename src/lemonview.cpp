@@ -765,6 +765,7 @@ void lemonView::refreshTotalLabel()
   totalTax = 0; //we clean it
   qulonglong points=0;
   if (ui_mainview.tableWidget->rowCount()>0) {
+    ///calculate total SUM.
     for (int row=0; row<ui_mainview.tableWidget->rowCount(); ++row)
     {
       QTableWidgetItem *item = ui_mainview.tableWidget->item(row, colDue);
@@ -775,6 +776,7 @@ void lemonView::refreshTotalLabel()
         if (isNumber) sum += number;
       }
     }
+    /// Calculate total TAXES for PRODUCTS
     ProductInfo info;
     qDebug()<<"Products Qty:"<<productsHash.count();
     QHashIterator<qulonglong, ProductInfo> i(productsHash);
@@ -802,7 +804,7 @@ void lemonView::refreshTotalLabel()
       //totalTax is the tax in money (discount applied if apply) for the qtyOnList items
       qDebug()<<" refreshTotal() :: total tax for product: $"<<i.value().totaltax<<" % "<<((i.value().tax/100)+(i.value().extratax/100))<<" Accumulated tax $:"<<totalTax;
     }
-    //Taxes for SO.
+    /// Calculate total TAXES for Special Orders
     foreach(SpecialOrderInfo soInfo, specialOrders) {
       double pWOtax = 0;
       if (Settings::addTax())
