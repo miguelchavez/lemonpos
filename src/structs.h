@@ -208,7 +208,7 @@ struct TicketLineInfo {
 
 struct TicketInfo {
   qulonglong number;
-  double total;
+  double total; //this is the total amount of THIS TICKET.
   double change;
   double paidwith;
   int itemcount;
@@ -225,6 +225,8 @@ struct TicketInfo {
   bool hasSpecialOrders;
   bool completingSpecialOrder;
   double totalTax;
+  QDateTime deliveryDT;
+  double soTotal; //this is the total for the SO (nextpayment + prepayment)
 };
 
 struct PrintTicketInfo {

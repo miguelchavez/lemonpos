@@ -308,9 +308,10 @@ void SpecialOrderEditor::addItem()
     }
     // update info of the group
     groupInfo.count = groupInfo.count+dqty;
-    groupInfo.cost  += pInfo.cost*pInfo.qtyOnList; /*dqty*/;
-    groupInfo.price += pInfo.price*pInfo.qtyOnList;/*dqty*/;
+    groupInfo.cost  += pInfo.cost*pInfo.qtyOnList; 
+    groupInfo.price += pInfo.price*pInfo.qtyOnList;
     //NOTE:group price is not affected by any product discount, it takes normal price.
+    //     Discounts are taken into consideration after adding to the purchase list, when calculating taxes and price for the SO.
     bool yes = false;
     if (pInfo.stockqty >= dqty )
       yes = true;

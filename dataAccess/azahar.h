@@ -155,6 +155,7 @@ class Azahar : public QObject
     QList<TransactionInfo> getLastTransactions(int pageNumber=1,int numItems=20,QDate beforeDate=QDate::currentDate ());
     QList<TransactionInfo> getTransactionsPerDay(int pageNumber=1,int numItems=20,QDate beforeDate=QDate::currentDate ());
     qulonglong  getEmptyTransactionId();
+    double      getTransactionDiscMoney(qulonglong id);
     
     // TRANSACTIONITEMS
     bool        insertTransactionItem(TransactionItemInfo info);

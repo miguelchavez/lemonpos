@@ -101,6 +101,7 @@ public:
     double totalSumWODisc;
     double subTotalSum;
     QDateTime transDateTime;
+    double lastDiscount;
 
     QHash<qulonglong, SpecialOrderInfo> specialOrders;
     

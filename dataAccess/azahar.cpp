@@ -1802,7 +1802,7 @@ QList<TransactionInfo> Azahar::getDayTransactions(int terminal)
     QSqlQuery qryTrans(db);
     QDate today = QDate::currentDate();
     //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-    qryTrans.prepare("SELECT id,time,paidwith,paymethod,amount,utility from transactions where (date = :today) AND (terminalnum=:terminal) AND (type=1) AND (state=2) ORDER BY id ASC;");
+    qryTrans.prepare("SELECT id,time,paidwith,paymethod,amount,utility,totalTax from transactions where (date = :today) AND (terminalnum=:terminal) AND (type=1) AND (state=2) ORDER BY id ASC;");
     qryTrans.bindValue("today", today.toString("yyyy-MM-dd"));
     qryTrans.bindValue(":terminal", terminal);
     //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
@@ -1840,7 +1840,7 @@ QList<TransactionInfo> Azahar::getDayTransactions()
   QSqlQuery qryTrans(db);
   QDate today = QDate::currentDate();
   //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-  qryTrans.prepare("SELECT id,time,paidwith,paymethod,amount,utility from transactions where (date = :today) AND (type=1) AND (state=2) ORDER BY id ASC;");
+  qryTrans.prepare("SELECT id,time,paidwith,paymethod,amount,utility,totalTax from transactions where (date = :today) AND (type=1) AND (state=2) ORDER BY id ASC;");
   qryTrans.bindValue("today", today.toString("yyyy-MM-dd"));
   //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
   if (!qryTrans.exec() ) {
@@ -2295,6 +2295,24 @@ QList<TransactionInfo> Azahar::getTransactionsPerDay(int pageNumber,int numItems
       info.state     = query.value(fieldTransactions).toInt();
       info.itemcount = query.value(fieldItemCount).toInt();
       result.append(info);
+    }
+  }
+  else {
+    setError(query.lastError().text());
+  }
+  return result;
+}
+
+double Azahar::getTransactionDiscMoney(qulonglong id)
+{
+  double result = 0;
+  QSqlQuery query(db);
+  QString qry;
+  qry = QString("SELECT discMoney FROM transactions WHERE id=%1").arg(id);
+  if (query.exec(qry)) {
+    while (query.next()) {
+      int fieldAmount = query.record().indexOf("discMoney");
+      result = query.value(fieldAmount).toDouble();
     }
   }
   else {

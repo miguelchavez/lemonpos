@@ -437,7 +437,6 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
   for (int i = 0; i < ptInfo.ticketInfo.lines.size(); ++i)
   {
     TicketLineInfo tLine = ptInfo.ticketInfo.lines.at(i);
-    bool isGroup = ptInfo.ticketInfo.lines.at(i).isGroup;
     QDateTime deliveryDT = ptInfo.ticketInfo.lines.at(i).deliveryDateTime;
     QString  idesc =  tLine.desc;
     QString iprice =  localeForPrinting.toString(tLine.price,'f',2);
@@ -449,7 +448,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     if (itax.endsWith(".00") || itax.endsWith(",00")) { itax.chop(3); }//we chop the trailing zeroes...
     if (iprice.endsWith(".00") || iprice.endsWith(",00")) { iprice.chop(3); }//we chop the trailing zeroes...
     //iqty = iqty + tLine.unitStr;
-    QString idiscount =  localeForPrinting.toString(-(tLine.qty*tLine.disc),'f',2);
+    QString idiscount =  localeForPrinting.toString(-(/*tLine.qty**/tLine.disc),'f',2);
     if (tLine.disc <= 0) idiscount = ""; // dont print 0.0
     if (idiscount.endsWith(".00") || idiscount.endsWith(",00")) { idiscount.chop(3); }//we chop the trailing zeroes...
     QString idue =  localeForPrinting.toString(tLine.total,'f',2);
@@ -512,54 +511,51 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
         printer.newPage();             // no more room on this page
         yPos = 0;                       // back to top of page
       }
-      QString sp; QString sp2;
-      double nextPayment = tLine.gtotal-tLine.payment*tLine.qty; //(/*tLine.price*/tLine.gtotal-tLine.payment/*+tLine.partialDisc*/)*tLine.qty
-      if (tLine.completePayment) {
-        sp  = ptInfo.paymentStrComplete + QString::number(tLine.payment*tLine.qty, 'f',2);
-        sp2 = ptInfo.lastPaymentStr+ ": "+QString::number(tLine.payment*tLine.qty, 'f',2);
-      }
-      else {
-        sp = ptInfo.paymentStrPrePayment + QString::number(tLine.payment*tLine.qty, 'f',2);
-        sp2 = ptInfo.nextPaymentStr+ ": "+QString::number(nextPayment, 'f',2);
-      }
-      if (isGroup) sp  = ""; ///hack!
-      //change font for the PAYMENT MSG
-      tmpFont = QFont("Bitstream Vera Sans", 17 );
-      tmpFont.setWeight(QFont::Bold);
-      painter.setFont(tmpFont);
-      fm = painter.fontMetrics();
-      painter.drawText(Margin, Margin+yPos, sp);
-      yPos = yPos + fm.lineSpacing();
-      //print the negative qty for the payment.
-      // The negative qty is one of the next:
-      //     * When completing the SO: the amount of the pre-payment.
-      //     * When starting the SO:   the remaining amount to pay.
-      //double nextPayment = tLine.gtotal-tLine.payment*tLine.qty; //(/*tLine.price*/tLine.gtotal-tLine.payment/*+tLine.partialDisc*/)*tLine.qty
-      sp2 = (nextPayment >0) ? sp2 : "";
-      if (isGroup) sp2  = ""; ///hack!
-      painter.drawText(Margin, Margin+yPos, sp2);
-      //sp  = (nextPayment >0) ? QString::number(nextPayment, 'f',2) : "";
-      //if (isGroup) sp  = ""; ///hack!
-      //painter.drawText((printer.width()/3)+columnTotal-50, Margin+yPos, sp);
-      tmpFont = QFont("Bitstream Vera Sans", 17 );
-      tmpFont.setWeight(QFont::Normal);
-      painter.setFont(tmpFont);
-      fm = painter.fontMetrics();
-      yPos = yPos + fm.lineSpacing();
-      ///Check for delivery date and if its a SO
-      if (!isGroup && tLine.payment>0 ) {
-        sp = ptInfo.deliveryDateStr + deliveryDT.toString("ddd d MMMM, h:m ap"); //TODO:hey i18n stuff!!!
-        tmpFont = QFont("Bitstream Vera Sans", 17 );
-        tmpFont.setWeight(QFont::Bold);
-        painter.setFont(tmpFont);
-        fm = painter.fontMetrics();
-        painter.drawText(Margin, Margin+yPos, sp);
-        yPos = yPos + fm.lineSpacing();
-        tmpFont = QFont("Bitstream Vera Sans", 17 );
-        tmpFont.setWeight(QFont::Normal);
-        painter.setFont(tmpFont);
-        fm = painter.fontMetrics();
-      }
+       //BEGIN The PRE-PAYMENT/NEXT-PAYMENT DATA.
+//       QString sp; QString sp2;
+//       double nextPayment = tLine.gtotal-tLine.payment;//*tLine.qty; //(/*tLine.price*/tLine.gtotal-tLine.payment/*+tLine.partialDisc*/)*tLine.qty
+//       if (tLine.completePayment) {
+//         sp  = ptInfo.paymentStrComplete + QString::number(tLine.payment/* *tLine.qty*/, 'f',2);
+//         sp2 = ptInfo.lastPaymentStr+ ": "+QString::number(nextPayment, 'f',2);
+//       }
+//       else {
+//         sp = ptInfo.paymentStrPrePayment + QString::number(tLine.payment/* *tLine.qty*/, 'f',2);
+//         sp2 = ptInfo.nextPaymentStr+ ": "+QString::number(nextPayment, 'f',2);
+//       }
+//       if (isGroup) sp  = ""; ///hack!
+//       //change font for the PAYMENT MSG
+//       tmpFont = QFont("Bitstream Vera Sans", 17 );
+//       tmpFont.setWeight(QFont::Bold);
+//       painter.setFont(tmpFont);
+//       fm = painter.fontMetrics();
+//       painter.drawText(Margin, Margin+yPos, sp);
+//       yPos = yPos + fm.lineSpacing();
+//       //print the negative qty for the payment.
+//       // The negative qty is one of the next:
+//       //     * When completing the SO: the amount of the pre-payment.
+//       //     * When starting the SO:   the remaining amount to pay.
+//       sp2 = (nextPayment >0) ? sp2 : "";
+//       if (isGroup) sp2  = ""; ///hack!
+//       painter.drawText(Margin, Margin+yPos, sp2);
+//       //sp  = (nextPayment >0) ? QString::number(nextPayment, 'f',2) : "";
+//       //if (isGroup) sp  = ""; ///hack!
+//       //painter.drawText((printer.width()/3)+columnTotal-50, Margin+yPos, sp);
+//       yPos = yPos + fm.lineSpacing();
+//       ///Check for delivery date and if its a SO
+//       if (!isGroup && tLine.payment>0 ) {
+//         sp = ptInfo.deliveryDateStr + deliveryDT.toString("ddd d MMMM, h:m ap"); //TODO:hey i18n stuff!!!
+//         tmpFont = QFont("Bitstream Vera Sans", 17 );
+//         tmpFont.setWeight(QFont::Bold);
+//         painter.setFont(tmpFont);
+//         fm = painter.fontMetrics();
+//         painter.drawText(Margin, Margin+yPos, sp);
+//         yPos = yPos + fm.lineSpacing();
+//         tmpFont = QFont("Bitstream Vera Sans", 17 );
+//         tmpFont.setWeight(QFont::Normal);
+//         painter.setFont(tmpFont);
+//         fm = painter.fontMetrics();
+//       }
+       //END The PRE-PAYMENT/NEXT-PAYMENT DATA.
     } /// is group or specialorder ?
     //Check if space for the next text line
     if ( Margin + yPos > printer.height() - Margin ) {
@@ -582,14 +578,83 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       tmpFont.setItalic(false);
       painter.setFont(tmpFont);
     }
-    //now the totals...
+    //line separator..
+    painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+    painter.drawLine(Margin, Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
+    yPos = yPos + fm.lineSpacing();
+    
     //Check if space for the next text 3 lines
     if ( (Margin + yPos +fm.lineSpacing()*3) > printer.height() - Margin ) {
       printer.newPage();             // no more room on this page
       yPos = 0;                       // back to top of page
     }
-    painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
-    painter.drawLine(Margin, Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
+
+    // NOW SPECIAL ORDERS STUFF
+    //BEGIN The PRE-PAYMENT/NEXT-PAYMENT DATA.
+    bool isSO = ptInfo.ticketInfo.hasSpecialOrders;
+    bool isCompletingSO = ptInfo.ticketInfo.completingSpecialOrder;
+    QLocale locale;
+    if (isSO) {
+      QString sp; QString sp2; QString spQty; QString sp2Qty;
+      if (isCompletingSO) {
+        sp     = ptInfo.paymentStrComplete;
+        spQty  = locale.toString(ptInfo.ticketInfo.total,'f',2); // THE DEBT of the SO.
+        sp2    = ptInfo.lastPaymentStr;
+        sp2Qty = locale.toString(ptInfo.ticketInfo.soTotal - ptInfo.ticketInfo.total , 'f',2); // the prepayment
+      }
+      else {
+        // SO is in pre payment
+        sp = ptInfo.paymentStrPrePayment;
+        spQty  = locale.toString(ptInfo.ticketInfo.total, 'f',2); // prepayment
+        sp2    = ptInfo.nextPaymentStr;
+        sp2Qty = locale.toString(ptInfo.ticketInfo.soTotal-ptInfo.ticketInfo.total, 'f',2); // Next payment
+      }
+      if (!isSO) sp  = ""; ///hack!
+      //change font for the PAYMENT MSG
+      tmpFont = QFont("Bitstream Vera Sans", 17 );
+      tmpFont.setWeight(QFont::Bold);
+      painter.setFont(tmpFont);
+      fm = painter.fontMetrics();
+      textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, sp);
+      painter.drawText(printer.width()-(printer.width()/3)-textWidth.width(), Margin+yPos, sp);
+      textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, spQty);
+      painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, spQty);
+      yPos = yPos + fm.lineSpacing();
+      //print the negative qty for the payment.
+      // The negative qty is one of the next:
+      //     * When completing the SO: the amount of the pre-payment.
+      //     * When starting the SO:   the remaining amount to pay.
+      sp2 = (ptInfo.ticketInfo.soTotal-ptInfo.ticketInfo.total >0) ? sp2 : "";
+      if (!isSO) sp2  = ""; ///hack!
+      textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, sp2);
+      painter.drawText(printer.width()-(printer.width()/3)-textWidth.width(), Margin+yPos, sp2);
+      textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, sp2Qty);
+      painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, sp2Qty);
+      yPos = yPos + fm.lineSpacing();
+      ///Check for delivery date and if its a SO
+      if (isSO) {
+        sp = ptInfo.deliveryDateStr; // + deliveryDT.toString("ddd d MMMM, h:m ap"); //TODO:hey i18n stuff!!!
+        tmpFont = QFont("Bitstream Vera Sans", 17 );
+        tmpFont.setWeight(QFont::Bold);
+        painter.setFont(tmpFont);
+        fm = painter.fontMetrics();
+        textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, sp);
+        painter.drawText(printer.width()-(printer.width()/3)-textWidth.width(), Margin+yPos, sp);
+        sp = ptInfo.ticketInfo.deliveryDT.toString("ddd d MMM h:m ap"); //TODO:hey i18n stuff!!!
+        textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, sp);
+        painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, sp);
+        yPos = yPos + fm.lineSpacing();
+        tmpFont = QFont("Bitstream Vera Sans", 17 );
+        tmpFont.setWeight(QFont::Normal);
+        painter.setFont(tmpFont);
+        fm = painter.fontMetrics();
+      }
+      yPos = yPos + fm.lineSpacing()*2;
+      //END The PRE-PAYMENT/NEXT-PAYMENT DATA.
+    }
+    
+    // NOW TOTALS...
+    
     painter.setPen(normalPen);
     tmpFont.setWeight(QFont::Bold);
     painter.setFont(tmpFont);

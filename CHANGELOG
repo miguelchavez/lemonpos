@@ -6,7 +6,10 @@ CHANGELOG FOR LEMONPOS VERSION 0.9.3
                  This fixes also discounts considedered in tax calculation for
                  Special Orders. Also fixes the taxes calculation for Special Orders.
 - BUGFIX       : SpecialOrders/Custom Products (extra ticket) notes printing fixed.
-- BUGFIX       : SpecialOrders/Custom Products when completing order the tax is not calculated.
+- BUGFIX       : SpecialOrders/Custom Products when completing order the tax is    ***IMPORTANT FIX***
+                 not calculated.
+- BUGFIX       : SpecialOrders/Custom Products when incrementing/decrementing it   ***IMPORTANT FIX***
+                 the discount and total for the item is not calculated properly.
 - BUGFIX       : When selling Custom Products and adding more than one, the client is the same
                  for all custom products, its not allowed to change the client when adding another custom product.
 - BUGFIX       : Adding fix_roles.sql script to fix the roles on database. Run this on 0.9.2 or older databases.
