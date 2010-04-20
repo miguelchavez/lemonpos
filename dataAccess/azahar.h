@@ -205,6 +205,7 @@ class Azahar : public QObject
     void                    soTicketSetStatus(qulonglong ticketId, int status);
     qulonglong              insertSpecialOrder(SpecialOrderInfo info);
     bool                    updateSpecialOrder(SpecialOrderInfo info);
+    bool                    decrementSOStock(qulonglong id, double qty, QDate date);
     bool                    deleteSpecialOrder(qulonglong id);
     SpecialOrderInfo        getSpecialOrderInfo(qulonglong id);
     QList<ProductInfo>      getSpecialOrderProductsList(qulonglong id);

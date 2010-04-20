@@ -426,7 +426,7 @@ void ProductEditor::checkFieldsState()
     !ui->editTax->text().isEmpty()        &&
     !ui->editExtraTaxes->text().isEmpty() &&
     !ui->editFinalPrice->text().isEmpty() &&
-    ui->editTax->text().toDouble() > 0
+    ui->editTax->text().toDouble() >= 0     /// See Ticket #74. Allow ZERO tax for some products.
     )  {
     ready = true;
   }

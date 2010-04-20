@@ -1622,7 +1622,7 @@ void lemonView::finishCurrentTransaction()
     QStringList productIDs; productIDs.clear();
     int cantidad=0;
     double utilidad=0;
-    double soGTotal; //totals for all so.
+    double soGTotal=0; //totals for all so.
     QDateTime soDeliveryDT;
 
     Azahar *myDb = new Azahar;
@@ -1727,6 +1727,8 @@ void lemonView::finishCurrentTransaction()
       foreach(SpecialOrderInfo siInfo, specialOrders) {
         // NOTE: here the Special Item is taken as ONE -not counting its components- but COUNT QTY of each SO.
         tInfo.itemcount += siInfo.qty; //specialOrders.count();
+        //Decrement each component stock!
+        myDb->decrementSOStock(siInfo.orderid, siInfo.qty, QDate::currentDate());
         position++; //increment the existent positions.
         ordersStr.append(QString::number(siInfo.orderid)+"/"+QString::number(siInfo.qty));
         elementsStr.append(siInfo.groupElements);
@@ -1734,7 +1736,6 @@ void lemonView::finishCurrentTransaction()
         //      Its going to be calculated when the payment is done (when picking up the product)
         //      and is going to be emited other transaction with the profit/payment.
         //      TODO: Add this note to the manual.
-        //utilidad += (siInfo.payment/*price*/ - siInfo.cost)*siInfo.qty;
 
         if (siInfo.status == stReady) {
           if ( siInfo.completePayment ) {
@@ -1894,6 +1895,7 @@ void lemonView::finishCurrentTransaction()
 
     //Ticket
     ticket.number = currentTransaction;
+    ticket.subTotal = KGlobal::locale()->formatMoney(subTotalSum, QString(), 2);
     ticket.total  = payTotal;
     ticket.change = changeGiven;
     ticket.paidwith = payWith;
@@ -1970,22 +1972,23 @@ void lemonView::printTicket(TicketInfo ticket)
   QString hQty           = i18n("Qty");
   QString hProduct       = i18n("Product");
   QString hPrice         = i18n("Price");
-  QString hDisc          = i18n("Offer");
+  QString hDisc          = i18n("Discount"); //Offer
   QString hTotal         = i18n("Total");
   QString hClientDisc    = i18n("Your Personal Discount");
   QString hClientBuyPoints  = i18n("Your points this buy: %1", ticket.buyPoints); //FIXME: here use the ticket.
   QString hClientPoints  = i18n("Your total points: %1", ticket.clientPoints);
   QString hTicket  = i18n("# %1", ticket.number);
   QString terminal = i18n("Terminal #%1", Settings::editTerminalNumber());//FIXME:This is not TRUE when REPRINTING TICKET
-  QString hPrePayment = i18n("  PRE PAYMENT OF  ");
-  QString hCompletePayment = i18n("  COMPLETED PAYMENT WITH ");
-  QString hNextPaymentStr = i18n("  To complete your payment");
-  QString hLastPaymentStr = i18n("  Your pre-payment");
+  QString hPrePayment = i18n("PRE PAYMENT OF");
+  QString hCompletePayment = i18n("COMPLETED PAYMENT WITH");
+  QString hNextPaymentStr = i18n("To complete your payment");
+  QString hLastPaymentStr = i18n("Your pre payment");
   QString hSpecialOrder = i18n("SPECIAL ORDERS");
   QString hNotes = i18n("Notes:");
-  QString hDeliveryDT = i18n("  Delivery: ");
-  hDeliveryDT.remove(":"); // FIXME: JUST TO interfere less on the string freeze... Remove after 0.9.3 release!
+  QString hDeliveryDT = i18n("Delivery");
   QString hTax = i18n("Tax");
+  QString hSubtotal = i18n("Subtotal");
+  QString hTendered = i18n("Tendered");
   //HTML Ticket
   QStringList ticketHtml;
   double tDisc = 0.0;
@@ -2134,6 +2137,8 @@ void lemonView::printTicket(TicketInfo ticket)
   //Printing...
   qDebug()<< itemsForPrint.join("\n");
 
+  tDisc = tDisc + ticket.clientDiscMoney;
+
   ///Real printing... [sendind data to print-methods]
   if (Settings::printTicket()) {
     if (Settings::smallTicketDotMatrix()) {
@@ -2142,7 +2147,7 @@ void lemonView::printTicket(TicketInfo ticket)
       QString printerCodec=Settings::printerCodec();
       PrintDEV::printSmallTicket(printerFile, printerCodec, itemsForPrint.join("\n"));
     } //smalTicket
-    else if (Settings::smallTicketCUPS() ) { // some code taken from Daniel O'Neill contribution.
+    else if (Settings::smallTicketCUPS() ) { // some code inspired on Daniel O'Neill code.
       qDebug()<<"Printing small receipt using CUPS";
       PrintTicketInfo ptInfo;
       QPixmap logoPixmap;
@@ -2151,6 +2156,7 @@ void lemonView::printTicket(TicketInfo ticket)
       //foreach(TicketLineInfo li, ticket.lines) {
       //  qDebug()<<"TicketLine.geForPrint:"<<li.geForPrint;
       //}
+
 
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
@@ -2175,11 +2181,14 @@ void lemonView::printTicket(TicketInfo ticket)
       ptInfo.thTotals   = KGlobal::locale()->formatMoney(ptInfo.ticketInfo.total, QString(), 2);
       ptInfo.thPoints   = i18n(" %3 [ %4 ]| You got %1 points | Your accumulated is :%2 | ", ticket.buyPoints, ticket.clientPoints, clientName, ticket.clientid);
       ptInfo.thArticles = i18np("%1 article.", "%1 articles.", ptInfo.ticketInfo.itemcount);
-      ptInfo.thPaid     = i18n("Paid with %1, your change is %2", KGlobal::locale()->formatMoney(ptInfo.ticketInfo.paidwith, QString(), 2),KGlobal::locale()->formatMoney(ptInfo.ticketInfo.change, QString(), 2) );
+      ptInfo.thPaid     = KGlobal::locale()->formatMoney(ptInfo.ticketInfo.paidwith, QString(), 2);
+      ptInfo.thChange   = KGlobal::locale()->formatMoney(ptInfo.ticketInfo.change, QString(), 2);
+      ptInfo.thChangeStr= i18n("Change");
       ptInfo.tDisc      = KGlobal::locale()->formatMoney(-tDisc, QString(), 2);
       ptInfo.thCard     = i18n("Card Number  : %1", ticket.cardnum);
       ptInfo.thCardAuth = i18n("Authorization : %1", ticket.cardAuthNum);
       ptInfo.totDisc    = tDisc;
+      ptInfo.subtotal   = ticket.subTotal;
       ptInfo.logoOnTop = Settings::chLogoOnTop();
       //QString signM = KGlobal::locale()->formatMoney(tDisc, QString(), 2);
       //signM.truncate(2); //NOTE: this is only getting the sign "$"...
@@ -2193,6 +2202,8 @@ void lemonView::printTicket(TicketInfo ticket)
       ptInfo.randomMsg = myDb->getRandomMessage(rmExcluded, rmSeason);
       ptInfo.taxes = KGlobal::locale()->formatMoney(ticket.totalTax, QString(), 2);
       ptInfo.thTax = hTax;
+      ptInfo.thSubtotal = hSubtotal;
+      ptInfo.thTendered = hTendered;
 
       QPrinter printer;
       printer.setFullPage( true );
@@ -2235,6 +2246,7 @@ void lemonView::printTicket(TicketInfo ticket)
       ptInfo.thArticles = i18np("%1 article.", "%1 articles.", ptInfo.ticketInfo.itemcount);
       ptInfo.thPaid     = ""; //i18n("Paid with %1, your change is %2", KGlobal::locale()->formatMoney(ptInfo.ticketInfo.paidwith, QString(), 2),KGlobal::locale()->formatMoney(ptInfo.ticketInfo.change, QString(), 2) );
       ptInfo.tDisc      = KGlobal::locale()->formatMoney(-tDisc, QString(), 2);
+      ptInfo.subtotal   = ticket.subTotal;
       ptInfo.totDisc    = tDisc;
       ptInfo.logoOnTop = Settings::chLogoOnTop();
       ptInfo.clientDiscMoney = ticket.clientDiscMoney;

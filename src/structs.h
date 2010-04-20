@@ -227,6 +227,7 @@ struct TicketInfo {
   double totalTax;
   QDateTime deliveryDT;
   double soTotal; //this is the total for the SO (nextpayment + prepayment)
+  QString subTotal;
 };
 
 struct PrintTicketInfo {
@@ -249,6 +250,7 @@ struct PrintTicketInfo {
   QString    thPoints;
   QString    thTicket;
   QString    thPaid;
+  QString    thChange;
   QString    tDisc;
   QString    thCard;
   QString    thCardAuth;
@@ -263,8 +265,12 @@ struct PrintTicketInfo {
   QString    clientDiscountStr;
   double     clientDiscMoney;
   QString    randomMsg;
+  QString    thChangeStr;
   QString    taxes;
   QString    thTax;
+  QString    thTendered;
+  QString    thSubtotal;
+  QString    subtotal;
 };
 
 //TODO: add grouped products and special orders

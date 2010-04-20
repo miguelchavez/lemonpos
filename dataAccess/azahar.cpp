@@ -478,7 +478,7 @@ bool Azahar::decrementProductStock(qulonglong code, double qty, QDate date)
   query.bindValue(":qtys", qtys);
   query.bindValue(":dateSold", date.toString("yyyy-MM-dd"));
   if (!query.exec()) setError(query.lastError().text()); else result=true;
-  //qDebug()<<"Rows:"<<query.numRowsAffected();
+  //qDebug()<<"DECREMENT Product Stock  -- Rows Affected:"<<query.numRowsAffected();
   return result;
 }
 
@@ -493,7 +493,7 @@ bool Azahar::decrementGroupStock(qulonglong code, double qty, QDate date)
   foreach(QString ea, lelem) {
     qulonglong c = ea.section('/',0,0).toULongLong();
     double     q = ea.section('/',1,1).toDouble();
-    ProductInfo pi = getProductInfo(c);
+    //ProductInfo pi = getProductInfo(c);
     //FOR EACH ELEMENT, DECREMENT PRODUCT STOCK
     result = result && decrementProductStock(c, q*qty, date);
   }
@@ -3248,6 +3248,23 @@ bool Azahar::updateSpecialOrder(SpecialOrderInfo info)
   query.bindValue(":deliveryDT", info.deliveryDateTime);
   
   if (!query.exec()) setError(query.lastError().text()); else result=true;
+  return result;
+}
+
+bool Azahar::decrementSOStock(qulonglong id, double qty, QDate date)
+{
+  bool result = true;
+  if (!db.isOpen()) db.open();
+  QSqlQuery query(db);
+
+  QList<QString> lelem = getSpecialOrderProductsStr(id).split(",");
+  foreach(QString ea, lelem) {
+    qulonglong c = ea.section('/',0,0).toULongLong();
+    double     q = ea.section('/',1,1).toDouble();
+    //FOR EACH ELEMENT, DECREMENT PRODUCT STOCK
+    result = result && decrementProductStock(c, q*qty, date);
+  }
+  
   return result;
 }
 

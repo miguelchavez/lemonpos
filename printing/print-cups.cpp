@@ -511,51 +511,6 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
         printer.newPage();             // no more room on this page
         yPos = 0;                       // back to top of page
       }
-       //BEGIN The PRE-PAYMENT/NEXT-PAYMENT DATA.
-//       QString sp; QString sp2;
-//       double nextPayment = tLine.gtotal-tLine.payment;//*tLine.qty; //(/*tLine.price*/tLine.gtotal-tLine.payment/*+tLine.partialDisc*/)*tLine.qty
-//       if (tLine.completePayment) {
-//         sp  = ptInfo.paymentStrComplete + QString::number(tLine.payment/* *tLine.qty*/, 'f',2);
-//         sp2 = ptInfo.lastPaymentStr+ ": "+QString::number(nextPayment, 'f',2);
-//       }
-//       else {
-//         sp = ptInfo.paymentStrPrePayment + QString::number(tLine.payment/* *tLine.qty*/, 'f',2);
-//         sp2 = ptInfo.nextPaymentStr+ ": "+QString::number(nextPayment, 'f',2);
-//       }
-//       if (isGroup) sp  = ""; ///hack!
-//       //change font for the PAYMENT MSG
-//       tmpFont = QFont("Bitstream Vera Sans", 17 );
-//       tmpFont.setWeight(QFont::Bold);
-//       painter.setFont(tmpFont);
-//       fm = painter.fontMetrics();
-//       painter.drawText(Margin, Margin+yPos, sp);
-//       yPos = yPos + fm.lineSpacing();
-//       //print the negative qty for the payment.
-//       // The negative qty is one of the next:
-//       //     * When completing the SO: the amount of the pre-payment.
-//       //     * When starting the SO:   the remaining amount to pay.
-//       sp2 = (nextPayment >0) ? sp2 : "";
-//       if (isGroup) sp2  = ""; ///hack!
-//       painter.drawText(Margin, Margin+yPos, sp2);
-//       //sp  = (nextPayment >0) ? QString::number(nextPayment, 'f',2) : "";
-//       //if (isGroup) sp  = ""; ///hack!
-//       //painter.drawText((printer.width()/3)+columnTotal-50, Margin+yPos, sp);
-//       yPos = yPos + fm.lineSpacing();
-//       ///Check for delivery date and if its a SO
-//       if (!isGroup && tLine.payment>0 ) {
-//         sp = ptInfo.deliveryDateStr + deliveryDT.toString("ddd d MMMM, h:m ap"); //TODO:hey i18n stuff!!!
-//         tmpFont = QFont("Bitstream Vera Sans", 17 );
-//         tmpFont.setWeight(QFont::Bold);
-//         painter.setFont(tmpFont);
-//         fm = painter.fontMetrics();
-//         painter.drawText(Margin, Margin+yPos, sp);
-//         yPos = yPos + fm.lineSpacing();
-//         tmpFont = QFont("Bitstream Vera Sans", 17 );
-//         tmpFont.setWeight(QFont::Normal);
-//         painter.setFont(tmpFont);
-//         fm = painter.fontMetrics();
-//       }
-       //END The PRE-PAYMENT/NEXT-PAYMENT DATA.
     } /// is group or specialorder ?
     //Check if space for the next text line
     if ( Margin + yPos > printer.height() - Margin ) {
@@ -572,7 +527,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       painter.setFont(tmpFont);
       painter.drawText(Margin, Margin + yPos , text);
       text = localeForPrinting.toString(-ptInfo.clientDiscMoney,'f',2);
-      painter.drawText((printer.width()/3)+columnTotal, Margin + yPos , text);
+      painter.drawText((printer.width()/3)+columnDisc-50, Margin + yPos , text);
       yPos = yPos + fm.lineSpacing();
       tmpFont.setWeight(QFont::Normal);
       tmpFont.setItalic(false);
@@ -581,7 +536,6 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     //line separator..
     painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
     painter.drawLine(Margin, Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
-    yPos = yPos + fm.lineSpacing();
     
     //Check if space for the next text 3 lines
     if ( (Margin + yPos +fm.lineSpacing()*3) > printer.height() - Margin ) {
@@ -589,6 +543,15 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       yPos = 0;                       // back to top of page
     }
 
+    //total Articles...
+    painter.setPen(normalPen);
+    tmpFont.setWeight(QFont::Bold);
+    painter.setFont(tmpFont);
+    yPos = yPos + fm.lineSpacing();
+    text = ptInfo.thArticles;
+    painter.drawText(Margin, Margin + yPos , text);
+    yPos = yPos + fm.lineSpacing();
+    
     // NOW SPECIAL ORDERS STUFF
     //BEGIN The PRE-PAYMENT/NEXT-PAYMENT DATA.
     bool isSO = ptInfo.ticketInfo.hasSpecialOrders;
@@ -640,48 +603,85 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
         fm = painter.fontMetrics();
         textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, sp);
         painter.drawText(printer.width()-(printer.width()/3)-textWidth.width(), Margin+yPos, sp);
-        sp = ptInfo.ticketInfo.deliveryDT.toString("ddd d MMM h:m ap"); //TODO:hey i18n stuff!!!
+        sp = ptInfo.ticketInfo.deliveryDT.toString("ddd d MMM");
+        textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, sp);
+        painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, sp);
+        sp = ptInfo.ticketInfo.deliveryDT.toString("h:m ap");
+        yPos = yPos + fm.lineSpacing();
         textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, sp);
         painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, sp);
         yPos = yPos + fm.lineSpacing();
-        tmpFont = QFont("Bitstream Vera Sans", 17 );
-        tmpFont.setWeight(QFont::Normal);
-        painter.setFont(tmpFont);
-        fm = painter.fontMetrics();
       }
       yPos = yPos + fm.lineSpacing()*2;
       //END The PRE-PAYMENT/NEXT-PAYMENT DATA.
     }
     
     // NOW TOTALS...
-    
-    painter.setPen(normalPen);
+    tmpFont = QFont("Bitstream Vera Sans", 17 );
+    tmpFont.setWeight(QFont::Normal);
+    painter.setFont(tmpFont);
+    fm = painter.fontMetrics();
+    if (ptInfo.totDisc >0) {
+      textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.thDiscount);
+      painter.drawText(printer.width()-(printer.width()/3)-textWidth.width(), Margin+yPos, ptInfo.thDiscount);
+      textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.tDisc);
+      painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, ptInfo.tDisc);
+      yPos = yPos + fm.lineSpacing();
+    }
+    //TODO: PERSONAL DISCOUNT !!!!!!!!!
+    //subtotals
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.thSubtotal);
+    painter.drawText(printer.width()-(printer.width()/3)-textWidth.width(), Margin+yPos, ptInfo.thSubtotal);
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.subtotal);
+    //text = QString::number(ptInfo.subtotal, 'f', 2);
+    painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, ptInfo.subtotal);
+    yPos = yPos + fm.lineSpacing();
+    //taxes
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.thTax);
+    painter.drawText(printer.width()-(printer.width()/3)-textWidth.width(), Margin+yPos, ptInfo.thTax);
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.taxes);
+    painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, ptInfo.taxes);
+    yPos = yPos + fm.lineSpacing();
+    //draw a total line
+    painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+    painter.drawLine((printer.width() - (printer.width()/3)) , Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
+    yPos = yPos + fm.lineSpacing();
+    painter.setPen(QPen(Qt::black, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+    //grand total
+    tmpFont = QFont("Bitstream Vera Sans", 17 );
     tmpFont.setWeight(QFont::Bold);
     painter.setFont(tmpFont);
+    fm = painter.fontMetrics();
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.thTotal);
+    painter.drawText(printer.width()-(printer.width()/3)-textWidth.width(), Margin+yPos, ptInfo.thTotal);
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.thTotals);
+    painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, ptInfo.thTotals);
     yPos = yPos + fm.lineSpacing();
-    text = ptInfo.thArticles; 
-    painter.drawText((printer.width()/3)-columnQty-90, Margin + yPos , text);
-    if (ptInfo.totDisc >0) {
-      painter.drawText((printer.width()/3)+columnDisc-90, Margin+yPos, ptInfo.tDisc);
-    }
-    painter.drawText((printer.width()/3)+columnTotal-90, Margin+yPos, ptInfo.thTotals);
-    //yPos = yPos + fm.lineSpacing();
-    text = ptInfo.taxes;
-    painter.drawText(printer.width()-(fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text).width())-Margin, Margin + yPos, text);
-
-    yPos = yPos + fm.lineSpacing()*3;
     
-    // Paid with and change
+
     if ( (Margin + yPos +fm.lineSpacing()*3) > printer.height() - Margin ) {
       printer.newPage();             // no more room on this page
       yPos = 0;                       // back to top of page
     }
+    else yPos = yPos + fm.lineSpacing()*2;
+    // Tendered with and change
+    tmpFont = QFont("Bitstream Vera Sans", 17 );
     tmpFont.setWeight(QFont::Normal);
     painter.setFont(tmpFont);
-    text = ptInfo.thPaid;
-    painter.drawText(Margin, Margin + yPos , text);
+    fm = painter.fontMetrics();
+    //TENDERED
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.thTendered);
+    painter.drawText(printer.width()-(printer.width()/3)-textWidth.width(), Margin+yPos, ptInfo.thTendered);
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.thPaid);
+    painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, ptInfo.thPaid);
     yPos = yPos + fm.lineSpacing();
-
+    //CHANGE
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.thChangeStr);
+    painter.drawText(printer.width()-(printer.width()/3)-textWidth.width(), Margin+yPos, ptInfo.thChangeStr);
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.thChange);
+    painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, ptInfo.thChange);
+    yPos = yPos + fm.lineSpacing();
+    //TODO: Verify THIS!!!
     if (ptInfo.ticketInfo.paidWithCard) {
       painter.setFont(tmpFont);
       text = ptInfo.thCard;
