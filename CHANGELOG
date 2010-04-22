@@ -11,7 +11,8 @@ CHANGELOG FOR LEMONPOS VERSION 0.9.3
 - BUGFIX       : SpecialOrders/Custom Products when incrementing/decrementing it   ***IMPORTANT FIX***
                  the discount and total for the item is not calculated properly.
 - BUGFIX       : When selling Custom Products and adding more than one, the client is the same
-                 for all custom products, its not allowed to change the client when adding another custom product.
+                 for all custom products, its not allowed to change the client 
+                 and delivery date  when adding another custom product.
 - BUGFIX       : Adding fix_roles.sql script to fix the roles on database. Run this on 0.9.2 or older databases.
 - BUGFIX       : Crash when using the Products Table View by default.
 - BUGFIX       : Squeeze Freezes when adding a new user, under certain conditions. May influence kernel version.
@@ -23,6 +24,7 @@ CHANGELOG FOR LEMONPOS VERSION 0.9.3
 - BUGFIX       : Undefined values for balanceId and totalTax in the transaction table, only for purchases.
 - BUGFIX       : When editing a group in squeeze, the available products to add to the group, shows the 
                  group products and raw products in the source products list.
+- IMPROVEMENT  : Product Editor now allows ZERO tax for products that need to be this way (tax free products).
 - IMPROVEMENT  : Increased refresh time for the model views (all tables on Squeeze), they refresh every
                  2 minutes instead of 5 seconds.
 - IMPROVEMENT  : Special Orders delivery date now is printed in the format: 'Mon 21 May, 4:30 PM'.
@@ -31,10 +33,11 @@ CHANGELOG FOR LEMONPOS VERSION 0.9.3
 - IMPROVEMENT  : Some important fields (group elements, items in transactions...) are expanded to 1000 chars,
                  and other to 255 from lower values.
 - IMPROVEMENT  : Removed empty transactions from the Resume Sale selector. This empty transaction (only one)
-                 is the one created at lemon start, it
-                 will be deleted on lemon exit.
+                 is the one created at lemon start, it  will be deleted on lemon exit.
 - IMPROVEMENT  : A lower limit for payment set to 1.00 in the Special Order Editor.
 - IMPROVEMENT  : The taxes and price for groups are calculated when needed by lemon. To report the correct tax and price.
+- IMPROVEMENT  : A splitter between the products grid and the purchase list in lemon. To allow resize them.
+- IMPROVEMENT  : Ticket Redesign to improve readability.
 - UPDATE       : Some translations where updated (de,es,fr).
 
 

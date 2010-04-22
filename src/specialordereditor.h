@@ -73,7 +73,8 @@ class SpecialOrderEditor : public KDialog
     void    setTransId(qulonglong id)  {m_transId = id; ui->lblTransId->setText(QString::number(id)); }
     void    setPayment(double d)       { ui->editPayment->setValue(d); }
     void    setDateTime(QDateTime dt)  { dateTime = dt; }
-    void    setDeliveryDateTime(QDateTime dt)  { ui->deliveryDT->setDateTime(dt); }
+    void    setDeliveryDateTime(QDateTime dt)  { ui->deliveryDT->setDateTime(dt); dateTime = dt; }
+    void    setDeliveryDateTimeEnabled(bool value) { ui->deliveryDT->setEnabled(value); }
     void    setUsername(QString name);
     void    setClientsComboEnabled(bool val) { ui->clientsCombo->setEnabled(val); }
     void    setClientName(QString name);

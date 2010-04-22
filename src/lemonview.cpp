@@ -3599,7 +3599,11 @@ void lemonView::addSpecialOrder()
   soEditor->setTransId(currentTransaction);
   soEditor->setUsername(loggedUserName);
   soEditor->setClientsComboEnabled(allowClientSelection);
-  if (!allowClientSelection) soEditor->setClientName(clientInfo.name);
+  soEditor->setDeliveryDateTimeEnabled(allowClientSelection);
+  if (!allowClientSelection) {
+    soEditor->setClientName(clientInfo.name);
+    soEditor->setDeliveryDateTime(QDateTime::currentDateTime());
+  }
 
   if (soEditor->exec()) {
     //get values from dialog
