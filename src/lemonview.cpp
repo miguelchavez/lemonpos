@@ -199,6 +199,7 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   connect(ui_mainview.editCardNumber, SIGNAL(returnPressed()), SLOT(goSelectCardAuthNumber()) );
   connect(ui_mainview.editCardAuthNumber, SIGNAL(returnPressed()), SLOT(finishCurrentTransaction()) );
   connect(ui_mainview.splitter, SIGNAL(splitterMoved(int, int)), SLOT(setUpTable()));
+  connect(ui_mainview.splitterGrid, SIGNAL(splitterMoved(int, int)), SLOT(setUpTable()));
   connect(ui_mainview.comboClients, SIGNAL(currentIndexChanged(int)), SLOT(comboClientsOnChange()));
   connect(ui_mainview.btnChangeSaleDate, SIGNAL(clicked()), SLOT(showChangeDate()));
 
@@ -355,6 +356,16 @@ void lemonView::setTheSplitterSizes(QList<int> s)
 QList<int> lemonView::getTheSplitterSizes()
 {
   return ui_mainview.splitter->sizes();
+}
+
+void lemonView::setTheGridSplitterSizes(QList<int> s)
+{
+  ui_mainview.splitterGrid->setSizes(s);
+}
+
+QList<int> lemonView::getTheGridSplitterSizes()
+{
+  return ui_mainview.splitterGrid->sizes();
 }
 
 //This ensures that when not connected to mysql, the user can configure the db settings and then trying to connect

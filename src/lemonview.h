@@ -62,10 +62,12 @@ public:
     QString getCurrentTransactionString();
     qulonglong     getCurrentTransaction();
     QList<int> getTheSplitterSizes();
+    QList<int> getTheGridSplitterSizes();
     int rmSeason;
     QList<qulonglong> rmExcluded;
 
     void setTheSplitterSizes(QList<int> s);
+    void setTheGridSplitterSizes(QList<int> s);
     bool isTransactionInProgress() { return transactionInProgress;}
     void cancelByExit();
     bool canStartSelling() {return operationStarted;}

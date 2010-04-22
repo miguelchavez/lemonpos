@@ -316,6 +316,7 @@ void lemon::setupActions()
 
   setGeometry(QApplication::desktop()->screenGeometry(this));
   if (!Settings::splitterSizes().isEmpty()) m_view->setTheSplitterSizes(Settings::splitterSizes());
+  if (!Settings::gridSplitterSizes().isEmpty()) m_view->setTheGridSplitterSizes(Settings::gridSplitterSizes());
 }
 
 void lemon::saveProperties(KConfigGroup &config)
@@ -738,6 +739,7 @@ void lemon::changeCaption(const QString& text)
 bool lemon::queryClose()
 {
   Settings::setSplitterSizes(m_view->getTheSplitterSizes());
+  Settings::setGridSplitterSizes(m_view->getTheGridSplitterSizes());
   //FIXED Settings::writeConfig();
   Settings::self()->writeConfig();
   //Close only by admin user. or ask for password??

@@ -8,6 +8,9 @@
     <entry name="SplitterSizes" type="IntList">
       <label>How the main window is divided.</label>
     </entry>
+    <entry name="GridSplitterSizes" type="IntList">
+      <label>How the grid/purchase-list is divided.</label>
+    </entry>
   </group>
   <group name="Store Preferences">
     <entry name="editStoreName" type="String">
