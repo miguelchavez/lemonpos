@@ -27,6 +27,7 @@
 #include "../src/structs.h"
 #include "../src/enums.h"
 
+enum AzaharRTypes {rtPercentage=1001, rtMoney=1002};
 
 class QString;
 
@@ -217,7 +218,7 @@ class Azahar : public QObject
     QStringList             getStatusList();
     QStringList             getStatusListExceptDelivered();
     int                     getStatusId(QString texto);
-    double                  getSpecialOrderAverageTax(qulonglong id);
+    double                  getSpecialOrderAverageTax(qulonglong id, AzaharRTypes returnType= rtPercentage);
     double                  getSpecialOrderAverageDiscount(qulonglong id);
 
     //Random Msgs

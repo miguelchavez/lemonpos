@@ -283,7 +283,7 @@ ProductInfo Azahar::getProductInfo(qulonglong code, bool notConsiderDiscounts)
      }
      ///tax calculation - it depends on discounts...
      double pWOtax = 0;
-     if (getConfigTaxIsIncludedInPrice()) //added on jan 28 2010. Also on db we have other setting
+     if (getConfigTaxIsIncludedInPrice()) //added on jan 28 2010. 
        pWOtax= info.price/(1+((info.tax+info.extratax)/100));
      else
        pWOtax = info.price;
@@ -3360,7 +3360,7 @@ SpecialOrderInfo Azahar::getSpecialOrderInfo(qulonglong id)
 //              The tax charged to the group with each product tax is $2.15
 //              This means the average tax is not accurate for all cases.
 //       Thats why this 'effective' tax average is returned.
-double Azahar::getSpecialOrderAverageTax(qulonglong id)
+double Azahar::getSpecialOrderAverageTax(qulonglong id, AzaharRTypes returnType)
 {
   double price = 0;
   double taxMoney = 0;
@@ -3370,21 +3370,37 @@ double Azahar::getSpecialOrderAverageTax(qulonglong id)
   
   QList<ProductInfo> pList = getSpecialOrderProductsList(id);
   foreach( ProductInfo info, pList) {
-    price += info.price*info.qtyOnList;
-    taxMoney += info.totaltax*info.qtyOnList;
-    qDebug()<<" < EACH ONE > price: "<<info.price*info.qtyOnList<<" taxMoney: "<<info.totaltax*info.qtyOnList;
+    double discount = 0; double pWOtax= 0;
+    if (info.validDiscount) discount = info.price*info.qtyOnList*(info.discpercentage/100);
+
+    if ( !getConfigTaxIsIncludedInPrice() )
+      pWOtax = info.price;
+    else
+      pWOtax= info.price/(1+((info.tax+info.extratax)/100));
+
+//     ESTA MAL...  para 1080 el tax es 65.45 considerando que el precio real sin impuesto es 474.545
+//     esta poniendolo a 172/2 .. osea que lo calcula a 1080*.1379 y no a 474.545*2*0.1379 falta quitarle el tax si !AddTax.
+//     en lemonview.cpp al refreshTotalLabel lo calcula BIEN!!!!
+    
+    price += (pWOtax*info.qtyOnList)-discount;
+    taxMoney += (info.tax/100)*((info.qtyOnList*pWOtax)-discount); //info.totaltax*info.qtyOnList;
+    //qDebug()<<" < EACH ONE > price: "<<(pWOtax*info.qtyOnList)-discount<<" taxMoney: "<<(info.tax/100)*((pWOtax*info.qtyOnList)-discount)
+    //<<" Discount:"<<discount<<" pWOTax:"<<pWOtax;
   }
 
   foreach(ProductInfo info, pList) {
     tax += (info.totaltax*info.qtyOnList/price)*100;
-    qDebug()<<" < SO TAX >  qtyOnList:"<<info.qtyOnList<<" tax money for product: "<<info.totaltax<<" group price:"<<price<<" taxMoney for group:"<<taxMoney<<" tax % for group:"<< tax;
   }
-  
-  return tax;
+
+  qDebug()<<"\n <<<<<<< SPECIAL ORDER TAX:%"<<tax<<" $"<<taxMoney<<" Based Price:"<<price<<">>>>>>>>\n";
+
+  if (returnType == rtMoney) 
+    return taxMoney;
+  else
+    return tax;
 }
 
 ///This gets discounts on a special order based on its raw products discount, returned in %.
-///NOTE: This methods suffers from the same as the average tax!
 double Azahar::getSpecialOrderAverageDiscount(qulonglong id)
 {
   double price = 0;
@@ -3398,14 +3414,15 @@ double Azahar::getSpecialOrderAverageDiscount(qulonglong id)
     price += info.price*info.qtyOnList;
     if (info.validDiscount)
       discMoney += (info.discpercentage/100)*info.price*info.qtyOnList;
-    qDebug()<<" < EACH ONE > price: "<<info.price*info.qtyOnList<<" discMoney: "<<(info.discpercentage/100)*info.price*info.qtyOnList;
+    //qDebug()<<" < EACH ONE > price: "<<info.price*info.qtyOnList<<" discMoney: "<<(info.discpercentage/100)*info.price*info.qtyOnList;
   }
   
   foreach(ProductInfo info, pList) {
     disc += ( ((info.discpercentage/100)*info.price*info.qtyOnList)/price )*100;
-    qDebug()<<" < SO DISCOUNT >  qtyOnList:"<<info.qtyOnList<<" discMoney for product: "<<(info.discpercentage/100)*info.price*info.qtyOnList<<" SO price:"<<price<<" discMoney for group:"<<discMoney<<" DISCOUNT % for group:"<< disc;
+    //qDebug()<<" < SO DISCOUNT >  qtyOnList:"<<info.qtyOnList<<" discMoney for product: "<<(info.discpercentage/100)*info.price*info.qtyOnList<<" SO price:"<<price<<" discMoney for group:"<<discMoney<<" DISCOUNT % for group:"<< disc;
   }
-  
+
+  qDebug()<<"\n <<<<<<< SPECIAL ORDER DISCOUNT:%"<<disc<<" $"<<discMoney<<" Based Price:"<<price<<">>>>>>>>\n";
   return disc;
 }
 

@@ -616,11 +616,16 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       //END The PRE-PAYMENT/NEXT-PAYMENT DATA.
     }
     
-    // NOW TOTALS...
     tmpFont = QFont("Bitstream Vera Sans", 17 );
     tmpFont.setWeight(QFont::Normal);
     painter.setFont(tmpFont);
     fm = painter.fontMetrics();
+    //subtotals
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.thSubtotal);
+    painter.drawText(printer.width()-(printer.width()/3)-textWidth.width(), Margin+yPos, ptInfo.thSubtotal);
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.subtotal);
+    painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, ptInfo.subtotal);
+    yPos = yPos + fm.lineSpacing();
     if (ptInfo.totDisc >0) {
       textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.thDiscount);
       painter.drawText(printer.width()-(printer.width()/3)-textWidth.width(), Margin+yPos, ptInfo.thDiscount);
@@ -628,14 +633,6 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, ptInfo.tDisc);
       yPos = yPos + fm.lineSpacing();
     }
-    //TODO: PERSONAL DISCOUNT !!!!!!!!!
-    //subtotals
-    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.thSubtotal);
-    painter.drawText(printer.width()-(printer.width()/3)-textWidth.width(), Margin+yPos, ptInfo.thSubtotal);
-    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.subtotal);
-    //text = QString::number(ptInfo.subtotal, 'f', 2);
-    painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, ptInfo.subtotal);
-    yPos = yPos + fm.lineSpacing();
     //taxes
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, ptInfo.thTax);
     painter.drawText(printer.width()-(printer.width()/3)-textWidth.width(), Margin+yPos, ptInfo.thTax);
