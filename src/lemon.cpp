@@ -735,11 +735,15 @@ void lemon::changeCaption(const QString& text)
   setCaption(text);
 }
 
-//FIXME: Verificar que las transacciones se cancelen y se guarden las completadas y se guarde el corte de caja.
 bool lemon::queryClose()
 {
-  Settings::setSplitterSizes(m_view->getTheSplitterSizes());
-  Settings::setGridSplitterSizes(m_view->getTheGridSplitterSizes());
+  int ss1 = m_view->getTheSplitterSizes().at(0); //The main splitter height
+  int ss2 = m_view->getTheGridSplitterSizes().at(0); //The gridView spliiter height
+  qDebug()<<" LeftPanel splitter size:"<<ss1;
+  qDebug()<<" GridView  splitter size:"<<ss2;
+  //Check if the gridview is hidden, to do not save its 0 size values.
+  if ( ss1 >= 50) Settings::setSplitterSizes(m_view->getTheSplitterSizes());
+  if ( ss2 >= 50) Settings::setGridSplitterSizes(m_view->getTheGridSplitterSizes());
   //FIXED Settings::writeConfig();
   Settings::self()->writeConfig();
   //Close only by admin user. or ask for password??
