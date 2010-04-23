@@ -1783,8 +1783,7 @@ void lemonView::finishCurrentTransaction()
         //double taxPercentage      = (myDb->getSpecialOrderAverageTax(siInfo.orderid)/100);
         double taxmoney           = myDb->getSpecialOrderAverageTax(siInfo.orderid, rtMoney);
         tItemInfo.total           = (siInfo.price*siInfo.qty)-tItemInfo.disc;
-        //qDebug()<<" \n**** tItemInfo.total:"<<tItemInfo.total<<" disc %:"<<siInfo.disc<<" siInfo.qty:"<<siInfo.qty<<" total discount $"<<tItemInfo.disc<<"\n";
-        tItemInfo.tax             = taxmoney; //taxPercentage * tItemInfo.total;
+        tItemInfo.tax             = taxmoney*siInfo.qty; //taxPercentage * tItemInfo.total;
         tItemInfo.name            = siInfo.name;
         tItemInfo.soId            = "so."+QString::number(siInfo.orderid);
         double sumTax =0;
@@ -1794,7 +1793,6 @@ void lemonView::finishCurrentTransaction()
         tItemInfo.completePayment = siInfo.completePayment;
         tItemInfo.deliveryDateTime= siInfo.deliveryDateTime;
         tItemInfo.isGroup         = false;
-        //if (!Settings::addTax()) tItemInfo.payment -= tItemInfo.tax; //((tItemInfo.tax/100)*siInfo.qty*(siInfo.payment-disc2));
 
         if (siInfo.completePayment && siInfo.status == stReady) completePayments++;
         
@@ -1866,10 +1864,11 @@ void lemonView::finishCurrentTransaction()
     double _taxes = 0;
     //if (!Settings::addTax()) _taxes = totalTax;
     // NOTE: If taxes included in price ( !addTax() ) the profit include tax amount. Taxes paid to the gov. are calculated with profit.TODO:VERIFY!
-    tInfo.utility = utilidad - discMoney - _taxes; // utilidad = profit
+    utilidad = utilidad - discMoney; //The net profit  == profit minus the discount (client || occasional)
+    tInfo.utility = utilidad; //NOTE: ? - _taxes;
     tInfo.itemlist  = productIDs.join(",");
 
-    qDebug()<<"\n SALE NET PROFIT:"<< tInfo.utility<<" profit:"<< utilidad<<" discMoney:"<<discMoney<<" _taxes:"<<_taxes<<"\n";
+    qDebug()<<"\n SALE NET PROFIT:"<< tInfo.utility<<" Profit:"<< utilidad<<" discMoney:"<<discMoney<<" _taxes:"<<_taxes<<"\n";
 
     //special orders Str on transactionInfo
     tInfo.specialOrders = ordersStr.join(","); //all special orders on the hash formated as id/qty,id/qty...
