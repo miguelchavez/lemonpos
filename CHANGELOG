@@ -59,6 +59,12 @@ NOTES:
                  The group has a Price-drop that is a discount % applied on each of its components. This is
                  used to calculate the group price and tax. For this reason, the group price, cost and taxes
                  are not editable on squeeze.
+                 
+- NOTE 3       : If you are updating your database from 0.8.x version (or earlier) to a 0.9.X version then you
+                 will need to run the "fix_roles.sql" script in the lemonpos/database_resources/ folder.
+                 The symptom for running the fix_roles.sql script is that the "admin" user will be rejected as
+                 an administrator, but you still login lemon with these user to sell things, but not for apply
+                 occasional discounts or remove items or configure lemon ( unless LowSecurity mode is activated).
 
 
 
