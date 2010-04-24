@@ -3378,10 +3378,6 @@ double Azahar::getSpecialOrderAverageTax(qulonglong id, AzaharRTypes returnType)
     else
       pWOtax= info.price/(1+((info.tax+info.extratax)/100));
 
-//     ESTA MAL...  para 1080 el tax es 65.45 considerando que el precio real sin impuesto es 474.545
-//     esta poniendolo a 172/2 .. osea que lo calcula a 1080*.1379 y no a 474.545*2*0.1379 falta quitarle el tax si !AddTax.
-//     en lemonview.cpp al refreshTotalLabel lo calcula BIEN!!!!
-    
     price += (pWOtax*info.qtyOnList)-discount;
     taxMoney += (info.tax/100)*((info.qtyOnList*pWOtax)-discount); //info.totaltax*info.qtyOnList;
     //qDebug()<<" < EACH ONE > price: "<<(pWOtax*info.qtyOnList)-discount<<" taxMoney: "<<(info.tax/100)*((pWOtax*info.qtyOnList)-discount)
@@ -3392,7 +3388,7 @@ double Azahar::getSpecialOrderAverageTax(qulonglong id, AzaharRTypes returnType)
     tax += (info.totaltax*info.qtyOnList/price)*100;
   }
 
-  qDebug()<<"\n <<<<<<< SPECIAL ORDER TAX:%"<<tax<<" $"<<taxMoney<<" Based Price:"<<price<<">>>>>>>>\n";
+  qDebug()<<"\n <<<<<<< GetSpecialOrderAverageTax    :%"<<tax<<" $"<<taxMoney<<" Based Price:"<<price<<">>>>>>>>\n";
 
   if (returnType == rtMoney) 
     return taxMoney;
@@ -3422,7 +3418,7 @@ double Azahar::getSpecialOrderAverageDiscount(qulonglong id)
     //qDebug()<<" < SO DISCOUNT >  qtyOnList:"<<info.qtyOnList<<" discMoney for product: "<<(info.discpercentage/100)*info.price*info.qtyOnList<<" SO price:"<<price<<" discMoney for group:"<<discMoney<<" DISCOUNT % for group:"<< disc;
   }
 
-  qDebug()<<"\n <<<<<<< SPECIAL ORDER DISCOUNT:%"<<disc<<" $"<<discMoney<<" Based Price:"<<price<<">>>>>>>>\n";
+  qDebug()<<"\n <<<<<<< GetSpecialOrderAverageDiscount    :%"<<disc<<" $"<<discMoney<<" Based Price:"<<price<<">>>>>>>>\n";
   return disc;
 }
 
