@@ -300,7 +300,7 @@ t.disc AS disc,
 t.amount AS amount,
 t.date AS date
 from transactions t
-where t.type = 1 and t.state=2 group by datetime;
+where t.type = 1 and t.state=2 order by datetime; #group by hides some transactions
 
 CREATE OR REPLACE VIEW `v_transactionitems` AS
 select

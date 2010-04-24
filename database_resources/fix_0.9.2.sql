@@ -36,3 +36,15 @@ select
 from `transactions` WHERE (`transactions`.`state`= 1) AND (`transactions`.`type` = 1) AND (`transactions`.`itemcount` > 0)
 order by `transactions`.`id`;
 
+CREATE OR REPLACE VIEW `v_transactions` AS
+select
+concat( DATE_FORMAT( t.date, '%d/%m/%Y' ) , ' ', TIME_FORMAT( t.time, '%H:%i' ) ) AS datetime,
+t.id AS id,
+t.clientid AS clientid,
+t.userid AS userid,
+t.itemcount AS itemcount,
+t.disc AS disc,
+t.amount AS amount,
+t.date AS date
+from transactions t
+where t.type = 1 and t.state=2 order by datetime; #group by hides some transactions
