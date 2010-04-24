@@ -104,6 +104,7 @@ public:
     double subTotalSum;
     QDateTime transDateTime;
     double lastDiscount;
+    bool completingOrder;
 
     QHash<qulonglong, SpecialOrderInfo> specialOrders;
     

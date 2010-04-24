@@ -1506,6 +1506,7 @@ void lemonView::createNewTransaction(TransactionType type)
 void lemonView::finishCurrentTransaction()
 {
   bool canfinish = true;
+  completingOrder = false; //reset flag..
   TicketInfo ticket;
   
   refreshTotalLabel();
@@ -1781,15 +1782,15 @@ void lemonView::finishCurrentTransaction()
         soDiscounts              += tItemInfo.disc;
         double disc2              = siInfo.disc * siInfo.payment * siInfo.qty; //this is the discount on the prepayment
         //double taxPercentage      = (myDb->getSpecialOrderAverageTax(siInfo.orderid)/100);
-        double taxmoney           = myDb->getSpecialOrderAverageTax(siInfo.orderid, rtMoney);
+        double taxmoney           = myDb->getSpecialOrderAverageTax(siInfo.orderid, rtMoney)*siInfo.qty; // tax per qty (still needs to be multiplied by qty)
         tItemInfo.total           = (siInfo.price*siInfo.qty)-tItemInfo.disc;
-        tItemInfo.tax             = taxmoney*siInfo.qty; //taxPercentage * tItemInfo.total;
+        tItemInfo.tax             = taxmoney; 
         tItemInfo.name            = siInfo.name;
         tItemInfo.soId            = "so."+QString::number(siInfo.orderid);
         double sumTax =0;
         if (Settings::addTax()) sumTax=taxmoney;
         tItemInfo.payment         = (siInfo.payment*siInfo.qty) -disc2 + sumTax; //(taxPercentage*((siInfo.payment*siInfo.qty)-disc2));
-        qDebug()<<" \n**** tItemInfo.PAYMENT:"<<tItemInfo.payment<<" siInfo.payment:"<<siInfo.payment<<" taxes:"<<taxmoney<<"\n";
+        //qDebug()<<"ItemInfo taxes:"<<taxmoney;
         tItemInfo.completePayment = siInfo.completePayment;
         tItemInfo.deliveryDateTime= siInfo.deliveryDateTime;
         tItemInfo.isGroup         = false;
@@ -1812,7 +1813,6 @@ void lemonView::finishCurrentTransaction()
         double gtotal     = tItemInfo.total + tItemInfo.tax; 
         tLineInfo.gtotal  =  Settings::addTax()  ? gtotal : tLineInfo.total;
         soGTotal         += tLineInfo.gtotal;
-        qDebug()<<"\n\ttItemInfo.total:"<<tLineInfo.total<<"\tItemInfo.tax:"<<tItemInfo.tax<<"\ttLineInfo.gtotal:"<<tLineInfo.gtotal;
         soDeliveryDT      = siInfo.deliveryDateTime; // this will be the same for all the SO, so it does not matter if overwrited.
         tLineInfo.geForPrint = siInfo.geForPrint;
         tLineInfo.completePayment = siInfo.completePayment;
@@ -1820,8 +1820,8 @@ void lemonView::finishCurrentTransaction()
         tLineInfo.isGroup = false;
         tLineInfo.deliveryDateTime = siInfo.deliveryDateTime;
         tLineInfo.tax     = tItemInfo.tax;
-        qDebug()<<" \n==== total:"<<tLineInfo.total<<" Payment:"<< tLineInfo.payment<<" siInfo.payment:"<<siInfo.payment
-        <<" pDisc:"<<disc2<<" % tax $"<<tItemInfo.tax<<" Gran Total:"<<tLineInfo.gtotal<<"\n";
+        //qDebug()<<" \n==== total:"<<tLineInfo.total<<" Payment:"<< tLineInfo.payment<<" siInfo.payment:"<<siInfo.payment
+        //<<" pDisc:"<<disc2<<" % tax $"<<tItemInfo.tax<<" Gran Total:"<<tLineInfo.gtotal<<"\n";
         ///NOTE: Testing with addTax setting and using a sample SO, there is a DIFFERENCE of 18 cents ( the client pays 18 cents less of the real price)
         ///      (REAL PRICE = 285.18, PAID: 285 ). This is the result of the 'rounding' in multiple operations done during the process.
         ///      The error is 0.063 % (285.18 * .00063 = .18)
@@ -1856,19 +1856,30 @@ void lemonView::finishCurrentTransaction()
         }
         //update special order info (when resume sale is used, deliveryDateTime is changed)
         myDb->updateSpecialOrder(siInfo);
+        //update completingOrder flag
+        completingOrder = siInfo.completePayment; //considering the last one at the end, all SO must have the same status!
       } //for each
     }// !specialOrders.isEmpty
     
     // taking into account the client discount. Applied over other products discount.
     // discMoney is the money discounted because of client discount.
-    double _taxes = 0;
+    
+    //double _taxes = 0;
     //if (!Settings::addTax()) _taxes = totalTax;
-    // NOTE: If taxes included in price ( !addTax() ) the profit include tax amount. Taxes paid to the gov. are calculated with profit.TODO:VERIFY!
+    // NOTE: If taxes included in price ( !addTax() ) the profit include tax amount.
+    //       Taxes paid to the gov. are calculated with profit.TODO:VERIFY this information! accountants knowledge fro each country needed.
     utilidad = utilidad - discMoney; //The net profit  == profit minus the discount (client || occasional)
+    if ( !specialOrders.isEmpty() ) {
+      if ( !completingOrder ) {
+        //This means there are special orders, and if they are NOT completing, so profit must be ZERO.
+        utilidad = 0;
+        qDebug()<<"STARTING A SPECIAL ORDER.   The Profit set to ZERO *****";
+      }
+    }
     tInfo.utility = utilidad; //NOTE: ? - _taxes;
     tInfo.itemlist  = productIDs.join(",");
 
-    qDebug()<<"\n SALE NET PROFIT:"<< tInfo.utility<<" Profit:"<< utilidad<<" discMoney:"<<discMoney<<" _taxes:"<<_taxes<<"\n";
+    qDebug()<<"\nSALE NET PROFIT:"<< utilidad<<" discMoney:"<<discMoney<<"\n";
 
     //special orders Str on transactionInfo
     tInfo.specialOrders = ordersStr.join(","); //all special orders on the hash formated as id/qty,id/qty...
@@ -1913,7 +1924,7 @@ void lemonView::finishCurrentTransaction()
       realSubtotal = KGlobal::locale()->formatMoney(subTotalSum-discMoney+soDiscounts+pDiscounts, QString(), 2);
     else
       realSubtotal = KGlobal::locale()->formatMoney(subTotalSum-totalTax+discMoney+soDiscounts+pDiscounts, QString(), 2);
-    qDebug()<<"\n totalTaxes:"<<totalTax<<" total Discount:"<<discMoney<< " SO Discount:"<<soDiscounts<<" Prod Discounts:"<<pDiscounts;
+    qDebug()<<"\n********** Total Taxes:"<<totalTax<<" total Discount:"<<discMoney<< " SO Discount:"<<soDiscounts<<" Prod Discounts:"<<pDiscounts;
     //Ticket
     ticket.number = currentTransaction;
     ticket.subTotal = realSubtotal; //This is the subtotal-taxes-discount
@@ -1972,6 +1983,7 @@ void lemonView::finishCurrentTransaction()
    }
    
    if (!ui_mainview.groupSaleDate->isHidden()) ui_mainview.groupSaleDate->hide(); //finally we hide the sale date group
+   completingOrder = false; //cleaning flag
 }
 
 
