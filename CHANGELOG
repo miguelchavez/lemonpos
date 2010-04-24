@@ -24,6 +24,9 @@ CHANGELOG FOR LEMONPOS VERSION 0.9.3
 - BUGFIX       : Undefined values for balanceId and totalTax in the transaction table, only for purchases.
 - BUGFIX       : When editing a group in squeeze, the available products to add to the group, shows the 
                  group products and raw products in the source products list.
+- BUGFIX       : Some transactions (tickets) were hidden in the "Reprint ticket" function.
+- BUGFIX       : On Special Order Editor, when selecting items from left list and adding to the right list
+                 and having some in the right list, the price is not calculated as it should be.
 - IMPROVEMENT  : Product Editor now allows ZERO tax for products that need to be this way (tax free products).
 - IMPROVEMENT  : Increased refresh time for the model views (all tables on Squeeze), they refresh every
                  2 minutes instead of 5 seconds.
