@@ -228,6 +228,7 @@ struct TicketInfo {
   QDateTime deliveryDT;
   double soTotal; //this is the total for the SO (nextpayment + prepayment)
   QString subTotal;
+  QString terminal;
 };
 
 struct PrintTicketInfo {

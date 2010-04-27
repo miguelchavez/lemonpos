@@ -844,7 +844,6 @@ void lemonView::refreshTotalLabel()
   buyPoints = points;
   totalSumWODisc = sum;
   discMoney = (clientInfo.discount/100)*sum;
-  //totalSum = sum - discMoney;
   subTotalSum = sum - discMoney;
   if (Settings::addTax())
     totalSum    = subTotalSum + totalTax;
@@ -1923,7 +1922,7 @@ void lemonView::finishCurrentTransaction()
     if (Settings::addTax())
       realSubtotal = KGlobal::locale()->formatMoney(subTotalSum-discMoney+soDiscounts+pDiscounts, QString(), 2);
     else
-      realSubtotal = KGlobal::locale()->formatMoney(subTotalSum-totalTax+discMoney+soDiscounts+pDiscounts, QString(), 2);
+      realSubtotal = KGlobal::locale()->formatMoney(subTotalSum-totalTax+discMoney+soDiscounts+pDiscounts, QString(), 2); //FIXME: es +discMoney o -discMoney??
     qDebug()<<"\n********** Total Taxes:"<<totalTax<<" total Discount:"<<discMoney<< " SO Discount:"<<soDiscounts<<" Prod Discounts:"<<pDiscounts;
     //Ticket
     ticket.number = currentTransaction;
@@ -1950,6 +1949,7 @@ void lemonView::finishCurrentTransaction()
 
     ticket.soTotal =  soGTotal;
     ticket.deliveryDT = soDeliveryDT;
+    ticket.terminal = QString::number(tInfo.terminalnum);
     qDebug()<<" \n soGTotal:"<<soGTotal<<" deliveryDT:"<<soDeliveryDT<<"\n";
 
     if (printDTticket)
@@ -2005,13 +2005,13 @@ void lemonView::printTicket(TicketInfo ticket)
   QString hQty           = i18n("Qty");
   QString hProduct       = i18n("Product");
   QString hPrice         = i18n("Price");
-  QString hDisc          = i18n("Discount"); //Offer
+  QString hDisc          = i18n("Discount");
   QString hTotal         = i18n("Total");
   QString hClientDisc    = i18n("Your Personal Discount");
-  QString hClientBuyPoints  = i18n("Your points this buy: %1", ticket.buyPoints); //FIXME: here use the ticket.
+  QString hClientBuyPoints  = i18n("Your points this buy: %1", ticket.buyPoints); 
   QString hClientPoints  = i18n("Your total points: %1", ticket.clientPoints);
   QString hTicket  = i18n("# %1", ticket.number);
-  QString terminal = i18n("Terminal #%1", Settings::editTerminalNumber());//FIXME:This is not TRUE when REPRINTING TICKET
+  QString terminal = i18n("Terminal #%1", ticket.terminal);
   QString hPrePayment = i18n("PRE PAYMENT OF");
   QString hCompletePayment = i18n("COMPLETED PAYMENT WITH");
   QString hNextPaymentStr = i18n("To complete your payment");
@@ -3395,6 +3395,9 @@ void lemonView::printTicketFromTransaction(qulonglong transactionNumber)
   
   TransactionInfo trInfo = myDb->getTransactionInfo(transactionNumber);
   QList<TransactionItemInfo> pListItems = myDb->getTransactionItems(transactionNumber);
+  double itemsDiscount=0;
+  double soGTotal = 0;
+  QDateTime soDeliveryDT;
   for (int i = 0; i < pListItems.size(); ++i){
     TransactionItemInfo trItem = pListItems.at(i);
     // add line to ticketLines
@@ -3410,6 +3413,15 @@ void lemonView::printTicketFromTransaction(qulonglong transactionNumber)
     tLineInfo.isGroup = trItem.isGroup;
     tLineInfo.deliveryDateTime = trItem.deliveryDateTime;
     tLineInfo.tax     = trItem.tax;
+    itemsDiscount    += tLineInfo.disc;
+
+    double gtotal     = trItem.total + trItem.tax;
+    tLineInfo.gtotal  =  Settings::addTax()  ? gtotal : tLineInfo.total;
+    soGTotal         += tLineInfo.gtotal;
+    soDeliveryDT      = trItem.deliveryDateTime; // this will be the same for all the SO, so it does not matter if overwrited.
+    
+    qDebug()<<"\n*** item discount:"<<tLineInfo.disc<<" total itemsDiscount:"<<itemsDiscount<<"\n";
+    qDebug()<<"\n*** soGTotal:"<<soGTotal<<" deliveryDT:"<<soDeliveryDT<<"\n";
     QString newName;
     newName = trItem.soId;
     qulonglong sorderid = newName.remove(0,3).toULongLong();
@@ -3461,8 +3473,22 @@ void lemonView::printTicketFromTransaction(qulonglong transactionNumber)
   ticket.buyPoints = trInfo.points;
   ticket.clientPoints = myDb->getClientInfo(ticket.clientid).points;
   ticket.lines = ticketLines;
-  printTicket(ticket);
+  ticket.terminal = QString::number(trInfo.terminalnum);
+  ticket.totalTax = trInfo.totalTax;
 
+  double subtotal = ticket.total + itemsDiscount + trInfo.discmoney; // - trInfo.totaltax;
+  if (Settings::addTax())
+    subtotal  = subtotal;
+  else
+    subtotal  = subtotal - ticket.totalTax;
+  QString realSubtotal = KGlobal::locale()->formatMoney(subtotal, QString(), 2);
+
+  qDebug()<<"\n*** Ticket tax:"<<trInfo.totalTax<<" itemsDiscount:"<<itemsDiscount<<"client Discount:"<<trInfo.discmoney<<" ticket total:"<<ticket.total<<" SUBTOTAL:"<<subtotal<<" AddTax:"<<Settings::addTax()<<" \n";
+  ticket.subTotal = realSubtotal;
+  if (ticket.hasSpecialOrders) ticket.deliveryDT = soDeliveryDT;
+  ticket.soTotal = soGTotal;
+  
+  printTicket(ticket);
   delete myDb;
 }
 

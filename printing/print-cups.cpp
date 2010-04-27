@@ -1699,7 +1699,7 @@ bool PrintCUPS::printSmallSOTicket(const PrintTicketInfo &ptInfo, QPrinter &prin
         }
         ///Check for delivery date and if its a SO
         if (!isGroup && tLine.payment>0 ) {
-          sp = ptInfo.deliveryDateStr + deliveryDT.toString("ddd d MMMM, h:m ap"); //TODO:hey i18n stuff!!!
+          sp = ptInfo.deliveryDateStr + deliveryDT.toString("  ddd d MMMM, h:m ap"); //TODO:hey i18n stuff!!!
           tmpFont = QFont("Bitstream Vera Sans", 16 );
           tmpFont.setWeight(QFont::Bold);
           painter.setFont(tmpFont);
