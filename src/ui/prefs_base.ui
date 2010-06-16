@@ -176,7 +176,7 @@
       <item>
        <widget class="QCheckBox" name="kcfg_displayWarningOnLowCash">
         <property name="text">
-         <string>Display warning message whe level is lower than</string>
+         <string>Display warning message when level is lower than</string>
         </property>
        </widget>
       </item>

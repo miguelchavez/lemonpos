@@ -1355,7 +1355,7 @@ msgstr "Kassenbestand"
 #. i18n: file: ui/prefs_base.ui:179
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_displayWarningOnLowCash)
 #: po/extractedrc.cpp:363 extractedrc.cpp:363
-msgid "Display warning message whe level is lower than"
+msgid "Display warning message when level is lower than"
 msgstr "Warnung anzeigen wenn in der Kasse weniger als"
 
 #. i18n: file: ui/prefs_base.ui:186
