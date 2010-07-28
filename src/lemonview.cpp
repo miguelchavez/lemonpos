@@ -859,6 +859,13 @@ void lemonView::refreshTotalLabel()
   if (paid <= 0) change = 0.0;
   ui_mainview.labelChange->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(change)));
   ui_mainview.lblSaleTaxes->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(totalTax)));
+
+  //update client discount
+  QString dStr = i18n("Discount: %1% ",clientInfo.discount);
+  double discMoney = (clientInfo.discount/100)*totalSumWODisc;
+  QString frmDisc = i18n("[%1]", KGlobal::locale()->formatMoney(discMoney));
+  dStr = dStr + "\n"+KGlobal::locale()->formatMoney(discMoney);
+  ui_mainview.lblClientDiscount->setText(dStr); //FIXME: fix this STR after 0.9.3 release!!! dStr+frmDisc);
 }
 
 void lemonView::doEmitSignalQueryDb()
@@ -3826,7 +3833,7 @@ void lemonView::specialOrderComplete()
     // See if there was an occasional discount on the originating transaction to apply it to the PROFIT.
     lastDiscount = 0;
     lastDiscount = myDb->getTransactionDiscMoney(tNum);
-    qDebug()<<" Originating transaction discount:"<<lastDiscount;
+    qDebug()<<" Originating transaction discount:"<<lastDiscount<<" applying it to the profit.";
     
     updateClientInfo();
     refreshTotalLabel();
