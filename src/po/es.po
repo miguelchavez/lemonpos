@@ -1768,7 +1768,7 @@ msgstr "Nivel de efectivo en gaveta"
 #. i18n: file: ui/prefs_base.ui:179
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_displayWarningOnLowCash)
 #: po/extractedrc.cpp:399 extractedrc.cpp:399
-msgid "Display warning message whe level is lower than"
+msgid "Display warning message when level is lower than"
 msgstr "Mostrar mensaje de alerta cuando el nivel sea menor a"
 
 #. i18n: file: ui/prefs_base.ui:186
