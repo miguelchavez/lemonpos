@@ -1,0 +1,37 @@
+/* This is to create the lemonuser user in postgresql and the lemondb database. */
+/* http://www.guia-ubuntu.org/index.php?title=PostgreSQL  */
+
+/*  Enter the postgres user (created on installation). */
+sudo su postgres -
+
+/*  Start psql with the template1 database */
+psql template1
+
+/*  Create the database */
+create database lemondb;
+
+/*  Quit psql, but not quit the postgres user */
+\q
+
+/*  Enter again psql but now with the lemondb database */
+psql lemondb
+
+/*  Create the database user for lemondb. */
+create user lemonuser with password 'xarwit0721';
+
+/*  Quit psql */
+\q
+
+
+/* Now, modify /etc/postgresql/8.2/main/pg_hba.conf to allow the new user to log in. 
+   NOTE: replace your installed version number in X.                                  */
+sudo nano /etc/postgresql/8.X/main/pg_hba.conf 
+
+/* Change the needed line to get it like the next line, this will allow to any user to login and use any db from the local network. */    
+   host    all         all         127.0.0.1/32          md5   */
+
+/* restart postgresql...  again, modify to match your postgresql version */
+sudo /etc/init.d/postgresql-8.4 restart
+
+
+  
