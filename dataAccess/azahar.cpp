@@ -397,7 +397,7 @@ bool Azahar::insertProduct(ProductInfo info)
   query.bindValue(":stock", info.stockqty);
   query.bindValue(":cost", info.cost);
   query.bindValue(":soldunits", 0);
-  query.bindValue(":lastsold", "0000-00-00");
+  query.bindValue(":lastsold", "1978-02-06"); // postgresql does not accept 0000-00-00.
   query.bindValue(":units", info.units);
   query.bindValue(":tax1", info.tax);
   query.bindValue(":tax2", info.extratax);
