@@ -4,24 +4,16 @@
 /*  Enter the postgres user (created on installation). */
 sudo su postgres -
 
-/*  Start psql with the template1 database */
-psql template1
+/*  Create the database user for lemondb. where <username> is the username. The new user password will be asked.
+  It is recomended that the username be the same as your linux user, where lemonpos is going to run.
+  So both your linux username and postgresql username are the same. */
+createuser -S -d -r -l -i -P <username>
 
-/*  Create the database */
-create database lemondb;
+/*  Create the database. replace <username> with the user created in the previous step */
+createdb lemondb -O <username> -h localhost -E UTF8
 
-/*  Quit psql, but not quit the postgres user */
-\q
-
-/*  Enter again psql but now with the lemondb database */
-psql lemondb
-
-/*  Create the database user for lemondb. */
-create user lemonuser with password 'xarwit0721';
-
-/*  Quit psql */
-\q
-
+/* now exit from sudo su */
+exit 
 
 /* Now, modify /etc/postgresql/8.2/main/pg_hba.conf to allow the new user to log in. 
    NOTE: replace your installed version number in X.                                  */

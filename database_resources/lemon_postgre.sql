@@ -1,11 +1,15 @@
 -- (C) 2010, Miguel Chavez Gamboa [GPL v2 or later]
 -- Run this as : psql lemondb < lemon_postgre.sql
 
-DROP TABLE IF EXISTS "transactions";
-DROP SEQUENCE transactions_id_seq;
+CREATE SEQUENCE transactions_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE transactions (
-  id BIGSERIAL UNIQUE,
+  id BIGINT DEFAULT nextval('transactions_seq'::regclass) NOT NULL,
   clientid bigint  NOT NULL ,
   type smallint  default NULL ,
   amount numeric  NOT NULL default '0',
@@ -30,13 +34,17 @@ CREATE TABLE transactions (
   balanceId bigint  NOT NULL default '1' ,
   totalTax numeric NOT NULL default '0',
   PRIMARY KEY (id)
-) WITH OIDS;
+); --WITH OIDS;
 
-DROP TABLE IF EXISTS "products";
-DROP SEQUENCE products_code_seq;
+CREATE SEQUENCE products_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE products (
-  code BIGSERIAL   UNIQUE,
+  code BIGINT DEFAULT nextval('products_seq'::regclass) NOT NULL,  
   name varchar(512) NOT NULL default 'New Product',
   price numeric   NOT NULL default '0.0',
   stockqty numeric   NOT NULL default '0',
@@ -56,17 +64,21 @@ CREATE TABLE products (
   groupElements varchar(1000),
   groupPriceDrop numeric NOT NULL default 0,
   PRIMARY KEY (code)
-) WITH OIDS;
+) ;
 
 -- special orders are special products, each order is a product containing one or more rawProducts
 -- each time its sold one, it is created. If you want predefined products use instead grouped product.
 -- TODO: Implement offers for special orders
 
-DROP TABLE IF EXISTS "special_orders";
-DROP SEQUENCE special_oders_orderid_seq;
+CREATE SEQUENCE special_oders_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE special_orders (
-  orderid BIGSERIAL UNIQUE,
+  orderid BIGINT DEFAULT nextval('special_orders_seq'::regclass) NOT NULL,
   name varchar(512) NOT NULL default 'unknown',
   -- group elements are each products code/qty ['1/3,9/1']
   groupElements varchar(1000) default '',
@@ -84,34 +96,46 @@ CREATE TABLE special_orders (
   clientId bigint   NOT NULL default 1,
   userId bigint   NOT NULL default 1,
   PRIMARY KEY  (orderid)
-  ) WITH OIDS;
+  ) ;
 
-DROP TABLE IF EXISTS "offers";
-DROP SEQUENCE offers_id_seq;
+CREATE SEQUENCE offers_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE offers (
-  id BIGSERIAL UNIQUE,
+  id BIGINT DEFAULT nextval('offers_seq'::regclass) NOT NULL,
   discount numeric NOT NULL,
   datestart date NOT NULL default NOW(),
   dateend date NOT NULL default NOW(),
   product_id bigint   NOT NULL,
   PRIMARY KEY  (id)
-) WITH OIDS;
+) ;
 
-DROP TABLE IF EXISTS "measures";
-DROP SEQUENCE measures_id_seq;
+CREATE SEQUENCE measures_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  measures (
-  id BIGSERIAL UNIQUE,
+  id BIGINT DEFAULT nextval('measures_seq'::regclass) NOT NULL,
   text varchar(50) NOT NULL,
   PRIMARY KEY  (id)
-) WITH OIDS;
+) ;
 
-DROP TABLE IF EXISTS "balances";
-DROP SEQUENCE balances_id_seq;
+CREATE SEQUENCE balances_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  balances (
-  id BIGSERIAL UNIQUE,
+  id BIGINT DEFAULT nextval('balances_seq'::regclass) NOT NULL,
   datetime_start timestamp NOT NULL default NOW(),
   datetime_end timestamp NOT NULL default NOW(),
   userid bigint NOT NULL,
@@ -126,22 +150,30 @@ CREATE TABLE  balances (
   cashflows varchar(1000)  default '',
   done BOOLEAN NOT NULL default false,
   PRIMARY KEY  (id)
-  ) WITH OIDS;
+  ) ;
 
-DROP TABLE IF EXISTS "categories";
-DROP SEQUENCE categories_catid_seq;
+CREATE SEQUENCE categories_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  categories (
-  catid BIGSERIAL UNIQUE,
+  catid BIGINT DEFAULT nextval('categories_seq'::regclass) NOT NULL,
   text varchar(50)   NOT NULL,
   PRIMARY KEY  (catid)
-) WITH OIDS ;
+)  ;
 
-DROP TABLE IF EXISTS "users";
-DROP SEQUENCE users_id_seq;
+CREATE SEQUENCE users_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  users (
-  id BIGSERIAL UNIQUE,
+  id BIGINT DEFAULT nextval('users_seq'::regclass) NOT NULL,
   username varchar(50)  NOT NULL default '',
   password varchar(50)  default NULL,
   salt varchar(5)  default NULL,
@@ -152,13 +184,17 @@ CREATE TABLE  users (
   role integer   default '0',
   photo BYTEA default NULL,
   PRIMARY KEY  (id)
-) WITH OIDS ;
+)  ;
 
-DROP TABLE IF EXISTS "clients";
-DROP SEQUENCE clients_id_seq;
+CREATE SEQUENCE clients_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  clients (
-  id BIGSERIAL UNIQUE,
+  id bigint DEFAULT nextval('clients_seq'::regclass) NOT NULL,
   name varchar(255)  default '',
   since date NOT NULL default NOW(),
   address varchar(255)  default NULL,
@@ -168,58 +204,82 @@ CREATE TABLE  clients (
   discount numeric NOT NULL,
   photo BYTEA default NULL,
   PRIMARY KEY (id)
-) WITH OIDS ;
+) ;
 
-DROP TABLE IF EXISTS "paytypes";
-DROP SEQUENCE upaytypes_typeid_seq;
+CREATE SEQUENCE paytypes_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  paytypes (
-  typeid BIGSERIAL UNIQUE,
+  typeid BIGINT DEFAULT nextval('paytypes_seq'::regclass) NOT NULL,
   text varchar(50) NOT NULL,
   PRIMARY KEY  (typeid)
-) WITH OIDS ;
+)  ;
 
-DROP TABLE IF EXISTS "transactionstates";
-DROP SEQUENCE transactionstates_stateid_seq;
+CREATE SEQUENCE transactionstates_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  transactionstates (
-  stateid BIGSERIAL UNIQUE,
+  stateid BIGINT DEFAULT nextval('transactionstates_seq'::regclass) NOT NULL,
   text varchar(50)   NOT NULL,
   PRIMARY KEY  (stateid)
-) WITH OIDS ;
+)  ;
 
-DROP TABLE IF EXISTS "transactiontypes";
-DROP SEQUENCE transactiontypes_stateid_seq;
+CREATE SEQUENCE transactiontypes_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  transactiontypes (
-  ttypeid BIGSERIAL UNIQUE,
+  ttypeid BIGINT DEFAULT nextval('transactiontypes_seq'::regclass) NOT NULL,
   text varchar(50)   NOT NULL,
   PRIMARY KEY  (ttypeid)
-) WITH OIDS ;
+)  ;
 
-DROP TABLE IF EXISTS "so_status";
-DROP SEQUENCE so_status_id_seq;
+CREATE SEQUENCE so_status_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  so_status (
-  id BIGSERIAL UNIQUE,
+  id BIGINT DEFAULT nextval('so_status_seq'::regclass) NOT NULL,
   text varchar(50)   NOT NULL,
   PRIMARY KEY  (id)
-) WITH OIDS;
+) ;
 
-DROP TABLE IF EXISTS "so_status";
-DROP SEQUENCE so_status_id_seq;
+CREATE SEQUENCE bool_values_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  bool_values (
-  id BIGSERIAL  UNIQUE,
+  id BIGINT DEFAULT nextval('bool_values_seq'::regclass) NOT NULL, 
   text varchar(50)   NOT NULL,
   PRIMARY KEY  (id)
-) WITH OIDS;
+) ;
 
-DROP TABLE IF EXISTS "transactionitems";
-DROP SEQUENCE transactionitems_transaction_id_seq;
+CREATE SEQUENCE transactionitems_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  transactionitems (
- transaction_id BIGSERIAL UNIQUE,
+ transaction_id BIGINT DEFAULT nextval('transactionitems_seq'::regclass) NOT NULL,
  position integer   NOT NULL,
  product_id bigint   NOT NULL,
  qty numeric default NULL,
@@ -238,13 +298,17 @@ CREATE TABLE  transactionitems (
  tax numeric default 0,
  PRIMARY KEY (transaction_id)
  -- NOTE: here there was a secondary key (position)
-) WITH OIDS;
+) ;
 
-DROP TABLE IF EXISTS "cashflow";
-DROP SEQUENCE cashflow_id_seq;
+CREATE SEQUENCE cashflow_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  cashflow (
-  id BIGSERIAL UNIQUE,
+  id BIGINT DEFAULT nextval('cashflow_seq'::regclass) NOT NULL,
   type smallint   NOT NULL default '1',
   userid bigint NOT NULL default '1',
   reason varchar(255) default '',
@@ -253,43 +317,63 @@ CREATE TABLE  cashflow (
   time time NOT NULL default NOW(),
   terminalnum integer   NOT NULL default '1',
   PRIMARY KEY  (id)
-) WITH OIDS ;
+)  ;
 
-DROP TABLE IF EXISTS "cashflowtypes";
-DROP SEQUENCE cashflowtypes_typeid_seq;
+CREATE SEQUENCE cashflowtypes_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  cashflowtypes (
-  typeid integer   UNIQUE,
+  typeid BIGINT DEFAULT nextval('cashflowtypes_seq'::regclass) NOT NULL, 
   text varchar(50)   NOT NULL,
   PRIMARY KEY  (typeid)
-) WITH OIDS ;
+)  ;
 
-DROP TABLE IF EXISTS "providers";
-DROP SEQUENCE providers_id_seq;
+CREATE SEQUENCE providers_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  providers (
-  id BIGSERIAL UNIQUE,
+  id BIGINT DEFAULT nextval('providers_seq'::regclass) NOT NULL,
   name VARCHAR( 255 )  default '',
   address varchar(255)  default NULL,
   phone varchar(50)   default NULL,
   cellphone varchar(50)  default NULL,
   PRIMARY KEY  (id, name)
-) WITH OIDS ;
+)  ;
+
+
+--CREATE SEQUENCE products_providers_seq
+--    START WITH 1
+--    INCREMENT BY 1
+--    NO MAXVALUE
+--    NO MINVALUE
+--    CACHE 1;
 
 --CREATE TABLE  products_providers (
---  id BIGSERIAL  UNIQUE,
+--  id BIGINT DEFAULT nextval('products_providers_seq'::regclass) NOT NULL, 
 --  provider_id integer   NOT NULL,
 --  product_id bigint   NOT NULL,
 --  price numeric  NOT NULL default '0.0', --price?? implement later if decided
 --  PRIMARY KEY  (product_id, provider_id)
---) WITH OIDS ;
+--)  ;
 
-DROP TABLE IF EXISTS "stock_corrections";
-DROP SEQUENCE stock_corrections_id_seq;
+CREATE SEQUENCE stock_corrections_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 -- Introduced on Sept 7 2009.
 CREATE TABLE  stock_corrections (
-  id BIGSERIAL UNIQUE,
+  id BIGINT DEFAULT nextval('stock_corrections_seq'::regclass) NOT NULL,
   product_id bigint  NOT NULL,
   new_stock_qty numeric   NOT NULL,
   old_stock_qty numeric   NOT NULL,
@@ -297,7 +381,7 @@ CREATE TABLE  stock_corrections (
   date varchar(20) NOT NULL , --TODO: convert it to date 
   time varchar(20) NOT NULL , --TODO: convert it to time 
   PRIMARY KEY  (id)
-) WITH OIDS ;
+)  ;
 
 -- Some general config that is gonna be taken from azahar. For shared configuration
 CREATE TABLE  config (
@@ -311,30 +395,38 @@ CREATE TABLE  config (
   useCUPS BOOLEAN NOT NULL default true,
   smallPrint BOOLEAN NOT NULL default true,
   PRIMARY KEY  (firstrun)
-) WITH OIDS ;
+)  ;
 
-DROP TABLE IF EXISTS "logs";
-DROP SEQUENCE logs_id_seq;
+CREATE SEQUENCE logs_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  logs (
-  id BIGSERIAL UNIQUE,
+  id BIGINT DEFAULT nextval('logs_seq'::regclass) NOT NULL,
   userid bigint   NOT NULL,
   date varchar(20) NOT NULL, --TODO: convert it to date
   time varchar(20) NOT NULL, --TODO: convert it to time
   action varchar(512) NOT NULL,
   PRIMARY KEY  (id)
-) WITH OIDS ;
+)  ;
 
-DROP TABLE IF EXISTS "random_msgs";
-DROP SEQUENCE random_msgs_id_seq;
+CREATE SEQUENCE random_msgs_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
 CREATE TABLE  random_msgs (
-  id BIGSERIAL  UNIQUE,
+  id BIGINT DEFAULT nextval('random_msgs_seq'::regclass) NOT NULL, 
   message varchar(512),
   season integer NOT NULL default 1,
   count integer  NOT NULL default 0,
   PRIMARY KEY  (id)
-) WITH OIDS ;
+)  ;
 
 
 CREATE OR REPLACE VIEW v_transactions AS
@@ -380,9 +472,9 @@ where ((transactions.type = 1) and (transactions.itemcount > 0) and (transaction
 group by transactions.date;
 
 -- select * <- error en el *
-CREATE OR REPLACE VIEW v_groupedSO AS
-SELECT * FROM special_orders
-group by saleid;
+--CREATE OR REPLACE VIEW v_groupedSO AS
+--SELECT * FROM special_orders
+--group by saleid;
 
 CREATE OR REPLACE VIEW v_transS AS
 select
@@ -408,43 +500,43 @@ INSERT INTO users (id, username, password, salt, name, role) VALUES (1, 'admin',
 
 
 --Insert a default measure (very important to keep this id)
-INSERT INTO measures (id, text) VALUES(1, 'Pc');
+INSERT INTO measures (text) VALUES('Pc');
 --Insert a default client
-INSERT INTO clients (id, name, points, discount) VALUES (1, 'General', 0, 0);
+INSERT INTO clients (name, points, discount) VALUES ('General', 0, 0);
 --Insert a default category
-INSERT INTO categories (catid, text) VALUES (1, 'General');
+INSERT INTO categories (text) VALUES ('General');
 
 --Insert default payment types (very important to keep these ids)
-INSERT INTO paytypes (typeid, text) VALUES(1, 'Cash');
-INSERT INTO paytypes (typeid, text) VALUES(2, 'Card');
+INSERT INTO paytypes (text) VALUES('Cash');
+INSERT INTO paytypes (text) VALUES('Card');
 --Insert default transactions states (very important to keep these ids)
-INSERT INTO transactionstates (stateid, text) VALUES(1, 'Not Completed');
-INSERT INTO transactionstates (stateid, text) VALUES(2, 'Completed');
-INSERT INTO transactionstates (stateid, text) VALUES(3, 'Cancelled');
-INSERT INTO transactionstates (stateid, text) VALUES(4, 'PO Pending');
-INSERT INTO transactionstates (stateid, text) VALUES(5, 'PO Completed');
-INSERT INTO transactionstates (stateid, text) VALUES(6, 'PO Incomplete');
+INSERT INTO transactionstates (text) VALUES('Not Completed');
+INSERT INTO transactionstates (text) VALUES('Completed');
+INSERT INTO transactionstates (text) VALUES('Cancelled');
+INSERT INTO transactionstates (text) VALUES('PO Pending');
+INSERT INTO transactionstates (text) VALUES('PO Completed');
+INSERT INTO transactionstates (text) VALUES('PO Incomplete');
 --Insert default transactions types (very important to keep these ids)
-INSERT INTO transactiontypes (ttypeid, text) VALUES(1, 'Sell');
-INSERT INTO transactiontypes (ttypeid, text) VALUES(2, 'Purchase');
-INSERT INTO transactiontypes (ttypeid, text) VALUES(3, 'Change');
-INSERT INTO transactiontypes (ttypeid, text) VALUES(4, 'Return');
+INSERT INTO transactiontypes (text) VALUES('Sell');
+INSERT INTO transactiontypes (text) VALUES('Purchase');
+INSERT INTO transactiontypes (text) VALUES('Change');
+INSERT INTO transactiontypes (text) VALUES('Return');
 --Insert default cashFLOW types
-INSERT INTO cashflowtypes (typeid, text) VALUES(1, 'Normal cash OUT');
-INSERT INTO cashflowtypes (typeid, text) VALUES(2, 'Money return on ticket cancel');
-INSERT INTO cashflowtypes (typeid, text) VALUES(3, 'Money return on product return');
-INSERT INTO cashflowtypes (typeid, text) VALUES(4, 'Normal Cash IN');
+INSERT INTO cashflowtypes (text) VALUES('Normal cash OUT');
+INSERT INTO cashflowtypes (text) VALUES('Money return on ticket cancel');
+INSERT INTO cashflowtypes (text) VALUES('Money return on product return');
+INSERT INTO cashflowtypes (text) VALUES('Normal Cash IN');
 --Insert default provider
-INSERT INTO providers (id,name,address,phone,cellphone) VALUES(1,'No provider', '-NA-', '-NA-', '-NA-');
+INSERT INTO providers (name,address,phone,cellphone) VALUES('No provider', '-NA-', '-NA-', '-NA-');
 
-INSERT INTO so_status (id, text) VALUES(0, 'Pending');
-INSERT INTO so_status (id, text) VALUES(1, 'In Progress');
-INSERT INTO so_status (id, text) VALUES(2, 'Ready');
-INSERT INTO so_status (id, text) VALUES(3, 'Delivered');
-INSERT INTO so_status (id, text) VALUES(4, 'Cancelled');
+INSERT INTO so_status (text) VALUES('Pending');
+INSERT INTO so_status (text) VALUES('In Progress');
+INSERT INTO so_status (text) VALUES('Ready');
+INSERT INTO so_status (text) VALUES('Delivered');
+INSERT INTO so_status (text) VALUES('Cancelled');
 
-INSERT INTO bool_values (id, text) VALUES(0, 'NO');
-INSERT INTO bool_values (id, text) VALUES(1, 'YES');
+INSERT INTO bool_values (text) VALUES('NO');
+INSERT INTO bool_values (text) VALUES('YES');
 
 INSERT INTO config (firstrun, taxIsIncludedInPrice, storeLogo, storeName, storeAddress, storePhone, logoOnTop, useCUPS, smallPrint) VALUES ('yes, it is February 6 1978', true, '', '', '', '', true, true, true);
 
