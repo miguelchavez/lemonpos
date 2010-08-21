@@ -34,7 +34,31 @@ CREATE TABLE transactions (
   balanceId bigint  NOT NULL default '1' ,
   totalTax numeric NOT NULL default '0',
   PRIMARY KEY (id)
-); --WITH OIDS;
+) WITH OIDS; --WITH OIDS;
+
+CREATE SEQUENCE shipments_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+CREATE TABLE shipments (
+  id BIGINT DEFAULT nextval('shipments_seq'::regclass) NOT NULL,
+  clientId   bigint  NOT NULL ,
+  clientName varchar(250) DEFAULT '',
+  clientAddr varchar(250) DEFAULT '',
+  clientPosition varchar(250) DEFAULT '',            --GPS Position of the delivery address
+  orderNumber bigint NOT NULL DEFAULT 1,             --Transaction Id
+  orderList varchar(1000) DEFAULT '',                --A list of products: 1/2, 4/1,9/4 ...
+  orderPosition varchar(250) DEFAULT '',             --GPS Position of the package
+  orderStatus integer DEFAULT 1,                     --Order Status : 1 Unconfirmed, 2 Confirmed, 3 Inprogress, 4 ReadyToGo, 5 OnTheGo, 6 Delivered
+  orderETA float DEFAULT 0.0,                        --Estimated Time of Arrival (timeToCook + travel time)
+  orderTimeToCook float DEFAULT 0.0,
+  orderComments varchar(1000)
+) WITH OIDS;
+
+
 
 CREATE SEQUENCE products_seq
     START WITH 1
@@ -70,7 +94,7 @@ CREATE TABLE products (
 -- each time its sold one, it is created. If you want predefined products use instead grouped product.
 -- TODO: Implement offers for special orders
 
-CREATE SEQUENCE special_oders_seq
+CREATE SEQUENCE special_orders_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
@@ -95,8 +119,8 @@ CREATE TABLE special_orders (
   deliveryDateTime timestamp NOT NULL default NOW(),
   clientId bigint   NOT NULL default 1,
   userId bigint   NOT NULL default 1,
-  PRIMARY KEY  (orderid)
-  ) ;
+  PRIMARY KEY  (orderid,saleid)
+  ) WITH OIDS;
 
 CREATE SEQUENCE offers_seq
     START WITH 1
@@ -150,7 +174,7 @@ CREATE TABLE  balances (
   cashflows varchar(1000)  default '',
   done BOOLEAN NOT NULL default false,
   PRIMARY KEY  (id)
-  ) ;
+  ) WITH OIDS;
 
 CREATE SEQUENCE categories_seq
     START WITH 1
@@ -204,7 +228,7 @@ CREATE TABLE  clients (
   discount numeric NOT NULL,
   photo BYTEA default NULL,
   PRIMARY KEY (id)
-) ;
+) WITH OIDS;
 
 CREATE SEQUENCE paytypes_seq
     START WITH 1
@@ -271,15 +295,9 @@ CREATE TABLE  bool_values (
   PRIMARY KEY  (id)
 ) ;
 
-CREATE SEQUENCE transactionitems_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MAXVALUE
-    NO MINVALUE
-    CACHE 1;
-
 CREATE TABLE  transactionitems (
- transaction_id BIGINT DEFAULT nextval('transactionitems_seq'::regclass) NOT NULL,
+ id BIGINT NOT NULL,
+ transaction_id BIGINT NOT NULL,
  position integer   NOT NULL,
  product_id bigint   NOT NULL,
  qty numeric default NULL,
@@ -296,9 +314,9 @@ CREATE TABLE  transactionitems (
  isGroup BOOLEAN default false,
  deliveryDateTime timestamp default NOW(),
  tax numeric default 0,
- PRIMARY KEY (transaction_id)
+ PRIMARY KEY (id)
  -- NOTE: here there was a secondary key (position)
-) ;
+);-- WITH OIDS;
 
 CREATE SEQUENCE cashflow_seq
     START WITH 1
@@ -381,7 +399,7 @@ CREATE TABLE  stock_corrections (
   date varchar(20) NOT NULL , --TODO: convert it to date 
   time varchar(20) NOT NULL , --TODO: convert it to time 
   PRIMARY KEY  (id)
-)  ;
+); --WITH OIDS;
 
 -- Some general config that is gonna be taken from azahar. For shared configuration
 CREATE TABLE  config (
@@ -471,10 +489,10 @@ from transactions
 where ((transactions.type = 1) and (transactions.itemcount > 0) and (transactions.state=2))
 group by transactions.date;
 
--- select * <- error en el *
---CREATE OR REPLACE VIEW v_groupedSO AS
---SELECT * FROM special_orders
---group by saleid;
+--what does the view is without the group by clause?... 
+CREATE OR REPLACE VIEW v_groupedSO AS
+SELECT orderid FROM special_orders;
+--group by special_orders.saleid;
 
 CREATE OR REPLACE VIEW v_transS AS
 select
@@ -494,7 +512,7 @@ order by transactions.id;
 -- CREATE lemon users (users using lemon, cashiers... )
 -- With password 'linux'. Note that this password is salt-hashed (SHA56).
 
-INSERT INTO users (id, username, password, salt, name, role) VALUES (1, 'admin', 'C07B1E799DC80B95060391DDF92B3C7EF6EECDCB', 'h60VK', 'Administrator', 2);
+INSERT INTO users (username, password, salt, name, role) VALUES ('admin', 'C07B1E799DC80B95060391DDF92B3C7EF6EECDCB', 'h60VK', 'Administrator', 2);
 
 -- You may change the string values for the next fields
 

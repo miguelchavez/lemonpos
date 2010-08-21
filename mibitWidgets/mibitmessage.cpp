@@ -18,7 +18,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
  ***************************************************************************/
 
-#include "mibitdialog.h"
+#include "mibitmessage.h"
 
 #include <QPixmap>
 #include <QString>
@@ -31,7 +31,7 @@
 #include <QKeyEvent>
 #include <QDebug>
 
-MibitDialog::MibitDialog( QWidget *parent, const QString &file, const QPixmap &icon, AnimationType animation )
+MibitMessage::MibitMessage( QWidget *parent, const QString &msg, const QString &file, const QPixmap &icon, AnimationType animation )
         : QSvgWidget( parent )
 {
     if (file != 0) setSVG(file);
@@ -40,8 +40,8 @@ MibitDialog::MibitDialog( QWidget *parent, const QString &file, const QPixmap &i
     animType = animation;
     setMinimumHeight(100);
     setFixedSize(0,0); //until show we grow it
-    setMaxHeight(dmaxH); //default sizes
-    setMaxWidth(dmaxW);
+    setMaxHeight(maxH); //default sizes
+    setMaxWidth(maxW);
     animRate = 500; //default animation speed (half second rate).
     shakeTimeToLive = 0;
     par = false; parTimes = 0;
@@ -50,6 +50,8 @@ MibitDialog::MibitDialog( QWidget *parent, const QString &file, const QPixmap &i
     img      = new QLabel();
     hLayout   = new QHBoxLayout();
     vLayout  = new QVBoxLayout();
+    text     = new QLabel(msg);
+    btnClose = new QPushButton("Close"); ///TODO: what about translations???
     shakeTimer = new QTimer(this);
     shakeTimer->setInterval(20);
 
@@ -60,34 +62,39 @@ MibitDialog::MibitDialog( QWidget *parent, const QString &file, const QPixmap &i
     img->setAlignment(Qt::AlignLeft);
     img->setMargin(4);
 
+    btnClose->setMaximumWidth(120);
+
     setLayout(vLayout);
+    text->setWordWrap(true);
+    text->setAlignment(Qt::AlignJustify|Qt::AlignVCenter);
+    text->setMargin(5);
+
 
     hLayout->addWidget(img,0,Qt::AlignCenter);
+    hLayout->addWidget(text,1,Qt::AlignCenter);
     vLayout->addLayout(hLayout,2);
+    vLayout->addWidget(btnClose,1,Qt::AlignCenter);
     timeLine  = new QTimeLine(animRate, this);
     wTimeLine = new QTimeLine(2000, this);
     wTimeLine->setFrameRange(90,190);
-    wTimeLine->setCurveShape(QTimeLine::EaseInCurve /*CosineCurve*/);
+    wTimeLine->setCurveShape(QTimeLine::CosineCurve);
     connect(timeLine, SIGNAL(frameChanged(int)), this, SLOT(animate(int)));
     connect(wTimeLine, SIGNAL(frameChanged(int)), this, SLOT(waveIt(int)));
-    //connect(btnClose,SIGNAL(clicked()),this, SLOT(hideDialog()));
+    connect(btnClose,SIGNAL(clicked()),this, SLOT(hideDialog()));
     connect(timeLine,SIGNAL(finished()), this, SLOT(onAnimationFinished()));
     connect(shakeTimer,SIGNAL(timeout()), this, SLOT(shakeIt()));
 }
 
-MibitDialog::~MibitDialog()
+MibitMessage::~MibitMessage()
 {
 }
 
-void MibitDialog::addWidget(QWidget * widget)
-{
-    hLayout->addWidget(widget, 1, Qt::AlignCenter);
-}
 
-void MibitDialog::showDialog(AnimationType animation )
+void MibitMessage::showMessage(const QString &msg, AnimationType animation )
 {
     //set default msg if the sent is empty. Also set the animation -the same way-.
-    if (animation == 0) setAnimationType( datSlideDown ); else setAnimationType( animation );
+    if (msg.isEmpty()) setMessage(text->text()); else setMessage( msg );
+    if (animation == 0) setAnimationType( atSlideDown ); else setAnimationType( animation );
 
     setGeometry(-1000,-1000,0,0);
     show();
@@ -95,20 +102,20 @@ void MibitDialog::showDialog(AnimationType animation )
 
     int maxStep; int minStep = 0;
     switch (animType) {
-        case datSlideDown:
-            maxStep = (m_parent->geometry().height()/2)-(dmaxHeight/2);
-            minStep = -dmaxHeight;
+        case atSlideDown:
+            maxStep = (m_parent->geometry().height()/2)-(maxHeight/2);
+            minStep = -maxHeight;
             break;
-        case datSlideUp:
-            maxStep = (m_parent->geometry().height()/2)-(dmaxHeight/2);
-            minStep = dmaxHeight + m_parent->geometry().height();
+        case atSlideUp:
+            maxStep = (m_parent->geometry().height()/2)-(maxHeight/2);
+            minStep = maxHeight + m_parent->geometry().height();
             break;
-        case datGrowCenterH:
-            maxStep = dmaxWidth;
+        case atGrowCenterH:
+            maxStep = maxWidth;
             minStep = 0;
             break;
-        case datGrowCenterV:
-            maxStep= dmaxHeight;
+        case atGrowCenterV:
+            maxStep= maxHeight;
             minStep = 0;
             break;
     }
@@ -118,9 +125,10 @@ void MibitDialog::showDialog(AnimationType animation )
     //make it grow...
     timeLine->setDirection(QTimeLine::Forward);
     timeLine->start();
+    btnClose->setFocus();
 }
 
-void MibitDialog::animate(const int &step)
+void MibitMessage::animate(const int &step)
 {
     //get some sizes...
     QRect windowGeom = m_parent->geometry();
@@ -131,51 +139,51 @@ void MibitDialog::animate(const int &step)
 
     QRect dRect;
     switch (animType) {
-        case datGrowCenterV:   // Grow from Center Vertically..
+        case atGrowCenterV:   // Grow from Center Vertically..
             if ((midPointY - step/2) < 0 ) newY = 0; else newY = midPointY - step/2;
-            if ((midPointX-(dmaxWidth/2)) < 0) newX = 0; else newX = midPointX - dmaxWidth/2;
+            if ((midPointX-(maxWidth/2)) < 0) newX = 0; else newX = midPointX - maxWidth/2;
             dRect.setX(newX);
             dRect.setY(newY);
             dRect.setWidth(step);
-            dRect.setHeight(dmaxHeight);
+            dRect.setHeight(maxHeight);
             setGeometry(dRect);
             setFixedHeight(step);
-            setFixedWidth(dmaxWidth);
+            setFixedWidth(maxWidth);
             break;
-        case datGrowCenterH:   // Grow from Center Horizontally...
+        case atGrowCenterH:   // Grow from Center Horizontally...
             if ((midPointX - step/2) < 0 ) newX = 0; else newX = midPointX - step/2;
-            if ((midPointY-(dmaxHeight/2)) < 0) newY = 0; else newY = midPointY - dmaxHeight/2;
+            if ((midPointY-(maxHeight/2)) < 0) newY = 0; else newY = midPointY - maxHeight/2;
             dRect.setX(newX);
             dRect.setY(newY);
-            dRect.setWidth(dmaxWidth);
+            dRect.setWidth(maxWidth);
             dRect.setHeight(step);
             setGeometry(dRect);
-            setFixedHeight(dmaxHeight);
+            setFixedHeight(maxHeight);
             setFixedWidth(step);
             break;
-        case datSlideDown:  // slide Up
-        case datSlideUp:    // Slide down
-            if ((midPointX-(dmaxWidth/2)) < 0) newX = 0; else newX = midPointX - dmaxWidth/2;
+        case atSlideDown:  // slide Up
+        case atSlideUp:    // Slide down
+            if ((midPointX-(maxWidth/2)) < 0) newX = 0; else newX = midPointX - maxWidth/2;
             dRect.setX(newX);
             dRect.setY(step);
-            dRect.setWidth(dmaxWidth);
-            dRect.setHeight(dmaxHeight);
+            dRect.setWidth(maxWidth);
+            dRect.setHeight(maxHeight);
             setGeometry(dRect);
-            setFixedHeight(dmaxHeight);
-            setFixedWidth(dmaxWidth);
+            setFixedHeight(maxHeight);
+            setFixedWidth(maxWidth);
             break;
         default:
            break;
     }
 }
 
-void MibitDialog::hideDialog()
+void MibitMessage::hideDialog()
 {
     timeLine->toggleDirection();//reverse!
     timeLine->start();
 }
 
-void MibitDialog::onAnimationFinished()
+void MibitMessage::onAnimationFinished()
 {
     if (timeLine->direction() == QTimeLine::Backward) {
         close();
@@ -184,23 +192,33 @@ void MibitDialog::onAnimationFinished()
 }
 
 
-void MibitDialog::setSVG(const QString &file)
+void MibitMessage::setSVG(const QString &file)
 {
     load(file);
 }
 
-void MibitDialog::setIcon(const QPixmap &icon)
+void MibitMessage::setIcon(const QPixmap &icon)
 {
      img->setPixmap(icon);
  }
 
-void MibitDialog::shake()
+void MibitMessage::setMessage(const QString &msg)
+{
+    text->setText(msg);
+}
+
+void MibitMessage::setTextColor(const QString &color)
+{
+    text->setStyleSheet(QString("color:%1").arg(color));
+}
+
+void MibitMessage::shake()
 {
     shakeTimer->start();
     if ( shakeTimeToLive > 0 ) QTimer::singleShot(shakeTimeToLive,shakeTimer,SLOT(stop()));
 }
 
-void MibitDialog::shakeIt()
+void MibitMessage::shakeIt()
 {
     if (par) {
         if (parTimes < 5) {
@@ -227,29 +245,22 @@ void MibitDialog::shakeIt()
 }
 
 
-void MibitDialog::wave()
+void MibitMessage::wave()
 {
     wTimeLine->start();
 }
 
-void MibitDialog::waveIt(const int &step)
+void MibitMessage::waveIt(const int &step)
 {
     if (timeLine->state() == QTimeLine::NotRunning || !shakeTimer->isActive() ) {
     setGeometry(geometry().x(),step, geometry().width(), geometry().height());
     } else qDebug()<<"Dialog is in active animation.";
 }
 
-void MibitDialog::keyPressEvent ( QKeyEvent * event )
+void MibitMessage::keyPressEvent ( QKeyEvent * event )
 {
     if ( event->key() == Qt::Key_Escape )
     {
         hideDialog();
     } //else ignore event.
-}
-
-
-void MibitDialog::reParent(QWidget *newparent)
-{
-  setParent(newparent);
-  m_parent = newparent;
 }

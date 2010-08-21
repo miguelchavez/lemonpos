@@ -21,7 +21,7 @@
 #ifndef MIBITFLOATPANEL_H
 #define MIBITFLOATPANEL_H
 
-#include <QSvgWidget>
+#include <QtSvg/QSvgWidget>
 class QTimeLine;
 class QString;
 class QHBoxLayout;

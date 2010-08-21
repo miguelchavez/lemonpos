@@ -143,7 +143,12 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   modelsCreated=false;
   currentBalanceId = 0;
   QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-  db = QSqlDatabase::addDatabase("QMYSQL"); //moved here because calling multiple times cause a crash on certain installations (Not kubuntu 8.10).
+  //moved here because calling multiple times cause a crash on certain installations (Not kubuntu 8.10).
+  if (Settings::editDBProvider() == "MySQL")
+      db = QSqlDatabase::addDatabase("QMYSQL");
+  else //for now only mysql and psql
+      db = QSqlDatabase::addDatabase("QPSQL");
+
   ui_mainview.setupUi(this);
   dlgLogin = new LoginWindow(this,
                              i18n("Welcome to Lemon"),
@@ -370,6 +375,8 @@ QList<int> lemonView::getTheGridSplitterSizes()
 
 //This ensures that when not connected to mysql, the user can configure the db settings and then trying to connect
 //with the new settings...
+//NOTE:Aug 19 2010: Now lemon supports PostgreSQL, but when changing config to use Other Provider, then lemon must close to change
+//The provider, since the Driver is asigned on this view creator.
 void lemonView::settingsChanged()
 {
   //Total label (and currency label)

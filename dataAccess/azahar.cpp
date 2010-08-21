@@ -2792,7 +2792,7 @@ void Azahar::setConfigTaxIsIncludedInPrice(bool option)
   if (db.isOpen()) {
     QSqlQuery myQuery(db);
     if (myQuery.exec(QString("update config set taxIsIncludedInPrice=%1;").arg(option))) {
-      qDebug()<<"Change config taxIsIncludedInPrice...";
+      qDebug()<<"=========>Change config taxIsIncludedInPrice to "<<option;
     }
     else {
       qDebug()<<"ERROR: "<<myQuery.lastError();
@@ -2983,7 +2983,7 @@ void   Azahar::setConfigStorePhone(const QString &str)
   if (db.isOpen()) {
     QSqlQuery myQuery(db);
     if (myQuery.exec(QString("update config set storePhone='%1';").arg(str))) {
-      qDebug()<<"Change config taxIsIncludedInPrice...";
+      qDebug()<<"Change config StorePhone...";
     }
     else {
       qDebug()<<"ERROR: "<<myQuery.lastError();

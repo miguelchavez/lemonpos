@@ -90,8 +90,11 @@ squeezeView::squeezeView(QWidget *parent)
 
   // The db = QSqlDatabase called multiple times is causing a crash on certain installations (Not on kubuntu 8.10).
   QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-  db = QSqlDatabase::addDatabase("QMYSQL");
-  db = QSqlDatabase::addDatabase("QPSQL");
+
+  if (Settings::editDBProvider() == "MySQL")
+      db = QSqlDatabase::addDatabase("QMYSQL");
+  else //for now only mysql and psql
+      db = QSqlDatabase::addDatabase("QPSQL");
 
   ///Login dialog
   dlgPassword = new LoginWindow(this,

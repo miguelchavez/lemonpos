@@ -36,6 +36,10 @@
    </entry>
   </group>
   <group name="Database">
+    <entry name="editDBProvider" type="String">
+      <label>DB Server Type</label>
+      <default>MySQL</default>
+    </entry>
     <entry name="editDBServer" type="String">
       <label>DB Server Name</label>
       <default>localhost</default>
