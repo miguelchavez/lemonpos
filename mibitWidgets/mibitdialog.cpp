@@ -31,7 +31,7 @@
 #include <QKeyEvent>
 #include <QDebug>
 
-MibitDialog::MibitDialog( QWidget *parent, const QString &file, const QPixmap &icon, AnimationType animation )
+MibitDialog::MibitDialog( QWidget *parent, const QString &file, /*const QPixmap &icon,*/ AnimationType animation )
         : QSvgWidget( parent )
 {
     if (file != 0) setSVG(file);
@@ -47,23 +47,23 @@ MibitDialog::MibitDialog( QWidget *parent, const QString &file, const QPixmap &i
     par = false; parTimes = 0;
 
 
-    img      = new QLabel();
-    hLayout   = new QHBoxLayout();
+    //img      = new QLabel();
+    //hLayout   = new QHBoxLayout();
     vLayout  = new QVBoxLayout();
     shakeTimer = new QTimer(this);
     shakeTimer->setInterval(20);
 
 
-    img->setPixmap(icon);
-    img->setMaximumHeight(54); //the icon size is hardcoded now.
-    img->setMaximumWidth(54);
-    img->setAlignment(Qt::AlignLeft);
-    img->setMargin(4);
+    //img->setPixmap(icon);
+    //img->setMaximumHeight(54); //the icon size is hardcoded now.
+    //img->setMaximumWidth(54);
+    //img->setAlignment(Qt::AlignLeft);
+    //img->setMargin(4);
 
     setLayout(vLayout);
 
-    hLayout->addWidget(img,0,Qt::AlignCenter);
-    vLayout->addLayout(hLayout,2);
+    //hLayout->addWidget(img,0,Qt::AlignCenter);
+    //vLayout->addLayout(hLayout,2);
     timeLine  = new QTimeLine(animRate, this);
     wTimeLine = new QTimeLine(2000, this);
     wTimeLine->setFrameRange(90,190);
@@ -81,7 +81,7 @@ MibitDialog::~MibitDialog()
 
 void MibitDialog::addWidget(QWidget * widget)
 {
-    hLayout->addWidget(widget, 1, Qt::AlignCenter);
+    /*h*/vLayout->addWidget(widget, 1, Qt::AlignCenter);
 }
 
 void MibitDialog::showDialog(AnimationType animation )
@@ -189,10 +189,6 @@ void MibitDialog::setSVG(const QString &file)
     load(file);
 }
 
-void MibitDialog::setIcon(const QPixmap &icon)
-{
-     img->setPixmap(icon);
- }
 
 void MibitDialog::shake()
 {
