@@ -127,6 +127,7 @@ bool Gaveta::isUnused()
 
 void Gaveta::open()
 {
+  //Para una impresora epson tmu220 y una caja dynapos: \x1B\x70\x30\x37\x79
   QFile file(printerDevice);
   if (file.open(QIODevice::ReadWrite)) {
     qDebug()<<"Pinter | Openning drawer...";

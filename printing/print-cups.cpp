@@ -479,7 +479,8 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       foreach(QString strTmp, tmpList) {
         fm = painter.fontMetrics();
         QString strCopy = strTmp;
-        double realTrozos = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, strTmp).width() / maxL;
+        double strW = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, str).width(); //FIXME: ADD THIS FIX to the others.. or use the new Misc::stringToParagraph from LemonCourier
+        double realTrozos = strW / maxL;
         int trozos   = realTrozos;
         double diff = (realTrozos - trozos);
         if (diff > 0.25 && trozos > 0) trozos += 1;
@@ -715,7 +716,8 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       yPos = yPos + fm.lineSpacing()*2;
         //fixing message lenght
         QString strCopy = strTmp;
-        double realTrozos = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, strTmp).width() / maxL;
+        double strW = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, str).width(); //FIXME: ADD THIS FIX to the others.. or use the new Misc::stringToParagraph from LemonCourier
+        double realTrozos = strW / maxL;
         int trozos   = realTrozos;
         double diff = (realTrozos - trozos);
         if (diff > 0.25 && trozos > 0) trozos += 1;
@@ -1665,7 +1667,8 @@ bool PrintCUPS::printSmallSOTicket(const PrintTicketInfo &ptInfo, QPrinter &prin
         foreach(QString strTmp, tmpList) {
           fm = painter.fontMetrics();
           QString strCopy = strTmp;
-          double realTrozos = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, strTmp).width() / maxL;
+          double strW = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, str).width(); //FIXME: ADD THIS FIX to the others.. or use the new Misc::stringToParagraph from LemonCourier
+          double realTrozos = strW / maxL;
           int trozos   = realTrozos;
           double diff = (realTrozos - trozos);
           if (diff > 0.25 && trozos > 0) trozos += 1;

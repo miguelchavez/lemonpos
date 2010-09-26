@@ -26,6 +26,7 @@
 #include <QTextStream>
 #include <QTextCodec>
 
+
 bool PrintDEV::printSmallBalance(const QString &dev, const QString &codec, const QString &lines)
 {
   bool result = false;
