@@ -100,6 +100,7 @@ class LoginWindow : public QDialog
     void setUsername(QString un);
     void setUsernameReadOnly(bool val);
     void focusPassword();
+    void reloadUsers();
   private:
     int  userRole;
     

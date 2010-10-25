@@ -405,4 +405,9 @@ qulonglong LoginWindow::getUserId()
   return userId;
 }
 
+qulonglong LoginWindow::reloadUsers()
+{
+    uHash = getUsers();
+}
+
 #include "loginwindow.moc"
