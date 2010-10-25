@@ -1766,6 +1766,9 @@ void squeezeView::usersViewOnSelected(const QModelIndex & index)
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
       if (!myDb->updateUser(uInfo)) qDebug()<<"ERROR | Updating user:"<<myDb->lastError();
+      //reload loginWindow's users
+      dlgPassword->reloadUsers();
+      loginWindow->reloadUsers();
       delete myDb;
 
       usersModel->select();
@@ -2097,6 +2100,9 @@ void squeezeView::createUser()
       if (!myDb->insertUser(info)) qDebug()<<myDb->lastError();
 
       usersModel->select();
+      //reload loginWindow's users
+      dlgPassword->reloadUsers();
+      loginWindow->reloadUsers();
     }
     delete userEditorDlg;
   }
