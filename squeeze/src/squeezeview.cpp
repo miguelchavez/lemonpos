@@ -2066,8 +2066,6 @@ void squeezeView::stockCorrection()
     }
     qDebug()<<"New Qty:"<<newStockQty<<" Reason:"<<reason;
     correctStock(pcode, oldStockQty, newStockQty, reason);
-    //Log event.
-    log(loggedUserId,QDate::currentDate(), QTime::currentTime(), i18n("Stock Correction: [%1] from %2 to %3. Reason:%4",pcode,oldStockQty,newStockQty, reason));
     delete myDb;
   }
 }
@@ -2076,7 +2074,12 @@ void squeezeView::correctStock(qulonglong code, double oldStock, double newStock
 {
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
-  if (!myDb->correctStock(code, oldStock, newStock, reason )) qDebug()<<myDb->lastError();
+  if (!myDb->correctStock(code, oldStock, newStock, reason ))
+      qDebug()<<myDb->lastError();
+  else {
+      //Log event.
+      log(loggedUserId,QDate::currentDate(), QTime::currentTime(), i18n("Stock Correction: [Product %1] from %2 to %3. Reason:%4",code,oldStock,newStock, reason));
+  }
   delete myDb;
 }
 
