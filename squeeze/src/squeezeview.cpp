@@ -2193,6 +2193,7 @@ void squeezeView::createProduct()
         info.desc    = prodEditorDlg->getDescription();
         info.price   = prodEditorDlg->getPrice();
         info.cost    = prodEditorDlg->getCost();
+        info.purchaseQty = info.stockqty;
         info.units   = prodEditorDlg->getMeasureId();
         info.tax     = prodEditorDlg->getTax1();
         info.extratax= prodEditorDlg->getTax2();
