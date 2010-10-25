@@ -1997,7 +1997,11 @@ void squeezeView::doPurchase()
       tInfo.specialOrders = "";
       tInfo.balanceId = 0;
       tInfo.totalTax  = purchaseEditorDlg->getTotalTaxes();
-      qulonglong trnum = myDb->insertTransaction(tInfo);
+      qulonglong trnum = myDb->insertTransaction(tInfo); //to get the transaction number to insert in the log.
+      if ( trnum <= 0 ) {
+          qDebug()<<"ERROR: Could not create a Purchase Transaction ::doPurchase()";
+          //TODO: Notify the user about the error.
+      }
 
       QHash<qulonglong, ProductInfo> hash = purchaseEditorDlg->getHash();
       ProductInfo info;
@@ -2029,6 +2033,9 @@ void squeezeView::doPurchase()
           productsModel->select();
           items.append(QString::number(info.code)+"/"+QString::number(info.purchaseQty));
       }
+      //update items in transaction data
+      tInfo.itemlist = items.join(";");
+      myDb->updateTransaction(tInfo);
     }
   delete myDb;
   }
@@ -2199,7 +2206,12 @@ void squeezeView::createProduct()
         info.isAGroup         = prodEditorDlg->isGroup();
         info.isARawProduct    = prodEditorDlg->isRaw();
         
-        if (!myDb->insertProduct(info)) qDebug()<<"ERROR:"<<myDb->lastError();
+        if (!myDb->insertProduct(info))
+            qDebug()<<"ERROR:"<<myDb->lastError();
+        else {
+            //register the stock purchase!
+            createPurchase(info);
+        }
         productsModel->select();
       break;
       case statusMod: //Here is not allowed to modify a product... just create new ones...
@@ -2212,6 +2224,58 @@ void squeezeView::createProduct()
   }
  }
  setProductsFilter();
+}
+
+TransactionInfo squeezeView::createPurchase(ProductInfo info)
+{
+    TransactionInfo tInfo;
+    if (db.isOpen()) {
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
+        
+        qDebug()<<"Creating Purchase...";
+        QDate date = QDate::currentDate();
+        QTime time = QTime::currentTime();
+        tInfo.type    = tBuy;
+        tInfo.amount  = info.cost*info.stockqty; //as new product the only stock will be the new created.
+        tInfo.date    = date;
+        tInfo.time    = time;
+        tInfo.paywith = 0.0;
+        tInfo.changegiven = 0.0;
+        tInfo.paymethod   = pCash;
+        tInfo.state   = tCompleted;
+        tInfo.userid  = 1;
+        tInfo.clientid= 1;
+        tInfo.cardnumber  = "-NA-";
+        tInfo.cardauthnum = "-NA-";
+        tInfo.itemcount   = info.stockqty;
+        tInfo.itemlist    = QString("%1/%2").arg(info.code).arg(info.stockqty);
+        tInfo.utility     = 0; //FIXME: utility is calculated until products are sold, not before.
+        tInfo.terminalnum = 0; //NOTE: Not really a terminal... from admin computer.
+        tInfo.providerid  = 1; //FIXME!
+        tInfo.specialOrders = "";
+        tInfo.balanceId = 0;
+        //taxes
+        double cWOTax = 0;
+        if (myDb->getConfigTaxIsIncludedInPrice())
+            cWOTax= (info.cost)/(1+((info.tax+info.extratax)/100));
+        else
+            cWOTax = info.cost;
+        double tax = cWOTax*info.purchaseQty*(info.tax/100);
+        double tax2= cWOTax*info.purchaseQty*(info.extratax/100);
+        tInfo.totalTax  = tax + tax2;
+        //insert into database, getting the tr. number.
+        qulonglong trnum = myDb->insertTransaction(tInfo);
+        tInfo.id = trnum;
+        if ( trnum <= 0 ) qDebug()<<"ERROR: Could not create a Purchase Transaction ::createPurchase()";
+        else {
+          //log
+          log(loggedUserId, date, time, i18n("Purchase #%4 - %1 x %2 (%3)", info.stockqty, info.desc, info.code, trnum) );
+        }
+        delete myDb;
+    }
+
+    return tInfo;
 }
 
 void squeezeView::createMeasure()
