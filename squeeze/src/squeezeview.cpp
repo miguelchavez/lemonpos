@@ -2090,6 +2090,8 @@ void squeezeView::createUser()
   if (db.isOpen()) {
     UserEditor *userEditorDlg = new UserEditor(this);
     userEditorDlg->setUserRole(roleBasic); //preset as default the basic role
+    //dont allow to scale privilages to supervisors. (or create new admins)
+    userEditorDlg->disableRoles(!adminIsLogged);
     QPixmap photo;
 
     if (userEditorDlg->exec() ) {
