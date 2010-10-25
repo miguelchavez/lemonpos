@@ -1768,7 +1768,6 @@ void squeezeView::usersViewOnSelected(const QModelIndex & index)
       if (!myDb->updateUser(uInfo)) qDebug()<<"ERROR | Updating user:"<<myDb->lastError();
       //reload loginWindow's users
       dlgPassword->reloadUsers();
-      loginWindow->reloadUsers();
       delete myDb;
 
       usersModel->select();
@@ -1984,9 +1983,19 @@ void squeezeView::doPurchase()
         QSqlQuery query(db);
         //validDiscount is for checking if product already exists on db. see line # 396 of purchaseeditor.cpp
         if (info.validDiscount) {
-          if (!myDb->updateProduct(info, info.code)) qDebug()<<myDb->lastError();
+          if (!myDb->updateProduct(info, info.code))
+              qDebug()<<myDb->lastError();
+          else {
+              log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Purchase - %1 x %2 (%3)", info.purchaseQty, info.desc, info.code) );
+          }
           qDebug()<<"Product updated [purchase] ok...";
-        } else if (!myDb->insertProduct(info)) qDebug()<<myDb->lastError();
+        } else {
+            if (!myDb->insertProduct(info))
+                qDebug()<<myDb->lastError();
+            else {
+                log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Purchase - %1 x %2 (%3)", info.purchaseQty, info.desc, info.code) );
+            }
+        }
 
         productsModel->select();
         items.append(QString::number(info.code)+"/"+QString::number(info.purchaseQty));
@@ -2102,7 +2111,6 @@ void squeezeView::createUser()
       usersModel->select();
       //reload loginWindow's users
       dlgPassword->reloadUsers();
-      loginWindow->reloadUsers();
     }
     delete userEditorDlg;
   }

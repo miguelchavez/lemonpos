@@ -405,7 +405,7 @@ qulonglong LoginWindow::getUserId()
   return userId;
 }
 
-qulonglong LoginWindow::reloadUsers()
+void LoginWindow::reloadUsers()
 {
     uHash = getUsers();
 }
