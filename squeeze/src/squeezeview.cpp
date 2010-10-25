@@ -1736,6 +1736,10 @@ void squeezeView::usersViewOnSelected(const QModelIndex & index)
     userEditorDlg->setCell(cell);
     userEditorDlg->setPhoto(photo);
     userEditorDlg->setUserRole(role);
+    //dont allow to scale privilages to supervisors.
+    userEditorDlg->disableRoles(!adminIsLogged);
+    //dont allow to change admin's password/info to a supervisor.
+    userEditorDlg->disallowAdminChange(!adminIsLogged);
 
     if (userEditorDlg->exec() ) {
       uInfo.id = id;

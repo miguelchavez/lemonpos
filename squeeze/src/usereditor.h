@@ -46,6 +46,8 @@ class UserEditor : public KDialog
     void setPhoto(QPixmap photo) { ui->labelUsersPhoto->setPixmap(photo); pix = photo; };
     void setId(long int id) { userId = id; };
     void setUserRole(const int &role);
+    void disableRoles(const bool &yes) {ui->groupRoles->setDisabled(yes);};
+    void disallowAdminChange(const bool &yes);
 
     QString getUserName(){ return ui->editUsersUsername->text();};
     QString getRealName(){ return ui->editUsersName->text();};

@@ -103,4 +103,13 @@ int UserEditor::getUserRole()
     return roleAdmin;
 }
 
+void UserEditor::disallowAdminChange(const bool &yes)
+{
+    //A supervisor cannot change administrator's information/password.
+    if (getUserRole() == roleAdmin) {
+      ui->editUsersPassword->setDisabled(yes);
+      ui->setDisabled(yes); //everything
+    }
+}
+
 #include "usereditor.moc"
