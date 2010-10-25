@@ -1969,64 +1969,65 @@ void squeezeView::doPurchase()
     PurchaseEditor *purchaseEditorDlg = new PurchaseEditor(this);
     purchaseEditorDlg->setDb(db);
     if (purchaseEditorDlg->exec()) {
+      //Now add a transaction for buy
+      QDate date = QDate::currentDate();
+      QTime time = QTime::currentTime();
+      TransactionInfo tInfo;
+      tInfo.type    = tBuy;
+      tInfo.amount  = purchaseEditorDlg->getTotalBuy();
+      tInfo.date    = date;
+      tInfo.time    = time;
+      tInfo.paywith = 0.0;
+      tInfo.changegiven = 0.0;
+      tInfo.paymethod   = pCash;
+      tInfo.state   = tCompleted;
+      tInfo.userid  = 1;
+      tInfo.clientid= 1;
+      tInfo.cardnumber  = "-NA-";
+      tInfo.cardauthnum = "-NA-";
+      tInfo.itemcount   = purchaseEditorDlg->getItemCount();
+      tInfo.itemlist    = items.join(";");
+      tInfo.utility     = 0; //FIXME: utility is calculated until products are sold, not before.
+      tInfo.terminalnum = 0; //NOTE: Not really a terminal... from admin computer.
+      tInfo.providerid  = 1; //FIXME!
+      //tInfo.groups      = ""; //DEPRECATED
+      tInfo.specialOrders = "";
+      tInfo.balanceId = 0;
+      tInfo.totalTax  = purchaseEditorDlg->getTotalTaxes();
+      qulonglong trnum = myDb->insertTransaction(tInfo);
+
       QHash<qulonglong, ProductInfo> hash = purchaseEditorDlg->getHash();
       ProductInfo info;
       //Iterate the hash
       QHashIterator<qulonglong, ProductInfo> i(hash);
       while (i.hasNext()) {
-        i.next();
-        info = i.value();
-        double oldstockqty = info.stockqty;
-        info.stockqty = info.purchaseQty+oldstockqty;
-        //Modify data on mysql...
-        if (!db.isOpen()) openDB();
-        QSqlQuery query(db);
-        //validDiscount is for checking if product already exists on db. see line # 396 of purchaseeditor.cpp
-        if (info.validDiscount) {
-          if (!myDb->updateProduct(info, info.code))
-              qDebug()<<myDb->lastError();
-          else {
-              log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Purchase - %1 x %2 (%3)", info.purchaseQty, info.desc, info.code) );
+          i.next();
+          info = i.value();
+          double oldstockqty = info.stockqty;
+          info.stockqty = info.purchaseQty+oldstockqty;
+          //Modify data on mysql...
+          if (!db.isOpen()) openDB();
+          QSqlQuery query(db);
+          //validDiscount is for checking if product already exists on db. see line # 396 of purchaseeditor.cpp
+          if (info.validDiscount) {
+              if (!myDb->updateProduct(info, info.code))
+                  qDebug()<<myDb->lastError();
+              else {
+                  log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Purchase #%4 - %1 x %2 (%3)", info.purchaseQty, info.desc, info.code, trnum) );
+                  qDebug()<<"Product updated [purchase] ok...";
+              }
+              
+          } else {
+              if (!myDb->insertProduct(info))
+                  qDebug()<<myDb->lastError();
+              else {
+                  log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Purchase #%4 - [new] - %1 x %2 (%3)", info.purchaseQty, info.desc, info.code, trnum) );
+              }
           }
-          qDebug()<<"Product updated [purchase] ok...";
-        } else {
-            if (!myDb->insertProduct(info))
-                qDebug()<<myDb->lastError();
-            else {
-                log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Purchase - %1 x %2 (%3)", info.purchaseQty, info.desc, info.code) );
-            }
-        }
-
-        productsModel->select();
-        items.append(QString::number(info.code)+"/"+QString::number(info.purchaseQty));
-        }
-        //Now add a transaction for buy
-        QDate date = QDate::currentDate();
-        QTime time = QTime::currentTime();
-        TransactionInfo tInfo;
-        tInfo.type    = tBuy;
-        tInfo.amount  = purchaseEditorDlg->getTotalBuy();
-        tInfo.date    = date;
-        tInfo.time    = time;
-        tInfo.paywith = 0.0;
-        tInfo.changegiven = 0.0;
-        tInfo.paymethod   = pCash;
-        tInfo.state   = tCompleted;
-        tInfo.userid  = 1;
-        tInfo.clientid= 1;
-        tInfo.cardnumber  = "-NA-";
-        tInfo.cardauthnum = "-NA-";
-        tInfo.itemcount   = purchaseEditorDlg->getItemCount();
-        tInfo.itemlist    = items.join(";");
-        tInfo.utility     = 0; //FIXME: utility is calculated until products are sold, not before.
-        tInfo.terminalnum = 0; //NOTE: Not really a terminal... from admin computer.
-        tInfo.providerid  = 1; //FIXME!
-        //tInfo.groups      = ""; //DEPRECATED
-        tInfo.specialOrders = "";
-        tInfo.balanceId = 0;
-        tInfo.totalTax  = purchaseEditorDlg->getTotalTaxes();
-        myDb->insertTransaction(tInfo);
-
+          
+          productsModel->select();
+          items.append(QString::number(info.code)+"/"+QString::number(info.purchaseQty));
+      }
     }
   delete myDb;
   }
