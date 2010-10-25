@@ -1944,7 +1944,6 @@ void squeezeView::clientsViewOnSelected(const QModelIndex & index)
 
       //Modify data on mysql...
       if (!db.isOpen()) openDB();
-      QSqlQuery query(db);
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
       myDb->updateClient(cInfo);
@@ -2006,8 +2005,6 @@ void squeezeView::doPurchase()
           double oldstockqty = info.stockqty;
           info.stockqty = info.purchaseQty+oldstockqty;
           //Modify data on mysql...
-          if (!db.isOpen()) openDB();
-          QSqlQuery query(db);
           //validDiscount is for checking if product already exists on db. see line # 396 of purchaseeditor.cpp
           if (info.validDiscount) {
               if (!myDb->updateProduct(info, info.code))
