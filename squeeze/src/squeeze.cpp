@@ -191,6 +191,10 @@ void squeeze::enableUI()
     action->setEnabled(true);
     action = actionCollection()->action("stockCorrection");
     action->setEnabled(true);
+    action = actionCollection()->action("viewLog");
+    action->setEnabled(true);
+    action = actionCollection()->action("randomMsgsBrowse");
+    action->setEnabled(true);
   }
   qDebug()<<"Enabling others..";
   action = actionCollection()->action("usersBrowse");
@@ -230,6 +234,10 @@ void squeeze::disableUI()
   action = actionCollection()->action("cashFlowBrowse");
   action->setDisabled(true);
   action = actionCollection()->action("stockCorrection");
+  action->setDisabled(true);
+  action = actionCollection()->action("viewLog");
+  action->setDisabled(true);
+  action = actionCollection()->action("randomMsgsBrowse");
   action->setDisabled(true);
 }
 
