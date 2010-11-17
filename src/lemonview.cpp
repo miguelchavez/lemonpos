@@ -4004,7 +4004,7 @@ void lemonView::updateTransaction()
   tmpList.clear();
   foreach(SpecialOrderInfo soi, specialOrders) {
     profit += (soi.price - soi.cost) * soi.qty;
-    if ( pi.units == uPiece ) cant   += pi.qtyOnList; else cant   += 1;
+    if ( soi.units == uPiece ) cant   += soi.qty; else cant   += 1;
     tmpList << QString::number(soi.orderid) + "/" + QString::number(soi.qty);
   }
   info.specialOrders= tmpList.join(",");
