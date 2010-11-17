@@ -25,6 +25,7 @@
     <Action name="balance"/>
     <Action name="endOfDay"/>
     <Action name="suspendSale"/>
+    <Action name="resumeSale"/>
     <Action name="options_configure" />
     <Action name="file_quit" />
  </ToolBar>

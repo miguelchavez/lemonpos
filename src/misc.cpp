@@ -24,6 +24,9 @@
 #include <QIODevice>
 #include <QPixmap>
 #include <QSize>
+#include <QFontMetrics>
+#include <QStringList>
+#include <QString>
 
 QByteArray Misc::pixmap2ByteArray(QPixmap *pix)
 {
@@ -83,3 +86,64 @@ QByteArray Misc::pixmap2ByteArray(QPixmap *pix, int maxW, int maxH)
 
   return bytes;
 }
+
+QStringList Misc::stringToParagraph(const QString &str, const QFontMetrics &fm, const double &maxL)
+{
+    QStringList strList;
+    QString strCopy = str;
+    double strW = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, str).width();
+    double realTrozos = strW / maxL;
+    int trozos   = realTrozos;
+    double diff = (realTrozos - trozos);
+    if (diff > 0.25 && trozos > 0) trozos += 1;
+    int tamTrozo = 0;
+    if (trozos > 0) {
+        tamTrozo = (str.length()/trozos);
+    } else {
+        tamTrozo = str.length();
+    }
+    
+    QStringList otherList;
+    for (int x = 1; x <= trozos; x++) {
+        //we repeat for each trozo
+        if (x*(tamTrozo-1) < strCopy.length())
+            strCopy.insert(x*(tamTrozo-1), "|  "); //create a section
+    }
+    otherList = strCopy.split("|");//NOTE: Sacar esta linea del for?
+    if (!otherList.isEmpty()) strList << otherList;
+    if (trozos < 1) strList << str;
+    //qDebug()<<"rm : Trozos:"<<trozos<<" tamTrozo:"<<tamTrozo<<" realTrozos:"<<QString::number(realTrozos,'f', 2)<<" maxL:"<<maxL<<" str.width in pixels:"<<fm.size(Qt::TextExpandTabs | Qt::TextDontClip, str).width()<<" diff:"<<diff;
+    
+    return strList;
+}
+
+QStringList Misc::stringToParagraph(const QString &str, const int &maxChars)
+{
+    QStringList strList;
+    QString strCopy = str;
+    double strLen = str.length();
+    double realTrozos = strLen / maxChars;
+    int trozos   = realTrozos;
+    double diff = (realTrozos - trozos);
+    if (diff > 0 && trozos > 0) trozos += 1;
+    int tamTrozo = 0;
+    if (trozos > 0) {
+        tamTrozo = (str.length()/trozos);
+    } else {
+        tamTrozo = str.length();
+    }
+    
+    QStringList otherList;
+    for (int x = 1; x <= trozos; x++) {
+        //we repeat for each trozo
+        if (x*(tamTrozo-1) < strCopy.length())
+            strCopy.insert(x*(tamTrozo-1), "|"); //create a section
+    }
+    otherList = strCopy.split("|"); //NOTE: Sacar esta linea del for?
+    if (!otherList.isEmpty()) strList << otherList;
+    if (trozos < 1) strList << str;
+    //qDebug()<<"rm : Trozos:"<<trozos<<" tamTrozo:"<<tamTrozo<<" realTrozos:"<<QString::number(realTrozos,'f', 2)<<"Str Length: "<<str.length()<<" maxChars:"<<maxChars<<" diff:"<<diff;
+    
+    return strList;
+}
+

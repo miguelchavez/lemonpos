@@ -24,7 +24,9 @@
 
 class QByteArray;
 class QPixmap;
-
+class QFontMetrics;
+class QStringList;
+class QString;
 
 /**
  * This class is for Misc code.
@@ -37,5 +39,8 @@ class Misc {
   public:
     static QByteArray pixmap2ByteArray(QPixmap *pix);
     static QByteArray pixmap2ByteArray(QPixmap *pix, int maxW, int maxH);
+    
+    static QStringList stringToParagraph(const QString &str, const QFontMetrics &fm, const double &maxL);
+    static QStringList stringToParagraph(const QString &str, const int &maxChars);
 };
 #endif
