@@ -195,6 +195,18 @@ void squeeze::enableUI()
     action->setEnabled(true);
     action = actionCollection()->action("randomMsgsBrowse");
     action->setEnabled(true);
+    action = actionCollection()->action("showSpecialOrders");
+    action->setEnabled(true);
+    action = actionCollection()->action("printSoldOut");
+    action->setEnabled(true);
+    action = actionCollection()->action("printLowStock");
+    action->setEnabled(true);
+    action = actionCollection()->action("printEndOfMonth");
+    action->setEnabled(true);
+    action = actionCollection()->action("printEndOfDayGral");
+    action->setEnabled(true);
+    action = actionCollection()->action("printEndOfDay");
+    action->setEnabled(true);
   }
   qDebug()<<"Enabling others..";
   action = actionCollection()->action("usersBrowse");
@@ -238,6 +250,18 @@ void squeeze::disableUI()
   action = actionCollection()->action("viewLog");
   action->setDisabled(true);
   action = actionCollection()->action("randomMsgsBrowse");
+  action->setDisabled(true);
+  action = actionCollection()->action("showSpecialOrders");
+  action->setDisabled(true);
+  action = actionCollection()->action("printSoldOut");
+  action->setDisabled(true);
+  action = actionCollection()->action("printLowStock");
+  action->setDisabled(true);
+  action = actionCollection()->action("printEndOfMonth");
+  action->setDisabled(true);
+  action = actionCollection()->action("printEndOfDayGral");
+  action->setDisabled(true);
+  action = actionCollection()->action("printEndOfDay");
   action->setDisabled(true);
 }
 
