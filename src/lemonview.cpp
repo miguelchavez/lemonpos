@@ -3996,7 +3996,7 @@ void lemonView::updateTransaction()
   QStringList tmpList;
   foreach(ProductInfo pi, productsHash) {
     profit += (pi.price - pi.cost - pi.disc) * pi.qtyOnList;
-    if ( pi.units == uPiece ) cant += 1; else cant   += pi.qtyOnList;
+    if ( pi.units == uPiece ) cant   += pi.qtyOnList; else cant   += 1;
     tmpList << QString::number(pi.code) + "/" + QString::number(pi.qtyOnList);
   }
   info.itemlist   = tmpList.join(","); //Only save normal products. Its almost DEPRECATED.
@@ -4004,7 +4004,7 @@ void lemonView::updateTransaction()
   tmpList.clear();
   foreach(SpecialOrderInfo soi, specialOrders) {
     profit += (soi.price - soi.cost) * soi.qty;
-    if ( soi.units == uPiece ) cant += 1; else cant   += soi.qty;
+    if ( pi.units == uPiece ) cant   += pi.qtyOnList; else cant   += 1;
     tmpList << QString::number(soi.orderid) + "/" + QString::number(soi.qty);
   }
   info.specialOrders= tmpList.join(",");
