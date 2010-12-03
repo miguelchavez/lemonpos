@@ -35,6 +35,7 @@ class QByteArray;
   class Hash
   {
     public:
+      static QByteArray  getCheapSalt();  
       static QByteArray  getSalt();
       static QString     password2hash(const QByteArray& password);
   };

@@ -23,48 +23,90 @@
 #include "sha1.h"
 #include <assert.h>
 
+#include <stdlib.h>
+
 #include <QString>
 #include <QByteArray>
 #include <QFile>
 #include <QTextStream>
 #include <QRegExp>
+#include <QTime> 
 
 //#include <iostream>
 
+QByteArray Hash::getCheapSalt()
+{
+    QString result="";
+    srand( QTime::currentTime().toString("hhmmsszzz").toUInt() );
+    
+    QRegExp rx("([\\w+]|[\\s*&*%*\\$*#*!*=*Â¡*\\(*\\)*\\?*\\Â¿*\\[*\\]*\\{*\\}*\\/*])");
+    int cont=0;
+    rx.setCaseSensitivity(Qt::CaseInsensitive);
+
+    while (cont<5) {
+      QString data( rand() );
+      //if ( rx.indexIn(data) !=-1 )
+      if (data.contains(rx)) {
+          result+=data;
+          cont++;
+        }
+      }
+
+        result.resize(5);
+        return result.toLocal8Bit();
+}
+
 QByteArray Hash::getSalt()
 {
-  QString result="";
-  QFile file("/dev/urandom");
-  //NOTE: At some point of kernel 2.6.32, /dev/random stop working!  :(
-  //      /dev/urandom is blocking if not enough entropy... so moving mouse or keyboard is needed. But
-  //      now with this issue (random failing), urandom seems to work fine and in my tests it has not been blocking.
+    QString result="";
+    QFile file("/dev/urandom");
+    //NOTE: At some point of kernel 2.6.32, /dev/random stop working!  :(
+    //      /dev/urandom is blocking if not enough entropy... so moving mouse or keyboard is needed. But
+    //      now with this issue (random failing), urandom seems to work fine and in my tests it has not been blocking.
   
-  //FIXME: Still some problems when obtaining the salt. some strage chars appearing... fix this regexp
-  QRegExp rx("([\\w+]|[\\s*&*%*\\$*#*!*=*¡*\\(*\\)*\\?*\\¿*\\[*\\]*\\{*\\}*\\/*])");
-  int cont=0;
-  rx.setCaseSensitivity(Qt::CaseInsensitive);
-  if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-  {
+    //FIXME: Still some problems when obtaining the salt. some strage chars appearing... fix this regexp
+
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        // In case /dev/random is a dead fish.
+        if( !file.waitForReadyRead(100))  file.close();
+    }
+
+    if (!file.isOpen()) file.setFileName("/dev/urandom");
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        // In case /dev/random is a dead fish.
+        if( !file.waitForReadyRead(100))
+            file.close();
+    }
+
+    if (!file.isOpen()) {
+        // FIXME: There should be some warning that cheap salt is being used.
+        //qDebug() << "Can't get good salt because /dev/random and /dev/urandom won't open.  Using rand() salt...";
+        return getCheapSalt();
+    }
+
+    QRegExp rx("([\\w+]|[\\s*&*%*\\$*#*!*=*¡*\\(*\\)*\\?*\\¿*\\[*\\]*\\{*\\}*\\/*])");
+    int cont=0;
+    rx.setCaseSensitivity(Qt::CaseInsensitive);
+      
     QTextStream in(&file);
     while (cont<5) {
       QString data = in.readLine(1);
       //std::cout << data.data();
       if (!data.isNull()) {
-        if (data.contains(rx))
-        {
+        if (data.contains(rx)) {
           int pos = rx.indexIn(data);
-          if (pos != -1) {
+          //if (pos != -1) {
             //the filtered chars
             result+=data.at(pos);
             cont++;
-          }
+          //}
         }
       }
     }
     file.close();
-  } //else std::cout << "could not open /dev/urandom";
-  result.resize(5);
-  return result.toLocal8Bit();
+
+    result.resize(5);
+    return result.toLocal8Bit();
 }
 
 
