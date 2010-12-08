@@ -43,11 +43,11 @@ msgstr ""
 #: ../../dataAccess/azahar.cpp:114 ../../dataAccess/azahar.cpp:760
 #, fuzzy
 msgid "Error serching product id %1, Rows affected: %2"
-msgstr "出错 搜索提供的ID $1,影响行数:%2"
+msgstr "出错 搜索提供的ID %1,影响行数:%2"
 
 #: ../../dataAccess/azahar.cpp:138
 msgid "Error serching offer id %1, Rows affected: %2"
-msgstr "出错 搜索提供的ID $1,影响行数:%2"
+msgstr "出错 搜索提供的ID %1,影响行数:%2"
 
 #: ../../dataAccess/azahar.cpp:174
 msgid "Error getting product information for code %1, Rows affected: %2"
