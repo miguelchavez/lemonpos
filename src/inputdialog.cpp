@@ -52,6 +52,7 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
   else if (type == dialogStockCorrection) lPixmap->setPixmap(DesktopIcon("squeeze-stock-correction", 48));
   else if (type == dialogTerminalNum) lPixmap->setPixmap(DesktopIcon("lemon-money", 48)); //FIXME: add an icon
   else if (type == dialogTicketMsg)   lPixmap->setPixmap(DesktopIcon("lemon-ticket", 48));
+  else if (type == dialogCurrency) lPixmap->setPixmap(DesktopIcon("lemon-money", 48));
 
 
   //labels
@@ -67,11 +68,23 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
   lineEdit = new KLineEdit(this);
   productCodeLabel = new QLabel(i18n("Product Code:"), this);
 
+  ///TODO: fix this mess! the if for the dialogtype to assign labels
+  
+  //switch (type) {
+  //    case dialogTicketMsg:
+  //        break;
+  //    case dialogStockCorrection:
+  //        break;
+  //    case 
+  //}
+  
   if (type == dialogTicketMsg) qLabel = new QLabel(i18n("Month or Season:"));
   else if (type == dialogStockCorrection) qLabel = new QLabel(i18n("New Stock Qty:"));
+  else if (type == dialogCurrency) qLabel = new QLabel(i18n("New currency factor:"));
   else qLabel = new QLabel(i18n("Amount:"));
 
   if (type == dialogTicketMsg) reasonLabel = new QLabel(i18n("New Message:"), this);
+  else if (type == dialogCurrency) reasonLabel = new QLabel(i18n("New Currency Name:"), this);
   else reasonLabel = new QLabel(i18n("Reason:"), this);
 
   if (type == dialogTicket || type == dialogSpecialOrder) qLabel->setText(i18n("Ticket #:"));
@@ -113,6 +126,14 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
    lineEdit->setClickMessage(i18n("Enter the number of the month or season here..."));
    productCodeEdit->hide();
    productCodeLabel->hide();
+  }
+  else if (type == dialogCurrency ) {
+      reasonEdit->setClickMessage(i18n("Enter the new currency name..."));
+      lineEdit->setClickMessage(i18n("Enter the new currency factor..."));
+      productCodeEdit->hide();
+      productCodeLabel->hide();
+      reasonLabel->show();
+      reasonEdit->show();
   }
   else {
     reasonLabel->hide();

@@ -227,6 +227,13 @@ class Azahar : public QObject
     void      randomMsgIncrementCount(qulonglong id);
     bool      insertRandomMessage(const QString &msg, const int &season);
 
+    //Currencies
+    CurrencyInfo getCurrency(const qulonglong &id);
+    CurrencyInfo getCurrency(const QString &name);
+    QList<CurrencyInfo> getCurrencyList();
+    bool     insertCurrency(const QString name, const double &factor);
+    bool     deleteCurrency(const qulonglong &cid);
+
 };
 
 #endif

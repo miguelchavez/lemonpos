@@ -35,6 +35,7 @@
 #include "resume.h"
 #include "../../mibitWidgets/mibittip.h"
 #include "../../mibitWidgets/mibitpassworddlg.h"
+#include "../../mibitWidgets/mibitfloatpanel.h"
 
 
 //StarMicronics printers
@@ -169,7 +170,17 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   lockDialog->setSize(300,150);
   lockDialog->setTextColor("Yellow");//Ensure to pass a valid Qt-CSS color name.
   lockDialog->setShakeTTL(3000);
-  connect(lockDialog, SIGNAL(returnPressed()), this, SLOT(unlockScreen()));                             
+  connect(lockDialog, SIGNAL(returnPressed()), this, SLOT(unlockScreen()));
+
+  //MibitFloatPanel
+  path = KStandardDirs::locate("appdata", "styles/");
+  path = path+ "tip.svg"; //"panel_top.svg"; //or use the floating_top?
+  currencyPanel = new MibitFloatPanel(ui_mainview.stackedWidget, path, Top);
+  currencyPanel->setSize(200,211);
+  currencyPanel->addWidget(ui_mainview.frameCurrency);
+  currencyPanel->setMode(pmManual);
+  currencyPanel->setHiddenTotally(true);
+  currencyPanel->hide();
 
   refreshTotalLabel();
   QTimer::singleShot(1000, this, SLOT(setupDB()));
@@ -210,6 +221,14 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   connect(ui_mainview.ticketView, SIGNAL(doubleClicked(const QModelIndex &)), SLOT(itemHIDoubleClicked(const QModelIndex &)) );
 
   connect(ui_mainview.editItemCode, SIGNAL(plusKeyPressed()), this, SLOT(plusPressed()));
+
+  connect(ui_mainview.btnCurrency, SIGNAL( clicked() ), currencyPanel, SLOT( showPanel() ) );
+  connect(ui_mainview.btnCurrency, SIGNAL( clicked() ), this, SLOT( getCurrencies() ) );
+  connect(ui_mainview.btnConvCancel, SIGNAL( clicked() ), currencyPanel, SLOT( hidePanel() ) );
+  connect(ui_mainview.comboCurrency, SIGNAL(currentIndexChanged(int)), this, SLOT(comboCurrencyOnChange()) );
+  connect(ui_mainview.editConvQty, SIGNAL(textEdited(const QString&)), SLOT( doCurrencyConversion() )  );
+  connect(ui_mainview.btnConvOk, SIGNAL(clicked()), SLOT( acceptCurrencyConversion() )  );
+  connect(ui_mainview.editConvQty, SIGNAL(returnPressed()), SLOT(acceptCurrencyConversion()) );
 
   timerClock->start(1000);
 
@@ -591,6 +610,67 @@ void lemonView::goSelectCardAuthNumber()
 {
   ui_mainview.editCardAuthNumber->setFocus();
 }
+
+
+void lemonView::getCurrencies()
+{
+    Azahar *myDb = new Azahar();
+    myDb->setDatabase(db);
+    
+    //get currencies from database
+    QList<CurrencyInfo> currencyList = myDb->getCurrencyList();
+    //load currencies to combobox
+    if ( ui_mainview.comboCurrency->count() > 0 ) ui_mainview.comboCurrency->clear();
+    foreach( CurrencyInfo info, currencyList ) {
+        ui_mainview.comboCurrency->addItem( info.name );
+    }
+    
+    //select first one and set the factor to the edit.
+    if ( !currencyList.isEmpty() ) {
+        CurrencyInfo info = currencyList.first();
+        ui_mainview.editConvFactor->setText( QString::number(info.factor) );
+    }
+
+    ui_mainview.editConvQty->setFocus();
+
+    delete myDb;
+}
+
+void lemonView::comboCurrencyOnChange()
+{
+    Azahar *myDb = new Azahar();
+    myDb->setDatabase(db);
+
+    CurrencyInfo info = myDb->getCurrency( ui_mainview.comboCurrency->currentText() );
+    ui_mainview.editConvFactor->setText( QString::number( info.factor ) );
+    
+    doCurrencyConversion();
+
+    ui_mainview.editConvQty->setFocus();
+
+    delete myDb;
+}
+
+void lemonView::doCurrencyConversion()
+{
+    if ( !ui_mainview.editConvQty->text().isEmpty() && !ui_mainview.editConvFactor->text().isEmpty() ) {
+        double qty    = 0;
+        double factor = 0;
+        double result = 0;
+        qty    = ui_mainview.editConvQty->text().toDouble();
+        factor = ui_mainview.editConvFactor->text().toDouble();
+        result = qty * factor;
+        ui_mainview.editConvResult->setText( QString::number( result ) );
+    }
+}
+
+void lemonView::acceptCurrencyConversion()
+{
+    ui_mainview.editAmount->setText( ui_mainview.editConvResult->text() );
+    currencyPanel->hidePanel();
+    ui_mainview.editAmount->setFocus();
+}
+
 
 lemonView::~lemonView()
 {

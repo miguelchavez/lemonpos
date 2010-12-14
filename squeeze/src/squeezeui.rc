@@ -11,6 +11,7 @@
   <Action name="clientsBrowse" />
   <Action name="randomMsgsBrowse" />
   <Action name="viewLog" />
+  <Action name="currenciesBrowse" />
 </ToolBar>
 
 <ToolBar name="bStockMovement">

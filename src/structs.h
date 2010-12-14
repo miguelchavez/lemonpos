@@ -395,4 +395,11 @@ struct GroupInfo
   QHash<qulonglong, ProductInfo> productsList;
 };
 
+struct CurrencyInfo
+{
+  qulonglong id;
+  QString name;
+  double  factor;
+};
+
 #endif

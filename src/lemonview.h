@@ -27,6 +27,7 @@ class QTableWidgetItem;
 class LoginWindow;
 class MibitTip;
 class MibitPasswordDialog;
+class MibitFloatPanel;
 
 #include <qwidget.h>
 #include <QList>
@@ -112,6 +113,7 @@ public:
 
     MibitTip *tipCode, *tipAmount;
     MibitPasswordDialog *lockDialog;
+    MibitFloatPanel *currencyPanel;
 
     void loadIcons();
     void setUpInputs();
@@ -335,6 +337,11 @@ public:
 
     void log(const qulonglong &uid, const QDate &date, const QTime &time, const QString &text);
     void syncSettingsOnDb();
+
+    void getCurrencies();
+    void comboCurrencyOnChange();
+    void doCurrencyConversion();
+    void acceptCurrencyConversion();
 
 };
 

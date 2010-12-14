@@ -3561,4 +3561,102 @@ bool Azahar::insertRandomMessage(const QString &msg, const int &season)
   return result;
 }
 
+
+CurrencyInfo Azahar::getCurrency(const qulonglong &id)
+{
+    CurrencyInfo result;
+    result.id = 0;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        if (myQuery.exec(QString("select * from currencies where id=%1;").arg(id))) {
+            while (myQuery.next()) {
+                int fieldName   = myQuery.record().indexOf("name");
+                int fieldFactor = myQuery.record().indexOf("factor");
+                result.name   = myQuery.value(fieldName).toString();
+                result.factor = myQuery.value(fieldFactor).toDouble();
+                result.id     = id;
+            }
+        }
+        else {
+            qDebug()<<"ERROR: "<<myQuery.lastError();
+        }
+    }
+    return result;
+}
+
+CurrencyInfo Azahar::getCurrency(const QString &name)
+{
+    CurrencyInfo result;
+    result.id = 0;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        if (myQuery.exec(QString("select * from currencies where name='%1';").arg(name))) {
+            while (myQuery.next()) {
+                int fieldName   = myQuery.record().indexOf("name");
+                int fieldFactor = myQuery.record().indexOf("factor");
+                int fieldId     = myQuery.record().indexOf("id");
+                result.name   = myQuery.value(fieldName).toString();
+                result.factor = myQuery.value(fieldFactor).toDouble();
+                result.id     = myQuery.value(fieldId).toULongLong();
+            }
+        }
+        else {
+            qDebug()<<"ERROR: "<<myQuery.lastError();
+        }
+    }
+    return result;
+}
+
+QList<CurrencyInfo> Azahar::getCurrencyList()
+{
+    QList<CurrencyInfo> result;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        if (myQuery.exec(QString("select * from currencies;"))) {
+            while (myQuery.next()) {
+                CurrencyInfo info;
+                int fieldName   = myQuery.record().indexOf("name");
+                int fieldFactor = myQuery.record().indexOf("factor");
+                int fieldId     = myQuery.record().indexOf("id");
+                info.name   = myQuery.value(fieldName).toString();
+                info.factor = myQuery.value(fieldFactor).toDouble();
+                info.id     = myQuery.value(fieldId).toULongLong();
+                result.append(info);
+            }
+        }
+        else {
+            qDebug()<<"ERROR: "<<myQuery.lastError();
+        }
+    }
+    return result;
+}
+
+bool Azahar::insertCurrency(const QString name, const double &factor)
+{
+    bool result = false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO currencies (name,factor) VALUES (:name, :factor);");
+    query.bindValue(":name", name);
+    query.bindValue(":factor", factor);
+    if (!query.exec()) {
+        setError(query.lastError().text());
+    }
+    else result=true;
+    return result;
+}
+
+bool Azahar::deleteCurrency(const qulonglong &cid)
+{
+    bool result = false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query = QString("DELETE FROM currencies WHERE id=%1").arg(cid);
+    if (!query.exec()) setError(query.lastError().text()); else result=true;
+    return result;
+}
+
 #include "azahar.moc"

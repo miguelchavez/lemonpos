@@ -77,7 +77,7 @@
 //TODO: Change all qDebug to errorDialogs or remove them.
 //NOTE: Common configuration fields need to be shared between lemon and squeeze (low stock alarm value).
 
-enum {pWelcome=0, pBrowseProduct=1, pBrowseOffers=2, pBrowseUsers=3, pBrowseMeasures=4, pBrowseCategories=5, pBrowseClients=6, pBrowseRandomMessages=7, pBrowseLogs=8, pBrowseSO=9, pReports=10};
+enum {pWelcome=0, pBrowseProduct=1, pBrowseOffers=2, pBrowseUsers=3, pBrowseMeasures=4, pBrowseCategories=5, pBrowseClients=6, pBrowseRandomMessages=7, pBrowseLogs=8, pBrowseSO=9, pReports=10, pBrowseCurrencies=11};
 
 
 squeezeView::squeezeView(QWidget *parent)
@@ -373,6 +373,10 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.rbSOByStatusDelivered, SIGNAL( toggled(bool) ), SLOT(setSpecialOrdersFilter()));
   connect(ui_mainview.rbSOByStatusCancelled, SIGNAL(toggled(bool)), this, SLOT( setSpecialOrdersFilter()) );
   connect(ui_mainview.datePicker,SIGNAL(changed(const QDate &)), this, SLOT( setSpecialOrdersFilter()) );
+
+
+  connect(ui_mainview.btnAddCurrency, SIGNAL(clicked()), SLOT(createCurrency()));
+  connect(ui_mainview.btnDeleteCurrency, SIGNAL(clicked()), SLOT(deleteSelectedCurrency()));
 }
 
 void squeezeView::doEmitSignalSalir()
@@ -532,6 +536,14 @@ void squeezeView::showRandomMsgs()
   ui_mainview.headerLabel->setText(i18n("Ticket Messages"));
   ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-ticket",48)));
   if (randomMsgModel->tableName().isEmpty()) setupRandomMsgModel();
+}
+
+void squeezeView::showCurrencies()
+{
+    ui_mainview.stackedWidget->setCurrentIndex(pBrowseCurrencies);
+    ui_mainview.headerLabel->setText(i18n("Currencies"));
+    ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-money",48)));
+    if (currenciesModel->tableName().isEmpty()) setupCurrenciesModel();
 }
 
 void squeezeView::toggleFilterBox(bool show)
@@ -815,6 +827,7 @@ void squeezeView::setupDb()
     specialOrdersModel   = new QSqlRelationalTableModel();
     randomMsgModel  = new QSqlTableModel();
     logsModel       = new QSqlRelationalTableModel();
+    currenciesModel = new QSqlTableModel();
     modelsCreated   = true;
     setupProductsModel();
     setupMeasuresModel();
@@ -828,6 +841,7 @@ void squeezeView::setupDb()
     setupSpecialOrdersModel();
     setupRandomMsgModel();
     setupLogsModel();
+    setupCurrenciesModel();
   } else {
     emit signalDisconnected();
     disableUI();
@@ -877,6 +891,7 @@ void squeezeView::connectToDb()
       specialOrdersModel   = new QSqlRelationalTableModel();
       randomMsgModel  = new QSqlTableModel();
       logsModel       = new QSqlRelationalTableModel();
+      currenciesModel = new QSqlTableModel();
       modelsCreated = true;
     }
     dlgPassword->setDb(db);
@@ -894,6 +909,7 @@ void squeezeView::connectToDb()
     setupSpecialOrdersModel();
     setupRandomMsgModel();
     setupLogsModel();
+    setupCurrenciesModel();
   }
 }
 
@@ -1400,6 +1416,33 @@ void squeezeView::setTransactionsFilter()
     transactionsModel->select();
   }
   delete myDb;
+}
+
+
+//CURRENCIES
+void squeezeView::setupCurrenciesModel()
+{
+    if (db.isOpen()) {
+        currenciesModel->setTable("currencies");
+        currenciesModel->setEditStrategy(QSqlTableModel::OnFieldChange);
+        currenciesModel->setHeaderData(currenciesModel->fieldIndex("name"), Qt::Horizontal, i18n("Name"));
+        
+        ui_mainview.tableCurrencies->setModel(currenciesModel);
+        ui_mainview.tableCurrencies->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui_mainview.tableCurrencies->setColumnHidden(currenciesModel->fieldIndex("id"), true);
+        ui_mainview.tableCurrencies->setItemDelegate(new QItemDelegate(ui_mainview.tableCurrencies));
+        
+        currenciesModel->select();
+        ui_mainview.tableCurrencies->setCurrentIndex(currenciesModel->index(0, 0));
+        
+    }
+    else {
+        //At this point, what to do?
+        // inform to the user about the error and finish app  or retry again some time later?
+        QString details = db.lastError().text();
+        KMessageBox::detailedError(this, i18n("Squeeze has encountered an error, click details to see the error details."), details, i18n("Error"));
+        QTimer::singleShot(10000, this, SLOT(setupCurrenciesModel()));
+    }
 }
 
 
@@ -3329,7 +3372,7 @@ void squeezeView::setupRandomMsgModel()
   }
   ui_mainview.randomMsgTable->resizeColumnsToContents();
 
-  qDebug()<<"setup RandomMsg.. done, "<<randomMsgModel->lastError();
+  //qDebug()<<"setup RandomMsg.. done, "<<randomMsgModel->lastError();
 }
 
 void squeezeView::createRandomMsg()
@@ -3348,6 +3391,52 @@ void squeezeView::createRandomMsg()
  }
 }
 
+void squeezeView::createCurrency()
+{
+    if (db.isOpen()) {
+        InputDialog *dlg = new InputDialog(this, false, dialogCurrency, i18n("Enter the new currency"));
+        
+        if (dlg->exec()) {
+            Azahar *myDb = new Azahar;
+            if (!db.isOpen()) openDB();
+            myDb->setDatabase(db);
+            if (!myDb->insertCurrency(dlg->reason, dlg->dValue)) qDebug()<<"Error:"<<myDb->lastError();
+            currenciesModel->select();
+            delete myDb;
+        }
+    }  
+}
+
+void squeezeView::deleteSelectedCurrency()
+{
+    if (db.isOpen()) {
+        QModelIndex index = ui_mainview.tableCurrencies->currentIndex();
+        if (currenciesModel->tableName().isEmpty()) setupCurrenciesModel();
+        if (index == currenciesModel->index(-1,-1) ) {
+            KMessageBox::information(this, i18n("Please select a row to delete, then press the delete button again."), i18n("Cannot delete"));
+        }
+        else  {
+            QString text = currenciesModel->record(index.row()).value("name").toString();
+            Azahar *myDb = new Azahar;
+            myDb->setDatabase(db);
+            qulonglong cId = myDb->getCurrency(text).id;
+            if (cId > 1) {
+                int answer = KMessageBox::questionYesNo(this, i18n("Do you really want to delete the currency '%1'?", text),
+                i18n("Delete"));
+                if (answer == KMessageBox::Yes) {
+                    qulonglong  iD = currenciesModel->record(index.row()).value("id").toULongLong();
+                    if (!currenciesModel->removeRow(index.row(), index)) {
+                        bool d = myDb->deleteCurrency(iD); qDebug()<<"Deleteing currency ("<<iD<<") manually...";
+                        if (d) qDebug()<<"Deletion succed...";
+                    }
+                    currenciesModel->submitAll();
+                    currenciesModel->select();
+                }
+            } else KMessageBox::information(this, i18n("Default currencies cannot be deleted."), i18n("Cannot delete"));
+                    delete myDb;
+        }
+    }
+}
 
 void squeezeView::reSelectModels()
 {
@@ -3365,6 +3454,7 @@ void squeezeView::reSelectModels()
     specialOrdersModel->select();
     randomMsgModel->select();
     logsModel->select();
+    currenciesModel->select();
   }
 }
 

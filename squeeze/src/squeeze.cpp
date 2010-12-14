@@ -207,6 +207,8 @@ void squeeze::enableUI()
     action->setEnabled(true);
     action = actionCollection()->action("printEndOfDay");
     action->setEnabled(true);
+    action = actionCollection()->action("currenciesBrowse");
+    action->setEnabled(true);
   }
   qDebug()<<"Enabling others..";
   action = actionCollection()->action("usersBrowse");
@@ -262,6 +264,8 @@ void squeeze::disableUI()
   action = actionCollection()->action("printEndOfDayGral");
   action->setDisabled(true);
   action = actionCollection()->action("printEndOfDay");
+  action->setDisabled(true);
+  action = actionCollection()->action("currenciesBrowse");
   action->setDisabled(true);
 }
 
@@ -408,6 +412,12 @@ void squeeze::setupActions()
     action->setIcon(KIcon("view-pim-tasks-pending"));
     action->setShortcut(Qt::CTRL+Qt::Key_G);
     connect(action, SIGNAL(triggered(bool)),m_view, SLOT(showLogs()));
+
+    action = actionCollection()->addAction( "currenciesBrowse" );
+    action->setText(i18n("View Currencies"));
+    action->setIcon(KIcon("lemon-money"));
+    action->setShortcut(Qt::ALT+Qt::Key_C);
+    connect(action, SIGNAL(triggered(bool)),m_view, SLOT(showCurrencies()));
 
 }
 

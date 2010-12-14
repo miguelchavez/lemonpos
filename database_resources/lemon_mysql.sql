@@ -289,6 +289,14 @@ CREATE TABLE IF NOT EXISTS `random_msgs` (
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
+CREATE TABLE IF NOT EXISTS `currencies` (
+`id` bigint(20) unsigned NOT NULL auto_increment,
+`name` varchar(512),
+`factor` double NOT NULL default 1,
+PRIMARY KEY  (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+
 CREATE OR REPLACE VIEW `v_transactions` AS
 select
 concat( DATE_FORMAT( t.date, '%d/%m/%Y' ) , ' ', TIME_FORMAT( t.time, '%H:%i' ) ) AS datetime,

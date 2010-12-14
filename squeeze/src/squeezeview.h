@@ -73,6 +73,7 @@ public:
     QSqlTableModel *randomMsgModel;
     QSqlRelationalTableModel *logsModel;
     QSqlRelationalTableModel *transactionsModel;
+    QSqlTableModel *currenciesModel;
     int productCodeIndex, productDescIndex, productPriceIndex, productStockIndex, productCostIndex,
     productSoldUnitsIndex, productLastSoldIndex, productUnitsIndex, productTaxIndex, productETaxIndex,
     productPhotoIndex, productCategoryIndex, productPointsIndex, productLastProviderIndex, productAlphaCodeIndex, productIsAGroupIndex, productIsARawIndex, productGEIndex;
@@ -158,6 +159,7 @@ signals:
    void setupSpecialOrdersModel();
    void setSpecialOrdersFilter();
    void setupRandomMsgModel();
+   void showCurrencies();
 
    void reportActivated(QListWidgetItem *);
    void printGralEndOfDay();
@@ -175,6 +177,8 @@ signals:
    void createCategory();
    void createClient();
    void createRandomMsg();
+   void createCurrency();
+   void deleteSelectedCurrency();
    void deleteSelectedOffer();
    void deleteSelectedUser();
    void deleteSelectedProduct();
@@ -197,6 +201,7 @@ signals:
    void setupCategoriesModel();
    void setupClientsModel();
    void setupTransactionsModel();
+   void setupCurrenciesModel();
    void checkDBStatus();
    void connectToDb();
 
