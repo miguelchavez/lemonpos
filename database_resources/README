@@ -1,3 +1,7 @@
+Note, if you are using 0.9.3 rc1 or rc2 :
+
+cat fix_0.9.3rc.sql | mysql -uroot -p
+
 -----
 Note for UPGRADE from 0.9.1 / 0.9.2:
 
