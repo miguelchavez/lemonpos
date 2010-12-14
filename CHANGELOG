@@ -41,6 +41,7 @@ CHANGELOG FOR LEMONPOS VERSION 0.9.3 Final Release
 - IMPROVEMENT  : The taxes and price for groups are calculated when needed by lemon. To report the correct tax and price.
 - IMPROVEMENT  : A splitter between the products grid and the purchase list in lemon. To allow resize them.
 - IMPROVEMENT  : Ticket Redesign to improve readability.
+- FEATURE      : Added currency conversion.
 - UPDATE       : Some translations were updated (de,es,fr).
 
 
