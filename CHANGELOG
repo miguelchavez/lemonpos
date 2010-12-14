@@ -1,4 +1,4 @@
-CHANGELOG FOR LEMONPOS VERSION 0.9.3 
+CHANGELOG FOR LEMONPOS VERSION 0.9.3 Final Release
 -----------------------------------------------------
 - BUGFIX       : AddTax feature is adding the tax to the total amount.             ***IMPORTANT FIX***
 - BUGFIX       : Product Editor now calculates the right compound tax for groups.  ***IMPORTANT FIX***
