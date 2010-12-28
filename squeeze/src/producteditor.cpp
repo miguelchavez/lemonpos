@@ -291,17 +291,32 @@ void ProductEditor::calculatePrice()
    ui->editExtraTaxes->setFocus();
    ui->editExtraTaxes->selectAll();
   }
-  //TODO: if TAXes are included in cost...
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  bool taxIncluded = myDb->getConfigTaxIsIncludedInPrice();
+  delete myDb;
   double cost    = ui->editCost->text().toDouble();
-  double utility = ui->editUtility->text().toDouble();
+  double profit  = ui->editUtility->text().toDouble();
   double tax     = ui->editTax->text().toDouble();
   double tax2    = ui->editExtraTaxes->text().toDouble();
-  //Utility is calculated before taxes... Taxes include utility... is it ok?
-  utility = ((utility/100)*cost);
-  double cu      = cost + utility;
+  //Profit is calculated before taxes... 
+  profit = ((profit/100)*cost);
+  double cu = cost + profit;
+  //FIXME: Taxes include profit... is it ok?
   tax     = ((tax/100)*cu);
   tax2    = ((tax2/100)*cu);
-  finalPrice = cost + utility + tax + tax2;
+
+  /** @note: taxIncludedInPrice means that the product.price has embedded the tax already, and it is not necessary to add it at the time we are selling.
+   *         So, here (editing product price) when using autocalculate price, when taxIncluded=true we need to embed the tax in the price.
+   *         It is just the opposite way we do in lemon when selling (taxIncluded=true --> DO NOT add taxes).
+   **/
+  
+  if (taxIncluded) 
+    finalPrice = cost + profit + tax + tax2; 
+  else
+    finalPrice = cost + profit;
+    
+  qDebug()<<"Profit:"<<profit<<" Cost + profit:"<<cu<<" Taxes:"<<tax+tax2<<" Final Price: $"<<finalPrice;
   
   // BFB: avoid more than 2 decimal digits in finalPrice. Round.
   ui->editFinalPrice->setText(QString::number(finalPrice,'f',2));
