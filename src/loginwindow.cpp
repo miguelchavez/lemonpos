@@ -213,7 +213,8 @@ void LoginWindow::paintEvent(QPaintEvent* event){
   switch (currentMode)
   {
     case LoginWindow::FullScreen:
-      if (QApplication::desktop()->screenGeometry(this) != geometry()) setGeometry(QApplication::desktop()->screenGeometry(this));
+      //if (QApplication::desktop()->screenGeometry(this) != geometry()) setGeometry(QApplication::desktop()->screenGeometry(this));
+      setWindowState( windowState() | Qt::WindowFullScreen );
       bg = QPixmap(path + Settings::styleName() + "/" + bgName);
       break;
     case LoginWindow::PasswordOnly:

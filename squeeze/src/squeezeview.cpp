@@ -77,7 +77,7 @@
 //TODO: Change all qDebug to errorDialogs or remove them.
 //NOTE: Common configuration fields need to be shared between lemon and squeeze (low stock alarm value).
 
-enum {pWelcome=0, pBrowseProduct=1, pBrowseOffers=2, pBrowseUsers=3, pBrowseMeasures=4, pBrowseCategories=5, pBrowseClients=6, pBrowseRandomMessages=7, pBrowseLogs=8, pBrowseSO=9, pReports=10, pBrowseCurrencies=11};
+enum {pWelcome=0, pBrowseProduct=1, pBrowseOffers=2, pBrowseUsers=3, pBrowseMeasures=4, pBrowseCategories=5, pBrowseClients=6, pBrowseRandomMessages=7, pBrowseLogs=8, pBrowseSO=9, pReports=10, pBrowseCurrencies=11, pBrowseReservations=12};
 
 
 squeezeView::squeezeView(QWidget *parent)
@@ -257,6 +257,9 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.clientsView, SIGNAL(activated(const QModelIndex &)), SLOT(clientsViewOnSelected(const QModelIndex &)));
   connect(ui_mainview.productsView, SIGNAL(activated(const QModelIndex &)), SLOT(productsViewOnSelected(const QModelIndex &)));
   connect(ui_mainview.productsViewAlt, SIGNAL(activated(const QModelIndex &)), SLOT(productsViewOnSelected(const QModelIndex &)));
+  connect(ui_mainview.tableReservations, SIGNAL(activated(const QModelIndex &)), SLOT(reservationsOnSelected(const QModelIndex &)));
+  connect(ui_mainview.tableReservations, SIGNAL(entered(const QModelIndex &)), SLOT(reservationsOnSelected(const QModelIndex &)));
+  ui_mainview.tableReservations->setMouseTracking(true); //to allow the entered signal works on the previous line.
 
   connect(ui_mainview.groupFilterOffers, SIGNAL(toggled(bool)), SLOT(setOffersFilter()));
   connect(ui_mainview.chOffersSelectDate, SIGNAL(toggled(bool)), SLOT(setOffersFilter()));
@@ -546,6 +549,14 @@ void squeezeView::showCurrencies()
     if (currenciesModel->tableName().isEmpty()) setupCurrenciesModel();
 }
 
+void squeezeView::showReservations()
+{
+    ui_mainview.stackedWidget->setCurrentIndex(pBrowseReservations);//TODO:Remember to change the page number when merging with 0.9.3rc2
+    ui_mainview.headerLabel->setText(i18n("Reservations"));
+    ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-box",48)));
+    if (reservationsModel->tableName().isEmpty()) setupReservationsModel();
+}
+
 void squeezeView::toggleFilterBox(bool show)
 {
   if (show) {
@@ -827,6 +838,7 @@ void squeezeView::setupDb()
     specialOrdersModel   = new QSqlRelationalTableModel();
     randomMsgModel  = new QSqlTableModel();
     logsModel       = new QSqlRelationalTableModel();
+    reservationsModel = new QSqlRelationalTableModel();
     currenciesModel = new QSqlTableModel();
     modelsCreated   = true;
     setupProductsModel();
@@ -842,6 +854,7 @@ void squeezeView::setupDb()
     setupRandomMsgModel();
     setupLogsModel();
     setupCurrenciesModel();
+    setupReservationsModel();
   } else {
     emit signalDisconnected();
     disableUI();
@@ -892,6 +905,7 @@ void squeezeView::connectToDb()
       randomMsgModel  = new QSqlTableModel();
       logsModel       = new QSqlRelationalTableModel();
       currenciesModel = new QSqlTableModel();
+      reservationsModel = new QSqlRelationalTableModel();
       modelsCreated = true;
     }
     dlgPassword->setDb(db);
@@ -910,6 +924,7 @@ void squeezeView::connectToDb()
     setupRandomMsgModel();
     setupLogsModel();
     setupCurrenciesModel();
+    setupReservationsModel();
   }
 }
 
@@ -1310,7 +1325,11 @@ void squeezeView::setupTransactionsModel()
     transactionsModel->setHeaderData(transUtilityIndex, Qt::Horizontal, i18n("Profit") );
     transactionsModel->setHeaderData(transTerminalNumIndex, Qt::Horizontal, i18n("Terminal #") );
     transactionsModel->setHeaderData(transProvIdIndex, Qt::Horizontal, i18n("Provider") );
-    
+
+    ui_mainview.transactionsTable->setColumnHidden(transactionsModel->fieldIndex("totalTax"), true);
+    ui_mainview.transactionsTable->setColumnHidden(transactionsModel->fieldIndex("specialOrders"), true);
+    ui_mainview.transactionsTable->setColumnHidden(transactionsModel->fieldIndex("itemlist"), true);
+    //ui_mainview.transactionsTable->setColumnHidden(transactionsModel->fieldIndex("disc"), true);
     
     ui_mainview.transactionsTable->setSelectionMode(QAbstractItemView::SingleSelection);
     
@@ -1661,6 +1680,78 @@ void squeezeView::setSpecialOrdersFilter()
     specialOrdersModel->select();
   }
 }
+
+
+//reservationsModel
+void squeezeView::setupReservationsModel()
+{
+    if (db.isOpen()) {
+        reservationsModel->setTable("reservations");
+        reservationsModel->setEditStrategy(QSqlTableModel::OnFieldChange);
+        reservationsModel->setHeaderData(reservationsModel->fieldIndex("id"), Qt::Horizontal, i18n("Reservation"));
+        reservationsModel->setHeaderData(reservationsModel->fieldIndex("transaction_id"), Qt::Horizontal, i18n("Tr. #"));
+        reservationsModel->setHeaderData(reservationsModel->fieldIndex("client_id"), Qt::Horizontal, i18n("Client"));
+        reservationsModel->setHeaderData(reservationsModel->fieldIndex("date"), Qt::Horizontal, i18n("Date"));
+        reservationsModel->setHeaderData(reservationsModel->fieldIndex("status"), Qt::Horizontal, i18n("Status"));
+        reservationsModel->setHeaderData(reservationsModel->fieldIndex("payment"), Qt::Horizontal, i18n("Prepayment"));
+        reservationsModel->setHeaderData(reservationsModel->fieldIndex("total"), Qt::Horizontal, i18n("Total"));
+
+        reservationsModel->setRelation(reservationsModel->fieldIndex("client_id"), QSqlRelation("clients", "id", "name"));
+        reservationsModel->setRelation(reservationsModel->fieldIndex("status_id"), QSqlRelation("transactionstates", "stateid", "text"));
+        
+        ui_mainview.tableReservations->setModel(reservationsModel);
+        ui_mainview.tableReservations->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui_mainview.tableReservations->setColumnHidden(reservationsModel->fieldIndex("totaltaxes"), true);
+        ui_mainview.tableReservations->setItemDelegate(new QItemDelegate(ui_mainview.tableReservations));
+        
+        reservationsModel->select();
+        ui_mainview.tableReservations->setCurrentIndex(reservationsModel->index(0, 0));
+        
+    }
+    else {
+        //At this point, what to do?
+        // inform to the user about the error and finish app  or retry again some time later?
+        QString details = db.lastError().text();
+        KMessageBox::detailedError(this, i18n("Squeeze has encountered an error, click details to see the error details."), details, i18n("Error"));
+        QTimer::singleShot(10000, this, SLOT(setupReservationsModel()));
+    }
+}
+
+
+void squeezeView::reservationsOnSelected(const QModelIndex &index)
+{
+    if (db.isOpen()) {
+        //getting data from model...
+        const QAbstractItemModel *model = index.model();
+        int row = index.row();
+        QModelIndex indx = model->index(row, reservationsModel->fieldIndex("id"));
+        qulonglong id = model->data(indx, Qt::DisplayRole).toULongLong();
+
+        ReservationInfo rInfo;
+        QList<TransactionItemInfo> rItems;
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
+
+        rInfo  = myDb->getReservationInfo(id);
+        rItems = myDb->getTransactionItems(rInfo.transaction_id);
+
+        delete myDb;
+
+        //Draw the reservation details
+        QString text = QString("<b><span style=\" font-size:13pt;\">%1 <br>%2 </span></b><br><br><i>%3</i><br><ul>")
+        .arg(tr("Transaction No.%1").arg(rInfo.transaction_id))
+        .arg(tr("Reservation No.%1").arg(rInfo.id))
+        .arg(tr("Reserved Items:"));
+        //get each item
+        foreach(TransactionItemInfo item, rItems ) {
+            text += QString("<li> %1 x %2</li>").arg(QString::number(item.qty)).arg(item.name);
+            //TODO: display nested items if the item is a group
+        }
+        text += "</ul>";
+        ui_mainview.lblReservationDetails->setText(text);
+    }
+}
+
 
 /* widgets */
 

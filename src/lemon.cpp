@@ -311,10 +311,26 @@ void lemon::setupActions()
   resumeAction->setShortcut(Qt::CTRL+Qt::Key_R);
   connect(resumeAction, SIGNAL(triggered(bool)), m_view, SLOT( resumeSale() ));
   qDebug()<<"resumeSale shortcut:"<<resumeAction->shortcuts();
+
+  QAction *makeReservationA = actionCollection()->addAction("makeReservation");
+  makeReservationA->setText(i18n("Reserve Items"));
+  makeReservationA->setIcon(KIcon("lemon-box")); //TODO:CREATE ICON!
+  makeReservationA->setShortcut(Qt::ALT + Qt::Key_R); // Qt::ALT is the left ALT key ( not the Alt Gr )
+  connect(makeReservationA, SIGNAL(triggered(bool)), m_view, SLOT( reserveItems() ));
+  qDebug()<<"makeReservation shortcut:"<<makeReservationA->shortcuts();
+
+  QAction *resumeRAction = actionCollection()->addAction("resumeReservation");
+  resumeRAction->setText(i18n("Reservations"));
+  resumeRAction->setIcon(KIcon("lemon-box")); //TODO:CREATE ICON!
+  resumeRAction->setShortcut(Qt::CTRL+Qt::SHIFT+Qt::Key_R);
+  connect(resumeRAction, SIGNAL(triggered(bool)), m_view, SLOT( resumeReservation() ));
+  qDebug()<<"Reservations shortcut:"<<resumeRAction->shortcuts();
   
   setupGUI();
 
-  setGeometry(QApplication::desktop()->screenGeometry(this));
+  //FIXME: SCREEN SIZE
+  setWindowState( windowState() | Qt::WindowFullScreen ); // set
+  //setGeometry(QApplication::desktop()->screenGeometry(this));
   if (!Settings::splitterSizes().isEmpty()) m_view->setTheSplitterSizes(Settings::splitterSizes());
   if (!Settings::gridSplitterSizes().isEmpty()) m_view->setTheGridSplitterSizes(Settings::gridSplitterSizes());
 }
@@ -563,6 +579,12 @@ void lemon::disableUi()
   action = actionCollection()->action("resumeSale");
   action->setDisabled(true);
 
+  action = actionCollection()->action("makeReservation");
+  action->setDisabled(true);
+
+  action = actionCollection()->action("resumeReservation");
+  action->setDisabled(true);
+
   action = actionCollection()->action("login");
   action->setEnabled(true); //enable login!
   
@@ -628,6 +650,12 @@ void lemon::enableUi()
   action = actionCollection()->action("suspendSale");
   action->setEnabled(true);
   action = actionCollection()->action("resumeSale");
+  action->setEnabled(true);
+
+  action = actionCollection()->action("resumeReservation");
+  action->setEnabled(true);
+
+  action = actionCollection()->action("makeReservation");
   action->setEnabled(true);
   
   if (m_view->canStartSelling()) {

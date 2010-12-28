@@ -44,6 +44,8 @@ class PrintCUPS {
     static bool printBigLowStockReport(const PrintLowStockInfo &plInfo, QPrinter &printer);
 
     static bool printSmallSOTicket(const PrintTicketInfo &ptInfo, QPrinter &printer);
+
+    //static bool printSmallReservationTicket(const PrintTicketInfo &ptInfo, QPrinter &printer); //NOTE:WHAT ABOUT THIS!
 };
 
 #endif

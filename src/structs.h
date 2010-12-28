@@ -173,6 +173,7 @@ struct PrintBalanceInfo
   QString     thCFDate;
   QStringList trList;
   QStringList cfList;
+  QString     reservationNote;
 };
 
 struct pieProdInfo
@@ -229,6 +230,12 @@ struct TicketInfo {
   double soTotal; //this is the total for the SO (nextpayment + prepayment)
   QString subTotal;
   QString terminal;
+  //for reservations:
+  bool isAReservation;
+  bool reservationStarted;
+  double reservationPayment;
+  double purchaseTotal;
+  qulonglong reservationId;
 };
 
 struct PrintTicketInfo {
@@ -272,6 +279,8 @@ struct PrintTicketInfo {
   QString    thTendered;
   QString    thSubtotal;
   QString    subtotal;
+  QString    resTotalAmountStr;
+  QString    hdrReservation;
 };
 
 //TODO: add grouped products and special orders
@@ -397,9 +406,21 @@ struct GroupInfo
 
 struct CurrencyInfo
 {
-  qulonglong id;
-  QString name;
-  double  factor;
+    qulonglong id;
+    QString name;
+    double  factor;
+};
+
+struct ReservationInfo
+{
+    qulonglong id;
+    qulonglong transaction_id;
+    qulonglong client_id;
+    QDate      date;
+    double     payment;
+    double     total;
+    double     totalTaxes;
+    int        status;
 };
 
 #endif

@@ -12,6 +12,7 @@
   <Action name="randomMsgsBrowse" />
   <Action name="viewLog" />
   <Action name="currenciesBrowse" />
+  <Action name="reservationsBrowse" />
 </ToolBar>
 
 <ToolBar name="bStockMovement">
@@ -43,6 +44,8 @@
       <Action name="categoriesBrowse" />
       <Action name="clientsBrowse" />
       <Action name="randomMsgsBrowse" />
+      <Action name="reservationsBrowse" />
+      <Action name="currenciesBrowse" />
       <Action name="viewLog" />
     </Menu>
     <Menu name="Reports"><text>&amp;Reports</text>

@@ -2322,6 +2322,31 @@ double Azahar::getTransactionDiscMoney(qulonglong id)
 }
 
 
+bool Azahar::setTransactionStatus(qulonglong trId, TransactionState state)
+{
+    bool result = false;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen())
+    {
+        QSqlQuery query(db);
+        query.prepare("UPDATE transactions SET transactions.state=:state WHERE transactions.id=:trid");
+        query.bindValue(":trid", trId);
+        query.bindValue(":state", state);
+
+        qDebug()<< __FUNCTION__ << "Tr Id:"<<trId<<" State:"<<state;
+        
+        if (!query.exec() ) {
+            int errNum = query.lastError().number();
+            QSqlError::ErrorType errType = query.lastError().type();
+            QString errStr = query.lastError().text();
+            QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),errStr);
+            setError(details);
+        } else result = true;
+    }
+    return result;
+}
+
+
 // TRANSACTIONITEMS
 bool Azahar::insertTransactionItem(TransactionItemInfo info)
 {
@@ -3656,6 +3681,136 @@ bool Azahar::deleteCurrency(const qulonglong &cid)
     QSqlQuery query(db);
     query = QString("DELETE FROM currencies WHERE id=%1").arg(cid);
     if (!query.exec()) setError(query.lastError().text()); else result=true;
+    return result;
+}
+
+// Reservations
+
+qulonglong Azahar::insertReservation(ReservationInfo info)
+{
+    qulonglong result = 0;
+    
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO reservations (transaction_id, client_id, date, status, payment, total, totaltaxes) VALUES (:transaction, :client, :date, :status, :payment, :total, :totaltaxes);");
+    query.bindValue(":transaction", info.transaction_id);
+    query.bindValue(":client", info.client_id);
+    query.bindValue(":payment", info.payment);
+    query.bindValue(":date", info.date);
+    query.bindValue(":status", info.status);
+    query.bindValue(":total", info.total);
+    query.bindValue(":totaltaxes", info.totalTaxes);
+    
+    if (!query.exec()) {
+        setError(query.lastError().text());
+        qDebug()<< __FUNCTION__ << query.lastError().text();
+    }
+    else result = query.lastInsertId().toULongLong();
+    
+    return result;
+}
+
+bool Azahar::setReservationStatus(qulonglong id, reservationState state)
+{
+    bool result = false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query.prepare("UPDATE reservations SET status=:state WHERE id=:id;");
+    query.bindValue(":id", id);
+    query.bindValue(":state", state);
+    
+    if (!query.exec()) setError(query.lastError().text()); else result=true;
+    return result;
+}
+
+bool Azahar::setTransactionReservationStatus(const qulonglong &trId)
+{
+    bool result = false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query.prepare("UPDATE transactions SET state=:status WHERE id=:id;");
+    query.bindValue(":id", trId);
+    query.bindValue(":status", tReserved);
+    
+    if (!query.exec()) setError(query.lastError().text()); else result=true;
+    return result;
+}
+
+double Azahar::getReservationTotalAmount(qulonglong id)
+{
+    double result=0;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        myQuery.prepare("SELECT total FROM reservations WHERE id=:id;");
+        myQuery.bindValue(":id", id);
+        if (myQuery.exec() ) {
+            while (myQuery.next()) {
+                int fieldTotal   = myQuery.record().indexOf("total");
+                result = myQuery.value(fieldTotal).toDouble();
+            }
+        }
+        else {
+            setError(myQuery.lastError().text());
+        }
+    }
+    return result;
+}
+
+double Azahar::getReservationPayment(qulonglong id)
+{
+    double result=0;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        myQuery.prepare("SELECT payment FROM reservations WHERE id=:id;");
+        myQuery.bindValue(":id", id);
+        if (myQuery.exec() ) {
+            while (myQuery.next()) {
+                int fieldTotal   = myQuery.record().indexOf("payment");
+                result = myQuery.value(fieldTotal).toDouble();
+            }
+        }
+        else {
+            setError(myQuery.lastError().text());
+        }
+    }
+    return result;
+}
+
+ReservationInfo Azahar::getReservationInfo(const qulonglong &id)
+{
+    ReservationInfo result;
+    result.id=0;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        myQuery.prepare("SELECT * FROM reservations WHERE id=:id;");
+        myQuery.bindValue(":id", id);
+        if (myQuery.exec() ) {
+            while (myQuery.next()) {
+                int fieldPayment = myQuery.record().indexOf("payment");
+                int fieldClient  = myQuery.record().indexOf("client_id");
+                int fieldTr      = myQuery.record().indexOf("transaction_id");
+                int fieldDate    = myQuery.record().indexOf("date");
+                int fieldStatus  = myQuery.record().indexOf("status");
+                int fieldTotal   = myQuery.record().indexOf("total");
+                int fieldTaxes   = myQuery.record().indexOf("totaltaxes");
+                
+                result.id = id;
+                result.client_id = myQuery.value(fieldClient).toULongLong();
+                result.transaction_id = myQuery.value(fieldTr).toULongLong();
+                result.total     = myQuery.value(fieldTotal).toDouble();
+                result.payment   = myQuery.value(fieldPayment).toDouble();
+                result.date      = myQuery.value(fieldDate).toDate();
+                result.status    = myQuery.value(fieldStatus).toInt();
+                result.totalTaxes= myQuery.value(fieldTaxes).toDouble();
+            }
+        }
+        else {
+            setError(myQuery.lastError().text());
+        }
+    }
     return result;
 }
 

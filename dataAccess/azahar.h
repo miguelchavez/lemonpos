@@ -157,6 +157,7 @@ class Azahar : public QObject
     QList<TransactionInfo> getTransactionsPerDay(int pageNumber=1,int numItems=20,QDate beforeDate=QDate::currentDate ());
     qulonglong  getEmptyTransactionId();
     double      getTransactionDiscMoney(qulonglong id);
+    bool        setTransactionStatus(qulonglong trId, TransactionState state);
     
     // TRANSACTIONITEMS
     bool        insertTransactionItem(TransactionItemInfo info);
@@ -220,6 +221,14 @@ class Azahar : public QObject
     int                     getStatusId(QString texto);
     double                  getSpecialOrderAverageTax(qulonglong id, AzaharRTypes returnType= rtPercentage);
     double                  getSpecialOrderAverageDiscount(qulonglong id);
+
+    //Reservations
+    qulonglong              insertReservation(ReservationInfo info);
+    bool                    setReservationStatus(qulonglong id, reservationState state);
+    double                  getReservationTotalAmount(qulonglong id);
+    double                  getReservationPayment(qulonglong id);
+    bool                    setTransactionReservationStatus(const qulonglong &trId);
+    ReservationInfo         getReservationInfo(const qulonglong &id);
 
     //Random Msgs
     QString   getRandomMessage(QList<qulonglong> &excluded, const int &season);

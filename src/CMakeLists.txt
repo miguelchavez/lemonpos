@@ -25,6 +25,7 @@ set(lemon_SRCS
    soselector.cpp
    sostatus.cpp
    resume.cpp
+   reservations.cpp
    #printers/sp500.cpp
  )
 
@@ -43,6 +44,7 @@ kde4_add_ui_files( lemon_SRCS
   ui/soselector.ui
   ui/sostatus.ui
   ui/resume.ui
+  ui/reservations.ui
   ui/checker.ui )
 
 kde4_add_kcfg_files(lemon_SRCS settings.kcfgc )

@@ -32,6 +32,7 @@ class QPainter;
 class LoginWindow;
 class KPlotObject;
 class MibitFloatPanel;
+class QListWidgetItem;
 
 /**
  * This is the main view class for squeeze.  Most of the non-menu,
@@ -71,6 +72,7 @@ public:
     QSqlTableModel *balancesModel;
     QSqlTableModel *clientsModel;
     QSqlTableModel *randomMsgModel;
+    QSqlRelationalTableModel *reservationsModel;
     QSqlRelationalTableModel *logsModel;
     QSqlRelationalTableModel *transactionsModel;
     QSqlTableModel *currenciesModel;
@@ -214,6 +216,11 @@ signals:
    void log(const qulonglong &uid, const QDate &date, const QTime &time, const QString &text);
    void showLogs();
    void setupLogsModel();
+
+   //reservations
+   void showReservations();
+   void setupReservationsModel();
+   void reservationsOnSelected(const QModelIndex &index);
 
    void createFloatingPanels();
    void reSelectModels();

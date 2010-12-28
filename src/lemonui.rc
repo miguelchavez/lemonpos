@@ -18,6 +18,8 @@
     <Action name="showPriceChecker"/>
     <Action name="specialOrder"/>
     <Action name="specialOrderComplete"/>
+    <Action name="makeReservation"/>
+    <Action name="resumeReservation"/>
   </ToolBar>
   <ToolBar name="adminToolBar" >
     <text>Administrator's Toolbar</text>

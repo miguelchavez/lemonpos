@@ -8,10 +8,11 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?"
 "atid=1011570&group_id=209899&func=browse\n"
-"POT-Creation-Date: 2010-03-24 23:45-0600\n"
+"POT-Creation-Date: 2010-12-11 09:17-0600\n"
 "PO-Revision-Date: 2009-01-31 18:24+0100\n"
 "Last-Translator: \n"
 "Language-Team: Catalan <kde-i18n-doc@lists.kde.org>\n"
+"Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -96,33 +97,33 @@ msgstr "Document per obrir"
 msgid "General ToolBar"
 msgstr "General"
 
-#. i18n: file: squeezeui.rc:17
+#. i18n: file: squeezeui.rc:18
 #. i18n: ectx: ToolBar (bStockMovement)
 #: po/extractedrc.cpp:6 extractedrc.cpp:6
 #, fuzzy
 msgid "Stock Movement"
 msgstr "Moviment d'Inventari"
 
-#. i18n: file: squeezeui.rc:24
+#. i18n: file: squeezeui.rc:25
 #. i18n: ectx: ToolBar (cReports)
-#: po/extractedrc.cpp:9 squeeze.cpp:327 squeezeview.cpp:511 extractedrc.cpp:9
+#: po/extractedrc.cpp:9 squeeze.cpp:363 squeezeview.cpp:523 extractedrc.cpp:9
 msgid "Reports"
 msgstr "Informes"
 
-#. i18n: file: squeezeui.rc:29
+#. i18n: file: squeezeui.rc:30
 #. i18n: ectx: ToolBar (dOther)
 #: po/extractedrc.cpp:12 extractedrc.cpp:12
 msgid "Other Actions"
 msgstr ""
 
-#. i18n: file: squeezeui.rc:37
+#. i18n: file: squeezeui.rc:38
 #. i18n: ectx: Menu (Data)
 #: po/extractedrc.cpp:15 extractedrc.cpp:15
 #, fuzzy
 msgid "&Data"
 msgstr "Data"
 
-#. i18n: file: squeezeui.rc:47
+#. i18n: file: squeezeui.rc:48
 #. i18n: ectx: Menu (Reports)
 #: po/extractedrc.cpp:18 extractedrc.cpp:18
 #, fuzzy

@@ -296,6 +296,18 @@ CREATE TABLE IF NOT EXISTS `currencies` (
 PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+CREATE TABLE IF NOT EXISTS `reservations` (
+`id` bigint(20) unsigned NOT NULL auto_increment,
+`transaction_id` bigint(20) unsigned NOT NULL,
+`client_id` bigint(20) unsigned NOT NULL,
+`date` date NOT NULL default '2010-01-01',
+`status` int(5) unsigned NOT NULL default 1,
+`payment` double unsigned NOT NULL default '0',
+`total` double unsigned NOT NULL default '0',
+`totaltaxes` double unsigned NOT NULL default '0',
+PRIMARY KEY  (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
 
 CREATE OR REPLACE VIEW `v_transactions` AS
 select
@@ -396,6 +408,7 @@ INSERT INTO lemondb.transactionstates (stateid, text) VALUES(3, 'Cancelled');
 INSERT INTO lemondb.transactionstates (stateid, text) VALUES(4, 'PO Pending');
 INSERT INTO lemondb.transactionstates (stateid, text) VALUES(5, 'PO Completed');
 INSERT INTO lemondb.transactionstates (stateid, text) VALUES(6, 'PO Incomplete');
+INSERT INTO lemondb.transactionstates (stateid, text) VALUES(7, 'Reservation');
 #Insert default transactions types (very important to keep these ids)
 INSERT INTO lemondb.transactiontypes (ttypeid, text) VALUES(1, 'Sell');
 INSERT INTO lemondb.transactiontypes (ttypeid, text) VALUES(2, 'Purchase');
