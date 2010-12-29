@@ -55,6 +55,8 @@ CREATE TABLE IF NOT EXISTS `products` (
   `isAGroup` bool NOT NULL default false, #this is not necesary, with groupElements we can know if its a group
   `groupElements` varchar(1000) collate utf8_general_ci default '',
   `groupPriceDrop` double unsigned NOT NULL default 0,
+  #The next fields are in preparation for the taxmodels... it will be included in the near future.
+  `taxmodel` bigint(20) unsigned NOT NULL default 1,
   PRIMARY KEY  (`code`),
   KEY `SEC` (`category`, `name`, `alphacode`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -98,6 +100,24 @@ CREATE TABLE IF NOT EXISTS `measures` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `text` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
   PRIMARY KEY  (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+#For the way to manage taxes, the config option "taxIsIncludedInPrice" is taken into account.
+#If this option is TRUE, the tax is going to be added to the product price, like in the USA.
+#If this option is FALSE, the tax is not added, just calculated for informative use. Like in Mexico.
+
+CREATE TABLE IF NOT EXISTS `taxmodels` (
+`modelid` bigint(20) unsigned NOT NULL auto_increment,
+`tname` VARCHAR(50) NOT NULL,
+`elementsid` VARCHAR(50) NOT NULL,
+PRIMARY KEY  (`modelid`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `taxelements` (
+`elementid` bigint(20) unsigned NOT NULL auto_increment,
+`ename` VARCHAR(50) NOT NULL,
+`rate` double unsigned NOT NULL,
+PRIMARY KEY  (`elementid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `balances` (

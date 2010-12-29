@@ -1,6 +1,6 @@
-/***************************************************************************
- *   Copyright (C) 2008-2009 by Miguel Chavez Gamboa                       *
- *   miguel.chavez.gamboa@gmail.com                                        *
+/**************************************************************************
+ *   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
+ *   miguel@lemonpos.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -75,7 +75,7 @@ bool  Azahar::correctStock(qulonglong pcode, double oldStockQty, double newStock
   if (!db.isOpen()) db.open();
 
   //Check if the desired product is a a group.
-  if ( getProductInfo(pcode).isAGroup ) return false;
+  if ( getProductInfo(QString::number(pcode)).isAGroup ) return false;
 
   QSqlQuery query(db);
   QDate date = QDate::currentDate();
@@ -147,13 +147,20 @@ qulonglong Azahar::getProductOfferCode(qulonglong code)
 }
 
 
-ProductInfo Azahar::getProductInfo(qulonglong code, bool notConsiderDiscounts)
+ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderDiscounts)
 {
   ProductInfo info;
   info.code=0;
   info.desc="Ninguno";
   info.price=0;
   info.disc=0;
+  info.cost=0;
+  info.lastProviderId = 0;
+  info.category=0;
+  info.taxmodelid=0; //for future use! MCH DEC 28 2010
+  info.units=0;
+  info.points=0;
+  info.row=-1;info.qtyOnList=-1;info.purchaseQty=-1;
   info.discpercentage=0;
   info.validDiscount=false;
   info.alphaCode = "-NA-";
@@ -165,7 +172,35 @@ ProductInfo Azahar::getProductInfo(qulonglong code, bool notConsiderDiscounts)
 
   if (!db.isOpen()) db.open();
   if (db.isOpen()) {
-    QString qry = QString("SELECT * from products where code=%1").arg(code);
+    QString qry = QString("SELECT  P.code as CODE, \
+    P.alphacode as ALPHACODE, \
+    P.name as NAME ,\
+    P.price as PRICE, \
+    P.cost as COST ,\
+    P.stockqty as STOCKQTY, \
+    P.units as UNITS, \
+    P.points as POINTS, \
+    P.photo as PHOTO, \
+    P.category as CATID, \
+    P.lastproviderid as PROVIDERID, \
+    P.taxpercentage as TAX1, \
+    P.extrataxes as TAX2, \
+    P.taxmodel as TAXMODELID, \
+    P.isARawProduct as ISRAW, \
+    P.isAGroup as ISGROUP, \
+    P.groupElements as GE, \
+    P.groupPriceDrop as GPRICEDROP,\
+    P.soldunits as SOLDUNITS, \
+    U.text as UNITSDESC, \
+    C.text as CATEGORY, \
+    PR.name as LASTPROVIDER ,\
+    T.tname as TAXNAME, \
+    T.elementsid as TAXELEM \
+    FROM products AS P, taxmodels as T, providers as PR, categories as C, measures as U \
+    WHERE PR.id=P.lastproviderid AND T.modelid=P.taxmodel \
+    AND C.catid=P.category AND U.id=P.units\
+    AND (CODE='%1' or ALPHACODE='%1');").arg(code);
+    
     QSqlQuery query(db);
     if (!query.exec(qry)) {
       int errNum = query.lastError().number();
@@ -176,60 +211,73 @@ ProductInfo Azahar::getProductInfo(qulonglong code, bool notConsiderDiscounts)
     }
     else {
       while (query.next()) {
-        int fieldDesc = query.record().indexOf("name");
-        int fieldPrice= query.record().indexOf("price");
-        int fieldPhoto= query.record().indexOf("photo");
-        int fieldStock= query.record().indexOf("stockqty");
-        int fieldCost= query.record().indexOf("cost");
-        int fieldUnits= query.record().indexOf("units");
-        int fieldTax1= query.record().indexOf("taxpercentage");
-        int fieldTax2= query.record().indexOf("extrataxes");
-        int fieldCategory= query.record().indexOf("category");
-        int fieldPoints= query.record().indexOf("points");
-        int fieldLastProviderId = query.record().indexOf("lastproviderid");
-        int fieldAlphaCode = query.record().indexOf("alphacode");
-        int fieldSoldUnits = query.record().indexOf("soldunits"); //mch 21 NOV 09
-        int fieldIsARaw = query.record().indexOf("isARawProduct");
-        int fieldIsAGroup = query.record().indexOf("isAGroup");
-        int fieldGroupE = query.record().indexOf("groupElements");
-        int fieldGroupPD = query.record().indexOf("groupPriceDrop");
-        info.code=code;
+        int fieldTax1= query.record().indexOf("TAX1");
+        int fieldTax2= query.record().indexOf("TAX2");
+        int fieldGroupPD = query.record().indexOf("GPRICEDROP");
+        int fieldCODE = query.record().indexOf("CODE");
+        int fieldDesc = query.record().indexOf("NAME");
+        int fieldPrice= query.record().indexOf("PRICE");
+        int fieldPhoto= query.record().indexOf("PHOTO");
+        int fieldCost= query.record().indexOf("COST");
+        int fieldUnits= query.record().indexOf("UNITS");
+        int fieldUnitsDESC= query.record().indexOf("UNITSDESC");
+        //int fieldTaxName= query.record().indexOf("TAXNAME");
+        int fieldTaxModelId= query.record().indexOf("TAXMODELID");
+        //int fieldCategoryName= query.record().indexOf("CATEGORY");
+        int fieldCategoryId= query.record().indexOf("CATID");
+        int fieldPoints= query.record().indexOf("POINTS");
+        //int fieldLastProviderName = query.record().indexOf("LASTPROVIDER");
+        int fieldLastProviderId = query.record().indexOf("PROVIDERID");
+        int fieldAlphaCode = query.record().indexOf("ALPHACODE");
+        int fieldTaxElem = query.record().indexOf("TAXELEM");
+        int fieldStock= query.record().indexOf("STOCKQTY");
+        int fieldIsGroup = query.record().indexOf("ISGROUP");
+        int fieldIsRaw = query.record().indexOf("ISRAW");
+        int fieldGE = query.record().indexOf("GE");
+        int fieldSoldU = query.record().indexOf("SOLDUNITS");
+
+        info.code     = query.value(fieldCODE).toULongLong();
         info.alphaCode = query.value(fieldAlphaCode).toString();
         info.desc     = query.value(fieldDesc).toString();
         info.price    = query.value(fieldPrice).toDouble();
         info.photo    = query.value(fieldPhoto).toByteArray();
         info.stockqty = query.value(fieldStock).toDouble();
         info.cost     = query.value(fieldCost).toDouble();
-        info.tax      = query.value(fieldTax1).toDouble();
-        info.extratax = query.value(fieldTax2).toDouble();
+        info.tax      = query.value(fieldTax1).toDouble(); ///TO be removed later, when taxmodel is coded.
+        info.extratax = query.value(fieldTax2).toDouble(); ///TO be removed later, when taxmodel is coded.
         info.units    = query.value(fieldUnits).toInt();
-        info.category = query.value(fieldCategory).toInt();
+        info.unitStr  = query.value(fieldUnitsDESC).toString();
+        info.category = query.value(fieldCategoryId).toInt();
         info.utility  = info.price - info.cost;
         info.row      = -1;
         info.points   = query.value(fieldPoints).toInt();
         info.qtyOnList = -1;
         info.purchaseQty = -1;
         info.lastProviderId = query.value(fieldLastProviderId).toULongLong();
-        info.soldUnits = query.value(fieldSoldUnits).toDouble();
-        info.isARawProduct = query.value(fieldIsARaw).toBool();
-        info.isAGroup = query.value(fieldIsAGroup).toBool();
-        QString geStr = query.value(fieldGroupE).toString();
+        info.soldUnits = query.value(fieldSoldU).toDouble();
+        info.isARawProduct = query.value(fieldIsRaw).toBool();
+        info.isAGroup = query.value(fieldIsGroup).toBool();
         info.groupPriceDrop = query.value(fieldGroupPD).toDouble();
-        // groupElements is a list like: '1/3,2/1'
-        if (!geStr.isEmpty()) {
-          info.groupElementsStr = geStr;
-        } //groupedElements are not empty
+        info.taxmodelid = query.value(fieldTaxModelId).toULongLong();
+        info.taxElements = query.value(fieldTaxElem).toString();
+        info.groupElementsStr = query.value(fieldGE).toString();
       }
-      //get units descriptions
-      qry = QString("SELECT * from measures WHERE id=%1").arg(info.units);
-      QSqlQuery query3(db);
-      if (query3.exec(qry)) {
-        while (query3.next()) {
-          int fieldUD = query3.record().indexOf("text");
-          info.unitStr=query3.value(fieldUD).toString(); //Added: Dec 15 2007
-        }//query3 - get descritptions
+      /** @TODO: for future releases where taxmodel is included in code
+      //get missing stuff - tax,offers for the requested product
+      if (info.isAGroup) //If its a group, the taxmodel is ignored, the tax will be its elements taxes
+        info.tax = getGroupAverageTax(info.code); ///NOTE: This may be deprecated.. see the getGroupPriceAndTax() method
+      else
+          info.tax = getTotalTaxPercent(info.taxElements);
+      if (getConfigTaxIsIncludedInPrice()) {
+          ///tax is included in price... mexico style.
+          double pWOtax = info.price/(1+((info.tax)/100));
+          info.totaltax = pWOtax*((info.tax)/100); // in money...
+      } else {
+          ///tax is not included in price... usa style.
+          info.totaltax = info.price*(1+(info.tax/100)); //tax in money
       }
-
+      **/
+      
       ///NOTE FOR DISCOUNTS:  TODO: ADD THIS TO THE USER MANUAL
       //     If a group contains product with discounts THOSE ARE NOT TAKEN INTO CONSIDERATION,
       //     The only DISCOUNT for a GROUP is the DISCOUNT created for the GROUP PRODUCT -not for its contents-.
@@ -270,7 +318,7 @@ ProductInfo Azahar::getProductInfo(qulonglong code, bool notConsiderDiscounts)
            info.disc =       (info.discpercentage/100) * (info.price); //round((info.discpercentage/100) * (info.price*100))/100; //FIXME:This is not necesary VALID.
          } else {info.disc = 0; info.validDiscount =false;}
      }
-     /// If its a group, calculate the right price first.
+     /// If its a group, calculate the right price first.  @note: this will be removed when taxmodels are coded.
      double priceDrop = 0;
      if (info.isAGroup) {
       //get each content price and tax percentage.
@@ -281,7 +329,7 @@ ProductInfo Azahar::getProductInfo(qulonglong code, bool notConsiderDiscounts)
       priceDrop = gInfo.priceDrop;
       //qDebug()<<"=================== GROUP Price:"<<info.price<<" Tax:"<<info.tax<<"======================";
      }
-     ///tax calculation - it depends on discounts...
+     ///tax calculation - it depends on discounts... @note: this will be removed when taxmodels are coded.
      double pWOtax = 0;
      if (getConfigTaxIsIncludedInPrice()) //added on jan 28 2010. 
        pWOtax= info.price/(1+((info.tax+info.extratax)/100));
@@ -334,6 +382,23 @@ qulonglong Azahar::getProductCode(QString text)
     setError(query.lastError().text());
   }
   return code;
+}
+
+qulonglong Azahar::getProductCodeFromAlphacode(QString text)
+{
+    QSqlQuery query(db);
+    qulonglong code=0;
+    if (query.exec(QString("select code from products where alphacode='%1';").arg(text))) {
+        while (query.next()) {
+            int fieldId   = query.record().indexOf("code");
+            code = query.value(fieldId).toULongLong();
+        }
+    }
+    else {
+        //qDebug()<<"ERROR: "<<query.lastError();
+        setError(query.lastError().text());
+    }
+    return code;
 }
 
 QList<qulonglong> Azahar::getProductsCode(QString regExpName)
@@ -389,8 +454,10 @@ bool Azahar::insertProduct(ProductInfo info)
   if (info.isARawProduct == 0 || info.isARawProduct == 1) rawValueOK=true;
   if (!groupValueOK) info.isAGroup = 0;
   if (!rawValueOK) info.isARawProduct = 0;
+
+  info.taxmodelid = 1; ///FIXME: Delete this code when taxmodels are added, for now, insert default one.
   
-  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, category, points, alphacode, lastproviderid, isARawProduct,isAGroup, groupElements, groupPriceDrop ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastsold, :units, :tax1, :tax2, :photo, :category, :points, :alphacode, :lastproviderid, :isARaw, :isAGroup, :groupE, :groupPriceDrop);");
+  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, category, points, alphacode, lastproviderid, isARawProduct,isAGroup, groupElements, groupPriceDrop, taxmodel ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastsold, :units, :tax1, :tax2, :photo, :category, :points, :alphacode, :lastproviderid, :isARaw, :isAGroup, :groupE, :groupPriceDrop, :taxmodel);");
   query.bindValue(":code", info.code);
   query.bindValue(":name", info.desc);
   query.bindValue(":price", info.price);
@@ -410,22 +477,26 @@ bool Azahar::insertProduct(ProductInfo info)
   query.bindValue(":isARaw", info.isARawProduct);
   query.bindValue(":groupE", info.groupElementsStr);
   query.bindValue(":groupPriceDrop", info.groupPriceDrop);
+  query.bindValue(":taxmodel", info.taxmodelid); //for later use
 
   if (!query.exec()) setError(query.lastError().text()); else result=true;
 
+  /** @note & TODO: Document this for the user.
+   *                If the new product's code is reused, and a discount exists in the offers table, it will be deleted.
+   **/
+  
   QSqlQuery queryX(db);
   if (queryX.exec(QString("Select id from offers where product_id=%1").arg(info.code) )) {
     while (queryX.next()) {
       int fieldId    = queryX.record().indexOf("id");
       qulonglong oId = queryX.value(fieldId).toULongLong();
       deleteOffer(oId);
-      qDebug()<<" Deleting Existing Offer for the new Product";
+      qDebug()<<" **WARNING** Deleting Existing Offer for the new Product";
     }
   }
   
   return result;
 }
-
 
 
 bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
@@ -441,8 +512,33 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   if (info.isARawProduct == 0 || info.isARawProduct == 1) rawValueOK=true;
   if (!groupValueOK) info.isAGroup = 0;
   if (!rawValueOK) info.isARawProduct = 0;
+
+  /// TODO FIXME: Remove the next line when taxmodels are implemented
+  info.taxmodelid = 1;
   
-  query.prepare("UPDATE products SET code=:newcode, photo=:photo, name=:name, price=:price, stockqty=:stock, cost=:cost, units=:measure, taxpercentage=:tax1, extrataxes=:tax2, category=:category, points=:points, alphacode=:alphacode, lastproviderid=:lastproviderid , isARawProduct=:isRaw, isAGroup=:isGroup, groupElements=:ge, groupPriceDrop=:groupPriceDrop WHERE code=:id");
+  //query.prepare("UPDATE products SET code=:newcode, photo=:photo, name=:name, price=:price, stockqty=:stock, cost=:cost, units=:measure, taxpercentage=:tax1, extrataxes=:tax2, category=:category, points=:points, alphacode=:alphacode, lastproviderid=:lastproviderid , isARawProduct=:isRaw, isAGroup=:isGroup, groupElements=:ge, groupPriceDrop=:groupPriceDrop WHERE code=:id");
+  ///TODO: remove the taxpercentage and extrataxes when taxmodel is implemented
+  query.prepare("UPDATE products SET \
+  code=:newcode, \
+  name=:name, \
+  price=:price, \
+  cost=:cost, \
+  stockqty=:stock, \
+  units=:measure, \
+  taxpercentage=:tax1,\
+  extrataxes=:tax2,\
+  taxmodel=:taxmodel, \
+  photo=:photo, \
+  category=:category, \
+  points=:points, \
+  alphacode=:alphacode, \
+  lastproviderid=:lastproviderid, \
+  isARawProduct=:isRaw, \
+  isAGroup=:isGroup, \
+  groupElements=:ge, \
+  groupPriceDrop=:groupPriceDrop \
+  WHERE code=:id;");
+  
   query.bindValue(":newcode", info.code);
   query.bindValue(":name", info.desc);
   query.bindValue(":price", info.price);
@@ -461,6 +557,7 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   query.bindValue(":isRaw", info.isARawProduct);
   query.bindValue(":ge", info.groupElementsStr);
   query.bindValue(":groupPriceDrop", info.groupPriceDrop);
+  query.bindValue(":taxmodel", info.taxmodelid);
 
   if (!query.exec()) setError(query.lastError().text()); else result=true;
   return result;
@@ -488,12 +585,12 @@ bool Azahar::decrementGroupStock(qulonglong code, double qty, QDate date)
   if (!db.isOpen()) db.open();
   QSqlQuery query(db);
 
-  ProductInfo info = getProductInfo(code);
+  ProductInfo info = getProductInfo(QString::number(code));
   QStringList lelem = info.groupElementsStr.split(",");
   foreach(QString ea, lelem) {
     qulonglong c = ea.section('/',0,0).toULongLong();
     double     q = ea.section('/',1,1).toDouble();
-    //ProductInfo pi = getProductInfo(c);
+    //ProductInfo pi = getProductInfo(QString::number(c));
     //FOR EACH ELEMENT, DECREMENT PRODUCT STOCK
     result = result && decrementProductStock(c, q*qty, date);
   }
@@ -501,6 +598,8 @@ bool Azahar::decrementGroupStock(qulonglong code, double qty, QDate date)
   return result;
 }
 
+/// WARNING: This method is DECREMENTING soldunits... not used in lemonview.cpp nor squeezeview.cpp !!!!!
+///          Do not use when doing PURCHASES in squeeze!
 bool Azahar::incrementProductStock(qulonglong code, double qty)
 {
   bool result = false;
@@ -516,18 +615,20 @@ bool Azahar::incrementProductStock(qulonglong code, double qty)
   return result;
 }
 
+/// WARNING: This method is DECREMENTING soldunits... not used in lemonview.cpp nor squeezeview.cpp !!!!!
+///          Do not use when doing PURCHASES in squeeze!
 bool Azahar::incrementGroupStock(qulonglong code, double qty)
 {
   bool result = true;
   if (!db.isOpen()) db.open();
   QSqlQuery query(db);
   
-  ProductInfo info = getProductInfo(code);
+  ProductInfo info = getProductInfo(QString::number(code));
   QStringList lelem = info.groupElementsStr.split(",");
   foreach(QString ea, lelem) {
     qulonglong c = ea.section('/',0,0).toULongLong();
     double     q = ea.section('/',1,1).toDouble();
-    ProductInfo pi = getProductInfo(c);
+    //ProductInfo pi = getProductInfo(c);
     //FOR EACH ELEMENT, DECREMENT PRODUCT STOCK
     result = result && incrementProductStock(c, q*qty);
   }
@@ -544,20 +645,24 @@ bool Azahar::deleteProduct(qulonglong code)
   query = QString("DELETE FROM products WHERE code=%1").arg(code);
   if (!query.exec()) setError(query.lastError().text()); else result=true;
 
+  /** @note & TODO: Document this for the user.
+   *                If a discount exists in the offers table for the deleted product, the offer will be deleted also.
+   **/
+  
   QSqlQuery queryX(db);
   if (queryX.exec(QString("Select id from offers where product_id=%1").arg(code) )) {
     while (queryX.next()) {
       int fieldId    = queryX.record().indexOf("id");
       qulonglong oId = queryX.value(fieldId).toULongLong();
       deleteOffer(oId);
-      qDebug()<<" Deleting Existing Offer for the new Product";
+      qDebug()<<" **NOTE** Deleting Existing Offer for the deleted Product";
     }
   }
   
   return result;
 }
 
-double Azahar::getProductDiscount(qulonglong code)
+double Azahar::getProductDiscount(qulonglong code, bool isGroup)
 {
   double result = 0.0;
   if (!db.isOpen()) db.open();
@@ -577,7 +682,8 @@ double Azahar::getProductDiscount(qulonglong code)
         QDate dateEnd   = query2.value(fieldDateEnd).toDate();
         QDate now = QDate::currentDate();
         //See if the offer is in a valid range...
-        if ((dateStart<dateEnd) && (dateStart<=now) && (dateEnd>=now)  ) {
+        if (isGroup) descuentos.append(descP);
+        else if ((dateStart<dateEnd) && (dateStart<=now) && (dateEnd>=now)  ) {
           //save all discounts here and decide later to return the bigger valid discount.
           descuentos.append(descP);
         }
@@ -586,7 +692,7 @@ double Azahar::getProductDiscount(qulonglong code)
       qSort(descuentos.begin(), descuentos.end(), qGreater<int>());
       if (!descuentos.isEmpty()) {
         //get the first item, which is the greater one.
-        result = descuentos.first();
+        result = descuentos.first(); ///returns the discount percentage!
       } else result = 0;
     }
   } else { setError(db.lastError().text()); }
@@ -690,7 +796,7 @@ QList<ProductInfo> Azahar::getSoldOutProducts()
   if (query.exec()) {
     while (query.next()) {
       int fieldCode  = query.record().indexOf("code");
-      info = getProductInfo(query.value(fieldCode).toULongLong());
+      info = getProductInfo(query.value(fieldCode).toString());
       products.append(info);
     }
   }
@@ -712,7 +818,7 @@ QList<ProductInfo> Azahar::getLowStockProducts(double min)
   if (query.exec()) {
     while (query.next()) {
       int fieldCode  = query.record().indexOf("code");
-      info = getProductInfo(query.value(fieldCode).toULongLong());
+      info = getProductInfo(query.value(fieldCode).toString());
       products.append(info);
     }
   }
@@ -769,7 +875,7 @@ QList<ProductInfo> Azahar::getGroupProductsList(qulonglong id, bool notConsiderD
       qulonglong c = str.section('/',0,0).toULongLong();
       double     q = str.section('/',1,1).toDouble();
       //get info
-      ProductInfo pi = getProductInfo(c, notConsiderDiscounts);
+      ProductInfo pi = getProductInfo(QString::number(c), notConsiderDiscounts);
       pi.qtyOnList = q;
       pList.append(pi);
       //qDebug()<<" code:"<<c<<" qty:"<<q;
@@ -789,6 +895,8 @@ QList<ProductInfo> Azahar::getGroupProductsList(qulonglong id, bool notConsiderD
 //     The tax charged to the group with the average tax is $8.8
 //     The tax charged to the group with each product tax is $2.15
 //     So the tax is not fine in this case. This means this method is not accurate for all cases.
+// DEPRECATED
+/*
 double Azahar::getGroupAverageTax(qulonglong id)
 {
   qDebug()<<"Getting averate tax for id:"<<id;
@@ -797,6 +905,7 @@ double Azahar::getGroupAverageTax(qulonglong id)
   QList<ProductInfo> pList = getGroupProductsList(id);
   foreach( ProductInfo info, pList) {
     sum += info.tax + info.extratax;
+    ///sum += getTotalTaxPercent(info.taxElements);  FOR when taxmodels are implemented
   }
   
   result = sum/pList.count();
@@ -804,8 +913,9 @@ double Azahar::getGroupAverageTax(qulonglong id)
   
   return result;
 }
+*/
 
-double Azahar::getGroupTotalTax(qulonglong id)
+/*DEPRECATED double Azahar::getGroupTotalTax(qulonglong id)
 {
   qDebug()<<"Getting total tax for id:"<<id;
   double result = 0;
@@ -819,8 +929,9 @@ double Azahar::getGroupTotalTax(qulonglong id)
   qDebug()<<" TOTAL tax:"<<sum;
   
   return result;
-}
+}*/
 
+//This method replaces the two above deprecated methods.
 GroupInfo Azahar::getGroupPriceAndTax(ProductInfo pi)
 {
   GroupInfo gInfo;
@@ -1108,16 +1219,15 @@ bool Azahar::createOffer(OfferInfo info)
   QString qryStr;
   QSqlQuery query(db);
   if (!db.isOpen()) db.open();
-    //The product has no offer yet.
-    //NOTE: Now multiple offers supported (to save offers history)
-    qryStr = "INSERT INTO offers (discount, datestart, dateend, product_id) VALUES(:discount, :datestart, :dateend, :code)";
-    query.prepare(qryStr);
-    query.bindValue(":discount", info.discount );
-    query.bindValue(":datestart", info.dateStart.toString("yyyy-MM-dd"));
-    query.bindValue(":dateend", info.dateEnd.toString("yyyy-MM-dd"));
-    query.bindValue(":code", info.productCode);
-    if (query.exec()) result = true; else setError(query.lastError().text());
-//   }
+  //The product has no offer yet.
+  //NOTE: Now multiple offers supported (to save offers history)
+  qryStr = "INSERT INTO offers (discount, datestart, dateend, product_id) VALUES(:discount, :datestart, :dateend, :code)";
+  query.prepare(qryStr);
+  query.bindValue(":discount", info.discount );
+  query.bindValue(":datestart", info.dateStart.toString("yyyy-MM-dd"));
+  query.bindValue(":dateend", info.dateEnd.toString("yyyy-MM-dd"));
+  query.bindValue(":code", info.productCode);
+  if (query.exec()) result = true; else setError(query.lastError().text());
 
   return result;
 }
@@ -1981,6 +2091,22 @@ qulonglong Azahar::insertTransaction(TransactionInfo info)
     // insert a new one.
     QSqlQuery query2(db);
     query2.prepare("INSERT INTO transactions (clientid, type, amount, date,  time, paidwith, changegiven, paymethod, state, userid, cardnumber, itemcount, itemslist, cardauthnumber, utility, terminalnum, providerid, specialOrders, balanceId, totalTax) VALUES (:clientid, :type, :amount, :date, :time, :paidwith, :changegiven, :paymethod, :state, :userid, :cardnumber, :itemcount, :itemslist, :cardauthnumber, :utility, :terminalnum, :providerid, :specialOrders, :balance, :tax)"); //removed groups 29DIC09
+
+    /** Remember to improve queries readability:
+     * query2.prepare("INSERT INTO transactions ( \
+    clientid, userid, type, amount, date,  time, \
+    paidwith,  paymethod, changegiven, state,    \
+    cardnumber, itemcount, itemslist, points, \
+    discmoney, disc, discmoney, cardauthnumber, profit,  \
+    terminalnum, providerid, specialOrders, balanceId, totalTax) \
+    VALUES ( \
+    :clientid, :userid, :type, :amount, :date, :time, \
+    :paidwith, :paymethod, :changegiven, :state,  \
+    :cardnumber, :itemcount, :itemslist, :points, \
+    :discmoney, :disc, :discm, :cardauthnumber, :utility, \
+    :terminalnum, :providerid, :specialOrders, :balanceId, :totalTax)");
+    **/
+    
     query2.bindValue(":type", info.type);
     query2.bindValue(":amount", info.amount);
     query2.bindValue(":date", info.date.toString("yyyy-MM-dd"));
@@ -2178,7 +2304,7 @@ bool Azahar::cancelTransaction(qulonglong id, bool inProgress)
           if ( l.count()==2 ) { //==2 means its complete, having product and qty
             //check if the product is a group
             //NOTE: rawProducts ? affect stock when cancelling = YES but only if affected when sold one of its parents (specialOrders) and stockqty is set. But they would not be here, if not at specialOrders List
-            ProductInfo pi = getProductInfo(l.at(0).toULongLong());
+            ProductInfo pi = getProductInfo(l.at(0));
             if ( pi.isAGroup ) 
               incrementGroupStock(l.at(0).toULongLong(), l.at(1).toDouble()); //code at 0, qty at 1
             else //there is a normal product
@@ -3196,7 +3322,7 @@ QList<ProductInfo> Azahar::getSpecialOrderProductsList(qulonglong id)
       qulonglong c = str.section('/',0,0).toULongLong();
       double     q = str.section('/',1,1).toDouble();
       //get info
-      ProductInfo pi = getProductInfo(c);
+      ProductInfo pi = getProductInfo(QString::number(c));
       pi.qtyOnList = q;
       pList.append(pi);
     }

@@ -1,6 +1,6 @@
-/***************************************************************************
- *   Copyright (C) 2008-2009 by Miguel Chavez Gamboa                       *
- *   miguel.chavez.gamboa@gmail.com                                        *
+/**************************************************************************
+ *   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
+ *   miguel@lemonpos.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -56,9 +56,10 @@ class Azahar : public QObject
     void setDatabase(const QSqlDatabase& database);
 
     // PRODUCTS
-    ProductInfo  getProductInfo(qulonglong code, bool notConsiderDiscounts = false); //the 2nd parameter is to get the taxes for the group (not considering discounts)
+    ProductInfo  getProductInfo(const QString &code, const bool &notConsiderDiscounts = false); //the 2nd parameter is to get the taxes for the group (not considering discounts)
     qulonglong   getProductOfferCode(qulonglong code);
     qulonglong   getProductCode(QString text);
+    qulonglong   getProductCodeFromAlphacode(QString text);
     QList<qulonglong> getProductsCode(QString regExpName);
     QStringList  getProductsList();
     bool         insertProduct(ProductInfo info);
@@ -68,7 +69,7 @@ class Azahar : public QObject
     bool         incrementGroupStock(qulonglong code, double qty);
     bool         incrementProductStock(qulonglong code, double qty);
     bool         deleteProduct(qulonglong code);
-    double       getProductDiscount(qulonglong code);
+    double       getProductDiscount(qulonglong code, bool isGroup=false); //returns the discount percentage!
     QList<pieProdInfo>  getTop5SoldProducts();
     double       getTopFiveMaximum();
     QList<pieProdInfo>  getAlmostSoldOutProducts(int min, int max);
@@ -79,8 +80,8 @@ class Azahar : public QObject
     qulonglong   getLastProviderId(qulonglong code);
     bool         updateProductLastProviderId(qulonglong code, qulonglong provId);
     QList<ProductInfo> getGroupProductsList(qulonglong id, bool notConsiderDiscounts = false);
-    double       getGroupAverageTax(qulonglong id);
-    double       getGroupTotalTax(qulonglong id);
+    /* DEPRECATED double       getGroupAverageTax(qulonglong id);
+       DEPRECATED double       getGroupTotalTax(qulonglong id); */
     GroupInfo    getGroupPriceAndTax(ProductInfo pi);
     QString      getProductGroupElementsStr(qulonglong id);
     void         updateGroupPriceDrop(qulonglong code, double pd);

@@ -1,6 +1,6 @@
-/***************************************************************************
- *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
- *   miguel.chavez.gamboa@gmail.com                                        *
+/**************************************************************************
+ *   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
+ *   miguel@lemonpos.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -327,7 +327,7 @@ void PurchaseEditor::checkIfCodeExists()
   gelem = "";
   QString codeStr = ui->editCode->text();
   if (codeStr.isEmpty()) codeStr = "0";
-  ProductInfo pInfo = myDb->getProductInfo(codeStr.toULongLong());
+  ProductInfo pInfo = myDb->getProductInfo(codeStr);
   if (pInfo.code ==0 && pInfo.desc=="Ninguno") productExists = false;
   if (pInfo.code > 0) {
     status = estatusMod;
@@ -404,7 +404,7 @@ void PurchaseEditor::addItemToList()
   else ok = true;
 
   if (ok) {
-    ProductInfo info = myDb->getProductInfo(getCode());
+    ProductInfo info = myDb->getProductInfo( QString::number( getCode() ) );
     //FIX BUG: dont allow enter new products.. dont know why? new code on 'continue' statement.
     if (info.code == 0) { //new product
       info.code = getCode();
@@ -432,7 +432,7 @@ void PurchaseEditor::addItemToList()
         QStringList tmp = list.at(i).split("/");
         if (tmp.count() == 2) { //ok 2 fields
           qulonglong  code  = tmp.at(0).toULongLong();
-          pInfo = myDb->getProductInfo(code);
+          pInfo = myDb->getProductInfo(QString::number(code));
           pInfo.purchaseQty = getPurchaseQty();
           pInfo.validDiscount = true; // all grouped products exists
           insertProduct(pInfo); ///inserting each product of the group

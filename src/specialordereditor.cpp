@@ -1,6 +1,6 @@
-/***************************************************************************
- *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
- *   miguel.chavez.gamboa@gmail.com                                        *
+/**************************************************************************
+ *   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
+ *   miguel@lemonpos.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -225,7 +225,8 @@ void SpecialOrderEditor::addItem()
   QItemSelectionModel *selectionModel = ui->sourcePView->selectionModel();
   QModelIndexList indexList = selectionModel->selectedRows(); // pasar el indice que quiera (0=code, 1=name)
   foreach(QModelIndex index, indexList) {
-    qulonglong code = index.data().toULongLong();
+    qulonglong code    = index.data().toULongLong();
+    QString    codeStr = index.data().toString();
     bool exists = false;
     ProductInfo pInfo;
     //get product info from hash or db
@@ -252,7 +253,7 @@ void SpecialOrderEditor::addItem()
       //if not enough, its not incremented.
       exists = true;
     } else {
-      pInfo = myDb->getProductInfo(code);
+      pInfo = myDb->getProductInfo(codeStr);
       //check measures for the product
       if (pInfo.units == 1) { //by pieces
         QString tmpStr = ui->editAddQty->text();
@@ -452,9 +453,10 @@ void SpecialOrderEditor::setGroupElements(QString e)
   for (int i=0; i<list.count(); ++i) {
     QStringList tmp = list.at(i).split("/");
     if (tmp.count() == 2) { //ok 2 fields
-      qulonglong  code  = tmp.at(0).toULongLong();
-      double      qty   = tmp.at(1).toDouble();
-      pInfo = myDb->getProductInfo(code);
+      qulonglong  code    = tmp.at(0).toULongLong();
+      QString     codeStr = tmp.at(0);
+      double      qty     = tmp.at(1).toDouble();
+      pInfo = myDb->getProductInfo(codeStr);
       pInfo.qtyOnList = qty;
 
       //Insert it to the hash

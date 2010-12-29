@@ -1,6 +1,6 @@
-/***************************************************************************
- *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
- *   miguel.chavez.gamboa@gmail.com                                        *
+/**************************************************************************
+ *   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
+ *   miguel@lemonpos.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -85,6 +85,9 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     ui->editStockQty->setValidator(new QDoubleValidator(0.00,999999999999.99, 3, ui->editStockQty));
     ui->editPoints->setValidator(new QIntValidator(0,999999999, ui->editPoints));
     ui->editFinalPrice->setValidator(new QDoubleValidator(0.00,999999999999.99, 3, ui->editFinalPrice));
+    QRegExp regexpAC("[0-9]*[//.]{0,1}[0-9]{0,2}[//*]{0,1}[0-9]*[A-Za-z_0-9\\\\/\\-]{0,30}"); // Instead of {0,13} fro EAN13, open for up to 30 chars.
+    QRegExpValidator * validatorAC = new QRegExpValidator(regexpAC, this);
+    ui->editAlphacode->setValidator(validatorAC);
 
     connect( ui->btnPhoto          , SIGNAL( clicked() ), this, SLOT( changePhoto() ) );
     connect( ui->btnCalculatePrice , SIGNAL( clicked() ), this, SLOT( calculatePrice() ) );
@@ -100,7 +103,7 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     connect( ui->editCost, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
     connect( ui->editTax, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
     connect( ui->editExtraTaxes, SIGNAL(editingFinished()), this, SLOT(checkFieldsState()));
-    connect( ui->editFinalPrice, SIGNAL(textEdited(const QString &)), this, SLOT(checkFieldsState()));
+    connect( ui->editFinalPrice, SIGNAL(textChanged(const QString &)), SLOT(checkFieldsState()));
 
     connect( ui->chIsAGroup, SIGNAL(clicked(bool)), SLOT(toggleGroup(bool)) );
     connect( ui->chIsARaw, SIGNAL(clicked(bool)), SLOT(toggleRaw(bool)) );
@@ -113,6 +116,7 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     connect( ui->groupView, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(itemDoubleClicked(QTableWidgetItem*)) );
 
     connect( ui->editGroupPriceDrop, SIGNAL(valueChanged(double)), SLOT(updatePriceDrop(double)) );
+    connect( ui->editFinalPrice, SIGNAL(textChanged(QString) ), SLOT(calculateProfit(QString)) );
 
     status = statusNormal;
     modifyCode = false;
@@ -325,6 +329,34 @@ void ProductEditor::calculatePrice()
   }
 }
 
+void ProductEditor::calculateProfit(QString amountStr)
+{
+    double amount = amountStr.toDouble();
+    if (amount >0) {
+        double profit = 0;
+        double profitMoney = 0;
+        double cost = 0;
+        double pWOtax = 0;
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
+        bool taxIsIncluded = myDb->getConfigTaxIsIncludedInPrice();
+        cost = ui->editCost->text().toDouble();
+        if ( taxIsIncluded ) 
+          pWOtax= ui->editFinalPrice->text().toDouble()/(1+((ui->editTax->text().toDouble()+ui->editExtraTaxes->text().toDouble())/100));
+        else
+          pWOtax = ui->editFinalPrice->text().toDouble();
+        //TODO:use the pWOtax
+
+        profitMoney = ( pWOtax - cost );
+        profit      = ( profitMoney / cost );
+        
+        //qDebug()<<" calculateProfit()  Profit % "<<profit<<" Profit $ "<<profitMoney<<" Price Without Taxes:"<<pWOtax;
+        ui->lblProfit->setText(i18n("Gross Profit: %1% (%2)", QString::number(profit*100, 'f', 2) ,  KGlobal::locale()->formatMoney(profitMoney, QString(), 2) ));
+    } else {
+        ui->lblProfit->clear();
+    }
+}
+
 void ProductEditor::changeCode()
 {
   //this enables the code editing... to prevent unwanted code changes...
@@ -369,10 +401,10 @@ void ProductEditor::checkIfCodeExists()
 
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
-  ProductInfo pInfo = myDb->getProductInfo(codeStr.toULongLong());
+  ProductInfo pInfo = myDb->getProductInfo(codeStr);
   if (pInfo.isAGroup) {
     // get it again with the appropiate tax and price.
-    pInfo = myDb->getProductInfo(codeStr.toULongLong(), true); //the 2nd parameter is to get the taxes for the group (not considering discounts)
+    pInfo = myDb->getProductInfo(codeStr, true); //the 2nd parameter is to get the taxes for the group (not considering discounts)
   }
 
   if (pInfo.code > 0) {
@@ -380,6 +412,7 @@ void ProductEditor::checkIfCodeExists()
     status = statusMod;
     if (!modifyCode){
       //Prepopulate dialog...
+      ui->editAlphacode->setText( pInfo.alphaCode );
       ui->editDesc->setText(pInfo.desc);
       ui->editStockQty->setText(QString::number(pInfo.stockqty));
       setCategory(pInfo.category);
@@ -411,6 +444,7 @@ void ProductEditor::checkIfCodeExists()
     status = statusNormal;
     if (!modifyCode) {
       //clear all used edits
+      ui->editAlphacode->clear();
       ui->editDesc->clear();
       ui->editStockQty->clear();
       setCategory(1);
@@ -510,7 +544,8 @@ void ProductEditor::addItem()
   QItemSelectionModel *selectionModel = ui->sourcePView->selectionModel();
   QModelIndexList indexList = selectionModel->selectedRows(); // pasar el indice que quiera (0=code, 1=name)
   foreach(QModelIndex index, indexList) {
-    qulonglong code = index.data().toULongLong();
+    qulonglong code    = index.data().toULongLong();
+    QString    codeStr = index.data().toString();
 
     bool exists = false;
     ProductInfo pInfo;
@@ -520,7 +555,7 @@ void ProductEditor::addItem()
       pInfo.qtyOnList += 1; //increment it
       exists = true;
     } else {
-      pInfo = myDb->getProductInfo(code, true); //the 2nd parameter is to get the taxes for the group (not considering discounts)
+      pInfo = myDb->getProductInfo(codeStr, true); //the 2nd parameter is to get the taxes for the group (not considering discounts)
       pInfo.qtyOnList = 1;
     }
     //check if the product to be added is not the same of the pack product
@@ -531,6 +566,7 @@ void ProductEditor::addItem()
   }
   //reload groupView
   updatePriceDrop(ui->editGroupPriceDrop->value());//calculateGroupValues();
+  calculateProfit( ui->editFinalPrice->text() );
 
   //qDebug()<<"There are "<<groupInfo.count<<" items in group. The cost is:"<<groupInfo.cost<<", The price is:"<<groupInfo.price<<" And is available="<<groupInfo.isAvailable;
 
@@ -568,6 +604,7 @@ void ProductEditor::removeItem()
 
   //reload groupView
   updatePriceDrop(ui->editGroupPriceDrop->value());//calculateGroupValues();
+  calculateProfit( ui->editFinalPrice->text() );
   
   //qDebug()<<"There are "<<groupInfo.count<<" items in group. The cost is:"<<groupInfo.cost<<", The price is:"<<groupInfo.price<<" And is available="<<groupInfo.isAvailable;
 }
@@ -598,6 +635,7 @@ void ProductEditor::itemDoubleClicked(QTableWidgetItem* item)
   
   //reload groupView
   updatePriceDrop(ui->editGroupPriceDrop->value()); //calculateGroupValues();
+  calculateProfit( ui->editFinalPrice->text() );
   delete myDb;
 }
 
@@ -718,13 +756,14 @@ void ProductEditor::updatePriceDrop(double value)
   //      This is because we are updating price drop on change and not until the product is saved (dialog OK) for re-calculateGroupValues
   //      So, the cancel button on the product will not prevent or UNDO these changes.
   //      TODO: Add this note to the manuals.
+  ///     TODO: Make a backup of the priceDrop, and if cancelled, restore the backup to the db from the caller (outside this class)
   
   //first save on db... 
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   myDb->updateGroupPriceDrop(getCode(), value);
   myDb->updateGroupElements(getCode(), getGroupElementsStr());
-  ProductInfo info = myDb->getProductInfo(getCode()); /// NOTE: this info is for the method below..
+  ProductInfo info = myDb->getProductInfo( QString::number( getCode() ) ); /// NOTE: this info is for the method below..
   GroupInfo giTemp = myDb->getGroupPriceAndTax(info);
   delete myDb;
   //if there is a new product, it will not be updated because it does not exists on db yet... so fix the groupPrice drop
@@ -796,8 +835,6 @@ void ProductEditor::calculateGroupValues()
 
 double ProductEditor::getGRoupStockMax()
 {
-  //get each content stockqty, then get the max of them.
-  //maybe in the future, now return 1
   return 1; // stockqty on grouped products will not be stored, only check for contents availability
 }
 

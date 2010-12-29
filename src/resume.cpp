@@ -96,7 +96,7 @@ void ResumeDialog::itemClicked(const QModelIndex &index)
     double     qty  = str.section('/',1,1).toDouble();
     if (code <= 0 ) break;
     count++;
-    ProductInfo pInfo = myDb->getProductInfo(code);
+    ProductInfo pInfo = myDb->getProductInfo(QString::number(code));
     pInfo.qtyOnList = qty;
     pList << pInfo;
     //NOTE:Check for product Availability ??

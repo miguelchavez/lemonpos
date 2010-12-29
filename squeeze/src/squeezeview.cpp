@@ -1,6 +1,6 @@
-/***************************************************************************
- *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
- *   miguel.chavez.gamboa@gmail.com                                        *
+/**************************************************************************
+ *   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
+ *   miguel@lemonpos.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -1972,11 +1972,12 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     if (productEditorDlg->exec() ) {
       //get changed|unchanged values
       newcode        = productEditorDlg->getCode();
+      pInfo.alphaCode= productEditorDlg->getAlphacode();
       pInfo.code     = newcode;
       pInfo.desc     = productEditorDlg->getDescription();
       //be aware of grouped products related to stock.
       if (productEditorDlg->isGroup()) {
-        pInfo.stockqty = productEditorDlg->getGRoupStockMax(); //FIXME!!!! returns 1
+        pInfo.stockqty = productEditorDlg->getGRoupStockMax();
         pInfo.groupElementsStr = productEditorDlg->getGroupElementsStr();
         pInfo.groupPriceDrop = productEditorDlg->getGroupPriceDrop(); 
       }
@@ -1995,8 +1996,7 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
       pInfo.points   = productEditorDlg->getPoints();
       photo          = productEditorDlg->getPhoto();
       pInfo.photo    = Misc::pixmap2ByteArray(new QPixmap(photo)); //Photo ByteArray
-      //FIXME: NEXT 2 lines are temporal remove on 0.8 version
-      pInfo.alphaCode = "-NA-";
+      //FIXME: NEXT line is temporal remove on 0.8 version
       pInfo.lastProviderId = 1;
       //Next lines are for groups
       pInfo.isAGroup = productEditorDlg->isGroup();
@@ -2195,7 +2195,7 @@ void squeezeView::stockCorrection()
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
     oldStockQty = myDb->getProductStockQty(pcode);
-    bool isAGroup = myDb->getProductInfo(pcode).isAGroup;
+    bool isAGroup = myDb->getProductInfo(QString::number(pcode)).isAGroup;
     if (isAGroup) {
       //Notify to the user that this product's stock cannot be modified.
       //This is because if we modify each content's stock, all items will be at the same stock level, and it may not be desired.
@@ -2324,6 +2324,7 @@ void squeezeView::createProduct()
           info.groupPriceDrop = 0;
         }
         info.code = newcode;
+        info.alphaCode = prodEditorDlg->getAlphacode();
         info.desc    = prodEditorDlg->getDescription();
         info.price   = prodEditorDlg->getPrice();
         info.cost    = prodEditorDlg->getCost();
@@ -2334,8 +2335,7 @@ void squeezeView::createProduct()
         info.photo   = Misc::pixmap2ByteArray(new QPixmap(prodEditorDlg->getPhoto()));
         info.category= prodEditorDlg->getCategoryId();
         info.points  = prodEditorDlg->getPoints();
-        //FIXME: NEXT 2 lines are temporal remove on 0.8 version
-        info.alphaCode = "-NA-";
+        //FIXME: NEXT line is temporal remove on 0.8 version
         info.lastProviderId = 1;
         //Next lines are for groups
         info.isAGroup         = prodEditorDlg->isGroup();

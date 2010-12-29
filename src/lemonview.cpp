@@ -1,9 +1,8 @@
-/***************************************************************************
- *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
- *   miguel.chavez.gamboa@gmail.com                                        *
+/**************************************************************************
+ *   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
+ *   miguel@lemonpos.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
-
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
@@ -354,7 +353,9 @@ void lemonView::setUpInputs()
   QRegExpValidator * validatorFloat = new QRegExpValidator(regexpA,this);
   ui_mainview.editAmount->setValidator(validatorFloat);
   //Item code (to insert) //
-  QRegExp regexpC("[0-9]+[0-9]*[//.]{0,1}[0-9]{0,2}[xX//*]{0,1}[0-9]{0,13}");
+  //QRegExp regexpC("[0-9]+[0-9]*[//.]{0,1}[0-9]{0,2}[//*]{0,1}[0-9]*[A-Za-z_0-9\\\\/\\-]{0,30}"); // Instead of {0,13} fro EAN13, open for up to 30 chars.
+  QRegExp regexpC("[0-9]*[//.]{0,1}[0-9]{0,2}[//*]{0,1}[0-9]*[A-Za-z_0-9\\\\/\\-]{0,30}"); // Instead of {0,13} fro EAN13, open for up to 30 chars.
+  //NOTE: We remove the xX from the regexp for use as the separator between qtys and code. Only * can be used now, for Alphacode support
   QRegExpValidator * validatorEAN13 = new QRegExpValidator(regexpC, this);
   ui_mainview.editItemCode->setValidator(validatorEAN13);
   QRegExp regexpAN("[A-Za-z_0-9\\\\/\\-]+");//any letter, number, both slashes, dash and lower dash.
@@ -813,7 +814,7 @@ void lemonView::doSearchItemDesc()
   //iteramos la lista
   for (int i = 0; i < pList.size(); ++i) {
      qulonglong c = pList.at(i);
-     ProductInfo pInfo = myDb->getProductInfo(c);
+     ProductInfo pInfo = myDb->getProductInfo(QString::number(c));
      if (pInfo.isARawProduct) numRaw++;
      if (pInfo.code==0 || pInfo.isARawProduct) continue; //discard this item, continue loop.
      //insert each product to the search table...
@@ -988,7 +989,7 @@ bool lemonView::incrementTableItemQty(QString code, double q)
       foreach(QString ea, lelem) {
         qulonglong c  = ea.section('/',0,0).toULongLong();
         double     qq = ea.section('/',1,1).toDouble();
-        ProductInfo pi = myDb->getProductInfo(c);
+        ProductInfo pi = myDb->getProductInfo(QString::number(c));
         QString unitStr;
         bool yes = false;
         double onList = getTotalQtyOnList(pi); // item itself and contained in any gruped product.
@@ -1057,6 +1058,11 @@ bool lemonView::incrementTableItemQty(QString code, double q)
 
 void lemonView::insertItem(QString code)
 {
+  if ( code.isEmpty() || code == "0" || code.startsWith("0*") || code.endsWith("0.")) {
+      ui_mainview.editItemCode->clear();
+      return;
+  }
+  
   if ( !specialOrders.isEmpty() ) {
     KNotification *notify = new KNotification("information", this);
     notify->setText(i18n("Only Special Orders can be added. Please finish the current special order before adding any other product."));
@@ -1084,35 +1090,43 @@ if ( doNotAddMoreItems ) { //only for reservations
   info.code = 0;
   info.desc = "[INVALID]";
 
-  //now code could contain number of items to insert,example: 10x12345678990 or 10*1234567890
-  QStringList list = code.split(QRegExp("[xX//*]{1,1}"),QString::SkipEmptyParts);
+  //now code could contain number of items to insert,example:  10*1234567890
+  QStringList list = code.split(QRegExp("[//*]{1,1}"),QString::SkipEmptyParts);
   if (list.count()==2) {
     qty =   list.takeAt(0).toDouble();
     codeX = list.takeAt(0);
   }
 
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  info = myDb->getProductInfo(codeX); //includes discount and validdiscount
+  qDebug()<<" CodeX = "<<codeX<<" Numeric Code:"<<info.code<<" Alphacode:"<<info.alphaCode<<" Required Qty:"<<qty;
+  delete myDb;
+
+  //the next 'if' checks if the hash contains the product and got values from there.. To include purchaseQty, that we need!
+  if (productsHash.contains( info.code )) 
+      info = productsHash.value( info.code );
+
+  QString msg;
+
   //verify item units and qty..
-  if (productsHash.contains(codeX.toULongLong())) {
-    info = productsHash.value(codeX.toULongLong());
-  } else {
-    Azahar *myDb = new Azahar;
-    myDb->setDatabase(db);
-    info = myDb->getProductInfo(codeX.toULongLong()); //includes discount and validdiscount
-    delete myDb;
-  }
-
-
   if (info.units == uPiece) {
     unsigned int intqty = qty;
+    if ( qty-intqty > 0 ) {
+      //quantities are different, and its a fraction.. like 0.5 or 1.2
+      msg = i18n("The requiered qty is %1 and its not allowed for the required product, please verify the quantity", qty);
+      if (intqty <= 0)  //Because below there is a return if qty<=0
+        tipCode->showTip(msg, 6000);
+    }
     qty = intqty;
   }
 
   if ( qty <= 0) {return;}
   
-  if (!incrementTableItemQty(codeX, qty) ) {
+  if (!incrementTableItemQty( QString::number(info.code) /*codeX*/, qty) ) {
     info.qtyOnList = qty;
 
-    QString msg;
+    
     int insertedAtRow = -1;
     bool productFound = false;
     if ( info.code > 0 ) productFound = true;
@@ -1134,7 +1148,7 @@ if ( doNotAddMoreItems ) { //only for reservations
           foreach(QString ea, lelem) {
             qulonglong c = ea.section('/',0,0).toULongLong();
             double     q = ea.section('/',1,1).toDouble();
-            ProductInfo pi = myDb->getProductInfo(c);
+            ProductInfo pi = myDb->getProductInfo(QString::number(c));
             QString unitStr;
             if (pi.units == 1 ) unitStr=" "; else unitStr = pi.unitStr;
             iname += '\n' + QString::number(q) + " "+ unitStr +" "+ pi.desc;
@@ -1154,17 +1168,17 @@ if ( doNotAddMoreItems ) { //only for reservations
           //CHECK AVAILABILITY
           if (available || availabilityDoesNotMatters ) {
             if (availabilityDoesNotMatters) qDebug() << __FUNCTION__ <<" Availability DOES NOT MATTERS! ";
-            insertedAtRow = doInsertItem(codeX, iname, qty, info.price, descuento, info.unitStr);
+            insertedAtRow = doInsertItem( QString::number(info.code) /*codeX*/, iname, qty, info.price, descuento, info.unitStr);
           }
           else
             msg = i18n("<html><font color=red><b>The group/pack is not available because:<br>%1</b></font></html>", itemsNotAvailable.join("<br>"));
           delete myDb;
         }
-      } else {
+      } else { //It is not a grouped product
         double onList = getTotalQtyOnList(info); // item itself and contained in any gruped product.
         if (info.stockqty >=  qty+onList || availabilityDoesNotMatters) {
           if (availabilityDoesNotMatters) qDebug() << __FUNCTION__ <<" Availability DOES NOT MATTERS! ";
-          insertedAtRow = doInsertItem(codeX, iname, qty, info.price, descuento, info.unitStr);
+          insertedAtRow = doInsertItem( QString::number(info.code) /*codeX*/, iname, qty, info.price, descuento, info.unitStr);
         }
         else
           msg = i18n("<html><font color=red><b>There are only %1 articles of your choice at stock.<br> You requested %2</b></font></html>", info.stockqty,qty+onList);
@@ -1184,7 +1198,7 @@ if ( doNotAddMoreItems ) { //only for reservations
     }
     info.row = insertedAtRow;
     if (info.row >-1 && info.desc != "[INVALID]" && info.code>0){
-      productsHash.insert(codeX.toULongLong(), info);
+      productsHash.insert(info.code /*codeX.toULongLong()*/, info);
       QTableWidgetItem *item = ui_mainview.tableWidget->item(info.row, colCode);
       displayItemInfo(item);
       refreshTotalLabel();
@@ -1815,7 +1829,7 @@ void lemonView::finishCurrentTransaction()
             if (Settings::printPackContents()) {
               qulonglong c = ea.section('/',0,0).toULongLong();
               double     q = ea.section('/',1,1).toDouble();
-              ProductInfo pi = myDb->getProductInfo(c);
+              ProductInfo pi = myDb->getProductInfo(QString::number(c));
               QString unitStr;
               if (pi.units == 1 ) unitStr=" "; else unitStr = pi.unitStr;
               iname += "\n  " + QString::number(q) + " "+ unitStr +" "+ pi.desc;
@@ -4252,7 +4266,7 @@ void lemonView::resumeSale()
           QStringList list;
           QStringList strlTmp = info.groupElements.split(",");
           foreach(QString str, strlTmp) {
-            qulonglong itemCode = str.section('/',0,0).toULongLong();
+            QString    itemCode = str.section('/',0,0); //.toULongLong();
             double     itemQty  = str.section('/',1,1).toDouble();
             //get item info
             ProductInfo itemInfo = myDb->getProductInfo(itemCode);
@@ -4418,7 +4432,7 @@ void lemonView::reserveItems()
                     if (Settings::printPackContents()) {
                         qulonglong c = ea.section('/',0,0).toULongLong();
                         double     q = ea.section('/',1,1).toDouble();
-                        ProductInfo p = myDb->getProductInfo(c);
+                        ProductInfo p = myDb->getProductInfo(QString::number(c));
                         QString unitStr;
                         if (p.units == 1 ) unitStr=" "; else unitStr = p.unitStr;
                         iname += "\n  " + QString::number(q) + " "+ unitStr +" "+ p.desc;
