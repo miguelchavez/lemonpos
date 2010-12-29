@@ -401,6 +401,7 @@ qulonglong Azahar::getProductCodeFromAlphacode(QString text)
     return code;
 }
 
+/// UPDATED: This searches products by description and alphacode.   -Dec 28 2011-
 QList<qulonglong> Azahar::getProductsCode(QString regExpName)
 {
   QList<qulonglong> result;
@@ -408,7 +409,7 @@ QList<qulonglong> Azahar::getProductsCode(QString regExpName)
   QSqlQuery query(db);
   QString qry;
   if (regExpName == "*") qry = "SELECT code from products;";
-  else qry = QString("select code,name from products WHERE `name` REGEXP '%1'").arg(regExpName);
+  else qry = QString("select code,name,alphacode from products WHERE `name` REGEXP '%1' OR  `alphacode` REGEXP '%1'").arg(regExpName);
   if (query.exec(qry)) {
     while (query.next()) {
       int fieldId   = query.record().indexOf("code");
