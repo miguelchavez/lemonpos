@@ -350,7 +350,7 @@ void ProductEditor::calculateProfit(QString amountStr)
         profitMoney = ( pWOtax - cost );
         profit      = ( profitMoney / cost );
         
-        //qDebug()<<" calculateProfit()  Profit % "<<profit<<" Profit $ "<<profitMoney<<" Price Without Taxes:"<<pWOtax;
+        //qDebug()<<" calculateProfit()  Profit % "<<profit<<" Profit $ "<<profitMoney<<" Price Without Taxes:"<<pWOtax<<" Cost + profit:"<<cost+profitMoney;
         ui->lblProfit->setText(i18n("Gross Profit: %1% (%2)", QString::number(profit*100, 'f', 2) ,  KGlobal::locale()->formatMoney(profitMoney, QString(), 2) ));
     } else {
         ui->lblProfit->clear();
@@ -529,7 +529,6 @@ void ProductEditor::setModel(QSqlRelationalTableModel *model)
   m_model->select();
 }
 
-///TODO: Need to decide how to select the qty for each product of the group
 void ProductEditor::addItem()
 {
   Azahar *myDb = new Azahar;
@@ -539,7 +538,10 @@ void ProductEditor::addItem()
   groupInfo.price = 0;
   groupInfo.tax = 0;
   groupInfo.taxMoney = 0;
-  
+
+  double addQty = 0;
+  addQty = ui->editGroupQty->value();
+
   //get selected items from source view
   QItemSelectionModel *selectionModel = ui->sourcePView->selectionModel();
   QModelIndexList indexList = selectionModel->selectedRows(); // pasar el indice que quiera (0=code, 1=name)
@@ -552,14 +554,21 @@ void ProductEditor::addItem()
     //get product info from hash or db
     if (groupInfo.productsList.contains(code)) {
       pInfo = groupInfo.productsList.take(code);
-      pInfo.qtyOnList += 1; //increment it
+      if ( pInfo.units == 1 )
+          pInfo.qtyOnList += int(addQty); //increment it  (PIECES)
+      else
+          pInfo.qtyOnList += addQty;      //increment it  (OTHER MEASURES)
       exists = true;
     } else {
       pInfo = myDb->getProductInfo(codeStr, true); //the 2nd parameter is to get the taxes for the group (not considering discounts)
-      pInfo.qtyOnList = 1;
+      if ( pInfo.units == 1 )
+          pInfo.qtyOnList = int(addQty); //increment it  (PIECES)
+      else
+          pInfo.qtyOnList = addQty;      //increment it  (OTHER MEASURES)
+      exists = true;
     }
     //check if the product to be added is not the same of the pack product
-    if (pInfo.code == ui->editCode->text().toULongLong()) continue; //HEY PURIST, WHEN I GOT SOME TIME I WILL CLEAN IT
+    if (pInfo.code == ui->editCode->text().toULongLong()) continue;
       
     // Insert product to the group hash
     groupInfo.productsList.insert(code, pInfo);
@@ -594,7 +603,12 @@ void ProductEditor::removeItem()
     double qty = 0;
     qty = pInfo.qtyOnList; //from hash | must be the same on groupView
     if (qty>1) {
-      qty--;
+      //qty--;
+      if ( pInfo.units == 1 )
+          qty -= int(ui->editGroupQty->value());   //increment it  (PIECES)
+      else
+          qty -= ui->editGroupQty->value();        //increment it  (OTHER MEASURES)
+
       pInfo.qtyOnList = qty;
       //reinsert it again
       groupInfo.productsList.insert(code, pInfo);
