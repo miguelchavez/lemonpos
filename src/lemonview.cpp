@@ -3119,6 +3119,7 @@ void lemonView::endOfDay() {
     pdInfo.thAmount  = i18n("Amount");
     pdInfo.thProfit  = i18n("Profit");
     pdInfo.thPayMethod = i18n("Method");
+    pdInfo.thTotalTaxes= i18n("Total taxes collected for this terminal: ");
     pdInfo.logoOnTop = Settings::chLogoOnTop();
     pdInfo.thTotalSales  = KGlobal::locale()->formatMoney(amountProfit.amount, QString(), 2);
     pdInfo.thTotalProfit = KGlobal::locale()->formatMoney(amountProfit.profit, QString(), 2);
@@ -3131,6 +3132,7 @@ void lemonView::endOfDay() {
     //lines.append();
 
     //each transaction...
+    double tTaxes = 0;
     for (int i = 0; i < transactionsList.size(); ++i)
     {
       QLocale localeForPrinting; // needed to convert double to a string better
@@ -3146,10 +3148,15 @@ void lemonView::endOfDay() {
       QString line     = tid +"|"+ hour +"|"+ amount +"|"+ profit +"|"+ payMethod;
       pdInfo.trLines.append(line);
       lines.append(tid+"  "+hour+"  "+ amount+"  "+profit+"  "+payMethod);
+      tTaxes += info.totalTax;
+      qDebug()<<"total sale:"<<info.amount<<" taxes this sale:"<<info.totalTax<<" accumulated taxes:"<<tTaxes;
     } //for each item
 
     lines.append(i18n("Total Sales : %1",pdInfo.thTotalSales));
     lines.append(i18n("Total Profit: %1",pdInfo.thTotalProfit));
+
+    //add taxes amount
+    pdInfo.thTotalTaxes += KGlobal::locale()->formatMoney(tTaxes, QString(), 2);
 
 
     if (Settings::smallTicketDotMatrix()) {

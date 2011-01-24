@@ -1352,6 +1352,11 @@ bool PrintCUPS::printSmallEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &pr
   text = pdInfo.thTotalProfit; // profit
   painter.drawText(Margin+440, Margin + yPos , text);
 
+  //print taxes for all sales
+  yPos = yPos + fm.lineSpacing()*2;
+  text = pdInfo.thTotalTaxes; 
+  painter.drawText(Margin, Margin + yPos , text);
+
   result = painter.end();
   return result;
 }

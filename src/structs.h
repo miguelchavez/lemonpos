@@ -347,6 +347,7 @@ struct PrintEndOfDayInfo
   QString    thPayMethod;
   QString    thTotalSales;
   QString    thTotalProfit;
+  QString    thTotalTaxes;
   QStringList trLines;
   bool       logoOnTop;
 };
