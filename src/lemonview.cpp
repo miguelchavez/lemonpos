@@ -1097,6 +1097,22 @@ if ( doNotAddMoreItems ) { //only for reservations
     codeX = list.takeAt(0);
   }
 
+  //Here there are barcodes that support weight. Such products begin with a 2 and its length is 13.
+    ///@link http://en.wikipedia.org/wiki/Universal_Product_Code#Prefixes
+    qDebug()<<" EXAMINING PRODUCT CODE "<<codeX;
+    if ( codeX.length() == 13 && codeX.startsWith("2") ) {
+        ///This is a weighted product, such as meat and fruits...
+        //get the weight, which is at positions RRRRRR of the code ( SLLLLLLMRRRRRRE ).
+        QString pWeight = codeX.right(6);
+        pWeight = pWeight.remove(5, 1);
+        if (pWeight.length() == 5) {
+            //add the decimal point...
+            pWeight.insert(2, ".");
+            qty = pWeight.toDouble(); //convert weight to QTY.
+        }
+        qDebug()<<"codeX:"<<codeX<<" weight:"<<pWeight<<" Double weight:"<<qty;
+    }
+
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   info = myDb->getProductInfo(codeX); //includes discount and validdiscount
