@@ -76,6 +76,7 @@ class Azahar : public QObject
     double       getAlmostSoldOutMaximum(int max);
     QList<ProductInfo>  getSoldOutProducts();
     QList<ProductInfo>  getLowStockProducts(double min);
+    QList<ProductInfo>  getAllProducts();
     double       getProductStockQty(qulonglong code);
     qulonglong   getLastProviderId(qulonglong code);
     bool         updateProductLastProviderId(qulonglong code, qulonglong provId);

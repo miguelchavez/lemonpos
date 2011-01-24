@@ -135,6 +135,7 @@ squeezeView::squeezeView(QWidget *parent)
   itmEndOfMonth   = new QListWidgetItem(DesktopIcon("lemon-reports", 96), i18n("End of Month"), ui_mainview.reportsList);
   itmPrintSoldOutProducts = new QListWidgetItem(DesktopIcon("lemon-reports", 96), i18n("Sold Out Products"), ui_mainview.reportsList);
   itmPrintLowStockProducts = new QListWidgetItem(DesktopIcon("lemon-reports", 96), i18n("Low Stock Products"), ui_mainview.reportsList);
+  itmPrintStock   = new QListWidgetItem(DesktopIcon("lemon-reports", 96), i18n("Stock Report"), ui_mainview.reportsList);
   //itmPrintBalance = new QListWidgetItem(DesktopIcon("lemon-reports", 96), i18n("A Balance"), ui_mainview.reportsList);
 
   
@@ -2821,6 +2822,8 @@ void squeezeView::reportActivated(QListWidgetItem *item)
     printSoldOutProducts();
   } else if ( item == itmPrintLowStockProducts ) {
     printLowStockProducts();
+  } else if ( item == itmPrintStock ) {
+    printStock();
   }
 //   } else if ( item == itmPrintBalance ) {
 //     printBalance();
@@ -3167,6 +3170,69 @@ void squeezeView::printLowStockProducts()
     }
   }
   delete myDb;
+}
+
+void squeezeView::printStock()
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    
+    QList<ProductInfo> products = myDb->getAllProducts(); // does not return grouped products!
+    
+    //Header Information
+    PrintLowStockInfo plInfo;
+    plInfo.storeName = myDb->getConfigStoreName();
+    plInfo.storeAddr = myDb->getConfigStoreAddress();
+    plInfo.storeLogo = myDb->getConfigStoreLogo();
+    plInfo.logoOnTop = myDb->getConfigLogoOnTop();
+    plInfo.hTitle    = i18n("Product Stock (excluding groups)");
+    plInfo.hDate     = KGlobal::locale()->formatDateTime(QDateTime::currentDateTime(), KLocale::LongDate);
+    plInfo.hCode     = i18n("Code");
+    plInfo.hDesc     = i18n("Description");
+    plInfo.hQty      = i18n("Stock Qty.");
+    plInfo.hSoldU    = i18n("Sold");
+    plInfo.hUnitStr  = i18n("Units");
+    
+    //each product
+    for (int i = 0; i < products.size(); ++i)
+    {
+        QLocale localeForPrinting;
+        ProductInfo info = products.at(i);
+        QString code  = QString::number(info.code);
+        QString stock = localeForPrinting.toString(info.stockqty,'f',2);
+        QString soldU = localeForPrinting.toString(info.soldUnits,'f',2);
+        
+        QString line  = code +"|"+ info.desc +"|"+ stock +"|"+ info.unitStr +"|"+ soldU;
+        plInfo.pLines.append(line);
+    }
+    
+    if (Settings::smallTicketDotMatrix()) {
+        //     QString printerFile=Settings::printerDevice();
+        //     if (printerFile.length() == 0) printerFile="/dev/lp0";
+        //     QString printerCodec=Settings::printerCodec();
+        //     qDebug()<<"[Printing report on "<<printerFile<<"]";
+        //     qDebug()<<lines.join("\n");
+        //     PrintDEV::printSmallBalance(printerFile, printerCodec, lines.join("\n"));
+    } else if (Settings::smallTicketCUPS()) {
+        qDebug()<<"[Printing report on CUPS small size]";
+        QPrinter printer;
+        printer.setFullPage( true );
+        QPrintDialog printDialog( &printer );
+        printDialog.setWindowTitle(i18n("Print Low Stock Report"));
+        if ( printDialog.exec() ) {
+            PrintCUPS::printSmallLowStockReport(plInfo, printer);
+        }
+    } else { //big printer
+    qDebug()<<"[Printing report on CUPS big size]";
+    QPrinter printer;
+    printer.setFullPage( true );
+    QPrintDialog printDialog( &printer );
+    printDialog.setWindowTitle(i18n("Print Low Stock Report"));
+    if ( printDialog.exec() ) {
+        PrintCUPS::printBigLowStockReport(plInfo, printer);
+    }
+}
+delete myDb;
 }
 
 void squeezeView::printSoldOutProducts()

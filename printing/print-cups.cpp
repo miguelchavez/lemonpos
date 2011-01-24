@@ -1453,10 +1453,10 @@ bool PrintCUPS::printSmallLowStockReport(const PrintLowStockInfo &plInfo, QPrint
   painter.drawText(Margin+30, Margin + yPos +textWidth.height(), text);
   text = plInfo.hDesc;
   textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-  painter.drawText(Margin+160, Margin + yPos +textWidth.height(), text);
+  painter.drawText(Margin+180, Margin + yPos +textWidth.height(), text);
   text = plInfo.hQty;
   textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-  painter.drawText(Margin+450, Margin + yPos +textWidth.height(), text);
+  painter.drawText(Margin+470, Margin + yPos +textWidth.height(), text);
   //text = plInfo.hUnitStr;
   //textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
   //painter.drawText(printer.width()-textWidth.width()-Margin, Margin + yPos +textWidth.height(), text);
@@ -1485,13 +1485,13 @@ bool PrintCUPS::printSmallLowStockReport(const PrintLowStockInfo &plInfo, QPrint
     text = data.at(1); // DESCRIPTION
     while (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text).width() >= 270) { text.chop(2); }
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-    painter.drawText(Margin+160, Margin + yPos +textWidth.height(), text);
+    painter.drawText(Margin+180, Margin + yPos +textWidth.height(), text);
     text = data.at(2); // STOCK QTY
     // We must be aware of the locale. europe uses ',' instead of '.' as the decimals separator.
     if (text.endsWith(".00") || text.endsWith(",00")) { text.chop(3); text += "   ";}//we chop the trailing zeroes...
     text = text +" "+ data.at(3); // 10 pieces
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-    painter.drawText(Margin+450, Margin + yPos +textWidth.height(), text);
+    painter.drawText(Margin+470, Margin + yPos +textWidth.height(), text);
     //text = data.at(3); // UNITSTR
     //textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
     //painter.drawText(Margin+450, Margin + yPos +textWidth.height(), text);

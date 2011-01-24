@@ -830,6 +830,27 @@ QList<ProductInfo> Azahar::getLowStockProducts(double min)
   return products;
 }
 
+//The list will not include groups or packages
+QList<ProductInfo> Azahar::getAllProducts()
+{
+    QList<ProductInfo> products; products.clear();
+    ProductInfo info;
+    QSqlQuery query(db);
+    query.prepare("SELECT code,stockqty FROM products WHERE isAGroup=false ORDER BY code,stockqty ASC;");
+    if (query.exec()) {
+        while (query.next()) {
+            int fieldCode  = query.record().indexOf("code");
+            info = getProductInfo(query.value(fieldCode).toString());
+            products.append(info);
+        }
+    }
+    else {
+        setError(query.lastError().text());
+        qDebug()<<lastError();
+    }
+    return products;
+}
+
 qulonglong Azahar::getLastProviderId(qulonglong code)
 {
   qulonglong result = 0;

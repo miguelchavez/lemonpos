@@ -98,6 +98,7 @@ public:
 
     QListWidgetItem *itmPrintSoldOutProducts;
     QListWidgetItem *itmPrintLowStockProducts;
+    QListWidgetItem *itmPrintStock;
     //QListWidgetItem *itmPrintBalance;
 
     qulonglong loggedUserId;
@@ -168,6 +169,7 @@ signals:
    void printEndOfMonth();
    void printLowStockProducts();
    void printSoldOutProducts();
+   void printStock();
    void printSelectedBalance();
 
     /* DB slots */
