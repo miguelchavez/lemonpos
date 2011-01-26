@@ -2855,6 +2855,7 @@ void squeezeView::printGralEndOfDay()
   pdInfo.thAmount  = i18n("Amount");
   pdInfo.thProfit  = i18n("Profit");
   pdInfo.thPayMethod = i18n("Method");
+  pdInfo.thTotalTaxes= i18n("Total taxes collected today: ");
   pdInfo.logoOnTop = myDb->getConfigLogoOnTop();
   pdInfo.thTotalSales  = KGlobal::locale()->formatMoney(amountProfit.amount, QString(), 2);
   pdInfo.thTotalProfit = KGlobal::locale()->formatMoney(amountProfit.profit, QString(), 2);
@@ -2866,6 +2867,7 @@ void squeezeView::printGralEndOfDay()
   lines.append(pdInfo.thTicket+"    "+pdInfo.thTime+ pdInfo.thAmount+"   "+pdInfo.thProfit+"   "+pdInfo.thPayMethod);
   
   //each transaction...
+  double tTaxes = 0;
   for (int i = 0; i < transactionsList.size(); ++i)
   {
     QLocale localeForPrinting; // needed to convert double to a string better
@@ -2881,10 +2883,15 @@ void squeezeView::printGralEndOfDay()
     QString line     = tid +"|"+ hour +"|"+ amount +"|"+ profit +"|"+ payMethod;
     pdInfo.trLines.append(line);
     lines.append(tid+"  "+hour+"  "+ amount+"  "+profit+"  "+payMethod);
+    tTaxes += info.totalTax;
+    qDebug()<<"total sale:"<<info.amount<<" taxes this sale:"<<info.totalTax<<" accumulated taxes:"<<tTaxes;
   } //for each item
   
   lines.append(i18n("Total Sales : %1",pdInfo.thTotalSales));
   lines.append(i18n("Total Profit: %1",pdInfo.thTotalProfit));
+
+  //add taxes amount
+  pdInfo.thTotalTaxes += KGlobal::locale()->formatMoney(tTaxes, QString(), 2);
   
   if (Settings::smallTicketDotMatrix()) { // dot matrix printer
     QString printerFile=Settings::printerDevice();
@@ -2963,6 +2970,7 @@ void squeezeView::printEndOfDay()
     pdInfo.thAmount  = i18n("Amount");
     pdInfo.thProfit  = i18n("Profit");
     pdInfo.thPayMethod = i18n("Method");
+    pdInfo.thTotalTaxes= i18n("Total taxes collected for this terminal: ");
     pdInfo.logoOnTop = myDb->getConfigLogoOnTop();
     pdInfo.thTotalSales  = KGlobal::locale()->formatMoney(amountProfit.amount, QString(), 2);
     pdInfo.thTotalProfit = KGlobal::locale()->formatMoney(amountProfit.profit, QString(), 2);
@@ -2974,6 +2982,7 @@ void squeezeView::printEndOfDay()
     lines.append(pdInfo.thTicket+"    "+pdInfo.thTime+ pdInfo.thAmount+"   "+pdInfo.thProfit+"   "+pdInfo.thPayMethod);
     
     //each transaction...
+    double tTaxes = 0;
     for (int i = 0; i < transactionsList.size(); ++i)
     {
       QLocale localeForPrinting; // needed to convert double to a string better
@@ -2989,10 +2998,15 @@ void squeezeView::printEndOfDay()
       QString line     = tid +"|"+ hour +"|"+ amount +"|"+ profit +"|"+ payMethod;
       pdInfo.trLines.append(line);
       lines.append(tid+"  "+hour+"  "+ amount+"  "+profit+"  "+payMethod);
+      tTaxes += info.totalTax;
+      qDebug()<<"total sale:"<<info.amount<<" taxes this sale:"<<info.totalTax<<" accumulated taxes:"<<tTaxes;
     } //for each item
     
     lines.append(i18n("Total Sales : %1",pdInfo.thTotalSales));
     lines.append(i18n("Total Profit: %1",pdInfo.thTotalProfit));
+
+    //add taxes amount
+    pdInfo.thTotalTaxes += KGlobal::locale()->formatMoney(tTaxes, QString(), 2);
     
     if (Settings::smallTicketDotMatrix()) {
       QString printerFile=Settings::printerDevice();
@@ -3049,6 +3063,7 @@ void squeezeView::printEndOfMonth()
   pdInfo.thAmount  = i18n("Amount");
   pdInfo.thProfit  = i18n("Profit");
   pdInfo.thPayMethod = i18n("Date");
+  pdInfo.thTotalTaxes= i18n("Total taxes collected for the month: ");
   pdInfo.logoOnTop = myDb->getConfigLogoOnTop();
   pdInfo.thTotalSales  = KGlobal::locale()->formatMoney(amountProfit.amount, QString(), 2);
   pdInfo.thTotalProfit = KGlobal::locale()->formatMoney(amountProfit.profit, QString(), 2);
@@ -3060,6 +3075,7 @@ void squeezeView::printEndOfMonth()
   lines.append(pdInfo.thTicket+"    "+pdInfo.thTime+ pdInfo.thAmount+"   "+pdInfo.thProfit+"   "+pdInfo.thPayMethod);
   
   //each transaction...
+  double tTaxes = 0;
   for (int i = 0; i < transactionsList.size(); ++i)
   {
     QLocale localeForPrinting; // needed to convert double to a string better
@@ -3074,10 +3090,15 @@ void squeezeView::printEndOfMonth()
     QString line     = tid +"|"+ hour +"|"+ amount +"|"+ profit +"|"+ payMethod;
     pdInfo.trLines.append(line);
     lines.append(tid+"  "+hour+"  "+ amount+"  "+profit+"  "+payMethod);
+    tTaxes += info.totalTax;
+    qDebug()<<"total sale:"<<info.amount<<" taxes this sale:"<<info.totalTax<<" accumulated taxes:"<<tTaxes;
   } //for each item
   
   lines.append(i18n("Total Sales : %1",pdInfo.thTotalSales));
   lines.append(i18n("Total Profit: %1",pdInfo.thTotalProfit));
+
+  //add taxes amount
+  pdInfo.thTotalTaxes += KGlobal::locale()->formatMoney(tTaxes, QString(), 2);
   
   if (Settings::smallTicketDotMatrix()) {
     QString printerFile=Settings::printerDevice();

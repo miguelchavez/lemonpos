@@ -301,6 +301,12 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
  //    case 11:
  //    }
 
+  //setting mibitNumEdit's features
+  ui_mainview.editAmount->setAutoClearError(true);
+  ui_mainview.editAmount->setIsMoney(true);
+  ui_mainview.editAmount->setIsDouble(true);
+  ui_mainview.editAmount->setPrependCurrencySymbol(true);
+  ui_mainview.editAmount->setCurrencySymbol(KGlobal::locale()->currencySymbol());
 
   ui_mainview.editItemCode->setFocus();
 }
@@ -1110,7 +1116,9 @@ if ( doNotAddMoreItems ) { //only for reservations
             pWeight.insert(2, ".");
             qty = pWeight.toDouble(); //convert weight to QTY.
         }
-        qDebug()<<"codeX:"<<codeX<<" weight:"<<pWeight<<" Double weight:"<<qty;
+        ///now, exclude the weight from the codeX. NOTE: Document THIS!
+        codeX = codeX.left(6);
+        qDebug()<<"new codeX:"<<codeX<<" weight:"<<pWeight<<" Double weight:"<<qty;
     }
 
   Azahar *myDb = new Azahar;

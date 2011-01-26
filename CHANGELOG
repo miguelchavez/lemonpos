@@ -3,10 +3,21 @@ CHANGELOG FOR LEMONPOS VERSION 0.9.4
 - BUGFIX       : 
 - BUGFIX       : 
 - IMPROVEMENT  : Adding multi-currency support. Allow currency conversion, based on database values for currencies.
-- IMPROVEMENT  : Adding a gross profit calculation for a product when its price is set non-automatically.
+- IMPROVEMENT  : Adding a gross profit calculation for a product when its price is set manually.
 - IMPROVEMENT  : Improving the width and height of squeeze main window. Minimum size is 700x800 pixels (WxH). Ticket#68
+- IMPROVEMENT  : Added a Stock Report (all products, except the groups).
+- IMPROVEMENT  : Added TAX collected for the end of day report.
 - FEATURE      : Added an edit line for item quantities when adding to groups. This allows to enter amounts < 1 (0.5, 0.1...). Ticket#105
 - FEATURE      : Add alphanumeric code for products. Ticket#103.
-- FEATURE      : Added support for localized numbers and currencies where using money in edit lines. MibitNumEdit. Ticket#14
+- FEATURE      : Added support for weighted products embeded the weight in its barcode.
+                  Those barcodes start with a numer '2' and the product code is only the first 6 digits, the rest is the weight.
+                  The barcode length is 13 and the 13th digit is discarded.
+                  So, to add a product like this, just enter the first 6 digits in the barcode as the product code.
+- FEATURE      : Added support for localized numbers and currencies where using money in edit lines. Ticket#14. * see note.
 - UPDATE       : Translations were updated.
 
+
+A note on the new numeric/monetary amount field:
+    This field now shows a localized version of the number entered. It includes a thousand separator, a decimal point, and currency symbol.
+    The limitation is that the number cannot be edited partially (correct some digit individually) and need to be entered all again after a focus lose.
+    One exception is to use the backspace key to delete the last digit.
