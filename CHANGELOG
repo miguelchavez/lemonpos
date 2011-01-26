@@ -6,7 +6,7 @@ CHANGELOG FOR LEMONPOS VERSION 0.9.4
 - IMPROVEMENT  : Adding a gross profit calculation for a product when its price is set manually.
 - IMPROVEMENT  : Improving the width and height of squeeze main window. Minimum size is 700x800 pixels (WxH). Ticket#68
 - IMPROVEMENT  : Added a Stock Report (all products, except the groups).
-- IMPROVEMENT  : Added TAX collected for the end of day report.
+- IMPROVEMENT  : Added TAX collected for the end of day/month reports.
 - FEATURE      : Added an edit line for item quantities when adding to groups. This allows to enter amounts < 1 (0.5, 0.1...). Ticket#105
 - FEATURE      : Add alphanumeric code for products. Ticket#103.
 - FEATURE      : Added support for weighted products embeded the weight in its barcode.
