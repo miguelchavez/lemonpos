@@ -1119,7 +1119,7 @@ if ( doNotAddMoreItems ) { //only for reservations
         ///now, exclude the weight from the codeX. NOTE: Document THIS!
         codeX = codeX.left(7); // only the first 7 digits, the first digit is the prefix, which must be '2'.
         //NOTE: Here, the prefix is considered to be part of the product code.
-        qDebug()<<"new codeX:"<<codeX<<" weight:"<<pWeight<<" Double weight:"<<qty;
+        qDebug()<<"  New codeX:"<<codeX<<" weight:"<<pWeight<<" Double weight:"<<qty;
     }
 
   Azahar *myDb = new Azahar;
