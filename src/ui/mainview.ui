@@ -434,7 +434,7 @@
                   <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_2">
                     <item>
-                     <widget class="MibitNumEdit" name="editAmount">
+                     <widget class="QLineEdit" name="editAmount">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                         <horstretch>0</horstretch>
@@ -1661,11 +1661,6 @@ font: 75 9pt &quot;Lucida Grande&quot;;</string>
    <class>MibitLineEdit</class>
    <extends>QLineEdit</extends>
    <header>../../mibitWidgets/mibitlineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>MibitNumEdit</class>
-   <extends>QLineEdit</extends>
-   <header>../../mibitWidgets/mibitnumedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

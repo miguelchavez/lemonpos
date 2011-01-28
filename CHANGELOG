@@ -13,7 +13,6 @@ CHANGELOG FOR LEMONPOS VERSION 0.9.4
                   Those barcodes start with a numer '2' and the product code is only the first 6 digits, the rest is the weight.
                   The barcode length is 13 and the 13th digit is discarded.
                   So, to add a product like this, just enter the first 6 digits in the barcode as the product code.
-- FEATURE      : Added support for localized numbers and currencies where using money in edit lines. Ticket#14. * see note.
 - UPDATE       : Translations were updated.
 
 
