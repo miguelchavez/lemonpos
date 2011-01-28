@@ -94,6 +94,13 @@ class MibitNumEdit : public QLineEdit
      * Passes a custom currency symbol.
      **/
     void setCurrencySymbol(const QString &symbol);
+
+    /**
+     * Sets the values.
+     **/
+    void setValue(const double &val) { dValue = val; iValue= int(val); onTextChange(QString::number(val)); }
+
+    void colorize();
     
     /**
       *  Gets the numeric value.

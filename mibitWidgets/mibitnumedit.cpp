@@ -168,6 +168,11 @@ void MibitNumEdit::setError( const QString& msg )
         }
     }
 
+void MibitNumEdit::colorize()
+{
+    // TODO: Code THIS!
+}
+
 void MibitNumEdit::stepColors()
 {
     if (actualColor > 199) {
@@ -269,6 +274,14 @@ void MibitNumEdit::keyPressEvent ( QKeyEvent * event )
 {
   // Check for our special keys
   // The Enter key is the one located at the numeric pad. The other is called RETURN.
+
+    if (!calcEnabled) {
+        qDebug()<<"- dValue:"<<dValue;
+        QLineEdit::keyPressEvent(event);
+        qDebug()<<"+ dValue:"<<dValue;
+        return;
+    }
+  
     if ( event->key() == Qt::Key_Plus && calcEnabled ) {
         lastKey = currKey;
         currKey = 1; //sum
@@ -349,6 +362,7 @@ void MibitNumEdit::keyPressEvent ( QKeyEvent * event )
         lastKey = currKey;
         currKey = 0; // none
         opSymbol = "";
+        qDebug()<<"PressEvent passed to parent class";
         QLineEdit::keyPressEvent(event);
     }
 }
