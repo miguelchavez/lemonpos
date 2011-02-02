@@ -3593,7 +3593,27 @@ void lemonView::printSelTicket()
   }
   else  {
     qulonglong id = historyTicketsModel->record(index.row()).value("id").toULongLong();
-    printTicketFromTransaction(id);
+    //ASK for security if no lowSecurityMode.
+    bool doit = false;
+    if (Settings::lowSecurityMode()) {
+        doit = true;
+    } else {
+        dlgPassword->show();
+        dlgPassword->clearLines();
+        dlgPassword->hide();
+        doit = dlgPassword->exec();
+    }//else lowsecurity
+    if (doit)
+        printTicketFromTransaction(id);
+    else {
+        //show a notification.
+        qDebug()<<"No administrator password supplied for reprint ticket";
+        KNotification *notify = new KNotification("information", this);
+        notify->setText(i18n("Reprint ticket cancelled."));
+        QPixmap pixmap = DesktopIcon("dialog-error",32);
+        notify->setPixmap(pixmap);
+        notify->sendEvent();
+    }
   }
   //return to selling tab
   ui_mainview.mainPanel->setCurrentIndex(pageMain);
