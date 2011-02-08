@@ -4301,7 +4301,7 @@ void lemonView::resumeSale()
     //NOTE: change sale date ?
     //get each product - the availability and group verification will do the insertItem method
     foreach(ProductInfo info, pList) {
-      QString qtyXcode = QString::number(info.qtyOnList) + "x" + QString::number(info.code);
+      QString qtyXcode = QString::number(info.qtyOnList) + "*" + QString::number(info.code);
       insertItem(qtyXcode);
     }
     foreach(SpecialOrderInfo info, sList) {
