@@ -340,8 +340,13 @@ bool PrintCUPS::printSmallBalance(const PrintBalanceInfo &pbInfo, QPrinter &prin
 bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printer)
 {
   bool result = false;
-  QFont header = QFont("Impact", 38);
-  const int Margin = 20;
+  // calculate font size
+  const int headerSize = printer.width()/16; //divisor found by trying, maybe has to do with font metrics?
+  const int textSize = headerSize/2; //i think the half of header size is ok
+  qDebug()<<"Paper Width: "<<printer.widthMM()<<"mm"<<"; Page Width: "<<printer.width()<<"; calculated headerSize: "<<headerSize;
+
+  QFont header = QFont("Impact", headerSize);
+  const int Margin = printer.width()/40; //divisor found by trying
   int yPos        = 0;
   QPainter painter;
   painter.begin( &printer );
@@ -350,7 +355,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
   //NOTE from Qt for the drawText: The y-position is used as the baseline of the font
   
   // Header: Store Name, Store Address, Store Phone, Store Logo...
-  QFont tmpFont = QFont("Bitstream Vera Sans", 18);
+  QFont tmpFont = QFont("Bitstream Vera Sans", textSize);
   QPen normalPen = painter.pen();
   QString text;
   QSize textWidth;
@@ -363,22 +368,24 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     text = ptInfo.storeName;
     fm = painter.fontMetrics();
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-    painter.drawText((printer.width()/2)-(textWidth.width()/2),yPos+Margin+textWidth.height(), text);
+    yPos = yPos + Margin + textWidth.height();
+    painter.drawText((printer.width()/2)-(textWidth.width()/2),yPos, text);
     // Store Address
-    tmpFont = QFont("Bitstream Vera Sans", 18);
+    tmpFont = QFont("Bitstream Vera Sans", textSize);
     tmpFont.setItalic(true);
     painter.setFont(tmpFont);
-    painter.setPen(Qt::darkGray);
+    //painter.setPen(Qt::darkGray); //black looks better on thermal printer
     fm = painter.fontMetrics();
     text = ptInfo.storeAddr + ", " +ptInfo.thPhone + ptInfo.storePhone;
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-    yPos = yPos + fm.lineSpacing()+30;
-    painter.drawText((printer.width()/2)-(textWidth.width()/2), Margin + yPos + textWidth.height(), text);
-    yPos = yPos + fm.lineSpacing()*2;
+
+    yPos = yPos + fm.lineSpacing();
+    painter.drawText((printer.width()/2)-(textWidth.width()/2), yPos, text);
+    yPos = yPos + fm.lineSpacing();
   }
   else {
     // Store Logo
-    painter.drawPixmap(printer.width() - ptInfo.storeLogo.width() - Margin, Margin+15, ptInfo.storeLogo);
+    painter.drawPixmap(printer.width() - ptInfo.storeLogo.width() - Margin, Margin*1.75, ptInfo.storeLogo);
     // Store Name
     painter.setFont(header);
     text = ptInfo.storeName;
@@ -389,7 +396,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     tmpFont.setItalic(true);
     painter.setFont(tmpFont);
     fm = painter.fontMetrics();
-    yPos = yPos + fm.lineSpacing()+15;
+    yPos = yPos + fm.lineSpacing()+(Margin*0.75);
     text = ptInfo.storeAddr + ", " +ptInfo.thPhone + ptInfo.storePhone;
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
     painter.setPen(Qt::darkGray);
@@ -398,41 +405,41 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
   }
   
 
-  tmpFont = QFont("Bitstream Vera Sans", 17);
+  // Header line
+  painter.setPen(QPen(Qt::black, Margin*0.25, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+  painter.drawLine(Margin, yPos, printer.width()-Margin, yPos);
+  yPos = yPos + fm.lineSpacing()*2;
+
+  //Date
+  tmpFont = QFont("Bitstream Vera Sans", textSize);
   tmpFont.setItalic(false);
   painter.setFont(tmpFont);
   fm = painter.fontMetrics();
-  // Header line
-  painter.setPen(QPen(Qt::gray, 5, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
-  painter.drawLine(Margin, Margin + yPos, printer.width()-Margin, Margin+yPos);
-  yPos = yPos + fm.lineSpacing(); 
-  //Date, Ticket number
   painter.setPen(normalPen);
   text = ptInfo.thDate ;
   textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-  painter.drawText(Margin, Margin + yPos + textWidth.height(), text);
-  //change font for ticket number... bigger. Check for really big numbers to fit the page.
-  tmpFont = QFont("Bitstream Vera Sans", 22);
-  tmpFont.setItalic(false);
+  painter.drawText(Margin, yPos, text);
+
+  //Ticket Number
   tmpFont.setBold(true);
   painter.setFont(tmpFont);
   fm = painter.fontMetrics();
   text = ptInfo.thTicket;
   textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-  painter.drawText(printer.width() - textWidth.width() - Margin, Margin + yPos +textWidth.height(), text);
-  //change font again
-  tmpFont = QFont("Bitstream Vera Sans", 17);
-  tmpFont.setItalic(false);
+  painter.drawText(printer.width() - textWidth.width() - Margin, yPos, text);
+  yPos = yPos + fm.lineSpacing();
+
+
+  //Vendor, terminal number
   tmpFont.setBold(false);
   painter.setFont(tmpFont);
   fm = painter.fontMetrics();
-  yPos = yPos + fm.lineSpacing();
-  //Vendor, terminal number
   text = ptInfo.salesPerson + ", " + ptInfo.terminal;
   textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-  painter.drawText(Margin, Margin + yPos +textWidth.height(), text);
+  painter.drawText(Margin, yPos, text);
   yPos = yPos + 3*fm.lineSpacing();
 
+  //FIXME: Review for the new code patch sent by vitali kari
   //Print a RESERVATION header if is a starting Reservation.
   if (ptInfo.ticketInfo.reservationStarted) {
       tmpFont = QFont("Bitstream Vera Sans", 22);
@@ -458,7 +465,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     columnQty  = -150;
   }
   painter.setPen(Qt::darkBlue);
-  tmpFont = QFont("Bitstream Vera Sans", 17 );
+  tmpFont = QFont("Bitstream Vera Sans", textSize);
   tmpFont.setWeight(QFont::Bold);
   tmpFont.setItalic(false);
   painter.setFont(tmpFont);
