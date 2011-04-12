@@ -86,7 +86,7 @@ QByteArray Hash::getSalt()
     
     QRegExp rx("[A-Za-z_0-9@#%&\\!\\$\\~\\^\\*]*"); 
     int cont=0;
-    rx.setCaseSensitivity(Qt::CaseInsensitive);
+    //rx.setCaseSensitivity(Qt::CaseInsensitive);
       
     QTextStream in(&file);
     while (cont<5) {
@@ -98,7 +98,6 @@ QByteArray Hash::getSalt()
                 cont++;
             }
         }
-      }
     }
     file.close();
 
