@@ -668,6 +668,7 @@ void lemonView::doCurrencyConversion()
         factor = ui_mainview.editConvFactor->text().toDouble();
         result = qty * factor;
         ui_mainview.editConvResult->setText( QString::number( result ) );
+        qDebug()<<"CURRENCY CONVERSION -- qty:"<<qty<<" factor:"<<factor<<" RESULT:"<<result<<" Result converted to string:"<<QString::number(result);
     }
 }
 
