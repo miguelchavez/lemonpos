@@ -2100,6 +2100,9 @@ void squeezeView::doPurchase()
     QStringList items;
     items.clear();
 
+    //temporal items list
+    items.append("empty list"); //just a tweak for creating the transaction, celaning after creating it.
+
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
 
@@ -2135,8 +2138,14 @@ void squeezeView::doPurchase()
       qulonglong trnum = myDb->insertTransaction(tInfo); //to get the transaction number to insert in the log.
       if ( trnum <= 0 ) {
           qDebug()<<"ERROR: Could not create a Purchase Transaction ::doPurchase()";
+          qDebug()<<"Error:"<<myDb->lastError();
           //TODO: Notify the user about the error.
       }
+
+      //Now cleaning the items to fill with real items...
+      items.clear();
+      //assigning new transaction id to the tInfo.
+      tInfo.id = trnum;
 
       QHash<qulonglong, ProductInfo> hash = purchaseEditorDlg->getHash();
       ProductInfo info;
@@ -2170,7 +2179,7 @@ void squeezeView::doPurchase()
       }
       //update items in transaction data
       tInfo.itemlist = items.join(";");
-      myDb->updateTransaction(tInfo);
+      myDb->updateTransaction(tInfo))
     }
   delete myDb;
   }
