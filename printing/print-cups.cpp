@@ -337,6 +337,7 @@ bool PrintCUPS::printSmallBalance(const PrintBalanceInfo &pbInfo, QPrinter &prin
   return result;
 }
 
+// Paper size for a small ticket: 72mm x 200mm
 bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printer)
 {
   bool result = false;
@@ -442,7 +443,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
   //FIXME: Review for the new code patch sent by vitali kari
   //Print a RESERVATION header if is a starting Reservation.
   if (ptInfo.ticketInfo.reservationStarted) {
-      tmpFont = QFont("Bitstream Vera Sans", 22);
+      tmpFont = QFont("Bitstream Vera Sans", textSize);
       tmpFont.setItalic(true);
       tmpFont.setBold(true);
       painter.setFont(tmpFont);
@@ -485,7 +486,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
   painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
   painter.drawLine(Margin, Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
   painter.setPen(normalPen);
-  tmpFont = QFont("Bitstream Vera Sans", 17 );
+  tmpFont = QFont("Bitstream Vera Sans", textSize );
   painter.setFont(tmpFont);
   yPos = yPos + fm.lineSpacing();
   // End of Header Information.
@@ -616,7 +617,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     if (isAReservation) {
         QLocale locale;
         QString sp; QString spQty;
-        tmpFont = QFont("Bitstream Vera Sans", 17 );
+        tmpFont = QFont("Bitstream Vera Sans", textSize);
         tmpFont.setWeight(QFont::Bold);
         painter.setFont(tmpFont);
         fm = painter.fontMetrics();
@@ -660,7 +661,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       }
       if (!isSO) sp  = ""; ///hack!
       //change font for the PAYMENT MSG
-      tmpFont = QFont("Bitstream Vera Sans", 17 );
+      tmpFont = QFont("Bitstream Vera Sans", textSize );
       tmpFont.setWeight(QFont::Bold);
       painter.setFont(tmpFont);
       fm = painter.fontMetrics();
@@ -683,7 +684,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       ///Check for delivery date and if its a SO
       if (isSO) {
         sp = ptInfo.deliveryDateStr; // + deliveryDT.toString("ddd d MMMM, h:m ap"); //TODO:hey i18n stuff!!!
-        tmpFont = QFont("Bitstream Vera Sans", 17 );
+        tmpFont = QFont("Bitstream Vera Sans", textSize );
         tmpFont.setWeight(QFont::Bold);
         painter.setFont(tmpFont);
         fm = painter.fontMetrics();
@@ -702,7 +703,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       //END The PRE-PAYMENT/NEXT-PAYMENT DATA.
     }
     
-    tmpFont = QFont("Bitstream Vera Sans", 17 );
+    tmpFont = QFont("Bitstream Vera Sans", textSize );
     tmpFont.setWeight(QFont::Normal);
     painter.setFont(tmpFont);
     fm = painter.fontMetrics();
@@ -738,7 +739,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
         yPos = yPos + fm.lineSpacing();
         painter.setPen(QPen(Qt::black, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
         //grand total
-        tmpFont = QFont("Bitstream Vera Sans", 17 );
+        tmpFont = QFont("Bitstream Vera Sans", textSize );
         tmpFont.setWeight(QFont::Bold);
         painter.setFont(tmpFont);
         fm = painter.fontMetrics();
@@ -760,7 +761,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     yPos = yPos + fm.lineSpacing();
     painter.setPen(QPen(Qt::black, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
     //grand total
-    tmpFont = QFont("Bitstream Vera Sans", 17 );
+    tmpFont = QFont("Bitstream Vera Sans", textSize );
     tmpFont.setWeight(QFont::Bold);
     painter.setFont(tmpFont);
     fm = painter.fontMetrics();
@@ -777,7 +778,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     }
     else yPos = yPos + fm.lineSpacing()*2;
     // Tendered with and change
-    tmpFont = QFont("Bitstream Vera Sans", 17 );
+    tmpFont = QFont("Bitstream Vera Sans", textSize );
     tmpFont.setWeight(QFont::Normal);
     painter.setFont(tmpFont);
     fm = painter.fontMetrics();
@@ -823,7 +824,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     QStringList strList;
     QString strTmp = ptInfo.randomMsg;
     if (!ptInfo.randomMsg.isEmpty()) {
-      tmpFont = QFont("Bitstream Vera Sans", 16);
+      tmpFont = QFont("Bitstream Vera Sans", textSize);
       tmpFont.setItalic(true);
       painter.setFont(tmpFont);
       fm = painter.fontMetrics();
@@ -859,7 +860,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     }
 
     // The ticket message (tanks...)
-    tmpFont = QFont("Bitstream Vera Sans", 18);
+    tmpFont = QFont("Bitstream Vera Sans", textSize);
     tmpFont.setItalic(true);
     painter.setPen(Qt::darkGreen);
     painter.setFont(tmpFont);
