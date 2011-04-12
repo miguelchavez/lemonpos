@@ -2187,13 +2187,16 @@ bool Azahar::updateTransaction(TransactionInfo info)
   query2.bindValue(":tax", info.totalTax);
   query2.bindValue(":sorders", info.specialOrders);
   query2.bindValue(":balance", info.balanceId);
+  qDebug()<<"Transaction ID:"<<info.id;
   if (!query2.exec() ) {
     int errNum = query2.lastError().number();
     QSqlError::ErrorType errType = query2.lastError().type();
     QString errStr = query2.lastError().text();
     QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),errStr);
     setError(details);
+    qDebug()<<"DETALLES DEL ERROR:"<<details;
   } else result=true;
+  
   return result;
 }
 
