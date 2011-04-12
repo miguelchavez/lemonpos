@@ -157,10 +157,12 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
     // I NEED TO MAKE VALIDATION WITH REGULAR EXPRESSIONS TO SUPPORT LARGE NUMBERS if we need to do so.. ticket numbers larger
     // than 2,147,483,647. For now, its ok, its at the order of billions (thousand millions).
   } else {
-    QDoubleValidator *validator = new QDoubleValidator(min, max, 3,this);
+    //Some people complained about decimal places in numbers accepted by lemon. They wanted more decimal places!!!
+    QDoubleValidator *validator = new QDoubleValidator(min, max, 5,this);
     lineEdit->setValidator(validator);
   }
-  QRegExp regexpC("[1-9]+[0-9]*[//.]{0,1}[0-9]{0,2}[xX]{0,1}[0-9]{0,13}");
+  //NOTE: We remove the xX from the regexp for use as the separator between qtys and code. Only * can be used now, for Alphacode support
+  QRegExp regexpC("[1-9]+[0-9]*[//.]{0,1}[0-9]{0,2}[*]{0,1}[0-9]{0,13}");
   QRegExpValidator * validatorEAN13 = new QRegExpValidator(regexpC, this);
   productCodeEdit->setValidator(validatorEAN13);
 
