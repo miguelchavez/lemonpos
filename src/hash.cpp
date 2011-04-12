@@ -39,7 +39,7 @@ QByteArray Hash::getCheapSalt()
     QString result="";
     srand( QTime::currentTime().toString("hhmmsszzz").toUInt() );
     
-    QRegExp rx("([\\w+]|[\\s*&*%*\\$*#*!*=*Â¡*\\(*\\)*\\?*\\Â¿*\\[*\\]*\\{*\\}*\\/*])");
+    QRegExp rx("([\\w+]|[\\s*&*%*\\$*#*!*=*¡*\\(*\\)*\\?*\\¿*\\[*\\]*\\{*\\}*\\/*])");
     int cont=0;
     rx.setCaseSensitivity(Qt::CaseInsensitive);
 
@@ -64,42 +64,39 @@ QByteArray Hash::getSalt()
     //      /dev/urandom is blocking if not enough entropy... so moving mouse or keyboard is needed. But
     //      now with this issue (random failing), urandom seems to work fine and in my tests it has not been blocking.
   
-    //FIXME: Still some problems when obtaining the salt. some strage chars appearing... fix this regexp
+//     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+//         // In case /dev/random is a dead fish.
+//         if( !file.waitForReadyRead(100))  file.close();
+//     }
+// 
+//     if (!file.isOpen()) file.setFileName("/dev/urandom");
+//     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+//         // In case /dev/random is a dead fish.
+//         if( !file.waitForReadyRead(100))
+//             file.close();
+//     }
+// 
+//     if (!file.isOpen()) {
+//         // FIXME: There should be some warning that cheap salt is being used.
+//         qDebug() << "/dev/urandom not responding...  Using rand() to get the salt...";
+//         return getCheapSalt();
+//     }
 
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        // In case /dev/random is a dead fish.
-        if( !file.waitForReadyRead(100))  file.close();
-    }
-
-    if (!file.isOpen()) file.setFileName("/dev/urandom");
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        // In case /dev/random is a dead fish.
-        if( !file.waitForReadyRead(100))
-            file.close();
-    }
-
-    if (!file.isOpen()) {
-        // FIXME: There should be some warning that cheap salt is being used.
-        //qDebug() << "Can't get good salt because /dev/random and /dev/urandom won't open.  Using rand() salt...";
-        return getCheapSalt();
-    }
-
-    QRegExp rx("([\\w+]|[\\s*&*%*\\$*#*!*=*¡*\\(*\\)*\\?*\\¿*\\[*\\]*\\{*\\}*\\/*])");
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    
+    QRegExp rx("[A-Za-z_0-9@#%&\\!\\$\\~\\^\\*]*"); 
     int cont=0;
     rx.setCaseSensitivity(Qt::CaseInsensitive);
       
     QTextStream in(&file);
     while (cont<5) {
-      QString data = in.readLine(1);
-      //std::cout << data.data();
-      if (!data.isNull()) {
-        if (data.contains(rx)) {
-          int pos = rx.indexIn(data);
-          //if (pos != -1) {
-            //the filtered chars
-            result+=data.at(pos);
-            cont++;
-          //}
+        QString data = in.readLine(1);
+        if (!data.isNull() && data.contains(rx) && rx.matchedLength() > 0) {
+            int pos = rx.indexIn(data);
+            if (pos > -1) {
+                result+=data.at(pos);
+                cont++;
+            }
         }
       }
     }
