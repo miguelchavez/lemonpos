@@ -348,12 +348,12 @@ void lemonView::setUpInputs()
 {
   //TODO: Tratar de poner un filtro con lugares llenos de ceros, e ir insertando los numeros.
   //For amount received.
-  QRegExp regexpA("[0-9]*[//.]{0,1}[0-9][0-9]*"); //Cualquier numero flotante (0.1, 100, 0, .10, 100.0, 12.23)
+  QRegExp regexpA("[0-9]*[//.]{0,1}[0-9]{0,5}"); //QRegExp regexpA("[0-9]*[//.]{0,1}[0-9][0-9]*"); //Cualquier numero flotante (0.1, 100, 0, .10, 100.0, 12.23)
   QRegExpValidator * validatorFloat = new QRegExpValidator(regexpA,this);
   ui_mainview.editAmount->setValidator(validatorFloat);
   //Item code (to insert) //
   //QRegExp regexpC("[0-9]+[0-9]*[//.]{0,1}[0-9]{0,2}[//*]{0,1}[0-9]*[A-Za-z_0-9\\\\/\\-]{0,30}"); // Instead of {0,13} fro EAN13, open for up to 30 chars.
-  QRegExp regexpC("[0-9]*[//.]{0,1}[0-9]{0,3}[//*]{0,1}[0-9]*[A-Za-z_0-9\\\\/\\-]{0,30}"); // Instead of {0,13} fro EAN13, open for up to 30 chars.
+  QRegExp regexpC("[0-9]*[//.]{0,1}[0-9]{0,5}[//*]{0,1}[0-9]*[A-Za-z_0-9\\\\/\\-]{0,30}"); // Instead of {0,13} fro EAN13, open for up to 30 chars.
   //NOTE: We remove the xX from the regexp for use as the separator between qtys and code. Only * can be used now, for Alphacode support
   QRegExpValidator * validatorEAN13 = new QRegExpValidator(regexpC, this);
   ui_mainview.editItemCode->setValidator(validatorEAN13);
@@ -1666,13 +1666,32 @@ void lemonView::finishCurrentTransaction()
   if (ui_mainview.editAmount->text().isEmpty()) ui_mainview.editAmount->setText("0.0");
   if (ui_mainview.checkCash->isChecked()) {
     double amnt = ui_mainview.editAmount->text().toDouble();
-    if (amnt <totalSum) {
+
+
+    ///NOTE:The bug that does not accept exact amount to pay, came in recent time. It was not present some time ago.
+    ///     Maybe it is due to some system|library software update (change).
+    double dif1 = amnt - totalSum;
+    double dif2 = totalSum - amnt;
+
+    //qDebug()<<"  dif1    :"<<QString::number(dif1,'f',64);
+    //qDebug()<<"  dif1    :"<<QString::number(dif2,'f',64);
+    qDebug()<<"  amnt    :"<<QString::number(amnt,'f',64);
+    qDebug()<<"  totalSum:"<<QString::number(totalSum,'f',64);
+
+    bool iguales = false;
+    if ( (dif1 < 0.000001) && (dif2 < 0.000001) ) {
+        iguales = true;//the difference is practically zero.
+    }
+
+    if (iguales)
+        canfinish = true;
+    else if ( amnt < totalSum ) {
       canfinish = false;
       ui_mainview.editAmount->setFocus();
       ui_mainview.editAmount->setStyleSheet("background-color: rgb(255,100,0); color:white; selection-color: white; font-weight:bold;");
       ui_mainview.editCardNumber->setStyleSheet("");
       ui_mainview.editAmount->setSelection(0, ui_mainview.editAmount->text().length());
-      msg = i18n("<html><font color=red><b>Please fill the correct pay amount before finishing a transaction.</b></font></html>");
+      msg = i18n("<html><font color=red><b>Please fill the correct payment amount before finishing a transaction.</b></font></html>");
       tipAmount->showTip(msg, 4000);
     } else if (ui_mainview.editAmount->text().length() >= 8 )  {
       if (ui_mainview.editAmount->text().contains(".00") || ui_mainview.editAmount->text().contains(",00"))
@@ -4654,7 +4673,7 @@ void lemonView::resumeReservation()
         //HERE the availability does not matter, the item is Physically Reserved.
         //FIXME: Consider the total amount when reserved, because product price could be changed.
         foreach(ProductInfo info, pList) {
-            QString qtyXcode = QString::number(info.qtyOnList) + "x" + QString::number(info.code);
+            QString qtyXcode = QString::number(info.qtyOnList) + "*" + QString::number(info.code);
             availabilityDoesNotMatters = true;
             insertItem(qtyXcode);
             availabilityDoesNotMatters = false;
