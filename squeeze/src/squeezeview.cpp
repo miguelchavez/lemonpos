@@ -2179,7 +2179,7 @@ void squeezeView::doPurchase()
       }
       //update items in transaction data
       tInfo.itemlist = items.join(";");
-      myDb->updateTransaction(tInfo))
+      myDb->updateTransaction(tInfo);
     }
   delete myDb;
   }
