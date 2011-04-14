@@ -2118,9 +2118,11 @@ void lemonView::finishCurrentTransaction()
 
     QString realSubtotal;
     if (Settings::addTax())
-      realSubtotal = KGlobal::locale()->formatMoney(subTotalSum-discMoney+soDiscounts+pDiscounts, QString(), 2);
+      //realSubtotal = KGlobal::locale()->formatMoney(subTotalSum-discMoney+soDiscounts+pDiscounts, QString(), 2);
+      realSubtotal = KGlobal::locale()->formatMoney(subTotalSum+discMoney+soDiscounts+pDiscounts, QString(), 2);
     else
       realSubtotal = KGlobal::locale()->formatMoney(subTotalSum-totalTax+discMoney+soDiscounts+pDiscounts, QString(), 2); //FIXME: es +discMoney o -discMoney??
+    qDebug()<<"\n >>>>>>>>> Real SUBTOTAL = "<<realSubtotal<<"  subTotalSum = "<<subTotalSum<<" ADDTAXES:"<<Settings::addTax()<<"  Disc:"<<discMoney;
     qDebug()<<"\n********** Total Taxes:"<<totalTax<<" total Discount:"<<discMoney<< " SO Discount:"<<soDiscounts<<" Prod Discounts:"<<pDiscounts;
     //Ticket
     ticket.number = currentTransaction;
@@ -2444,10 +2446,20 @@ void lemonView::printTicket(TicketInfo ticket)
 
       QPrinter printer;
       printer.setFullPage( true );
+      
+      //This is lost when the user chooses a printer. Because the printer overrides the paper sizes.
+      printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+      printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+      qDebug()<<"PAPER size = "<<printer.paperSize(QPrinter::Millimeter);
+      
       QPrintDialog printDialog( &printer );
       printDialog.setWindowTitle(i18n("Print Receipt"));
       if ( printDialog.exec() ) {
+	printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+	printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+	//TODO: Set Copies: printer.setCopyCount(2); //NOTE:Introduced in Qt 4.7 --WARNING-- See also setCollateCopies()
         PrintCUPS::printSmallTicket(ptInfo, printer);
+	qDebug()<<"PAPER size AFTER CALLING PRINT = "<<printer.paperSize(QPrinter::Millimeter);
       }
       delete myDb;
     }
@@ -3100,6 +3112,9 @@ void lemonView::corteDeCaja()
       QPrintDialog printDialog( &printer );
       printDialog.setWindowTitle(i18n("Print Balance"));
       if ( printDialog.exec() ) {
+	printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+	printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+	//TODO: Set Copies: printer.setCopyCount(2); //NOTE:Introduced in Qt 4.7 --WARNING-- See also setCollateCopies()
         PrintCUPS::printSmallBalance(pbInfo, printer);
       }
     }
