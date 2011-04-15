@@ -1898,7 +1898,10 @@ void lemonView::finishCurrentTransaction()
       tItemInfo.payment         = 0; //not used
       tItemInfo.completePayment = true;
       tItemInfo.isGroup = i.value().isAGroup;
-      tItemInfo.tax = i.value().totaltax*i.value().qtyOnList; //((i.value().tax + i.value().extratax)/100)*tItemInfo.total;
+      tItemInfo.tax = (i.value().tax + i.value().extratax); //tax percentage (15 == 15%), as it was originally planed.
+      //NOTE: Apr 14 2011: I decided to print the tax % in product iteration in tickets. Instead of the money.
+      //                   This way, i dont need to fix the tax money amount if the item has discounts or the sale has a client/ocassional discount.
+      //tItemInfo.tax = i.value().totaltax*i.value().qtyOnList; //((i.value().tax + i.value().extratax)/100)*tItemInfo.total;
 
       myDb->insertTransactionItem(tItemInfo);
 
@@ -2383,6 +2386,8 @@ void lemonView::printTicket(TicketInfo ticket)
     else if (Settings::smallTicketCUPS() ) { // some code inspired on Daniel O'Neill code.
       qDebug()<<"Printing small receipt using CUPS";
       PrintTicketInfo ptInfo;
+      //NOTE: Apr 14 2011: If we print to a dot-matrix printer using CUPS, then we need to REMOVE PIXMAPS because they will print pages of strange characters.
+      //FIXME: We need an extra option in config for this (using cups for dot-matrix printers)
       QPixmap logoPixmap;
       logoPixmap.load(Settings::storeLogo());
 
@@ -2919,7 +2924,6 @@ void lemonView::corteDeCaja()
     QString dHour;
     QString dMinute;
     QString dPaidWith;
-    QString dPayMethod;
 
     PrintBalanceInfo pbInfo;
 
@@ -2975,6 +2979,7 @@ void lemonView::corteDeCaja()
     pbInfo.thCFType    = i18n("Type");
     pbInfo.thCFReason  = i18n("Reason");
     pbInfo.thCFDate    = i18n("Time");
+    pbInfo.notCashNote = i18n("This payment was not paid in cash.");
 
 
   //TODO: Hacer el dialogo de balance mejor, con un look uniforme a los demas dialogos.
@@ -3037,11 +3042,12 @@ void lemonView::corteDeCaja()
       qulonglong idNum = transactionsByUser.at(i);
       TransactionInfo info;
       info = myDb->getTransactionInfo(idNum);
+      QString dPayMethod;
 
       //check if its completed and not cancelled
       if (info.state != tCompleted) {
         qDebug()<<"Excluding from balance a transaction marked as state:"<<info.state;
-        continue; //FOR PURIST i will replace this continue statement when i have enough time.
+        continue;
       }
 
       dId       = QString::number(info.id);
@@ -3061,9 +3067,12 @@ void lemonView::corteDeCaja()
       while ((dHour+dMinute).length()<6) dMinute = dMinute.insert(dMinute.length(), ' ');
       while (dPaidWith.length()<10) dPaidWith = dPaidWith.insert(dPaidWith.length(), ' ');
 
-      //if (info.paymethod == pCash) dPayMethod = i18n("Cash");/*dPaidWith;*/
-      dPayMethod = myDb->getPayTypeStr(info.paymethod);//using payType methods
-      //else if (info.paymethod == pCard) dPayMethod = i18n("Card");  else dPayMethod = i18n("Unknown");
+
+      //NOTE: Apr 14 2011: We want to save space on the tickets (receipt printers) and for this we will remove the 'CASH'
+      //                   and other strings like that. Instead we will use an asterisk to indicate when a payment is not made in CASH.
+      if (info.paymethod != pCash)
+          dPayMethod = " **";
+      //dPayMethod = myDb->getPayTypeStr(info.paymethod);//using payType methods
       line = QString("%1 %2 %3")
         .arg(dId)
         //.arg(dHour)
@@ -3093,7 +3102,12 @@ void lemonView::corteDeCaja()
         QString amountF = KGlobal::locale()->formatMoney(cfInfo.amount);
         //QDateTime dateTime; dateTime.setDate(cfInfo.date); dateTime.setTime(cfInfo.time);
         QString dateF   = KGlobal::locale()->formatTime(cfInfo.time);
-        QString data = QString::number(cfInfo.id) + "|" + cfInfo.typeStr + "|" + cfInfo.reason + "|" + amountF + "|" + dateF;
+        QString typeSign; /*cfInfo.typeStr*/
+        if (cfInfo.type == ctCashIn || cfInfo.type == ctCashInReservation )
+            typeSign = "+";
+        else //TODO: IN THE FUTURE REVIEW THIS CODE, IF ADDING MORE CASH IN/OUT CASES.
+            typeSign = "-";
+        QString data = QString::number(cfInfo.id) + "|" + typeSign + "|" + cfInfo.reason + "|" + amountF + "|" + dateF;
         cfList.append(data);
     }
     pbInfo.cfList = cfList;

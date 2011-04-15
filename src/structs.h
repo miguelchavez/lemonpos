@@ -176,6 +176,7 @@ struct PrintBalanceInfo
   QStringList trList;
   QStringList cfList;
   QString     reservationNote;
+  QString     notCashNote;
 };
 
 struct pieProdInfo
