@@ -1981,10 +1981,12 @@ void lemonView::finishCurrentTransaction()
         tItemInfo.disc            = siInfo.disc * siInfo.price * siInfo.qty; //this is the total discount
         soDiscounts              += tItemInfo.disc;
         double disc2              = siInfo.disc * siInfo.payment * siInfo.qty; //this is the discount on the prepayment
-        //double taxPercentage      = (myDb->getSpecialOrderAverageTax(siInfo.orderid)/100);
+        double taxPercentage      = (myDb->getSpecialOrderAverageTax(siInfo.orderid));
         double taxmoney           = myDb->getSpecialOrderAverageTax(siInfo.orderid, rtMoney)*siInfo.qty; // tax per qty (still needs to be multiplied by qty)
         tItemInfo.total           = (siInfo.price*siInfo.qty)-tItemInfo.disc;
-        tItemInfo.tax             = taxmoney; 
+        //NOTE: Apr 14 2011: I decided to print the tax % in product iteration in tickets. Instead of the money.
+        //                   This way, i dont need to fix the tax money amount if the item has discounts or the sale has a client/ocassional discount.
+        tItemInfo.tax             = taxPercentage; //taxmoney;
         tItemInfo.name            = siInfo.name;
         tItemInfo.soId            = "so."+QString::number(siInfo.orderid);
         double sumTax =0;

@@ -514,8 +514,6 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
   if  (ptInfo.totDisc <= 0) columnDisc = columnTotal - Margin;
   int columnQty  = columnDisc  - Margin - (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, textQty).width());
 
-  qDebug()<<" QTY: "<<columnQty<<" DISC: "<<columnDisc<<" TOTAL: "<<columnTotal<<" TAX:"<<columnTax<<"  MARGIN:"<<Margin;
-  
   //Printing Product
   painter.drawText(Margin,Margin+yPos, ptInfo.thProduct);
   //Printing Qty x Price
