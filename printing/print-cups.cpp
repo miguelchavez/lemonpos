@@ -1245,8 +1245,13 @@ bool PrintCUPS::printBigEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &prin
 bool PrintCUPS::printSmallEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &printer)
 {
   bool result = false;
-  QFont header = QFont("Impact", 38);
-  const int Margin = 20;
+  // calculate font size
+  const int headerSize = printer.width()/16; //divisor found by trying, maybe has to do with font metrics?
+  const int textSize = headerSize/2; //i think the half of header size is ok
+  qDebug()<<"Paper Width: "<<printer.widthMM()<<"mm"<<"; Page Width: "<<printer.width()<<"; calculated headerSize: "<<headerSize;
+  
+  QFont header = QFont("Impact", headerSize);
+  const int Margin = printer.width()/40;
   int yPos        = 0;
   QPainter painter;
   painter.begin( &printer );
@@ -1254,10 +1259,11 @@ bool PrintCUPS::printSmallEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &pr
   
   //NOTE from Qt for the drawText: The y-position is used as the baseline of the font
   
-  QFont tmpFont = QFont("Bitstream Vera Sans", 18);
+  QFont tmpFont = QFont("Bitstream Vera Sans", textSize);
   QPen normalPen = painter.pen();
   QString text;
   QSize textWidth;
+
   if (pdInfo.logoOnTop) {
     // Store Logo
     painter.drawPixmap(printer.width()/2 - (pdInfo.storeLogo.width()/2), Margin, pdInfo.storeLogo);
@@ -1267,90 +1273,87 @@ bool PrintCUPS::printSmallEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &pr
     text = pdInfo.storeName;
     fm = painter.fontMetrics();
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-    painter.drawText((printer.width()/2)-(textWidth.width()/2),yPos+Margin+textWidth.height(), text);
-    yPos = yPos + textWidth.height()+5;
-    tmpFont = QFont("Bitstream Vera Sans", 18);
+    yPos = yPos + Margin + textWidth.height();
+    painter.drawText((printer.width()/2)-(textWidth.width()/2),yPos, text);
+    tmpFont = QFont("Bitstream Vera Sans", textSize);
     tmpFont.setItalic(true);
     painter.setFont(tmpFont);
-    painter.setPen(Qt::darkGray);
-    text = pdInfo.storeAddr;
     fm = painter.fontMetrics();
+    text = pdInfo.storeAddr;
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-    painter.drawText((printer.width()/2)-(textWidth.width()/2),yPos+Margin+textWidth.height(), text);
-    yPos = yPos + textWidth.height()+20;
+    yPos = yPos + fm.lineSpacing();
+    painter.drawText((printer.width()/2)-(textWidth.width()/2), yPos, text);
+    yPos = yPos + fm.lineSpacing()*2;
   }
   else {
     // Store Logo
-    painter.drawPixmap(printer.width() - pdInfo.storeLogo.width() - Margin, Margin+20, pdInfo.storeLogo);
+    painter.drawPixmap(printer.width() - pdInfo.storeLogo.width() - Margin, Margin*1.75, pdInfo.storeLogo);
     // Store Name
     painter.setFont(header);
     text = pdInfo.storeName;
     fm = painter.fontMetrics();
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
     painter.drawText(Margin,Margin+textWidth.height(), text);
-    yPos = yPos + textWidth.height()+5;
-    tmpFont = QFont("Bitstream Vera Sans", 18);
+    // Store Address
+    tmpFont = QFont("Bitstream Vera Sans", textSize);
     tmpFont.setItalic(true);
     painter.setFont(tmpFont);
-    painter.setPen(Qt::darkGray);
-    text = pdInfo.storeAddr;
     fm = painter.fontMetrics();
+    yPos = yPos + fm.lineSpacing()+(Margin*0.75);
+    text = pdInfo.storeAddr;
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-    painter.drawText(Margin,yPos+Margin+textWidth.height(), text);
-    yPos = yPos + fm.lineSpacing()+20;
+    painter.setPen(Qt::darkGray);
+    painter.drawText(Margin, yPos, text);
+    yPos = yPos + fm.lineSpacing()*2;
   }
+
+  //FIXME: Check for logo printing!!!! if no logo, text is missplaced...
+  if (pdInfo.storeLogo.isNull())
+      yPos = yPos + Margin + fm.lineSpacing();
   
-  // Header line
-  painter.setPen(QPen(Qt::gray, 5, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
-  painter.drawLine(Margin, Margin+yPos, printer.width()-Margin, Margin+yPos);
-  tmpFont = QFont("Bitstream Vera Sans", 22);
-  tmpFont.setItalic(true);
-  painter.setFont(tmpFont);
+  painter.setFont(header);
   fm = painter.fontMetrics();
   //title
   text = pdInfo.thTitle;
   textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-  painter.drawText((printer.width()/2)-(textWidth.width()/2), Margin + yPos  +textWidth.height()+15, text);
-  yPos = yPos + 2*fm.lineSpacing();
+  painter.drawText((printer.width()/2)-(textWidth.width()/2), yPos, text);
   //Date
-  tmpFont = QFont("Bitstream Vera Sans", 18);
   painter.setFont(tmpFont);
   painter.setPen(normalPen);
   fm = painter.fontMetrics();
-  yPos = yPos + fm.lineSpacing();
+  yPos = yPos + 2*fm.lineSpacing();
   text = pdInfo.thDate;
   textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-  painter.drawText((printer.width()/2)-(textWidth.width()/2), Margin + yPos +textWidth.height(), text);
+  painter.drawText((printer.width()/2)-(textWidth.width()/2), yPos, text);
   yPos = yPos + fm.lineSpacing();
   text = pdInfo.salesPerson +" "+ pdInfo.terminal;
   textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-  painter.drawText((printer.width()/2)-(textWidth.width()/2), Margin + yPos +textWidth.height(), text);
-  yPos = yPos + 2*fm.lineSpacing();
-  
+  painter.drawText((printer.width()/2)-(textWidth.width()/2), yPos, text);
+  yPos = yPos + fm.lineSpacing()*2;
+
+  int tmpOffset = (printer.width()/5);
   // Transaction Headers
-  tmpFont = QFont("Bitstream Vera Sans", 16);
-  painter.setPen(QPen(Qt::blue, 5, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
   tmpFont.setBold(true);
   painter.setFont(tmpFont);
   fm = painter.fontMetrics();
   text = pdInfo.thTicket;
   textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-  painter.drawText(Margin+30, Margin + yPos +textWidth.height(), text);
+  painter.drawText(Margin, yPos, text);
   text = pdInfo.thTime;
   textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-  painter.drawText(Margin+130, Margin + yPos +textWidth.height(), text); 
+  painter.drawText(tmpOffset, yPos, text);
   text = pdInfo.thAmount;
   textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-  painter.drawText(Margin+220, Margin + yPos +textWidth.height(), text);
+  painter.drawText((tmpOffset*2)-Margin*2, yPos, text);
   text = pdInfo.thProfit;
   textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-  painter.drawText(Margin+450, Margin + yPos +textWidth.height(), text);
-  text = pdInfo.thPayMethod;
-  textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-  painter.drawText(printer.width()-textWidth.width()-Margin, Margin + yPos +textWidth.height(), text);
-  yPos = yPos + 2*fm.lineSpacing();
+  painter.drawText((tmpOffset*3), yPos, text);
+  //text = pdInfo.thPayMethod;
+  //textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+  //painter.drawText(tmpOffset*4, yPos, text);//printer.width()-textWidth.width()-Margin, Margin + yPos +textWidth.height(), text);
+  yPos = yPos + fm.lineSpacing();
   painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
-  painter.drawLine(Margin, Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
+  painter.drawLine(Margin, yPos, printer.width()-Margin, yPos);
   painter.setPen(normalPen);
   
   //TRANSACTION DETAILS
@@ -1366,44 +1369,46 @@ bool PrintCUPS::printSmallEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &pr
     //we have 5 fields in the string [ORDER] ID, HOUR, AMOUNT, PROFIT, PAYMETHOD
     text = data.at(0); // ID
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-    painter.drawText(Margin+10, Margin + yPos +textWidth.height(), text);
+    painter.drawText(Margin, yPos, text);
     text = data.at(1); // HOUR
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-    painter.drawText(Margin+130, Margin + yPos +textWidth.height(), text);
+    painter.drawText(tmpOffset, yPos, text);
     text = data.at(2); // AMOUNT
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-    painter.drawText(Margin+220, Margin + yPos +textWidth.height(), text);
+    painter.drawText((tmpOffset*2)-Margin*2, yPos, text);
     text = data.at(3); // PROFIT
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-    painter.drawText(Margin+450, Margin + yPos +textWidth.height(), text);
+    painter.drawText(tmpOffset*3, yPos, text);
     text = data.at(4); // PAYMENT METHOD
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
-    painter.drawText(printer.width()-textWidth.width()-Margin, Margin + yPos +textWidth.height(), text);
+    painter.drawText(printer.width()-Margin-textWidth.width(), yPos, text);
     yPos = yPos + fm.lineSpacing();
   }
   
   yPos = yPos + fm.lineSpacing();
-  painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
-  painter.drawLine(Margin, Margin + yPos - 8, printer.width()-Margin, Margin + yPos - 8);
+  painter.drawLine(Margin, yPos, printer.width()-Margin, yPos);
 
 
   //TOTALS
   tmpFont.setBold(true);
   tmpFont.setItalic(true);
   painter.setFont(tmpFont);
-  painter.setPen(QPen(Qt::black, 5, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
   yPos = yPos + fm.lineSpacing();
   text = QString::number(pdInfo.trLines.count()); //transaction count
-  painter.drawText(Margin+10, Margin + yPos , text);
+  painter.drawText(Margin, yPos , text);
   text = pdInfo.thTotalSales; // sales
-  painter.drawText(Margin+210, Margin + yPos , text);
+  painter.drawText((tmpOffset*2)-Margin*2, yPos , text);
   text = pdInfo.thTotalProfit; // profit
-  painter.drawText(Margin+440, Margin + yPos , text);
+  painter.drawText(tmpOffset*3, yPos , text);
 
   //print taxes for all sales
   yPos = yPos + fm.lineSpacing()*2;
-  text = pdInfo.thTotalTaxes; 
-  painter.drawText(Margin, Margin + yPos , text);
+  QStringList tL = pdInfo.thTotalTaxes.split(':');
+  text = tL.first();
+  painter.drawText(Margin, yPos , text);
+  yPos = yPos + fm.lineSpacing();
+  text = tL.last();
+  painter.drawText(Margin, yPos , text);
 
   result = painter.end();
   return result;

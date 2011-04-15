@@ -37,13 +37,13 @@ class PrintCUPS {
     static bool printSmallBalance(const PrintBalanceInfo &pbInfo, QPrinter &printer); //NOTE Apr 14 2011: Fixed page/font size.
     static bool printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printer);//NOTE Apr 14 2011: Fixed page/font size.
     static bool printBigTicket(const PrintTicketInfo &ptInfo, QPrinter &printer);
-    static bool printSmallEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &printer);
+    static bool printSmallEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &printer);//NOTE Apr 14 2011: Fixed page/font size.
     static bool printBigEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &printer);
 
     static bool printSmallLowStockReport(const PrintLowStockInfo &plInfo, QPrinter &printer);
     static bool printBigLowStockReport(const PrintLowStockInfo &plInfo, QPrinter &printer);
 
-    static bool printSmallSOTicket(const PrintTicketInfo &ptInfo, QPrinter &printer);
+    static bool printSmallSOTicket(const PrintTicketInfo &ptInfo, QPrinter &printer); //NOTE Apr 14 2011: Fixed page/font size.
 
     //static bool printSmallReservationTicket(const PrintTicketInfo &ptInfo, QPrinter &printer); //NOTE:WHAT ABOUT THIS!
 };
