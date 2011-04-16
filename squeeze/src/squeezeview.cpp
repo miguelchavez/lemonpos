@@ -3094,7 +3094,7 @@ void squeezeView::printEndOfMonth()
     QString hour     = info.time.toString("hh:mm");
     QString amount   = localeForPrinting.toString(info.amount,'f',2);
     QString profit   = localeForPrinting.toString(info.utility, 'f', 2);
-    QString payMethod= KGlobal::locale()->formatDate(info.date, KLocale::ShortDate); //date instead of paymethod
+    QString payMethod=  info.date.toString("MMM d"); //KGlobal::locale()->formatDate(info.date, KLocale::ShortDate); //date instead of paymethod
     
     QString line     = tid +"|"+ hour +"|"+ amount +"|"+ profit +"|"+ payMethod;
     pdInfo.trLines.append(line);

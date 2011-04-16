@@ -27,7 +27,7 @@
 * Accessing them trough cups.
 *
 * @author Miguel Chavez Gamboa <miguel@lemonpos.org>
-* @version 0.1
+* @version 0.2
 */
 
 class QString;
