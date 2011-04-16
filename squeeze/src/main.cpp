@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
     about.addCredit(ki18n("Roberto Aceves"), ki18n("Many ideas and general help"));
     about.addCredit(ki18n("Biel Frontera"), ki18n("Code contributor"));
-    about.addCredit(ki18n("Vitali Kary"), ki18n("Code contributor"));
+    about.addCredit(ki18n("Vitali Kari"), ki18n("Code contributor"));
     about.addCredit(ki18n("Jose Nivar"), ki18n("Many ideas, bug reports and testing"));
     about.addCredit(ki18n("Benjamin Burt"), ki18n("Many ideas, Documentation Writer, How-to Videos Creation, and general help and support"));
 
