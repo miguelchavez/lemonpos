@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?"
 "atid=1011570&group_id=209899&func=browse\n"
-"POT-Creation-Date: 2011-01-26 12:27-0600\n"
+"POT-Creation-Date: 2011-04-16 12:05-0500\n"
 "PO-Revision-Date: 2007-12-21 13:10-0600\n"
 "Last-Translator: Miguel Chavez Gamboa <miguel@lemonpos.org>\n"
 "Language-Team: Español <es@lemonpos.org>\n"
@@ -71,19 +71,34 @@ msgstr "Muchas ideas y ayuda en general"
 msgid "Biel Frontera"
 msgstr ""
 
-#: main.cpp:41
+#: main.cpp:41 main.cpp:42
 msgid "Code contributor"
 msgstr "Contribuidor de Código"
 
 #: main.cpp:42
+msgid "Vitali Kari"
+msgstr ""
+
+#: main.cpp:43
 msgid "Jose Nivar"
 msgstr ""
 
-#: main.cpp:42
-msgid "Many ideas, bug reports"
+#: main.cpp:43
+#, fuzzy
+msgid "Many ideas, bug reports and testing"
 msgstr "Muchas ideas y reporte de errores"
 
-#: main.cpp:45
+#: main.cpp:44
+msgid "Benjamin Burt"
+msgstr ""
+
+#: main.cpp:44
+msgid ""
+"Many ideas, Documentation Writer, How-to Videos Creation, and general help "
+"and support"
+msgstr ""
+
+#: main.cpp:47
 msgid "Document to open"
 msgstr ""
 
@@ -387,7 +402,7 @@ msgstr "Rol del usuario"
 #. i18n: file: ui/edituser_widget.ui:165
 #. i18n: ectx: property (text), widget (QRadioButton, chRoleBasic)
 #: po/extractedrc.cpp:99 squeezeview.cpp:1319 squeezeview.cpp:1499
-#: squeezeview.cpp:2718 extractedrc.cpp:99
+#: squeezeview.cpp:2727 extractedrc.cpp:99
 msgid "Vendor"
 msgstr "Vendedor"
 
@@ -1119,8 +1134,8 @@ msgstr "Cantidad"
 #. i18n: file: ui/purchaseeditor.ui:1643
 #. i18n: ectx: property (text), widget (QTableWidget, tableView)
 #: po/extractedrc.cpp:290 po/extractedrc.cpp:424 po/extractedrc.cpp:592
-#: squeezeview.cpp:1191 squeezeview.cpp:1216 squeezeview.cpp:3149
-#: squeezeview.cpp:3212 squeezeview.cpp:3274 extractedrc.cpp:290
+#: squeezeview.cpp:1191 squeezeview.cpp:1216 squeezeview.cpp:3158
+#: squeezeview.cpp:3221 squeezeview.cpp:3283 extractedrc.cpp:290
 #: extractedrc.cpp:424 extractedrc.cpp:592
 msgid "Description"
 msgstr "Descripción"
@@ -1230,7 +1245,7 @@ msgstr "Agregar seleccionado"
 
 #. i18n: file: ui/providerseditor.ui:137
 #. i18n: ectx: property (text), widget (QPushButton, btnCancelAttach)
-#: po/extractedrc.cpp:481 ../../src/inputdialog.cpp:173 extractedrc.cpp:481
+#: po/extractedrc.cpp:481 ../../src/inputdialog.cpp:175 extractedrc.cpp:481
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -1377,8 +1392,8 @@ msgstr "Artículos en ésta compra:"
 
 #. i18n: file: ui/purchaseeditor.ui:1638
 #. i18n: ectx: property (text), widget (QTableWidget, tableView)
-#: po/extractedrc.cpp:589 squeezeview.cpp:1036 squeezeview.cpp:3148
-#: squeezeview.cpp:3211 squeezeview.cpp:3273 extractedrc.cpp:589
+#: po/extractedrc.cpp:589 squeezeview.cpp:1036 squeezeview.cpp:3157
+#: squeezeview.cpp:3220 squeezeview.cpp:3282 extractedrc.cpp:589
 msgid "Code"
 msgstr "Código"
 
@@ -1426,8 +1441,8 @@ msgstr "Ventas"
 
 #. i18n: file: ui/squeezeview_base.ui:163
 #. i18n: ectx: property (text), widget (QLabel, lblGraphProfit)
-#: po/extractedrc.cpp:625 squeezeview.cpp:1326 squeezeview.cpp:2856
-#: squeezeview.cpp:2971 squeezeview.cpp:3064 extractedrc.cpp:625
+#: po/extractedrc.cpp:625 squeezeview.cpp:1326 squeezeview.cpp:2865
+#: squeezeview.cpp:2980 squeezeview.cpp:3073 extractedrc.cpp:625
 msgid "Profit"
 msgstr "Utilidades"
 
@@ -1990,7 +2005,7 @@ msgstr "Cantidad en inventario:"
 msgid "Gross Profit: %1% (%2)"
 msgstr "Utilidades totales: %1"
 
-#: producteditor.cpp:378 squeezeview.cpp:2187
+#: producteditor.cpp:378 squeezeview.cpp:2196
 msgid ""
 "Enter the quantity and reason for the change, then press <ENTER> to accept, "
 "<ESC> to cancel"
@@ -2134,7 +2149,7 @@ msgstr "Fin del Día General"
 msgid "End of Month"
 msgstr "Fin de Mes"
 
-#: squeezeview.cpp:136 squeezeview.cpp:3272
+#: squeezeview.cpp:136 squeezeview.cpp:3281
 msgid "Sold Out Products"
 msgstr "Productos agotados"
 
@@ -2184,7 +2199,7 @@ msgstr "Ventas del mes (%1)"
 msgid "Month Profit (%1)"
 msgstr "Utilidades del mes (%1)"
 
-#: squeezeview.cpp:662 squeezeview.cpp:1042 squeezeview.cpp:3276
+#: squeezeview.cpp:662 squeezeview.cpp:1042 squeezeview.cpp:3285
 msgid "Sold Units"
 msgstr "Unidades vendidas"
 
@@ -2224,7 +2239,7 @@ msgstr "Precio"
 msgid "Cost"
 msgstr "Costo"
 
-#: squeezeview.cpp:1041 squeezeview.cpp:3275
+#: squeezeview.cpp:1041 squeezeview.cpp:3284
 msgid "Stock Qty"
 msgstr "Cantidad en inventario"
 
@@ -2241,8 +2256,8 @@ msgid "Alpha Code"
 msgstr "Código alfanumérico"
 
 #: squeezeview.cpp:1159 squeezeview.cpp:1309 squeezeview.cpp:1497
-#: squeezeview.cpp:2715 squeezeview.cpp:2850 squeezeview.cpp:2965
-#: squeezeview.cpp:3058 squeezeview.cpp:3351 squeezeview.cpp:3388
+#: squeezeview.cpp:2724 squeezeview.cpp:2859 squeezeview.cpp:2974
+#: squeezeview.cpp:3067 squeezeview.cpp:3360 squeezeview.cpp:3397
 msgid "Id"
 msgstr "Id"
 
@@ -2266,25 +2281,25 @@ msgstr "Válido hasta"
 msgid "Client"
 msgstr "Cliente"
 
-#: squeezeview.cpp:1311 squeezeview.cpp:2716 squeezeview.cpp:3365
+#: squeezeview.cpp:1311 squeezeview.cpp:2725 squeezeview.cpp:3374
 msgid "Type"
 msgstr "Tipo"
 
-#: squeezeview.cpp:1312 squeezeview.cpp:2721 squeezeview.cpp:2855
-#: squeezeview.cpp:2970 squeezeview.cpp:3063 squeezeview.cpp:3353
-#: squeezeview.cpp:3388
+#: squeezeview.cpp:1312 squeezeview.cpp:2730 squeezeview.cpp:2864
+#: squeezeview.cpp:2979 squeezeview.cpp:3072 squeezeview.cpp:3362
+#: squeezeview.cpp:3397
 msgid "Amount"
 msgstr "Cantidad"
 
 #: squeezeview.cpp:1313 squeezeview.cpp:1498 squeezeview.cpp:1610
-#: squeezeview.cpp:1695 squeezeview.cpp:2717 squeezeview.cpp:3065
-#: squeezeview.cpp:3509
+#: squeezeview.cpp:1695 squeezeview.cpp:2726 squeezeview.cpp:3074
+#: squeezeview.cpp:3518
 msgid "Date"
 msgstr "Fecha"
 
-#: squeezeview.cpp:1314 squeezeview.cpp:2719 squeezeview.cpp:2854
-#: squeezeview.cpp:2969 squeezeview.cpp:3062 squeezeview.cpp:3352
-#: squeezeview.cpp:3367 squeezeview.cpp:3510
+#: squeezeview.cpp:1314 squeezeview.cpp:2728 squeezeview.cpp:2863
+#: squeezeview.cpp:2978 squeezeview.cpp:3071 squeezeview.cpp:3361
+#: squeezeview.cpp:3376 squeezeview.cpp:3519
 msgid "Time"
 msgstr "Hora"
 
@@ -2340,11 +2355,11 @@ msgstr "Proveedor"
 msgid "Initial amount"
 msgstr "Cantidad inicial"
 
-#: squeezeview.cpp:1501 squeezeview.cpp:3347 squeezeview.cpp:3379
+#: squeezeview.cpp:1501 squeezeview.cpp:3356 squeezeview.cpp:3388
 msgid "In"
 msgstr "Entrada"
 
-#: squeezeview.cpp:1502 squeezeview.cpp:3348 squeezeview.cpp:3381
+#: squeezeview.cpp:1502 squeezeview.cpp:3357 squeezeview.cpp:3390
 msgid "Out"
 msgstr "Salida"
 
@@ -2408,15 +2423,15 @@ msgstr "En total"
 msgid "Settings changed"
 msgstr "Configuración cambiada"
 
-#: squeezeview.cpp:2156 squeezeview.cpp:2409
+#: squeezeview.cpp:2165 squeezeview.cpp:2418
 msgid "Purchase #%4 - %1 x %2 (%3)"
 msgstr ""
 
-#: squeezeview.cpp:2164
+#: squeezeview.cpp:2173
 msgid "Purchase #%4 - [new] - %1 x %2 (%3)"
 msgstr ""
 
-#: squeezeview.cpp:2205
+#: squeezeview.cpp:2214
 msgid ""
 "The desired product is a group and its stock cannot be modified, try "
 "modifying each of its contents."
@@ -2424,168 +2439,168 @@ msgstr ""
 "El producto deseado es un grupo y su inventario no puede ser modificado."
 "Intente modificando cada uno de sus elementos."
 
-#: squeezeview.cpp:2205
+#: squeezeview.cpp:2214
 msgid "Cannot modify stock"
 msgstr "No se puede modificar el inventario"
 
-#: squeezeview.cpp:2223
+#: squeezeview.cpp:2232
 #, fuzzy
 msgid "Stock Correction: [Product %1] from %2 to %3. Reason:%4"
 msgstr "Correción de Inventario: [%1] de %2 a %3. Razón:%4"
 
-#: squeezeview.cpp:2428
+#: squeezeview.cpp:2437
 msgid "New Weight or Measure"
 msgstr "Nuevo Peso o medida"
 
-#: squeezeview.cpp:2428
+#: squeezeview.cpp:2437
 msgid "Enter the new weight or measure to insert:"
 msgstr "Escriba el nuevo peso o medida a insertar:"
 
-#: squeezeview.cpp:2445
+#: squeezeview.cpp:2454
 msgid "New category"
 msgstr "Nueva categoría"
 
-#: squeezeview.cpp:2445
+#: squeezeview.cpp:2454
 msgid "Enter the new category to insert:"
 msgstr "Escriba la nueva categoría a insertar:"
 
-#: squeezeview.cpp:2507
+#: squeezeview.cpp:2516
 msgid "Please select a client to delete, then press the delete button again."
 msgstr ""
 "Por favor seleccione un cliente a borrar y presione el boton \"borrar\""
 
-#: squeezeview.cpp:2507 squeezeview.cpp:2527 squeezeview.cpp:2538
-#: squeezeview.cpp:2561 squeezeview.cpp:2573 squeezeview.cpp:2606
-#: squeezeview.cpp:2634 squeezeview.cpp:2654 squeezeview.cpp:2666
-#: squeezeview.cpp:2687 squeezeview.cpp:3594 squeezeview.cpp:3613
+#: squeezeview.cpp:2516 squeezeview.cpp:2536 squeezeview.cpp:2547
+#: squeezeview.cpp:2570 squeezeview.cpp:2582 squeezeview.cpp:2615
+#: squeezeview.cpp:2643 squeezeview.cpp:2663 squeezeview.cpp:2675
+#: squeezeview.cpp:2696 squeezeview.cpp:3603 squeezeview.cpp:3622
 msgid "Cannot delete"
 msgstr "No se puede borrar"
 
-#: squeezeview.cpp:2513
+#: squeezeview.cpp:2522
 msgid "Do you really want to delete the client named %1?"
 msgstr "¿Realmente desea borrar el cliente llamado %1?"
 
-#: squeezeview.cpp:2514 squeezeview.cpp:2547 squeezeview.cpp:2578
-#: squeezeview.cpp:2610 squeezeview.cpp:2643 squeezeview.cpp:2675
-#: squeezeview.cpp:3603
+#: squeezeview.cpp:2523 squeezeview.cpp:2556 squeezeview.cpp:2587
+#: squeezeview.cpp:2619 squeezeview.cpp:2652 squeezeview.cpp:2684
+#: squeezeview.cpp:3612
 msgid "Delete"
 msgstr "Borrado"
 
-#: squeezeview.cpp:2527
+#: squeezeview.cpp:2536
 msgid "Default client cannot be deleted."
 msgstr "El cliente principal (Público) no puede ser borrado."
 
-#: squeezeview.cpp:2538
+#: squeezeview.cpp:2547
 msgid "Please select a user to delete, then press the delete button again."
 msgstr ""
 "Por favor seleccione un usuario a borrar y presione el boton \"borrar\""
 
-#: squeezeview.cpp:2546
+#: squeezeview.cpp:2555
 msgid "Do you really want to delete the user named %1?"
 msgstr "¿Realmente desea borrar el usuario llamado %1?"
 
-#: squeezeview.cpp:2561
+#: squeezeview.cpp:2570
 msgid "Admin user cannot be deleted."
 msgstr "El Administrador no puede ser borrado."
 
-#: squeezeview.cpp:2573
+#: squeezeview.cpp:2582
 msgid "Please select an offer to delete, then press the delete button again."
 msgstr ""
 "Por favor seleccione una oferta a borrar y presione el boton \"borrar\""
 
-#: squeezeview.cpp:2577
+#: squeezeview.cpp:2586
 msgid "Do you really want to delete the selected discount?"
 msgstr "¿Realmente desea borrar la oferta seleccionada?"
 
-#: squeezeview.cpp:2606
+#: squeezeview.cpp:2615
 msgid "Please select a product to delete, then press the delete button."
 msgstr ""
 "Por favor seleccione un producto a borrar y presione el boton \"borrar\""
 
-#: squeezeview.cpp:2609
+#: squeezeview.cpp:2618
 msgid "Do you really want to delete the selected product?"
 msgstr "¿Realmente desea borrar el producto seleccionado?"
 
-#: squeezeview.cpp:2634 squeezeview.cpp:3594
+#: squeezeview.cpp:2643 squeezeview.cpp:3603
 msgid "Please select a row to delete, then press the delete button again."
 msgstr ""
 "Por favor seleccione un renglón a borrar y presione el boton \"borrar\""
 
-#: squeezeview.cpp:2642
+#: squeezeview.cpp:2651
 msgid "Do you really want to delete the measure '%1'?"
 msgstr "¿Realmente desea borrar la medida  '%1'?"
 
-#: squeezeview.cpp:2654
+#: squeezeview.cpp:2663
 msgid "Default measure cannot be deleted."
 msgstr "La medida principal (pieza) no puede ser borrada."
 
-#: squeezeview.cpp:2666
+#: squeezeview.cpp:2675
 msgid "Please select a category to delete, then press the delete button again."
 msgstr ""
 "Por favor seleccione una categoría a borrar y presione el boton \"borrar\""
 
-#: squeezeview.cpp:2674
+#: squeezeview.cpp:2683
 msgid "Do you really want to delete the category '%1'?"
 msgstr "¿Realmente desea borrar la categoría '%1'?"
 
-#: squeezeview.cpp:2687
+#: squeezeview.cpp:2696
 msgid "Default category cannot be deleted."
 msgstr "La categoría principal no puede ser borrada."
 
-#: squeezeview.cpp:2720 squeezeview.cpp:3366
+#: squeezeview.cpp:2729 squeezeview.cpp:3375
 msgid "Reason"
 msgstr "Razón"
 
-#: squeezeview.cpp:2722
+#: squeezeview.cpp:2731
 msgid "Terminal Num."
 msgstr "# de terminal"
 
-#: squeezeview.cpp:2765
+#: squeezeview.cpp:2774
 msgid "Save As"
 msgstr "Guardar como"
 
-#: squeezeview.cpp:2765
+#: squeezeview.cpp:2774
 msgid "CSV files (*.csv)"
 msgstr "Archivos CSV (*.csv)"
 
-#: squeezeview.cpp:2779
+#: squeezeview.cpp:2788
 msgid "Exporting data..."
 msgstr "Exportando datos..."
 
-#: squeezeview.cpp:2779
+#: squeezeview.cpp:2788
 msgid "Abort"
 msgstr "Abortar"
 
-#: squeezeview.cpp:2849 squeezeview.cpp:2964
+#: squeezeview.cpp:2858 squeezeview.cpp:2973
 msgid "End of day report"
 msgstr "Reporte de fin de día"
 
-#: squeezeview.cpp:2852 squeezeview.cpp:3060
+#: squeezeview.cpp:2861 squeezeview.cpp:3069
 msgid "All Terminals"
 msgstr "Todas las terminales"
 
-#: squeezeview.cpp:2857 squeezeview.cpp:2972 squeezeview.cpp:3355
+#: squeezeview.cpp:2866 squeezeview.cpp:2981 squeezeview.cpp:3364
 msgid "Method"
 msgstr "Método"
 
-#: squeezeview.cpp:2858
+#: squeezeview.cpp:2867
 msgid "Total taxes collected today: "
 msgstr ""
 
-#: squeezeview.cpp:2890 squeezeview.cpp:3005 squeezeview.cpp:3097
+#: squeezeview.cpp:2899 squeezeview.cpp:3014 squeezeview.cpp:3106
 msgid "Total Sales : %1"
 msgstr "Ventas totales: %1"
 
-#: squeezeview.cpp:2891 squeezeview.cpp:3006 squeezeview.cpp:3098
+#: squeezeview.cpp:2900 squeezeview.cpp:3015 squeezeview.cpp:3107
 msgid "Total Profit: %1"
 msgstr "Utilidades totales: %1"
 
-#: squeezeview.cpp:2908 squeezeview.cpp:2917 squeezeview.cpp:3023
-#: squeezeview.cpp:3032
+#: squeezeview.cpp:2917 squeezeview.cpp:2926 squeezeview.cpp:3032
+#: squeezeview.cpp:3041
 msgid "Print end of day report"
 msgstr "Imprimir Reporte de fin de día"
 
-#: squeezeview.cpp:2931
+#: squeezeview.cpp:2940
 msgid ""
 "Enter the Terminal number for the end of day, then press <ENTER> to accept, "
 "<ESC> to cancel"
@@ -2593,151 +2608,151 @@ msgstr ""
 "Escriba el número de terminal, luego presione <ENTER> para aceptar o <ESC> "
 "para cancelar."
 
-#: squeezeview.cpp:2953
+#: squeezeview.cpp:2962
 msgid "No transactions to print!"
 msgstr "No hay transacciones que imprimir"
 
-#: squeezeview.cpp:2954
+#: squeezeview.cpp:2963
 msgid "No transactions for  terminal #%1 for today."
 msgstr "No hay transacciones de hoy en la terminal #%1."
 
-#: squeezeview.cpp:2967
+#: squeezeview.cpp:2976
 msgid "terminal # %1 "
 msgstr "terminal # %1"
 
-#: squeezeview.cpp:2973
+#: squeezeview.cpp:2982
 msgid "Total taxes collected for this terminal: "
 msgstr ""
 
-#: squeezeview.cpp:3057
+#: squeezeview.cpp:3066
 msgid "End of Month report"
 msgstr "Reporte de fin de mes"
 
-#: squeezeview.cpp:3066
+#: squeezeview.cpp:3075
 msgid "Total taxes collected for the month: "
 msgstr ""
 
-#: squeezeview.cpp:3115 squeezeview.cpp:3124
+#: squeezeview.cpp:3124 squeezeview.cpp:3133
 msgid "Print end of Month report"
 msgstr "Imprimir reporte de fin de mes"
 
-#: squeezeview.cpp:3146
+#: squeezeview.cpp:3155
 msgid "Low Stock Products (< %1)"
 msgstr "Productos por agotarse (< %1)"
 
-#: squeezeview.cpp:3150 squeezeview.cpp:3213
+#: squeezeview.cpp:3159 squeezeview.cpp:3222
 msgid "Stock Qty."
 msgstr "Cant. en inventario"
 
-#: squeezeview.cpp:3151 squeezeview.cpp:3214
+#: squeezeview.cpp:3160 squeezeview.cpp:3223
 msgid "Sold"
 msgstr "Vendidos"
 
-#: squeezeview.cpp:3152 squeezeview.cpp:3215 squeezeview.cpp:3277
+#: squeezeview.cpp:3161 squeezeview.cpp:3224 squeezeview.cpp:3286
 msgid "Units"
 msgstr "Unidades"
 
-#: squeezeview.cpp:3179 squeezeview.cpp:3188 squeezeview.cpp:3242
-#: squeezeview.cpp:3251
+#: squeezeview.cpp:3188 squeezeview.cpp:3197 squeezeview.cpp:3251
+#: squeezeview.cpp:3260
 msgid "Print Low Stock Report"
 msgstr "Imprimir reporte de inventario bajo"
 
-#: squeezeview.cpp:3209
+#: squeezeview.cpp:3218
 msgid "Product Stock (excluding groups)"
 msgstr ""
 
-#: squeezeview.cpp:3305 squeezeview.cpp:3314
+#: squeezeview.cpp:3314 squeezeview.cpp:3323
 msgid "Print Sold Out Products"
 msgstr "Imprimir reporte de productos agotados"
 
-#: squeezeview.cpp:3332
+#: squeezeview.cpp:3341
 msgid "Please select a balance to print, then press the print button again."
 msgstr ""
 "Por favor seleccione un corte de caja a borrar y presione el boton \"borrar\""
 
-#: squeezeview.cpp:3332
+#: squeezeview.cpp:3341
 msgid "Cannot print"
 msgstr "No se puede imprimir"
 
-#: squeezeview.cpp:3341
+#: squeezeview.cpp:3350
 msgid "Balance Id:%1"
 msgstr "Corte de caja #:%1"
 
-#: squeezeview.cpp:3345 squeezeview.cpp:3372
+#: squeezeview.cpp:3354 squeezeview.cpp:3381
 msgid "%1 at Terminal # %2"
 msgstr "%1 en la terminal #%2"
 
-#: squeezeview.cpp:3346
+#: squeezeview.cpp:3355
 msgid "Deposit"
 msgstr "Depósito"
 
-#: squeezeview.cpp:3349 squeezeview.cpp:3384
+#: squeezeview.cpp:3358 squeezeview.cpp:3393
 msgid "In Drawer"
 msgstr "Efectivo en gaveta"
 
-#: squeezeview.cpp:3350 squeezeview.cpp:3386
+#: squeezeview.cpp:3359 squeezeview.cpp:3395
 msgid "Transactions Details"
 msgstr "Detalle de Transacciones"
 
-#: squeezeview.cpp:3354 squeezeview.cpp:3388
+#: squeezeview.cpp:3363 squeezeview.cpp:3397
 msgid "Paid"
 msgstr "Pagado con"
 
-#: squeezeview.cpp:3356
+#: squeezeview.cpp:3365
 msgid "Start: %1"
 msgstr "Inicio: %1"
 
-#: squeezeview.cpp:3357
+#: squeezeview.cpp:3366
 msgid "End  : %1"
 msgstr "Fin  :%1"
 
-#: squeezeview.cpp:3364
+#: squeezeview.cpp:3373
 msgid "Cash flow Details"
 msgstr "Detalle de flujo de efectivo"
 
-#: squeezeview.cpp:3376
+#: squeezeview.cpp:3385
 msgid "Initial Amount deposited:"
 msgstr "Cantidad inicial depositada:"
 
-#: squeezeview.cpp:3464
+#: squeezeview.cpp:3473
 msgid "Print Balance"
 msgstr "Imprimir Corte de caja"
 
-#: squeezeview.cpp:3489
+#: squeezeview.cpp:3498
 msgid "Events Log"
 msgstr "Registro de Eventos"
 
-#: squeezeview.cpp:3508
+#: squeezeview.cpp:3517
 msgid "User"
 msgstr "Usuario"
 
-#: squeezeview.cpp:3511
+#: squeezeview.cpp:3520
 msgid "Event"
 msgstr "Evento"
 
-#: squeezeview.cpp:3541
+#: squeezeview.cpp:3550
 msgid "Message"
 msgstr "Mensaje"
 
-#: squeezeview.cpp:3542
+#: squeezeview.cpp:3551
 msgid "Month"
 msgstr "Mes"
 
-#: squeezeview.cpp:3559
+#: squeezeview.cpp:3568
 msgid "Enter the new ticket message."
 msgstr "Escriba el nuevo mensaje insertar:"
 
-#: squeezeview.cpp:3575
+#: squeezeview.cpp:3584
 #, fuzzy
 msgid "Enter the new currency"
 msgstr "Escriba el nuevo mensaje insertar:"
 
-#: squeezeview.cpp:3602
+#: squeezeview.cpp:3611
 #, fuzzy
 msgid "Do you really want to delete the currency '%1'?"
 msgstr "¿Realmente desea borrar la medida  '%1'?"
 
-#: squeezeview.cpp:3613
+#: squeezeview.cpp:3622
 #, fuzzy
 msgid "Default currencies cannot be deleted."
 msgstr "El cliente principal (Público) no puede ser borrado."
@@ -2849,7 +2864,7 @@ msgstr "Escriba la nueva cantidad de inventario..."
 msgid "Enter the new currency factor..."
 msgstr "Escriba la nueva cantidad de inventario..."
 
-#: ../../src/inputdialog.cpp:170
+#: ../../src/inputdialog.cpp:172
 msgid "Ok"
 msgstr "Aceptar"
 
