@@ -1420,7 +1420,7 @@ bool PrintCUPS::printSmallLowStockReport(const PrintLowStockInfo &plInfo, QPrint
   // calculate font size
   const int headerSize = printer.width()/16; //divisor found by trying, maybe has to do with font metrics?
   const int textSize = headerSize/2; //i think the half of header size is ok
-  qDebug()<<"Paper Width: "<<printer.widthMM()<<"mm"<<"; Page Width: "<<printer.width()<<"; calculated headerSize: "<<headerSize;
+  qDebug()<<"Paper Size: "<<printer.widthMM()<<"mm x "<<printer.heightMM()<<" -- calculated headerSize: "<<headerSize;
   
   QFont header = QFont("Impact", headerSize);
   const int Margin = printer.width()/40;
