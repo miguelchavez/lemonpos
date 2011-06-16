@@ -45,7 +45,10 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
     ui->btnAddItem->setDefault(true);
 
     //Set Validators for input boxes
-    QRegExp regexpC("[0-9]{1,13}"); //(EAN-13 y EAN-8) .. y productos sin codigo de barras?
+    //QRegExp regexpC("[0-9]{1,13}"); //(EAN-13 y EAN-8) .. y productos sin codigo de barras?
+    //QRegExpValidator * validatorEAN13 = new QRegExpValidator(regexpC, this);
+    //PATCHED on June 6, 2011. To support alphacodes here also.
+    QRegExp regexpC("[0-9]*[A-Za-z_0-9\\\\/\\-]{0,30}"); // Instead of {0,13} fro EAN13, open for up to 30 chars.
     QRegExpValidator * validatorEAN13 = new QRegExpValidator(regexpC, this);
     ui->editCode->setValidator(validatorEAN13);
     ui->editTax->setValidator(new QDoubleValidator(0.00, 999999999999.99, 3,ui->editTax));
@@ -65,7 +68,7 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
     connect( ui->editTax , SIGNAL( textEdited(const QString &) ), this, SLOT( calculatePrice() ) );
     connect( ui->editExtraTaxes , SIGNAL( textEdited(const QString &) ), this, SLOT( calculatePrice() ) );
     connect( ui->editUtility , SIGNAL( textEdited(const QString &) ), this, SLOT( calculatePrice() ) );
-    connect( ui->editCode, SIGNAL(textEdited(const QString &)), SLOT(checkIfCodeExists()));
+    connect( ui->editCode, SIGNAL(returnPressed()), SLOT(checkIfCodeExists()));
     connect( ui->editCode, SIGNAL(returnPressed()), ui->editQty, SLOT(setFocus()));
     connect( ui->btnAddItem, SIGNAL( clicked() ), this, SLOT( addItemToList() ) );
     connect(ui->groupBoxedItem, SIGNAL(toggled(bool)), this, SLOT(focusItemsPerBox(bool)) );
@@ -333,6 +336,7 @@ void PurchaseEditor::checkIfCodeExists()
     status = estatusMod;
     productExists = true;
     qtyOnDb  = pInfo.stockqty;
+    qDebug()<<"Product code:"<<pInfo.code<<" Product AlphaCode:"<<pInfo.alphaCode<<" qtyOnDb:"<<qtyOnDb;
     //Prepopulate dialog...
     ui->editDesc->setText(pInfo.desc);
     setCategory(pInfo.category);
@@ -404,7 +408,7 @@ void PurchaseEditor::addItemToList()
   else ok = true;
 
   if (ok) {
-    ProductInfo info = myDb->getProductInfo( QString::number( getCode() ) );
+    ProductInfo info = myDb->getProductInfo(  getCodeStr() );
     //FIX BUG: dont allow enter new products.. dont know why? new code on 'continue' statement.
     if (info.code == 0) { //new product
       info.code = getCode();

@@ -47,6 +47,7 @@ class PurchaseEditor : public KDialog
     ~PurchaseEditor();
 
     qulonglong getCode()     { return ui->editCode->text().toULongLong(); };
+    QString    getCodeStr()  { return ui->editCode->text(); };
     QString getDescription() { return ui->editDesc->text(); };
     double  getPurchaseQty();
     int     getCategoryId();
