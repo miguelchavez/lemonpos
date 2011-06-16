@@ -35,6 +35,7 @@ int main(int argc, char **argv)
 {
     KAboutData about("squeeze", 0, ki18n("squeeze"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2007-2010 Miguel Chavez Gamboa"), KLocalizedString(), 0, "miguel@lemonpos.org");
     about.addAuthor( ki18n("Miguel Chavez Gamboa"), KLocalizedString(), "miguel@lemonpos.org" );
+    about.setBugAddress("bugs.squeeze@lemonpos.org");
     KCmdLineArgs::init(argc, argv, &about);
 
     about.addCredit(ki18n("Roberto Aceves"), ki18n("Many ideas and general help"));
