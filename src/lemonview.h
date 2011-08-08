@@ -120,6 +120,9 @@ public:
     MibitTip *tipCode, *tipAmount;
     MibitPasswordDialog *lockDialog;
     MibitFloatPanel *currencyPanel;
+    MibitFloatPanel *discountPanel;
+
+    double oDiscountMoney;
 
     void loadIcons();
     void setUpInputs();
@@ -339,6 +342,8 @@ public:
     void insertBalance();
 
     void occasionalDiscount();
+    void applyOccasionalDiscount();
+    void changeDiscValidator();
     double getTotalQtyOnList(const ProductInfo &info);
 
     void log(const qulonglong &uid, const QDate &date, const QTime &time, const QString &text);

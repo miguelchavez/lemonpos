@@ -1637,6 +1637,73 @@ font: 75 9pt &quot;Lucida Grande&quot;;</string>
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="discountWidget" native="true">
+        <property name="geometry">
+         <rect>
+          <x>330</x>
+          <y>130</y>
+          <width>257</width>
+          <height>171</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QLabel" name="lbl_discounts">
+           <property name="text">
+            <string>Select how do you want to apply the discount:</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rbPercentage">
+           <property name="text">
+            <string>By Percentage</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rbMoney">
+           <property name="text">
+            <string>By dollar and cents</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rbCoupon">
+           <property name="text">
+            <string>By coupon code</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QLineEdit" name="editDiscount"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnApplyDiscount">
+             <property name="text">
+              <string>Apply</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnCancelDiscount">
+             <property name="text">
+              <string>Cancel</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </widget>
     </widget>

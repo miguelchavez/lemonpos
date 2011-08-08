@@ -3965,4 +3965,41 @@ ReservationInfo Azahar::getReservationInfo(const qulonglong &id)
     return result;
 }
 
+ReservationInfo  Azahar::getReservationInfoFromTr(const qulonglong &trId)
+{
+    ReservationInfo result;
+    result.id=0;
+    result.transaction_id = 0;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        myQuery.prepare("SELECT * FROM reservations WHERE transaction_id=:id;");
+        myQuery.bindValue(":id", trId);
+        if (myQuery.exec() ) {
+            while (myQuery.next()) {
+                int fieldPayment = myQuery.record().indexOf("payment");
+                int fieldClient  = myQuery.record().indexOf("client_id");
+                int fieldTr      = myQuery.record().indexOf("transaction_id");
+                int fieldDate    = myQuery.record().indexOf("date");
+                int fieldStatus  = myQuery.record().indexOf("status");
+                int fieldTotal   = myQuery.record().indexOf("total");
+                int fieldTaxes   = myQuery.record().indexOf("totaltaxes");
+                
+                result.id = trId;
+                result.client_id = myQuery.value(fieldClient).toULongLong();
+                result.transaction_id = myQuery.value(fieldTr).toULongLong();
+                result.total     = myQuery.value(fieldTotal).toDouble();
+                result.payment   = myQuery.value(fieldPayment).toDouble();
+                result.date      = myQuery.value(fieldDate).toDate();
+                result.status    = myQuery.value(fieldStatus).toInt();
+                result.totalTaxes= myQuery.value(fieldTaxes).toDouble();
+            }
+        }
+        else {
+            setError(myQuery.lastError().text());
+        }
+    }
+    return result;
+}
+
 #include "azahar.moc"

@@ -188,6 +188,19 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   currencyPanel->setHiddenTotally(true);
   currencyPanel->hide();
 
+  //float panel for new discounts.
+  discountPanel = new MibitFloatPanel(ui_mainview.frame, path, Top);
+  discountPanel->setSize(550,250);
+  discountPanel->addWidget(ui_mainview.discountWidget);
+  ui_mainview.rbCoupon->setVisible(false);
+  discountPanel->setMode(pmManual);
+  discountPanel->setHiddenTotally(true);
+  discountPanel->hide();
+  connect(ui_mainview.rbPercentage, SIGNAL(toggled()), SLOT(changeDiscValidator()) );
+  connect(ui_mainview.rbMoney, SIGNAL(toggled()), SLOT(changeDiscValidator()) );
+  connect(ui_mainview.rbCoupon, SIGNAL(toggled()), SLOT(changeDiscValidator()) );
+  oDiscountMoney = 0;
+
   refreshTotalLabel();
   QTimer::singleShot(1000, this, SLOT(setupDB()));
   setAutoFillBackground(true);
@@ -235,6 +248,10 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   connect(ui_mainview.editConvQty, SIGNAL(textEdited(const QString&)), SLOT( doCurrencyConversion() )  );
   connect(ui_mainview.btnConvOk, SIGNAL(clicked()), SLOT( acceptCurrencyConversion() )  );
   connect(ui_mainview.editConvQty, SIGNAL(returnPressed()), SLOT(acceptCurrencyConversion()) );
+
+  connect(ui_mainview.btnApplyDiscount, SIGNAL(clicked()), SLOT(applyOccasionalDiscount() ) );
+  connect(ui_mainview.editDiscount, SIGNAL(returnPressed()), SLOT(applyOccasionalDiscount() ) );
+  connect(ui_mainview.btnCancelDiscount, SIGNAL(clicked()), discountPanel, SLOT(hidePanel() ) );
 
   timerClock->start(1000);
 
@@ -362,6 +379,26 @@ void lemonView::setUpInputs()
   ui_mainview.editCardAuthNumber->setValidator(regexpAlpha);
 
   //ui_mainview.editAmount->setInputMask("000,000.00");
+
+ //filter for new discount edit line. at the begining, it is by percentage discount the default.
+  QDoubleValidator *doubleVal = new QDoubleValidator(0.001, 99.00, 4, this);
+  ui_mainview.editDiscount->setValidator(doubleVal);
+}
+
+void lemonView::changeDiscValidator()
+{
+    if (ui_mainview.rbPercentage->isChecked()) {
+        QDoubleValidator *doubleVal = new QDoubleValidator(0.00001, 99.00000, 5, this);
+        ui_mainview.editDiscount->setValidator(doubleVal);
+    }
+    else if (ui_mainview.rbMoney->isChecked()) {
+        QDoubleValidator *doubleVal = new QDoubleValidator(0.001, 9999999.0, 5, this);
+        ui_mainview.editDiscount->setValidator(doubleVal);
+    }
+    else {
+        //a string...
+        ui_mainview.editDiscount->setValidator(0); //remove any validator.
+    }
 }
 
 void lemonView::timerTimeout()
@@ -889,12 +926,12 @@ void lemonView::refreshTotalLabel()
       else
         pWOtax= i.value().price/(1+((info.tax+info.extratax)/100));
       //take into account the discount, user discount.
-      if (i.value().validDiscount || clientInfo.discount>0 ) { //UPDATED: Jan 4 2010.
+      if (i.value().validDiscount || clientInfo.discount>0 || oDiscountMoney >0 ) { //UPDATED: Jan 4 2010.
         double iDisc=0; double cDisc=0;
         cDisc = (clientInfo.discount/100)*pWOtax;
         if (i.value().validDiscount )
           iDisc = (i.value().discpercentage/100)*pWOtax; //item discount depends on the discount valid-ness
-        pWOtax = pWOtax - iDisc - cDisc;
+        pWOtax = pWOtax - iDisc - cDisc -oDiscountMoney;
       }
       //finally we have on pWOtax the price without tax and discount for 1 item
       double tax1m = (i.value().tax/100)*pWOtax;
@@ -922,7 +959,7 @@ void lemonView::refreshTotalLabel()
       double cDisc = 0; double iDisc = 0;
       if (clientInfo.discount>0) cDisc = (clientInfo.discount/100)*pWOtax; 
       if (soDiscount > 0)        iDisc = soDiscount*pWOtax;
-      pWOtax = pWOtax - iDisc - cDisc;
+      pWOtax = pWOtax - iDisc - cDisc - oDiscountMoney;
       //qDebug()<<"\n\n ::FOR TAXES CALCULATION:: Client Name:"<< clientInfo.name<<"\tClient discount %:"<<clientInfo.discount<<"\tClient Disc. $"<<cDisc<<"\n\n";
       
       totalTax += ((soInfo.averageTax/100) * pWOtax * soInfo.qty); // average is in percentage
@@ -931,7 +968,8 @@ void lemonView::refreshTotalLabel()
   }
   buyPoints = points;
   totalSumWODisc = sum;
-  discMoney = (clientInfo.discount/100)*sum;
+  discMoney = (clientInfo.discount/100)*sum + oDiscountMoney; //here one of the two will be ZERO. See method applyOccasionalDiscount().
+                                                              //Except if the clientDisc comes from the client (not the occasionalDiscount). Still valid because both can be applied at the same time.
   qDebug()<<" RESERVATION PAYMENT:"<<reservationPayment;
   subTotalSum = sum - discMoney - reservationPayment; //reservationPayment is for reservations only!
   if (Settings::addTax())
@@ -950,11 +988,17 @@ void lemonView::refreshTotalLabel()
   ui_mainview.lblSaleTaxes->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(totalTax)));
 
   //update client discount
-  QString dStr = i18n("Discount: %1% ",clientInfo.discount);
-  double discMoney = (clientInfo.discount/100)*totalSumWODisc;
-  QString frmDisc = i18n("[%1]", KGlobal::locale()->formatMoney(discMoney));
-  dStr = dStr + "\n"+KGlobal::locale()->formatMoney(discMoney);
-  ui_mainview.lblClientDiscount->setText(dStr); //FIXME: fix this STR after 0.9.3 release!!! dStr+frmDisc);
+  QString dStr;
+  if (clientInfo.discount >0) {
+      dStr = i18n("Discount: %1%  [%2]",clientInfo.discount, KGlobal::locale()->formatMoney(discMoney)); 
+      //discMoney = (clientInfo.discount/100)*totalSumWODisc; //this is already calculated some lines above.
+  } else if (oDiscountMoney >0 ){
+      dStr = i18n("Discount: %1", KGlobal::locale()->formatMoney(oDiscountMoney));
+  }
+  //QString frmDisc = i18n("[%1]", KGlobal::locale()->formatMoney(discMoney));
+  //dStr = dStr + "\n"+KGlobal::locale()->formatMoney(discMoney);
+  ui_mainview.lblClientDiscount->setText(dStr);
+
 }
 
 void lemonView::doEmitSignalQueryDb()
@@ -1799,7 +1843,8 @@ void lemonView::finishCurrentTransaction()
     tInfo.itemcount= 0;//later
     tInfo.itemlist = ""; //at the for..
     tInfo.disc = clientInfo.discount;
-    tInfo.discmoney = discMoney; //global variable...
+    tInfo.discmoney = discMoney; //global variable... Now included the oDiscountMoney
+    qDebug()<<"tInfo.disc:"<<tInfo.disc; qDebug()<<" tInfo.discmoney:"<<tInfo.discmoney;
     tInfo.points = buyPoints; //global variable...
     tInfo.utility = 0; //later
     tInfo.terminalnum=Settings::editTerminalNumber();
@@ -2114,6 +2159,7 @@ void lemonView::finishCurrentTransaction()
       notify->setPixmap(pixmap);
       notify->sendEvent();
     }
+
     //update client info in the hash....
     clientInfo.points += buyPoints;
     clientsHash.remove(QString::number(clientInfo.id));
@@ -2129,6 +2175,7 @@ void lemonView::finishCurrentTransaction()
       realSubtotal = KGlobal::locale()->formatMoney(subTotalSum-totalTax+discMoney+soDiscounts+pDiscounts, QString(), 2); //FIXME: es +discMoney o -discMoney??
     qDebug()<<"\n >>>>>>>>> Real SUBTOTAL = "<<realSubtotal<<"  subTotalSum = "<<subTotalSum<<" ADDTAXES:"<<Settings::addTax()<<"  Disc:"<<discMoney;
     qDebug()<<"\n********** Total Taxes:"<<totalTax<<" total Discount:"<<discMoney<< " SO Discount:"<<soDiscounts<<" Prod Discounts:"<<pDiscounts;
+
     //Ticket
     ticket.number = currentTransaction;
     ticket.subTotal = realSubtotal; //This is the subtotal-taxes-discount
@@ -2189,6 +2236,7 @@ void lemonView::finishCurrentTransaction()
    
    if (!ui_mainview.groupSaleDate->isHidden()) ui_mainview.groupSaleDate->hide(); //finally we hide the sale date group
    completingOrder = false; //cleaning flag
+   oDiscountMoney = 0; //reset discount money... the new discount type.
 }
 
 
@@ -2336,6 +2384,7 @@ void lemonView::printTicket(TicketInfo ticket)
     if (hasDiscount) itemsForPrint.append(QString("        * %1 *     -%2").arg(hDisc).arg(idiscount) );
   }//for each item
 
+  tDisc = tDisc + ticket.clientDiscMoney;
 
   //HTML Ticket
   QString harticles = i18np("%1 article.", "%1 articles.", ticket.itemcount);
@@ -2375,7 +2424,7 @@ void lemonView::printTicket(TicketInfo ticket)
   //Printing...
   qDebug()<< itemsForPrint.join("\n");
 
-  tDisc = tDisc + ticket.clientDiscMoney;
+  //tDisc = tDisc + ticket.clientDiscMoney; NOTE: moved above, aug 7 2011. text ticket did not get clientDiscMoney.
 
   ///Real printing... [sendind data to print-methods]
   if (Settings::printTicket()) {
@@ -3555,12 +3604,19 @@ void lemonView::comboClientsOnChange()
 
 void lemonView::updateClientInfo()
 {
+  QString dStr;
+  if (clientInfo.discount >0) {
+      double discMoney = (clientInfo.discount/100)*totalSumWODisc;
+      dStr = i18n("Discount: %1%  [%2]",clientInfo.discount, KGlobal::locale()->formatMoney(discMoney));
+  } else if (oDiscountMoney >0 ){
+      dStr = i18n("Discount: 1% ", KGlobal::locale()->formatMoney(oDiscountMoney));
+  }
   QString pStr = i18n("%1 points", clientInfo.points);
-  QString dStr = i18n("Discount: %1% ",clientInfo.discount);
-  double discMoney = (clientInfo.discount/100)*totalSumWODisc;
-  QString frmDisc = i18n("[%1]", KGlobal::locale()->formatMoney(discMoney));
-  dStr = dStr + "\n"+KGlobal::locale()->formatMoney(discMoney);
-  ui_mainview.lblClientDiscount->setText(dStr); //FIXME: fix this STR after 0.9.3 release!!! dStr+frmDisc);
+  //QString dStr = i18n("Discount: %1% ",clientInfo.discount);
+  //double discMoney = (clientInfo.discount/100)*totalSumWODisc;
+  //QString frmDisc = i18n("[%1]", KGlobal::locale()->formatMoney(discMoney));
+  //dStr = dStr + "\n"+KGlobal::locale()->formatMoney(discMoney);
+  ui_mainview.lblClientDiscount->setText(dStr);
   ui_mainview.labelClientDiscounted->setText(pStr);
   QPixmap pix;
   pix.loadFromData(clientInfo.photo);
@@ -3687,6 +3743,22 @@ void lemonView::printTicketFromTransaction(qulonglong transactionNumber)
   double itemsDiscount=0;
   double soGTotal = 0;
   QDateTime soDeliveryDT;
+
+  //NOTE: Fixing printing reservations that does not exists.
+  ReservationInfo rInfo = myDb->getReservationInfoFromTr(transactionNumber);
+  //qDebug()<<"ReservationId:"<<rInfo.id<<" TrNum:"<<transactionNumber<<" rInfo.transaction_id"<<rInfo.transaction_id;
+  if (rInfo.transaction_id != trInfo.id || rInfo.id == 0) { //its not true!
+      ticket.reservationId = 0;
+      ticket.isAReservation = false;
+  } else {
+      ticket.reservationId  = rInfo.id;
+      ticket.isAReservation = true;
+      ticket.reservationStarted = false; //NOTE: This is not saved in the rInfo, but only completed reservations can be re-printed, so its ok to set it false.
+      ticket.reservationPayment = rInfo.payment;
+      ticket.purchaseTotal = rInfo.total;
+      
+}
+  
   for (int i = 0; i < pListItems.size(); ++i){
     TransactionItemInfo trItem = pListItems.at(i);
     // add line to ticketLines
@@ -4421,9 +4493,12 @@ void lemonView::changeSOStatus()
   }//dlg exec
 }
 
+
+//NOTE: Aug 6 2011: Now occasionalDiscount can be in dollar and cents.
 void  lemonView::occasionalDiscount()
 {
   bool continuar=false;
+  oDiscountMoney = 0;
   if (Settings::lowSecurityMode()) { //qDebug()<<"LOW security mode";
     continuar=true;
   } else {// qDebug()<<"NO LOW security mode";
@@ -4434,27 +4509,48 @@ void  lemonView::occasionalDiscount()
   }
   
   if (continuar) {
-    bool ok=false;
-    double discPercent = 0;
-    InputDialog *dlg = new InputDialog(this, false, dialogMoney, i18n("Enter the discount percentage to apply"), 0.01, 99.0);
-    if (dlg->exec())
-    {
-      discPercent = dlg->dValue;
-      ok = true;
-    }
-    if (ok) {
-      //APPLY DISCOUNT!
-      clientInfo.discount = discPercent;
-      updateClientInfo();
-      refreshTotalLabel();
-      Azahar *myDb = new Azahar;
-      myDb->setDatabase(db);
-      QString authBy = dlgPassword->username();
-      if (authBy.isEmpty()) authBy = myDb->getUserName(1); //default admin.
-      log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Applying occasional discount. Authorized by %1",authBy));
-      delete myDb;
-    }
+    //bool ok=false;
+    //double discPercent = 0;
+    //double moneyDiscount = 0;
+    //InputDialog *dlg = new InputDialog(this, false, dialogMoney, i18n("Enter the discount percentage to apply"), 0.01, 99.0);
+    //if (dlg->exec())
+    //{
+    //  discPercent = dlg->dValue;
+    //  ok = true;
+    //}
+    //SHOW THE NEW DISCOUNT PANEL
+    discountPanel->showPanel();
+    //the new code is at applyOccasionalDiscount().
   }
+}
+
+void lemonView::applyOccasionalDiscount()
+{
+    //validate discount: the input has a proper validator.
+    if (ui_mainview.rbPercentage->isChecked()) {
+        oDiscountMoney = 0; //this is 0 when applying a percentage discount.
+        clientInfo.discount = ui_mainview.editDiscount->text().toDouble();
+    } else if (ui_mainview.rbMoney->isChecked()) {
+        oDiscountMoney = ui_mainview.editDiscount->text().toDouble();
+        clientInfo.discount = 0;
+    } else { //by coupon.
+        //FIXME:CODE IT!
+        oDiscountMoney = 0;
+        clientInfo.discount = 0;
+    }
+    //clientInfo.discount = discPercent;
+    updateClientInfo();
+    refreshTotalLabel();
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    QString authBy = dlgPassword->username();
+    if (authBy.isEmpty()) authBy = myDb->getUserName(1); //default admin.
+    log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Applying occasional discount. Authorized by %1",authBy));
+    delete myDb;
+
+    //At the end, clear the widget. Except for the type.
+    ui_mainview.editDiscount->clear();
+    discountPanel->hidePanel();
 }
 
 //NOTE: Reservations are not treated as sales until they are completed. The amount payment at the reservation is
