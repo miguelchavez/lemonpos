@@ -69,7 +69,7 @@ MibitTip::MibitTip( QWidget *parent, QWidget *partner, const QString &file, cons
         layout->addWidget(text);
     }
 
-    layout->setMargin(4);
+    layout->setContentsMargins(8, 8, 8, 8); //setMargin(9);
     setLayout(layout);
     text->setWordWrap(true);
     text->setMargin(5);
