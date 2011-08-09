@@ -32,6 +32,8 @@
 
 enum rType {estatusNormal=899, estatusMod=999};
 
+class MibitTip;
+
 class PurchaseEditorUI : public QFrame, public Ui::purchaseEditor
 {
   Q_OBJECT
@@ -117,6 +119,8 @@ protected slots:
     QString gelem;
     QHash<qulonglong, ProductInfo> productsHash;
     QString lastCode;
+
+    MibitTip *errorPanel;
 };
 
 #endif

@@ -20,11 +20,14 @@
 #include <KLocale>
 #include <KMessageBox>
 #include <KFileDialog>
+#include <kiconloader.h>
+#include <kstandarddirs.h>
 
 #include <QByteArray>
 #include <QRegExpValidator>
 
 #include "../../dataAccess/azahar.h"
+#include "../../mibitWidgets/mibittip.h"
 #include "purchaseeditor.h"
 
 
@@ -58,7 +61,7 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
     ui->editFinalPrice->setValidator(new QDoubleValidator(0.00,999999999999.99, 3, ui->editFinalPrice));
     ui->editItemsPerBox->setValidator(new QDoubleValidator(0.00,999999999999.99, 2, ui->editItemsPerBox));
     ui->editPricePerBox->setValidator(new QDoubleValidator(0.00,999999999999.99, 2, ui->editPricePerBox));
-    ui->editQty->setValidator(new QDoubleValidator(0.00,999999999999.99, 2, ui->editQty));
+    ui->editQty->setValidator(new QDoubleValidator(-99999.00,999999999999.99, 2, ui->editQty));
 
     connect( ui->btnPhoto          , SIGNAL( clicked() ), this, SLOT( changePhoto() ) );
     connect( ui->btnCalculatePrice , SIGNAL( clicked() ), this, SLOT( calculatePrice() ) );
@@ -77,6 +80,11 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
     connect(ui->btnRemoveItem, SIGNAL( clicked() ), SLOT( deleteSelectedItem() ) );
 
     ui->chIsAGroup->setDisabled(true);
+
+    
+    QString path = KStandardDirs::locate("appdata", "styles/");
+    path = path+"tip.svg";
+    errorPanel = new MibitTip(this, ui->widgetPurchase, path, DesktopIcon("dialog-warning",32) );
     
 
     lastCode = "";
@@ -387,7 +395,8 @@ void PurchaseEditor::checkIfCodeExists()
 
 void PurchaseEditor::slotButtonClicked(int button)
 {
-  if (button == KDialog::Ok && itemCount>0) {
+    if (button == KDialog::Ok &&  productsHash.count() > 0) { //allowing negative numbers to return items to providers.  itemCount != 0 &&
+                                                              //NOTE: the only problem is when decrementing more than the stock, which will end with 0, not negative stock.
     if (status == estatusNormal) QDialog::accept();
     else {
       qDebug()<< "Button = OK, status == statusMOD";
@@ -467,7 +476,7 @@ void PurchaseEditor::addItemToList()
       }//for each element
     } else insertProduct(info);
 
-    resetEdits();
+    //resetEdits();
     ui->editCode->setFocus();
   }
 }
@@ -478,15 +487,49 @@ void PurchaseEditor::insertProduct(ProductInfo info)
   bool existed = false;
   if (info.code>0) {
     if (productsHash.contains(info.code)) {
-      info = productsHash.take(info.code); //re get it from hash
-      info.purchaseQty += getPurchaseQty();
-      itemCount += getPurchaseQty();
-      totalBuy = totalBuy + info.cost*getPurchaseQty();
-      existed = true;
+        info = productsHash.take(info.code); //re get it from hash
+        double finalStock = info.purchaseQty + info.stockqty;
+        double suggested;
+        if (-info.stockqty == 0)
+            suggested = 1;
+        else
+            suggested = -info.stockqty;
+        qDebug()<<"Purchase Qty:"<<info.purchaseQty<<" product stock:"<<info.stockqty<<" final Stock:"<<finalStock;
+        if (finalStock < 0) {
+            //this cannot be saved, negative stock is not allowed in database.
+            qDebug()<<"Cannot be negative stock!, suggested purchase:"<<suggested;
+            //launch a message
+            errorPanel->showTip(i18n("<b>Stock cannot go negative.</b> The <i>minimum</i> purchase can be <b>%1</b>", suggested), 10000);
+            setPurchaseQty(suggested);
+            ui->editQty->setFocus();
+            return;
+        }
+        info.purchaseQty += getPurchaseQty();
+        itemCount += getPurchaseQty();
+        totalBuy = totalBuy + info.cost*getPurchaseQty();
+        existed = true;
     } else {
-      itemCount += info.purchaseQty;
-      totalBuy = totalBuy + info.cost*info.purchaseQty;
+        double finalStock = info.purchaseQty + info.stockqty;
+        double suggested;
+        if (-info.stockqty == 0)
+            suggested = 1;
+        else
+            suggested = -info.stockqty;
+        qDebug()<<"Purchase Qty:"<<info.purchaseQty<<" product stock:"<<info.stockqty<<" final Stock:"<<finalStock;
+        if (finalStock < 0) {
+            //this cannot be saved, negative stock is not allowed in database.
+            qDebug()<<"Cannot be negative stock!, suggested purchase:"<<suggested;
+            //launch a message
+            errorPanel->showTip(i18n("<b>Stock cannot go negative.</b> The <i>minimum</i> purchase can be <b>%1</b>", suggested), 10000);
+            setPurchaseQty(suggested);
+            ui->editQty->setFocus();
+            return;
+        }
+        itemCount += info.purchaseQty;
+        totalBuy = totalBuy + info.cost*info.purchaseQty;
     }
+    //its ok to reset edits now...
+    resetEdits();
 
     //calculate taxes for this item. Calculated from the costs.
     Azahar *myDb = new Azahar;
