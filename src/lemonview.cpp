@@ -3210,7 +3210,7 @@ void lemonView::corteDeCaja()
           QDir dir;
           if (!dir.exists(fn))
               dir.mkdir(fn);
-          fn = fn+QString("balance-%1__%2.pdf").arg(info.id).arg(info.dateTimeStart.date().toString("dd-MMM-yy"));
+          fn = fn+QString("balance-%1__%2.pdf").arg(currentBalanceId).arg(QDateTime::currentDateTime().toString("dd-MMM-yy"));
           qDebug()<<fn;
           
           printer.setOutputFileName(fn);
