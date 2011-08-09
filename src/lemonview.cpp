@@ -3747,19 +3747,21 @@ void lemonView::printTicketFromTransaction(qulonglong transactionNumber)
   //NOTE: Fixing printing reservations that does not exists.
   ReservationInfo rInfo = myDb->getReservationInfoFromTr(transactionNumber);
   //qDebug()<<"ReservationId:"<<rInfo.id<<" TrNum:"<<transactionNumber<<" rInfo.transaction_id"<<rInfo.transaction_id;
-  if (rInfo.transaction_id != trInfo.id || rInfo.id == 0) { //its not true!
+  if (rInfo.transaction_id != trInfo.id) { //its not true!
       ticket.reservationId = 0;
       ticket.isAReservation = false;
   } else {
       ticket.reservationId  = rInfo.id;
       ticket.isAReservation = true;
-      ticket.reservationStarted = false; //NOTE: This is not saved in the rInfo, but only completed reservations can be re-printed, so its ok to set it false.
+      if ( rInfo.status == rCompleted ) //NOTE: This is not saved in the rInfo, but only completed reservations can be re-printed.
+          ticket.reservationStarted = false;
+      else
+        ticket.reservationStarted = true; 
       ticket.reservationPayment = rInfo.payment;
       ticket.purchaseTotal = rInfo.total;
-      
-}
+  } //end fixing...
   
-  for (int i = 0; i < pListItems.size(); ++i){
+  for (int i = 0; i < pListItems.size(); ++i) {
     TransactionItemInfo trItem = pListItems.at(i);
     // add line to ticketLines
     TicketLineInfo tLineInfo;
