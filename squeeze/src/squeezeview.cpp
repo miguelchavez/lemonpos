@@ -58,6 +58,7 @@
 #include <QSqlRelationalDelegate>
 #include <QItemDelegate>
 #include <QHeaderView>
+#include <QDir>
 
 #include <klocale.h>
 #include <kfiledialog.h>
@@ -2917,6 +2918,23 @@ void squeezeView::printGralEndOfDay()
     printDialog.setWindowTitle(i18n("Print end of day report"));
     if ( printDialog.exec() ) {
       PrintCUPS::printSmallEndOfDay(pdInfo, printer);
+    } else {
+        //NOTE: This is a proposition:
+        //      If the dialog is accepted (ok), then we print what the user choosed. Else, we print to a file (PDF).
+        //      The user can press ENTER when dialog appearing if the desired printer is the default (or the only).
+        qDebug()<<"User cancelled printer dialog. We export ticket to a file.";
+        QString fn = QString("%1/lemon-printing/").arg(QDir::homePath());
+        QDir dir;
+        if (!dir.exists(fn))
+            dir.mkdir(fn);
+        fn = fn+QString("GeneralEndOfDay__%1.pdf").arg(QDateTime::currentDateTime().toString("dd-MMM-yy"));
+        qDebug()<<fn;
+        
+        printer.setOutputFileName(fn);
+        printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+        printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+        
+        PrintCUPS::printSmallEndOfDay(pdInfo, printer);
     }
   } else { //big printer
     qDebug()<<"[Printing report on CUPS big size]";
@@ -3031,7 +3049,24 @@ void squeezeView::printEndOfDay()
       QPrintDialog printDialog( &printer );
       printDialog.setWindowTitle(i18n("Print end of day report"));
       if ( printDialog.exec() ) {
-	PrintCUPS::printSmallEndOfDay(pdInfo, printer);
+      PrintCUPS::printSmallEndOfDay(pdInfo, printer);
+      } else {
+          //NOTE: This is a proposition:
+          //      If the dialog is accepted (ok), then we print what the user choosed. Else, we print to a file (PDF).
+          //      The user can press ENTER when dialog appearing if the desired printer is the default (or the only).
+          qDebug()<<"User cancelled printer dialog. We export ticket to a file.";
+          QString fn = QString("%1/lemon-printing/").arg(QDir::homePath());
+          QDir dir;
+          if (!dir.exists(fn))
+              dir.mkdir(fn);
+          fn = fn+QString("endOfDay__%1.pdf").arg(QDateTime::currentDateTime().toString("dd-MMM-yy"));
+          qDebug()<<fn;
+          
+          printer.setOutputFileName(fn);
+          printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+          printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+          
+          PrintCUPS::printSmallEndOfDay(pdInfo, printer);
       }
     } else { //big printer
       qDebug()<<"[Printing report on CUPS big size]";
@@ -3124,6 +3159,23 @@ void squeezeView::printEndOfMonth()
     printDialog.setWindowTitle(i18n("Print end of Month report"));
     if ( printDialog.exec() ) {
       PrintCUPS::printSmallEndOfDay(pdInfo, printer); //uses the same method for end of month 
+    } else {
+        //NOTE: This is a proposition:
+        //      If the dialog is accepted (ok), then we print what the user choosed. Else, we print to a file (PDF).
+        //      The user can press ENTER when dialog appearing if the desired printer is the default (or the only).
+        qDebug()<<"User cancelled printer dialog. We export ticket to a file.";
+        QString fn = QString("%1/lemon-printing/").arg(QDir::homePath());
+        QDir dir;
+        if (!dir.exists(fn))
+            dir.mkdir(fn);
+        fn = fn+QString("endOfMonth__%1.pdf").arg(QDateTime::currentDateTime().toString("dd-MMM-yy"));
+        qDebug()<<fn;
+        
+        printer.setOutputFileName(fn);
+        printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+        printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+        
+        PrintCUPS::printSmallEndOfDay(pdInfo, printer);
     }
   } else { //big printer
     qDebug()<<"[Printing report on CUPS big size]";
@@ -3188,6 +3240,23 @@ void squeezeView::printLowStockProducts()
     printDialog.setWindowTitle(i18n("Print Low Stock Report"));
     if ( printDialog.exec() ) {
       PrintCUPS::printSmallLowStockReport(plInfo, printer);
+    } else {
+        //NOTE: This is a proposition:
+        //      If the dialog is accepted (ok), then we print what the user choosed. Else, we print to a file (PDF).
+        //      The user can press ENTER when dialog appearing if the desired printer is the default (or the only).
+        qDebug()<<"User cancelled printer dialog. We export ticket to a file.  :: printLowStockProducts";
+        QString fn = QString("%1/lemon-printing/").arg(QDir::homePath());
+        QDir dir;
+        if (!dir.exists(fn))
+            dir.mkdir(fn);
+        fn = fn+QString("LowStockReport__%1.pdf").arg(QDateTime::currentDateTime().toString("dd-MMM-yy"));
+        qDebug()<<fn;
+        
+        printer.setOutputFileName(fn);
+        printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+        printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+        
+        PrintCUPS::printSmallLowStockReport(plInfo, printer);
     }
   } else { //big printer
     qDebug()<<"[Printing report on CUPS big size]";
@@ -3250,6 +3319,23 @@ void squeezeView::printStock()
         QPrintDialog printDialog( &printer );
         printDialog.setWindowTitle(i18n("Print Low Stock Report"));
         if ( printDialog.exec() ) {
+            PrintCUPS::printSmallLowStockReport(plInfo, printer);
+        } else {
+            //NOTE: This is a proposition:
+            //      If the dialog is accepted (ok), then we print what the user choosed. Else, we print to a file (PDF).
+            //      The user can press ENTER when dialog appearing if the desired printer is the default (or the only).
+            qDebug()<<"User cancelled printer dialog. We export ticket to a file.  ::PrintStock()";
+            QString fn = QString("%1/lemon-printing/").arg(QDir::homePath());
+            QDir dir;
+            if (!dir.exists(fn))
+                dir.mkdir(fn);
+            fn = fn+QString("StockReport__%1.pdf").arg(QDateTime::currentDateTime().toString("dd-MMM-yy"));
+            qDebug()<<fn;
+            
+            printer.setOutputFileName(fn);
+            printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+            printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+            
             PrintCUPS::printSmallLowStockReport(plInfo, printer);
         }
     } else { //big printer
@@ -3314,6 +3400,23 @@ void squeezeView::printSoldOutProducts()
     printDialog.setWindowTitle(i18n("Print Sold Out Products"));
     if ( printDialog.exec() ) {
       PrintCUPS::printSmallLowStockReport(plInfo, printer);
+    } else {
+        //NOTE: This is a proposition:
+        //      If the dialog is accepted (ok), then we print what the user choosed. Else, we print to a file (PDF).
+        //      The user can press ENTER when dialog appearing if the desired printer is the default (or the only).
+        qDebug()<<"User cancelled printer dialog. We export ticket to a file. :: soldOutProducts()";
+        QString fn = QString("%1/lemon-printing/").arg(QDir::homePath());
+        QDir dir;
+        if (!dir.exists(fn))
+            dir.mkdir(fn);
+        fn = fn+QString("SoldOutReport__%1.pdf").arg(QDateTime::currentDateTime().toString("dd-MMM-yy"));
+        qDebug()<<fn;
+        
+        printer.setOutputFileName(fn);
+        printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+        printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+        
+        PrintCUPS::printSmallLowStockReport(plInfo, printer);
     }
   } else { //big printer
     qDebug()<<"[Printing report on CUPS big size]";
@@ -3473,6 +3576,23 @@ void squeezeView::printSelectedBalance()
         printDialog.setWindowTitle(i18n("Print Balance"));
         if ( printDialog.exec() ) {
           PrintCUPS::printSmallBalance(pbInfo, printer);
+        } else {
+            //NOTE: This is a proposition:
+            //      If the dialog is accepted (ok), then we print what the user choosed. Else, we print to a file (PDF).
+            //      The user can press ENTER when dialog appearing if the desired printer is the default (or the only).
+            qDebug()<<"User cancelled printer dialog. We export ticket to a file.";
+            QString fn = QString("%1/lemon-printing/").arg(QDir::homePath());
+            QDir dir;
+            if (!dir.exists(fn))
+                dir.mkdir(fn);
+            fn = fn+QString("balance-%1__%2.pdf").arg(info.id).arg(info.dateTimeStart.date().toString("dd-MMM-yy"));
+            qDebug()<<fn;
+            
+            printer.setOutputFileName(fn);
+            printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+            printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+            
+            PrintCUPS::printSmallBalance(pbInfo, printer);
         }
       }
       //end print
