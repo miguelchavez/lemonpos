@@ -68,6 +68,7 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
     connect( ui->editTax , SIGNAL( textEdited(const QString &) ), this, SLOT( calculatePrice() ) );
     connect( ui->editExtraTaxes , SIGNAL( textEdited(const QString &) ), this, SLOT( calculatePrice() ) );
     connect( ui->editUtility , SIGNAL( textEdited(const QString &) ), this, SLOT( calculatePrice() ) );
+    connect( ui->editCode, SIGNAL(textEdited(const QString &)), SLOT(timerCheck()));
     connect( ui->editCode, SIGNAL(returnPressed()), SLOT(checkIfCodeExists()));
     connect( ui->editCode, SIGNAL(returnPressed()), ui->editQty, SLOT(setFocus()));
     connect( ui->btnAddItem, SIGNAL( clicked() ), this, SLOT( addItemToList() ) );
@@ -78,6 +79,7 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
     ui->chIsAGroup->setDisabled(true);
     
 
+    lastCode = "";
     status = estatusNormal;
     productExists = false;
     productsHash.clear();
@@ -323,6 +325,26 @@ void PurchaseEditor::calculatePrice()
 }
 
 
+void PurchaseEditor::timerCheck()
+{
+    if (ui->editCode->text() == lastCode) {
+        //ok no changes. get this product
+        checkIfCodeExists();
+    } else {
+        lastCode = ui->editCode->text();
+        QTimer::singleShot(1000, this, SLOT(justCheck()));
+    }
+}
+
+void PurchaseEditor::justCheck()
+{
+    if (ui->editCode->text() == lastCode) {
+        //ok no changes one second ago in code. get this product
+        checkIfCodeExists();
+    }
+}
+
+
 void PurchaseEditor::checkIfCodeExists()
 {
   Azahar *myDb = new Azahar;
@@ -357,7 +379,8 @@ void PurchaseEditor::checkIfCodeExists()
     qDebug()<< "no product found with code "<<codeStr;
     qulonglong codeSaved = getCode();
     resetEdits();
-    setCode(codeSaved);
+    if (codeSaved > 0) //do not set code "0" in the input box, just let it empty,
+        setCode(codeSaved);
   }
 }
 

@@ -94,6 +94,8 @@ class PurchaseEditor : public KDialog
 private slots:
     void    changePhoto();
     void    calculatePrice();
+    void    timerCheck();
+    void    justCheck();
     void    checkIfCodeExists();
     void    addItemToList();
     void    setupTable();
@@ -114,6 +116,7 @@ protected slots:
     double totalTaxes;
     QString gelem;
     QHash<qulonglong, ProductInfo> productsHash;
+    QString lastCode;
 };
 
 #endif
