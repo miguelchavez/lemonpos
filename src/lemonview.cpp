@@ -3201,6 +3201,23 @@ void lemonView::corteDeCaja()
 	printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
 	//TODO: Set Copies: printer.setCopyCount(2); //NOTE:Introduced in Qt 4.7 --WARNING-- See also setCollateCopies()
         PrintCUPS::printSmallBalance(pbInfo, printer);
+      } else {
+          //NOTE: This is a proposition:
+          //      If the dialog is accepted (ok), then we print what the user choosed. Else, we print to a file (PDF).
+          //      The user can press ENTER when dialog appearing if the desired printer is the default (or the only).
+          qDebug()<<"User cancelled printer dialog. We export ticket to a file.";
+          QString fn = QString("%1/lemon-printing/").arg(QDir::homePath());
+          QDir dir;
+          if (!dir.exists(fn))
+              dir.mkdir(fn);
+          fn = fn+QString("balance-%1__%2.pdf").arg(info.id).arg(info.dateTimeStart.date().toString("dd-MMM-yy"));
+          qDebug()<<fn;
+          
+          printer.setOutputFileName(fn);
+          printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+          printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+          
+          PrintCUPS::printSmallBalance(pbInfo, printer);
       }
     }
     ///NOTE: Really startoperation at this moment? why not wait user request it? Dec 23 2009
@@ -3312,6 +3329,23 @@ void lemonView::endOfDay() {
       printDialog.setWindowTitle(i18n("Print end of day report"));
       if ( printDialog.exec() ) {
         PrintCUPS::printSmallEndOfDay(pdInfo, printer);
+      } else {
+          //NOTE: This is a proposition:
+          //      If the dialog is accepted (ok), then we print what the user choosed. Else, we print to a file (PDF).
+          //      The user can press ENTER when dialog appearing if the desired printer is the default (or the only).
+          qDebug()<<"User cancelled printer dialog. We export ticket to a file.";
+          QString fn = QString("%1/lemon-printing/").arg(QDir::homePath());
+          QDir dir;
+          if (!dir.exists(fn))
+              dir.mkdir(fn);
+          fn = fn+QString("endOfDay__%1.pdf").arg(QDateTime::currentDateTime().toString("dd-MMM-yy"));
+          qDebug()<<fn;
+          
+          printer.setOutputFileName(fn);
+          printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+          printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+          
+          PrintCUPS::printSmallEndOfDay(pdInfo, printer);
       }
     } else { //big printer
       qDebug()<<"[Printing report on CUPS big size]";
