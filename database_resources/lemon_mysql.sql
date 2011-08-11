@@ -38,7 +38,8 @@ CREATE TABLE IF NOT EXISTS `products` (
   `code` bigint(20) unsigned NOT NULL default '0',
   `name` varchar(255) NOT NULL collate utf8_general_ci default 'unknown',
   `price` double unsigned NOT NULL default '0.0',
-  `stockqty` double unsigned NOT NULL default '0',
+  #stock changed on aug 11 2011 for 0.9.4rc9. Allows NEGATIVE STOCK. Requested feature.
+  `stockqty` double NOT NULL default '0', 
   `cost` double unsigned NOT NULL default '0',
   `soldunits` double unsigned NOT NULL default '0',
   `datelastsold` date default '2009-01-01', 
@@ -57,6 +58,9 @@ CREATE TABLE IF NOT EXISTS `products` (
   `groupPriceDrop` double unsigned NOT NULL default 0,
   #The next fields are in preparation for the taxmodels... it will be included in the near future.
   `taxmodel` bigint(20) unsigned NOT NULL default 1,
+  #Added on Aug 11 2011, for 0.9.4rc9
+  `hasUnlimitedStock` bool NOT NULL default false,
+  `isNotDiscountable` bool NOT NULL default false,
   PRIMARY KEY  (`code`),
   KEY `SEC` (`category`, `name`, `alphacode`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
