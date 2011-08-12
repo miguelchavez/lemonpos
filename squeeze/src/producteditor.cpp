@@ -118,6 +118,8 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     connect( ui->editGroupPriceDrop, SIGNAL(valueChanged(double)), SLOT(updatePriceDrop(double)) );
     connect( ui->editFinalPrice, SIGNAL(textChanged(QString) ), SLOT(calculateProfit(QString)) );
 
+    connect( ui->chUnlimitedStock, SIGNAL(clicked(bool)), SLOT(setUnlimitedStock(bool)) );
+
     status = statusNormal;
     modifyCode = false;
 
@@ -368,7 +370,7 @@ void ProductEditor::changeCode()
 
 void ProductEditor::modifyStock()
 {
-  if (isGroup()) {
+  if ( isGroup() || hasUnlimitedStock() ) {
     //simply dont allow or show a message?
     return;
   }
@@ -425,6 +427,10 @@ void ProductEditor::checkIfCodeExists()
       ui->btnShowGroup->setEnabled(pInfo.isAGroup);
       ui->btnStockCorrect->setDisabled(pInfo.isAGroup); //dont allow grouped products to make stock correction
       ui->chIsARaw->setChecked(pInfo.isARawProduct);
+      
+      setUnlimitedStock(pInfo.hasUnlimitedStock);
+      setNotDiscountable(pInfo.isNotDiscountable);
+      
       if (pInfo.isAGroup) {
         setIsAGroup(pInfo.isAGroup);
         setGroupElements(pInfo);
@@ -526,6 +532,7 @@ void ProductEditor::setModel(QSqlRelationalTableModel *model)
 
   //clear any filter
   m_model->setFilter("");
+  m_model->setFilter("products.isAGroup=0 AND products.isARawProduct=0");
   m_model->select();
 }
 
@@ -675,6 +682,17 @@ bool ProductEditor::isRaw()
   return ui->chIsARaw->isChecked();
 }
 
+bool ProductEditor::isNotDiscountable()
+{
+    return ui->chNotDiscountable->isChecked();
+}
+
+bool ProductEditor::hasUnlimitedStock()
+{
+    return ui->chUnlimitedStock->isChecked();
+}
+
+
 GroupInfo ProductEditor::getGroupHash()
 {
   return groupInfo;
@@ -736,6 +754,20 @@ void ProductEditor::setIsAGroup(bool value)
 void ProductEditor::setIsARaw(bool value)
 {
   ui->chIsARaw->setChecked(value);
+}
+
+void ProductEditor::setUnlimitedStock(bool value)
+{
+  ui->chUnlimitedStock->setChecked(value);
+  //disable/enable stock correct button
+  ui->btnStockCorrect->setEnabled(!value);
+  qDebug()<<"setUnlimitedStock:"<<value;
+}
+
+void ProductEditor::setNotDiscountable(bool value)
+{
+    ui->chNotDiscountable->setChecked(value);
+    qDebug()<<"setNotDiscountable:"<<value;
 }
 
 void ProductEditor::setGroupElements(ProductInfo pi)

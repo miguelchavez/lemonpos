@@ -69,6 +69,7 @@ class ProductEditor : public KDialog
     double  getGRoupStockMax();
     double  getGroupPriceDrop() { return groupInfo.priceDrop; };
     void    setStockQtyReadOnly(bool enabled) { ui->editStockQty->setReadOnly(enabled); };
+
     
 
     void    populateCategoriesCombo();
@@ -103,6 +104,8 @@ class ProductEditor : public KDialog
     QString getGroupElementsStr();
     bool    isGroup();
     bool    isRaw();
+    bool    isNotDiscountable();
+    bool    hasUnlimitedStock();
     
 private slots:
     void    changePhoto();
@@ -120,6 +123,8 @@ private slots:
     void    removeItem();
     void    itemDoubleClicked(QTableWidgetItem* item);
     void    updatePriceDrop(double value);
+    void    setNotDiscountable(bool value);
+    void    setUnlimitedStock(bool value);
 protected slots:
     virtual void slotButtonClicked(int button);
   private:

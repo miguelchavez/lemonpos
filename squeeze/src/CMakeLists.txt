@@ -20,6 +20,7 @@ set(squeeze_SRCS
    ../../mibitWidgets/mibitfloatpanel.cpp
    ../../mibitWidgets/mibitlineedit.cpp
    ../../mibitWidgets/mibittip.cpp
+   ../../mibitWidgets/mibitnotifier.cpp
    ../../printing/print-dev.cpp
    ../../printing/print-cups.cpp
  )

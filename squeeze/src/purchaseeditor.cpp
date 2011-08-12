@@ -441,6 +441,13 @@ void PurchaseEditor::addItemToList()
 
   if (ok) {
     ProductInfo info = myDb->getProductInfo(  getCodeStr() );
+
+    //if is an Unlimited stock product, do not allow to add to the purchase.
+    if (info.hasUnlimitedStock)  {
+        errorPanel->showTip(i18n("<b>Unlimited Stock Products cannot be purchased.</b>"), 10000);
+        return;
+    }
+    
     //FIX BUG: dont allow enter new products.. dont know why? new code on 'continue' statement.
     if (info.code == 0) { //new product
       info.code = getCode();

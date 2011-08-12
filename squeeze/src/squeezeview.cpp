@@ -39,6 +39,7 @@
 #include "../../dataAccess/azahar.h"
 #include "../../src/inputdialog.h"
 #include "../../mibitWidgets/mibitfloatpanel.h"
+#include "../../mibitWidgets/mibitnotifier.h"
 #include "../../printing/print-dev.h"
 #include "../../printing/print-cups.h"
 
@@ -148,6 +149,10 @@ squeezeView::squeezeView(QWidget *parent)
 
   QTimer::singleShot(500,this, SLOT(createFloatingPanels()) );
   QTimer::singleShot(1000,this, SLOT(checkDefaultView()) );
+
+  logoBottomFile = KStandardDirs::locate("appdata", "styles/");
+  logoBottomFile = logoBottomFile+"tip.svg";
+  notifierPanel = new MibitNotifier(this,logoBottomFile, DesktopIcon("dialog-warning", 32));
 
 }
 
@@ -1925,33 +1930,6 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
     int row = index.row();
     QModelIndex indx = model->index(row, productsModel->fieldIndex("code"));
     qulonglong id = model->data(indx, Qt::DisplayRole).toULongLong();
-//     indx = model->index(row, productsModel->fieldIndex("name"));
-//     QString name = model->data(indx, Qt::DisplayRole).toString();
-//     indx = model->index(row, productsModel->fieldIndex("price"));
-//     double price = model->data(indx, Qt::DisplayRole).toDouble();
-//     indx = model->index(row, productsModel->fieldIndex("stockqty"));
-//     double stockQty = model->data(indx, Qt::DisplayRole).toDouble();
-//     indx = model->index(row, productsModel->fieldIndex("cost"));
-//     double cost = model->data(indx, Qt::DisplayRole).toDouble();
-//     indx = model->index(row, productsModel->fieldIndex("datelastsold"));
-//     QString datelastsold = model->data(indx, Qt::DisplayRole).toString();
-//     indx = model->index(row, productsModel->fieldIndex("units"));
-//     int units = model->data(indx, Qt::DisplayRole).toInt();
-//     indx = model->index(row, productsModel->fieldIndex("taxpercentage"));
-//     double tax1 = model->data(indx, Qt::DisplayRole).toDouble();
-//     indx = model->index(row, productsModel->fieldIndex("extrataxes"));
-//     double tax2 = model->data(indx, Qt::DisplayRole).toDouble();
-//     indx = model->index(row, productsModel->fieldIndex("category"));
-//     int category = model->data(indx, Qt::DisplayRole).toInt();
-//     indx = model->index(row, productsModel->fieldIndex("points"));
-//     qulonglong points = model->data(indx, Qt::DisplayRole).toULongLong();
-
-//     indx = model->index(row, productsModel->fieldIndex("isAGroup"));
-//     bool isAGroup = model->data(indx, Qt::DisplayRole).toBool();
-//     indx = model->index(row, productsModel->fieldIndex("isARawProduct"));
-//     bool isARaw = model->data(indx, Qt::DisplayRole).toBool();
-//     indx = model->index(row, productsModel->fieldIndex("groupElements"));
-//     QString gelements = model->data(indx, Qt::DisplayRole).toString();
     
     indx = model->index(row, productsModel->fieldIndex("photo"));
     QByteArray photoBA = model->data(indx, Qt::DisplayRole).toByteArray();
@@ -1988,6 +1966,9 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
         pInfo.groupElementsStr = "";
         pInfo.groupPriceDrop = 0;
       }
+
+      pInfo.hasUnlimitedStock = productEditorDlg->hasUnlimitedStock();
+      pInfo.isNotDiscountable = productEditorDlg->isNotDiscountable();
       
       pInfo.price    = productEditorDlg->getPrice();
       pInfo.cost     = productEditorDlg->getCost();
@@ -2097,6 +2078,7 @@ void squeezeView::clientsViewOnSelected(const QModelIndex & index)
 
 void squeezeView::doPurchase()
 {
+//NOTE: Unlimited stock items cannot be purchased. This limitation is in the purchase editor, so here we do not need to do anything.
   if (db.isOpen()) {
     QStringList items;
     items.clear();
@@ -2206,7 +2188,18 @@ void squeezeView::stockCorrection()
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
     oldStockQty = myDb->getProductStockQty(pcode);
-    bool isAGroup = myDb->getProductInfo(QString::number(pcode)).isAGroup;
+    ProductInfo p = myDb->getProductInfo(QString::number(pcode));
+    bool isAGroup = p.isAGroup;
+
+    //if is an Unlimited stock product, do not allow to make the correction.
+    if (p.hasUnlimitedStock)  {
+        notifierPanel->setSize(350,150);
+        notifierPanel->setOnBottom(false);
+        notifierPanel->showNotification("<b>Unlimited Stock Products cannot be purchased.</b>",5000);
+        qDebug()<<"Unlimited Stock Products cannot be purchased.";
+        return;
+    }
+    
     if (isAGroup) {
       //Notify to the user that this product's stock cannot be modified.
       //This is because if we modify each content's stock, all items will be at the same stock level, and it may not be desired.
@@ -2294,7 +2287,12 @@ void squeezeView::createOffer()
 
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
-      if ( !myDb->createOffer(offerInfo) ) qDebug()<<myDb->lastError();
+      if ( !myDb->createOffer(offerInfo) ) {
+          qDebug()<<myDb->lastError();
+          notifierPanel->setSize(350,150);
+          notifierPanel->setOnBottom(false);
+          notifierPanel->showNotification(myDb->lastError(), 6000);
+      }
       delete myDb;
       offersModel->select();
     }
@@ -2351,6 +2349,9 @@ void squeezeView::createProduct()
         //Next lines are for groups
         info.isAGroup         = prodEditorDlg->isGroup();
         info.isARawProduct    = prodEditorDlg->isRaw();
+
+        info.hasUnlimitedStock = prodEditorDlg->hasUnlimitedStock();
+        info.isNotDiscountable = prodEditorDlg->isNotDiscountable();
         
         if (!myDb->insertProduct(info))
             qDebug()<<"ERROR:"<<myDb->lastError();
@@ -3271,6 +3272,7 @@ void squeezeView::printLowStockProducts()
   delete myDb;
 }
 
+//NOTE: The unlimited stock producs will show 99999.
 void squeezeView::printStock()
 {
     Azahar *myDb = new Azahar;

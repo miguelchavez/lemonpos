@@ -74,8 +74,9 @@ bool  Azahar::correctStock(qulonglong pcode, double oldStockQty, double newStock
   result1 = result2 = false;
   if (!db.isOpen()) db.open();
 
-  //Check if the desired product is a a group.
-  if ( getProductInfo(QString::number(pcode)).isAGroup ) return false;
+  //Check if the desired product is a a group. Or hasUnlimitedStock
+  ProductInfo p = getProductInfo(QString::number(pcode));
+  if ( p.isAGroup || p.hasUnlimitedStock ) return false;
 
   QSqlQuery query(db);
   QDate date = QDate::currentDate();
@@ -115,7 +116,10 @@ double Azahar::getProductStockQty(qulonglong code)
     else {
       while (query.next()) {
         int fieldStock = query.record().indexOf("stockqty");
+        int fieldIsUnlimited = query.record().indexOf("hasUnlimitedStock");
         result = query.value(fieldStock).toDouble(); //return stock
+        if ( query.value(fieldIsUnlimited).toBool() )
+            result = 999999; //just make sure we do not return 0 for unlimited stock items.
       }
     }
   }
@@ -168,6 +172,8 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
   info.isAGroup = false;
   info.isARawProduct = false;
   info.groupPriceDrop = 0;
+  info.hasUnlimitedStock = false;
+  info.isNotDiscountable = false;
   QString rawCondition;
 
   if (!db.isOpen()) db.open();
@@ -191,6 +197,8 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
     P.groupElements as GE, \
     P.groupPriceDrop as GPRICEDROP,\
     P.soldunits as SOLDUNITS, \
+    P.isNotDiscountable as NONDISCOUNT, \
+    P.hasUnlimitedStock as UNLIMITEDSTOCK, \
     U.text as UNITSDESC, \
     C.text as CATEGORY, \
     PR.name as LASTPROVIDER ,\
@@ -235,6 +243,8 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
         int fieldIsRaw = query.record().indexOf("ISRAW");
         int fieldGE = query.record().indexOf("GE");
         int fieldSoldU = query.record().indexOf("SOLDUNITS");
+        int fieldUnlimited = query.record().indexOf("UNLIMITEDSTOCK");
+        int fieldNonDiscount = query.record().indexOf("NONDISCOUNT");
 
         info.code     = query.value(fieldCODE).toULongLong();
         info.alphaCode = query.value(fieldAlphaCode).toString();
@@ -261,7 +271,13 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
         info.taxmodelid = query.value(fieldTaxModelId).toULongLong();
         info.taxElements = query.value(fieldTaxElem).toString();
         info.groupElementsStr = query.value(fieldGE).toString();
+        info.hasUnlimitedStock = query.value(fieldUnlimited).toBool();
+        info.isNotDiscountable = query.value(fieldNonDiscount).toBool();
       }
+
+      if ( info.hasUnlimitedStock )
+            info.stockqty = 999999; //just make sure we do not return 0 for unlimited stock items.
+      
       /** @TODO: for future releases where taxmodel is included in code
       //get missing stuff - tax,offers for the requested product
       if (info.isAGroup) //If its a group, the taxmodel is ignored, the tax will be its elements taxes
@@ -288,36 +304,38 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
       
      //get discount info... if have one.
      QSqlQuery query2(db);
-     if (query2.exec(QString("Select * from offers where product_id=%1").arg(info.code) )) {
-       QList<double> descuentos; descuentos.clear();
-       while (query2.next()) // return the valid discount only (and the greater one if many).
-         {
-           int fieldDisc = query2.record().indexOf("discount");
-           int fieldDateStart = query2.record().indexOf("datestart");
-           int fieldDateEnd   = query2.record().indexOf("dateend");
-           double descP= query2.value(fieldDisc).toDouble();
-           QDate dateStart = query2.value(fieldDateStart).toDate();
-           QDate dateEnd   = query2.value(fieldDateEnd).toDate();
-           QDate now = QDate::currentDate();
-           //See if the offer is in a valid range...
-           if (info.isAGroup) { /// if produc is a group, the discount has NO DATE LIMITS!!! its valid forever.
-             descuentos.append(descP);
-           } 
-           else if ((dateStart<dateEnd) && (dateStart<=now) && (dateEnd>=now)  ) {
-             //save all discounts here and decide later to return the bigger valid discount.
-             descuentos.append(descP);
-           }
-         }
-         //now which is the bigger valid discount?
-         qSort(descuentos.begin(), descuentos.end(), qGreater<int>());
-         //qDebug()<<"DESCUENTOS ORDENADOS DE MAYOR A MENOR:"<<descuentos;
-         if (!descuentos.isEmpty()) {
-           //get the first item, which is the greater one.
-           info.validDiscount = true;
-           info.discpercentage = descuentos.first();
-           info.disc =       (info.discpercentage/100) * (info.price); //round((info.discpercentage/100) * (info.price*100))/100; //FIXME:This is not necesary VALID.
-         } else {info.disc = 0; info.validDiscount =false;}
-     }
+     if ( !info.isNotDiscountable ) { //get discounts if !isNotDiscountable...
+        if (query2.exec(QString("Select * from offers where product_id=%1").arg(info.code) )) {
+        QList<double> descuentos; descuentos.clear();
+        while (query2.next()) // return the valid discount only (and the greater one if many).
+            {
+            int fieldDisc = query2.record().indexOf("discount");
+            int fieldDateStart = query2.record().indexOf("datestart");
+            int fieldDateEnd   = query2.record().indexOf("dateend");
+            double descP= query2.value(fieldDisc).toDouble();
+            QDate dateStart = query2.value(fieldDateStart).toDate();
+            QDate dateEnd   = query2.value(fieldDateEnd).toDate();
+            QDate now = QDate::currentDate();
+            //See if the offer is in a valid range...
+            if (info.isAGroup) { /// if produc is a group, the discount has NO DATE LIMITS!!! its valid forever.
+                descuentos.append(descP);
+            }
+            else if ((dateStart<dateEnd) && (dateStart<=now) && (dateEnd>=now)  ) {
+                //save all discounts here and decide later to return the bigger valid discount.
+                descuentos.append(descP);
+            }
+            }
+            //now which is the bigger valid discount?
+            qSort(descuentos.begin(), descuentos.end(), qGreater<int>());
+            //qDebug()<<"DESCUENTOS ORDENADOS DE MAYOR A MENOR:"<<descuentos;
+            if (!descuentos.isEmpty()) {
+            //get the first item, which is the greater one.
+            info.validDiscount = true;
+            info.discpercentage = descuentos.first();
+            info.disc =       (info.discpercentage/100) * (info.price); //round((info.discpercentage/100) * (info.price*100))/100; //FIXME:This is not necesary VALID.
+            } else {info.disc = 0; info.validDiscount =false;}
+        }
+     } else {info.disc = 0; info.validDiscount = false;} // if !nondiscountable
      /// If its a group, calculate the right price first.  @note: this will be removed when taxmodels are coded.
      double priceDrop = 0;
      if (info.isAGroup) {
@@ -457,8 +475,11 @@ bool Azahar::insertProduct(ProductInfo info)
   if (!rawValueOK) info.isARawProduct = 0;
 
   info.taxmodelid = 1; ///FIXME: Delete this code when taxmodels are added, for now, insert default one.
+
+  if (info.hasUnlimitedStock)
+      info.stockqty = 1; //for not showing "Not Available" in the product delegate.
   
-  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, category, points, alphacode, lastproviderid, isARawProduct,isAGroup, groupElements, groupPriceDrop, taxmodel ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastsold, :units, :tax1, :tax2, :photo, :category, :points, :alphacode, :lastproviderid, :isARaw, :isAGroup, :groupE, :groupPriceDrop, :taxmodel);");
+  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, category, points, alphacode, lastproviderid, isARawProduct,isAGroup, groupElements, groupPriceDrop, taxmodel, hasUnlimitedStock, isNotDiscountable ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastsold, :units, :tax1, :tax2, :photo, :category, :points, :alphacode, :lastproviderid, :isARaw, :isAGroup, :groupE, :groupPriceDrop, :taxmodel, :unlimitedStock, :NonDiscountable);");
   query.bindValue(":code", info.code);
   query.bindValue(":name", info.desc);
   query.bindValue(":price", info.price);
@@ -479,6 +500,8 @@ bool Azahar::insertProduct(ProductInfo info)
   query.bindValue(":groupE", info.groupElementsStr);
   query.bindValue(":groupPriceDrop", info.groupPriceDrop);
   query.bindValue(":taxmodel", info.taxmodelid); //for later use
+  query.bindValue(":unlimitedStock", info.hasUnlimitedStock);
+  query.bindValue(":NonDiscountable", info.isNotDiscountable);
 
   if (!query.exec()) setError(query.lastError().text()); else result=true;
 
@@ -516,6 +539,9 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
 
   /// TODO FIXME: Remove the next line when taxmodels are implemented
   info.taxmodelid = 1;
+
+  if (info.hasUnlimitedStock)
+      info.stockqty = 1; //for not showing "Not Available" in the product delegate.
   
   //query.prepare("UPDATE products SET code=:newcode, photo=:photo, name=:name, price=:price, stockqty=:stock, cost=:cost, units=:measure, taxpercentage=:tax1, extrataxes=:tax2, category=:category, points=:points, alphacode=:alphacode, lastproviderid=:lastproviderid , isARawProduct=:isRaw, isAGroup=:isGroup, groupElements=:ge, groupPriceDrop=:groupPriceDrop WHERE code=:id");
   ///TODO: remove the taxpercentage and extrataxes when taxmodel is implemented
@@ -537,7 +563,9 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   isARawProduct=:isRaw, \
   isAGroup=:isGroup, \
   groupElements=:ge, \
-  groupPriceDrop=:groupPriceDrop \
+  groupPriceDrop=:groupPriceDrop, \
+  isNotDiscountable=:NonDiscountable, \
+  hasUnlimitedStock=:unlimitedStock \
   WHERE code=:id;");
   
   query.bindValue(":newcode", info.code);
@@ -559,6 +587,8 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   query.bindValue(":ge", info.groupElementsStr);
   query.bindValue(":groupPriceDrop", info.groupPriceDrop);
   query.bindValue(":taxmodel", info.taxmodelid);
+  query.bindValue(":unlimitedStock", info.hasUnlimitedStock);
+  query.bindValue(":NonDiscountable", info.isNotDiscountable);
 
   if (!query.exec()) setError(query.lastError().text()); else result=true;
   return result;
@@ -567,12 +597,21 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
 bool Azahar::decrementProductStock(qulonglong code, double qty, QDate date)
 {
   bool result = false;
-  if (!db.isOpen()) db.open();
-  QSqlQuery query(db);
   double qtys=qty;
+  double nqty = 0;
+  if (!db.isOpen()) db.open();
+
+  ProductInfo p = getProductInfo( QString::number(code) );
+  if ( p.hasUnlimitedStock )
+      nqty = 0; //not let unlimitedStock products to be decremented.
+  else
+      nqty = qty;
+  // nqty is the qty to ADD or DEC, qtys is the qty to ADD_TO_SOLD_UNITS only.
+   
+  QSqlQuery query(db);
   query.prepare("UPDATE products SET datelastsold=:dateSold , stockqty=stockqty-:qty , soldunits=soldunits+:qtys WHERE code=:id");
   query.bindValue(":id", code);
-  query.bindValue(":qty", qty);
+  query.bindValue(":qty", nqty);
   query.bindValue(":qtys", qtys);
   query.bindValue(":dateSold", date.toString("yyyy-MM-dd"));
   if (!query.exec()) setError(query.lastError().text()); else result=true;
@@ -607,9 +646,18 @@ bool Azahar::incrementProductStock(qulonglong code, double qty)
   if (!db.isOpen()) db.open();
   QSqlQuery query(db);
   double qtys=qty;
+  double nqty=0;
+
+  ProductInfo p = getProductInfo( QString::number(code) );
+  if ( p.hasUnlimitedStock )
+      nqty = 0; //not let unlimitedStock products to be decremented.
+  else
+      nqty = qty;
+  // nqty is the qty to ADD or DEC, qtys is the qty to ADD_TO_SOLD_UNITS only.
+
   query.prepare("UPDATE products SET stockqty=stockqty+:qty , soldunits=soldunits-:qtys WHERE code=:id");
   query.bindValue(":id", code);
-  query.bindValue(":qty", qty);
+  query.bindValue(":qty", nqty);
   query.bindValue(":qtys", qtys);
   if (!query.exec()) setError(query.lastError().text()); else result=true;
   //qDebug()<<"Increment Stock - Rows:"<<query.numRowsAffected();
@@ -669,6 +717,11 @@ double Azahar::getProductDiscount(qulonglong code, bool isGroup)
   if (!db.isOpen()) db.open();
   if (db.isOpen()) {
     QSqlQuery query2(db);
+    
+    ProductInfo p = getProductInfo( QString::number(code) );
+    if ( p.isNotDiscountable )
+        return 0.0;
+            
     QString qry = QString("SELECT * FROM offers WHERE product_id=%1").arg(code);
     if (!query2.exec(qry)) { setError(query2.lastError().text()); }
     else {
@@ -808,13 +861,13 @@ QList<ProductInfo> Azahar::getSoldOutProducts()
   return products;
 }
 
-//also discard group products.
+//also discard group products. and unlimited stock ones...
 QList<ProductInfo> Azahar::getLowStockProducts(double min)
 {
   QList<ProductInfo> products; products.clear();
   ProductInfo info;
   QSqlQuery query(db);
-  query.prepare("SELECT code FROM products WHERE (stockqty<=:minV and stockqty>1 and isAGroup=false) ORDER BY code,stockqty ASC;");
+  query.prepare("SELECT code FROM products WHERE (stockqty<=:minV and stockqty>1 and isAGroup=false and hasUnlimitedStock=false) ORDER BY code,stockqty ASC;");
   query.bindValue(":minV", min);
   if (query.exec()) {
     while (query.next()) {
@@ -1241,6 +1294,14 @@ bool Azahar::createOffer(OfferInfo info)
   QString qryStr;
   QSqlQuery query(db);
   if (!db.isOpen()) db.open();
+
+  ProductInfo p = getProductInfo( QString::number(info.productCode) );
+  if ( p.isNotDiscountable ) {
+      setError(i18n("Unable to set an offer/discount for the selected produc because it is NOT DISCOUNTABLE"));
+      return false;
+  }
+      
+  
   //The product has no offer yet.
   //NOTE: Now multiple offers supported (to save offers history)
   qryStr = "INSERT INTO offers (discount, datestart, dateend, product_id) VALUES(:discount, :datestart, :dateend, :code)";

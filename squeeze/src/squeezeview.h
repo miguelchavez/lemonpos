@@ -32,6 +32,7 @@ class LoginWindow;
 class KPlotObject;
 class MibitFloatPanel;
 class QListWidgetItem;
+class MibitNotifier;
 
 /**
  * This is the main view class for squeeze.  Most of the non-menu,
@@ -100,6 +101,8 @@ public:
     QListWidgetItem *itmPrintLowStockProducts;
     QListWidgetItem *itmPrintStock;
     //QListWidgetItem *itmPrintBalance;
+
+    MibitNotifier *notifierPanel;
 
     qulonglong loggedUserId;
 

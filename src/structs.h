@@ -60,6 +60,9 @@ struct ProductInfo {
   //for later use:
   qulonglong taxmodelid;
   QString taxElements;
+  //aug 11 2011, for 0.9.4.rc9
+  bool hasUnlimitedStock;
+  bool isNotDiscountable;
 };
 
 struct UserInfo
