@@ -1275,6 +1275,20 @@ color: blue;</string>
      </property>
     </widget>
    </item>
+   <item row="5" column="4">
+    <widget class="QCheckBox" name="chUnlimitedStock">
+     <property name="text">
+      <string>Unlimited Stock</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="4">
+    <widget class="QCheckBox" name="chNotDiscountable">
+     <property name="text">
+      <string>Non Discount item</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
