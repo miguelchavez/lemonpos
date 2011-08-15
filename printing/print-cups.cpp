@@ -408,11 +408,26 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     tmpFont.setItalic(true);
     painter.setFont(tmpFont);
     fm = painter.fontMetrics();
-    text = ptInfo.storeAddr + ", " +ptInfo.thPhone + ptInfo.storePhone;
+    ///Aug 14 2011: If the user enters an '|' in the phone we will add a new line. The user is responsible for text width between new lines.
+    QStringList lines = ptInfo.storePhone.split("|", QString::SkipEmptyParts);
+    //remove first line to be attached to the ", Phone:".
+    QString first = "";
+    if (!lines.isEmpty())
+        first = lines.takeFirst();
+    text = ptInfo.storeAddr + ", " +ptInfo.thPhone + first; //+ ptInfo.storePhone;
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
     yPos = yPos + fm.lineSpacing();
     painter.drawText((printer.width()/2)-(textWidth.width()/2), yPos, text);
     yPos = yPos + fm.lineSpacing();
+    //now we print the lines if any..
+    if (!lines.isEmpty()) {
+        foreach(QString line, lines) {
+            text = line;
+            textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+            painter.drawText((printer.width()/2)-(textWidth.width()/2) , yPos, text);
+            yPos = yPos + fm.lineSpacing(); //ok now we inc yPos.
+        }   
+    }
   }
   else {
     // Store Logo
