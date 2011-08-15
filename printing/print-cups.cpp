@@ -489,7 +489,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
   yPos = yPos + 2*fm.lineSpacing();
 
   //Print a RESERVATION header if is a starting Reservation.
-  if (ptInfo.ticketInfo.reservationStarted) {
+  if (ptInfo.ticketInfo.isAReservation && ptInfo.ticketInfo.reservationStarted) {
       tmpFont = QFont("Bitstream Vera Sans", textSize);
       tmpFont.setItalic(true);
       tmpFont.setBold(true);
@@ -517,32 +517,23 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
   QString textTax = ptInfo.thTax;
   QString textTotal = ptInfo.thTotal;
   QString textPrice = ptInfo.thPrice;
-  QString textQty = textPrice; //ptInfo.thQty + " x " + textPrice;
+  QString textQty = ptInfo.thQty; //textPrice; //ptInfo.thQty + " x " + textPrice;
   QString textDisc = ptInfo.thDiscount;
   //FIXME: Possible problems with TRANSLATED TEXTS, for example, Tax in Spanish is "Impuesto" but can be used "Imp", but translators DONT KNOW THIS.
 
   // Products Subheader OFFSETS
-  int columnTax  = printer.width() - Margin - (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, textTax).width());
-  int columnTotal= columnTax - Margin - (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, textTotal).width());
+  int columnDesc = Margin*2 + (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, textQty).width());
+  int columnTotal= printer.width() - 5*Margin - (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, textTotal).width());
   // discount is only printed if there is any discounts on products (not global/ocassional discount)
   int columnDisc = columnTotal - Margin - (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, textDisc).width());
   if  (ptInfo.totDisc <= 0) columnDisc = columnTotal - Margin;
-  int columnQty  = columnDisc  - Margin - (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, textQty).width());
 
+  //Printing Qty
+  painter.drawText(Margin, Margin+yPos, textQty);
   //Printing Product
-  painter.drawText(Margin,Margin+yPos, ptInfo.thProduct);
-  //Printing Qty x Price
-  //text = ptInfo.thQty+"  "+ptInfo.thPrice;
-  painter.drawText(columnQty, Margin + yPos, textQty);
-  //Printing Discount if so..
-  if (ptInfo.totDisc > 0) {
-    painter.drawText(columnDisc, Margin + yPos, textDisc);
-  }
+  painter.drawText(columnDesc,Margin+yPos, ptInfo.thProduct);
   //Printing TOTALS
   painter.drawText(columnTotal, Margin + yPos, textTotal);
-  //printing TAX
-  painter.drawText(columnTax, Margin + yPos, textTax);
-  
   yPos = yPos + fm.lineSpacing();
   
   painter.setPen(QPen(Qt::darkGray, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
@@ -555,7 +546,6 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
 
   // Content : Each product
   QLocale localeForPrinting;
-  //int xqty = 0;
   for (int i = 0; i < ptInfo.ticketInfo.lines.size(); ++i)
   {
     TicketLineInfo tLine = ptInfo.ticketInfo.lines.at(i);
@@ -574,7 +564,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     //NOTE: CHop trailing zeroes to SAVE SPACE!!!!  TODO:Does anyone wants them back???
     if (iqty.endsWith(".00") || iqty.endsWith(",00")) { iqty.chop(3); iqty += ""; /*xqty++;*/}//we chop the trailing zeroes...
     if (itax.endsWith(".00") || itax.endsWith(",00")) { itax.chop(3); }//we chop the trailing zeroes...
-    if (iprice.endsWith(".00") || iprice.endsWith(",00")) { iprice.chop(3); }//we chop the trailing zeroes...
+    //if (iprice.endsWith(".00") || iprice.endsWith(",00")) { iprice.chop(3); }//we chop the trailing zeroes...
     if (itax != "E" ) itax += " %";
     //FIXME: Si en el ticket hay solo cantidades enteras, entonces hay espacios en blanco de los choped zeroes.
     //       Y asi toma mucho espacio... poner los espacios en blanco solo si hay uno que no termine en .00
@@ -583,24 +573,28 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     //iqty = iqty + tLine.unitStr;
     QString idiscount =  localeForPrinting.toString(-(/*tLine.qty**/tLine.disc),'f',2);
     if (tLine.disc <= 0) idiscount = ""; // dont print 0.0
-    if (idiscount.endsWith(".00") || idiscount.endsWith(",00")) { idiscount.chop(3); }//we chop the trailing zeroes...
+    //if (idiscount.endsWith(".00") || idiscount.endsWith(",00")) { idiscount.chop(3); }//we chop the trailing zeroes...
     QString idue =  localeForPrinting.toString(tLine.total,'f',2);
-    if (idue.endsWith(".00") || idue.endsWith(",00")) { idue.chop(3); }//we chop the trailing zeroes...
-    while (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, idesc).width() >= columnQty - 2*Margin) { idesc.chop(2); }
+    //if (idue.endsWith(".00") || idue.endsWith(",00")) { idue.chop(3); }//we chop the trailing zeroes...
+    while (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, idesc).width()+columnDesc >= columnTotal/* - Margin*/) { idesc.chop(1); }
     
-    painter.drawText(Margin, Margin+yPos, idesc); //first product description...
-    text = iqty+" x " + iprice;
-    qDebug()<<idesc<<" "<<text<<idue;
-    painter.drawText(columnQty, Margin+yPos, text);
-    if (ptInfo.totDisc >0) {
-      painter.drawText(columnDisc, Margin+yPos, idiscount);
-    }
+    //first print the qty.
+    text = iqty+" x";
+    painter.drawText(Margin, Margin+yPos, text);
+    //product description...
+    painter.drawText(columnDesc, Margin+yPos, idesc); 
     painter.drawText(columnTotal, Margin+yPos, idue);
-    //taxes
-    text = itax;
-    painter.drawText(columnTax, Margin + yPos, text);
-
     yPos = yPos + fm.lineSpacing();
+    
+    ///Second line. Aug 14 2011.  Printing unitary price, discounts, taxes
+    QString discc = "";
+    if (idiscount > 0) {
+        discc = ", "+idiscount+" "+textDisc;
+    }
+    text = "@ "+iprice+ ", "+itax+ " "+ textTax + discc;
+    painter.drawText(Margin*5, Margin + yPos, text);
+    yPos = yPos + fm.lineSpacing();
+    
     ///check if there is a Special Order or group, to print contents
     if ( !tLine.geForPrint.isEmpty() ) {
       QStringList tmpList = tLine.geForPrint.split("|");
