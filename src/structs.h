@@ -430,4 +430,25 @@ struct ReservationInfo
     int        status;
 };
 
+struct CreditInfo
+{
+    qulonglong id;
+    qulonglong saleId;
+    qulonglong clientId;
+    QDate      date;
+    QTime      time;
+    double     paymentId; //Support one or more payments?
+    double     total;
+}
+
+struct CreditPaymentInfo
+{
+    qulonglong id;
+    qulonglong creditId;
+    QDate      date;
+    QTime      time;
+    double     amount;
+}
+
+
 #endif

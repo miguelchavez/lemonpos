@@ -65,6 +65,29 @@ CREATE TABLE IF NOT EXISTS `products` (
   KEY `SEC` (`category`, `name`, `alphacode`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+
+CREATE TABLE IF NOT EXISTS `credits` (
+  `id` bigint(20) unsigned NOT NULL auto_increment,
+  `saleid` bigint(20) unsigned NOT NULL,
+  `customerid` bigint(20) unsigned NOT NULL,
+  `total` double unsigned NOT NULL default '0.0',
+  `date` date NOT NULL,
+  `time` time NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `SEC` (`saleid`, `customerid`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `credit_payments` (
+  `id` bigint(20) unsigned NOT NULL auto_increment,
+  `creditid` bigint(20) unsigned NOT NULL,
+  `amount` double unsigned NOT NULL default '0',
+  `date` date NOT NULL,
+  `time` time NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `SEC` (`creditid`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+
 # special orders are special products, each order is a product containing one or more rawProducts
 # each time its sold one, it is created. If you want predefined products use instead grouped product.
 # TODO: Implement offers for special orders
