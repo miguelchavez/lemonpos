@@ -315,6 +315,7 @@ CREATE TABLE IF NOT EXISTS `config` (
   `logoOnTop` bool NOT NULL default true,
   `useCUPS` bool NOT NULL default true,
   `smallPrint` bool NOT NULL default true,
+  `db_version` varchar(10),
   PRIMARY KEY  (`firstrun`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
@@ -478,6 +479,6 @@ INSERT INTO lemondb.so_status (id, text) VALUES(4, 'Cancelled');
 INSERT INTO lemondb.bool_values (id, text) VALUES(0, 'NO');
 INSERT INTO lemondb.bool_values (id, text) VALUES(1, 'YES');
 
-INSERT INTO lemondb.config (firstrun, taxIsIncludedInPrice, storeLogo, storeName, storeAddress, storePhone, logoOnTop, useCUPS, smallPrint) VALUES ('yes, it is February 6 1978', true, '', '', '', '', true, true, true);
+INSERT INTO lemondb.config (firstrun, taxIsIncludedInPrice, storeLogo, storeName, storeAddress, storePhone, logoOnTop, useCUPS, smallPrint, db_version) VALUES ('yes, it is February 6 1978', true, '', '', '', '', true, true, true, '0950');
 
 

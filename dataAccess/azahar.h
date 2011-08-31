@@ -196,6 +196,7 @@ class Azahar : public QObject
     bool        getConfigSmallPrint();
     bool        getConfigLogoOnTop();
     bool        getConfigUseCUPS();
+    QString     getConfigDbVersion(); //NEW: Aug 31 2011.
     void        setConfigStoreLogo(const QByteArray &baPhoto);
     void        setConfigStoreName(const QString &str);
     void        setConfigStoreAddress(const QString &str);
@@ -246,6 +247,15 @@ class Azahar : public QObject
     QList<CurrencyInfo> getCurrencyList();
     bool     insertCurrency(const QString name, const double &factor);
     bool     deleteCurrency(const qulonglong &cid);
+
+    //Credits and its Payments
+    CreditInfo getCreditInfo(const qulonglong &id);
+    CreditPaymentInfo getCreditPaymentInfo(const qulonglong &id);
+    qulonglong getPaymentForCredit(const qulonglong &id);
+    qulonglong       insertCredit(const CreditInfo &info);
+    qulonglong       insertCreditPayment(const CreditPaymentInfo &info);
+    //QList<> getCreditTransactions();
+    
 
 };
 

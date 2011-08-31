@@ -439,7 +439,7 @@ struct CreditInfo
     QTime      time;
     double     paymentId; //Support one or more payments?
     double     total;
-}
+};
 
 struct CreditPaymentInfo
 {
@@ -448,7 +448,7 @@ struct CreditPaymentInfo
     QDate      date;
     QTime      time;
     double     amount;
-}
+};
 
 
 #endif
