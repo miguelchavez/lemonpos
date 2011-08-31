@@ -734,7 +734,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="page_Main">
        <layout class="QHBoxLayout">
@@ -1743,6 +1743,13 @@ font: 75 9pt &quot;Lucida Grande&quot;;</string>
           <widget class="QRadioButton" name="rbMoney">
            <property name="text">
             <string>By dollar and cents</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rbPriceChange">
+           <property name="text">
+            <string>Change Price</string>
            </property>
           </widget>
          </item>

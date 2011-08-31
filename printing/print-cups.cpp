@@ -489,7 +489,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
   yPos = yPos + 2*fm.lineSpacing();
 
   //Print a RESERVATION header if is a starting Reservation.
-  if (ptInfo.ticketInfo.isAReservation && ptInfo.ticketInfo.reservationStarted) {
+  if (ptInfo.ticketInfo.isAReservation && ptInfo.ticketInfo.reservationStarted && !ptInfo.ticketInfo.hasSpecialOrders) {
       tmpFont = QFont("Bitstream Vera Sans", textSize);
       tmpFont.setItalic(true);
       tmpFont.setBold(true);
@@ -684,7 +684,7 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
     //RESERVATION STUFF
     bool isAReservation = ptInfo.ticketInfo.isAReservation;
     double resPayment   = ptInfo.ticketInfo.reservationPayment;
-    if (isAReservation) {
+    if (isAReservation  && !ptInfo.ticketInfo.hasSpecialOrders) {
         QLocale locale;
         QString sp; QString spQty;
         tmpFont = QFont("Bitstream Vera Sans", textSize);

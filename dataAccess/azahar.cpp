@@ -361,6 +361,7 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
        pWOtax = pWOtax - iDisc;
      }
      //finally we have on pWOtax the price without tax and discount for 1 item
+     ///NOTE: Aug 17 2011: this tax does not take into account the ocassional discounts or price changes. It may be false.
      double tax1m = (info.tax/100)*pWOtax;
      double tax2m = (info.extratax/100)*pWOtax;
      info.totaltax = tax1m + tax2m;
@@ -479,7 +480,7 @@ bool Azahar::insertProduct(ProductInfo info)
   if (info.hasUnlimitedStock)
       info.stockqty = 1; //for not showing "Not Available" in the product delegate.
   
-  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, category, points, alphacode, lastproviderid, isARawProduct,isAGroup, groupElements, groupPriceDrop, taxmodel, hasUnlimitedStock, isNotDiscountable ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastsold, :units, :tax1, :tax2, :photo, :category, :points, :alphacode, :lastproviderid, :isARaw, :isAGroup, :groupE, :groupPriceDrop, :taxmodel, :unlimitedStock, :NonDiscountable);");
+  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, category, points, alphacode, lastproviderid, isARawProduct,isAGroup, groupElements, groupPriceDrop, taxmodel, hasUnlimitedStock, isNotDiscountable ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastgetld, :units, :tax1, :tax2, :photo, :category, :points, :alphacode, :lastproviderid, :isARaw, :isAGroup, :groupE, :groupPriceDrop, :taxmodel, :unlimitedStock, :NonDiscountable);");
   query.bindValue(":code", info.code);
   query.bindValue(":name", info.desc);
   query.bindValue(":price", info.price);
@@ -1007,6 +1008,7 @@ double Azahar::getGroupAverageTax(qulonglong id)
 }*/
 
 //This method replaces the two above deprecated methods.
+///NOTE: Aug 17 2011: this tax does not take into account the ocassional discounts or price changes. It may be false.
 GroupInfo Azahar::getGroupPriceAndTax(ProductInfo pi)
 {
   GroupInfo gInfo;
@@ -3645,18 +3647,33 @@ double Azahar::getSpecialOrderAverageDiscount(qulonglong id)
   QList<ProductInfo> pList = getSpecialOrderProductsList(id);
   foreach( ProductInfo info, pList) {
     price += info.price*info.qtyOnList;
-    if (info.validDiscount)
+    if (info.validDiscount  && !info.isNotDiscountable)
       discMoney += (info.discpercentage/100)*info.price*info.qtyOnList;
     //qDebug()<<" < EACH ONE > price: "<<info.price*info.qtyOnList<<" discMoney: "<<(info.discpercentage/100)*info.price*info.qtyOnList;
   }
   
   foreach(ProductInfo info, pList) {
-    disc += ( ((info.discpercentage/100)*info.price*info.qtyOnList)/price )*100;
+      if (info.validDiscount  && !info.isNotDiscountable)
+        disc += ( ((info.discpercentage/100)*info.price*info.qtyOnList)/price )*100;
     //qDebug()<<" < SO DISCOUNT >  qtyOnList:"<<info.qtyOnList<<" discMoney for product: "<<(info.discpercentage/100)*info.price*info.qtyOnList<<" SO price:"<<price<<" discMoney for group:"<<discMoney<<" DISCOUNT % for group:"<< disc;
   }
 
   qDebug()<<"\n <<<<<<< GetSpecialOrderAverageDiscount    :%"<<disc<<" $"<<discMoney<<" Based Price:"<<price<<">>>>>>>>\n";
   return disc;
+}
+
+int Azahar::getSpecialOrderNonDiscountables(qulonglong id)
+{
+    int count = 0;
+    if ( id <= 0 ) return 0;
+    
+    QList<ProductInfo> pList = getSpecialOrderProductsList(id);
+    foreach(ProductInfo info, pList) {
+        if (info.isNotDiscountable)
+            count++;
+    }
+    
+    return count;
 }
 
 

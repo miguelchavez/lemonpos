@@ -22,6 +22,7 @@ set(lemon_SRCS
    ../mibitWidgets/mibitlineedit.cpp
    ../mibitWidgets/mibittip.cpp
    ../mibitWidgets/mibitpassworddlg.cpp
+   ../mibitWidgets/mibitnotifier.cpp
    soselector.cpp
    sostatus.cpp
    resume.cpp

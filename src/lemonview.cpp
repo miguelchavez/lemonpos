@@ -36,6 +36,7 @@
 #include "../../mibitWidgets/mibittip.h"
 #include "../../mibitWidgets/mibitpassworddlg.h"
 #include "../../mibitWidgets/mibitfloatpanel.h"
+#include "../../mibitWidgets/mibitnotifier.h"
 
 
 //StarMicronics printers
@@ -201,6 +202,10 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   connect(ui_mainview.rbMoney, SIGNAL(toggled()), SLOT(changeDiscValidator()) );
   connect(ui_mainview.rbCoupon, SIGNAL(toggled()), SLOT(changeDiscValidator()) );
   oDiscountMoney = 0;
+
+  path = KStandardDirs::locate("appdata", "styles/");
+  path = path+"tip.svg";
+  notifierPanel = new MibitNotifier(this,path, DesktopIcon("dialog-warning", 32));
 
   refreshTotalLabel();
   QTimer::singleShot(1000, this, SLOT(setupDB()));
@@ -898,108 +903,161 @@ int lemonView::getItemRow(QString c)
 
 void lemonView::refreshTotalLabel()
 {
-  double sum=0.0;
-  totalTax = 0; //we clean it
-  qulonglong points=0;
-  if (ui_mainview.tableWidget->rowCount()>0) {
-    ///calculate total SUM.
-    for (int row=0; row<ui_mainview.tableWidget->rowCount(); ++row)
-    {
-      QTableWidgetItem *item = ui_mainview.tableWidget->item(row, colDue);
-      bool isNumber = false;
-      if (item->data(Qt::DisplayRole).canConvert(QVariant::String)) {
-        QString text = item->data(Qt::DisplayRole).toString();
-        double number = text.toDouble(&isNumber);
-        if (isNumber) sum += number;
-      }
+    //BEGIN of REWRITE: This code has been rewritten from scratch. Aug 15 2011.
+
+    ///NOTE: FIXME! The nonDiscountable items should not be discounted with dollar discount or Percentage discount.
+    ///             Now the problem is with special Orders. How to allow/disallow discounts for them?
+    totalSum = 0;
+    totalTax = 0;
+    totalSumWODisc = 0;
+    discMoney = 0;
+    double sum = 0;
+    double sum_pre=0;
+    double taxes = 0;
+    int nonDiscountables = 0;
+    double gDiscountPercentage = 0;
+
+    ///We need to iterate the products to get the nonDiscountable items, and the totals.
+    //FIXME: Still missing the Special Orders iteration likke this one.
+    foreach(ProductInfo prod, productsHash) {
+        if (prod.isNotDiscountable)
+            nonDiscountables++;
+
+        double iPrice   = prod.price;
+        //Get out tax if is included in price.
+        if (!Settings::addTax())
+            iPrice = prod.price/(1+((prod.tax+prod.extratax)/100));
+        //if item has discount, apply it.
+        if (prod.validDiscount && !prod.isNotDiscountable)
+            iPrice -= (prod.discpercentage/100)*prod.price;
+        if (!prod.validDiscount && prod.disc > 0 && !prod.isNotDiscountable) {///if this is true, then there is a product price change.
+            iPrice -= prod.disc; //product price changed.
+            discMoney += prod.disc;
+        }
+
+        sum_pre += iPrice * prod.qtyOnList;
     }
-    /// Calculate total TAXES for PRODUCTS
-    ProductInfo info;
-    qDebug()<<"Products Qty:"<<productsHash.count();
+
+    bool notApply = false;
+    if ((nonDiscountables == productsHash.count() && !productsHash.isEmpty())  || (nonDiscountables == specialOrders.count() && !specialOrders.isEmpty() ))
+        notApply = true;
+    
+    ///Now we need to get and apply GENERAL DISCOUNTS (applied to the whole sale) like client discount or ocassional discounts.
+    double gDiscount = 0; //in money.
+    if (clientInfo.discount >0 && !notApply)
+        gDiscountPercentage = clientInfo.discount/100;
+    if (oDiscountMoney > 0 && !notApply)
+        gDiscount += oDiscountMoney;
+    
+    //get the DOLLAR discount in percentage.
+    if (gDiscount > 0)  //if 0, it means the gDiscountPercentage is already calculated in previous steps... or is really 0.
+        gDiscountPercentage = gDiscount/sum_pre;
+    
+    qDebug()<<"SUM_PRE:"<<sum_pre<<" DOLLAR DISCOUNT TO PERCENTAGE:"<<gDiscountPercentage;
+    qDebug()<<"notApply:"<<notApply<<" nonDiscountables:"<<nonDiscountables<<" clientInfo.discount:"<<clientInfo.discount<<" oDiscountMoney:"<<oDiscountMoney<<" gDiscount:"<<gDiscount;
+    
+    ///iterate each product in the hash. to calculate the total sum and taxes.
     QHashIterator<qulonglong, ProductInfo> i(productsHash);
     while (i.hasNext()) {
-      i.next();
-      info = i.value();
-      points += (info.points*info.qtyOnList);
-      double pWOtax = 0;
-      if (Settings::addTax()) //added on jan 28 2010. Also on db we have other setting
-        pWOtax = i.value().price;
-      else
-        pWOtax= i.value().price/(1+((info.tax+info.extratax)/100));
-      //take into account the discount, user discount.
-      if (i.value().validDiscount || clientInfo.discount>0 || oDiscountMoney >0 ) { //UPDATED: Jan 4 2010.
-        double iDisc=0; double cDisc=0;
-        cDisc = (clientInfo.discount/100)*pWOtax;
-        if (i.value().validDiscount )
-          iDisc = (i.value().discpercentage/100)*pWOtax; //item discount depends on the discount valid-ness
-        pWOtax = pWOtax - iDisc - cDisc -oDiscountMoney;
-      }
-      //finally we have on pWOtax the price without tax and discount for 1 item
-      double tax1m = (i.value().tax/100)*pWOtax;
-      double tax2m = (i.value().extratax/100)*pWOtax;
-      totalTax += (tax1m + tax2m)*i.value().qtyOnList;
-      //totalTax is the tax in money (discount applied if apply) for the qtyOnList items
-      qDebug()<<" refreshTotal() :: total tax for product: $"<<i.value().totaltax<<" % "<<((i.value().tax/100)+(i.value().extratax/100))<<" Accumulated tax $:"<<totalTax;
+        i.next();
+        ProductInfo prod = i.value();
+        double iPrice   = prod.price;
+        //Get out tax if is included in price.
+        if (!Settings::addTax())
+            iPrice = prod.price/(1+((prod.tax+prod.extratax)/100));
+
+        double iPriceWD = iPrice; //price without discounts and taxes (if addtax...).
+
+        //if item has discount, apply it.
+        if (prod.validDiscount && !prod.isNotDiscountable)
+            iPrice -= (prod.discpercentage/100)*prod.price;
+        if (!prod.validDiscount && prod.disc > 0 && !prod.isNotDiscountable) ///if this is true, then there is a product price change.
+            iPrice -= prod.disc; //product price changed.
+        if ( gDiscountPercentage > 0 ) //apply general discount. gDiscountPercentage is in PERCENTAGE Already... do not divide by 100. 
+            iPrice -= (gDiscountPercentage)*prod.price; ///NOTE: if gDiscountPercentage is grater than 1 then it will produce negative price!
+
+        //item taxes.  totalTax is the tax in money (discount applied if apply) for the qtyOnList items
+        ///Now tax is calculated over the price with discounts including general discount (percentage or dollar and price changes). MCH Aug 30 2011.
+        double iTax = ( ((prod.tax/100)*iPrice) + ((prod.extratax/100)*iPrice) ) * prod.qtyOnList;
+        taxes += iTax; //to debug it.
+        
+        ///To calculate the sum we sum prices with included discounts per item. It does not includes taxes if Settings:addTax is false.
+        sum += iPrice * prod.qtyOnList;
+        totalSumWODisc += iPriceWD * prod.qtyOnList; //total sum without discounts and taxes if addtax...
+
+        buyPoints += (prod.points*prod.qtyOnList);
+
+        qDebug()<<prod.desc<<" - Price without Tax and discounts:"<<iPrice<<" item Tax $:"<<iTax<<"  Accumulated Tax in the purchase:"<<taxes<< " Purchase Accumulated:"<<sum;
     }
-    /// Calculate total TAXES for Special Orders
+    qDebug()<<" SUM:"<<sum;
+    //now iterate the SO. In case there are SO then no products are allowed, sum will be 0 at this point.
     foreach(SpecialOrderInfo soInfo, specialOrders) {
-      double pWOtax = 0;
-      if (Settings::addTax())
-        pWOtax = soInfo.payment;
-      else
-        pWOtax= soInfo.payment/(1+((soInfo.averageTax)/100));
+        double iPrice   = soInfo.payment;
+        if (!Settings::addTax())
+            iPrice = soInfo.payment/(1+((soInfo.averageTax)/100));
+        double iPriceWD = iPrice; //price without discounts and taxes (if addtax...).
+        //get discount
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
 
-      Azahar *myDb = new Azahar;
-      myDb->setDatabase(db);
-      double soDiscount = myDb->getSpecialOrderAverageDiscount(soInfo.orderid)/100;
-      delete myDb;
-      
-      //take into account the discount, user discount.
-      //NOTE: Both discounts are applied over the normal price. This means that each discount is calculated using the normal price.
-      //TODO: Add this to the manual.
-      double cDisc = 0; double iDisc = 0;
-      if (clientInfo.discount>0) cDisc = (clientInfo.discount/100)*pWOtax; 
-      if (soDiscount > 0)        iDisc = soDiscount*pWOtax;
-      pWOtax = pWOtax - iDisc - cDisc - oDiscountMoney;
-      //qDebug()<<"\n\n ::FOR TAXES CALCULATION:: Client Name:"<< clientInfo.name<<"\tClient discount %:"<<clientInfo.discount<<"\tClient Disc. $"<<cDisc<<"\n\n";
-      
-      totalTax += ((soInfo.averageTax/100) * pWOtax * soInfo.qty); // average is in percentage
-      qDebug()<<"============== Average tax for Special Order:"<<soInfo.averageTax<<"% accumulated tax $:"<<totalTax<<" pWOtax:"<<pWOtax;
+        double soDiscount  = myDb->getSpecialOrderAverageDiscount(soInfo.orderid)/100;
+        nonDiscountables += myDb->getSpecialOrderNonDiscountables(soInfo.orderid);
+        
+        if (soDiscount > 0)
+            iPrice -= soDiscount*iPrice;
+        //client and ocassional discounts.
+        if (clientInfo.discount>0)
+            iPrice -= (clientInfo.discount/100)*iPrice; //applied over the discounted price (if it has discount)
+        ///NOTE: SO are not allowed (implemented) for price change.
+        
+        sum += iPrice * soInfo.qty;
+        totalSumWODisc += iPriceWD * soInfo.qty; //total sum without discounts and taxes if addtax...
+        taxes += myDb->getSpecialOrderAverageTax(soInfo.orderid, rtMoney);
+        //buyPoints += (info.points*info.qtyOnList); NOTE & FIXME: SO does not get the POINTS. we would need to get frmo the elements (raw products).
+        delete myDb;
+        qDebug()<<"<SO> Price without tax and discounts: $"<<iPrice<<" Tax:$"<<myDb->getSpecialOrderAverageTax(soInfo.orderid, rtMoney)<<" Accumulated tax:$"<<taxes<<" Accumulated Purchase:"<<sum;
     }
-  }
-  buyPoints = points;
-  totalSumWODisc = sum;
-  discMoney = (clientInfo.discount/100)*sum + oDiscountMoney; //here one of the two will be ZERO. See method applyOccasionalDiscount().
-                                                              //Except if the clientDisc comes from the client (not the occasionalDiscount). Still valid because both can be applied at the same time.
-  qDebug()<<" RESERVATION PAYMENT:"<<reservationPayment;
-  subTotalSum = sum - discMoney - reservationPayment; //reservationPayment is for reservations only!
-  if (Settings::addTax())
-    totalSum    = subTotalSum + totalTax;
-  else
-    totalSum    = subTotalSum;
-  
-  ui_mainview.labelTotal->setText(QString("%1").arg(KGlobal::locale()->formatMoney(totalSum)));
-  ui_mainview.lblSubtotal->setText(QString("%1").arg(KGlobal::locale()->formatMoney(subTotalSum)));
-  long double paid, change;
-  bool isNum;
-  paid = ui_mainview.editAmount->text().toDouble(&isNum);
-  if (isNum) change = paid - totalSum; else change = 0.0;
-  if (paid <= 0) change = 0.0;
-  ui_mainview.labelChange->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(change)));
-  ui_mainview.lblSaleTaxes->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(totalTax)));
 
-  //update client discount
-  QString dStr;
-  if (clientInfo.discount >0) {
-      dStr = i18n("Discount: %1%  [%2]",clientInfo.discount, KGlobal::locale()->formatMoney(discMoney)); 
-      //discMoney = (clientInfo.discount/100)*totalSumWODisc; //this is already calculated some lines above.
-  } else if (oDiscountMoney >0 ){
-      dStr = i18n("Discount: %1", KGlobal::locale()->formatMoney(oDiscountMoney));
-  }
-  //QString frmDisc = i18n("[%1]", KGlobal::locale()->formatMoney(discMoney));
-  //dStr = dStr + "\n"+KGlobal::locale()->formatMoney(discMoney);
-  ui_mainview.lblClientDiscount->setText(dStr);
+    if (notApply && (gDiscount > 0 || gDiscountPercentage>0))
+    {
+        //Hey, only nonDiscountable items! do not apply discounts!
+        ///WARNING: Problem when SO contains one non discountable item, and two or more SOs. REVIEW THIS CASE!
+        notifierPanel->setSize(350,150);
+        notifierPanel->setOnBottom(false);
+        notifierPanel->showNotification("<b>Cannot apply discount</b> to a product marked as not discountable.",5000);
+    }
 
+    if (gDiscountPercentage > 0)
+        discMoney += gDiscountPercentage * sum; //until now, discMoney has price change discount OR Global Dollar discount OR Global Percentage discount
+    ///we get subtotal.
+    totalTax       = taxes;
+    subTotalSum    = sum - reservationPayment; //- gDiscount: ya se incluyo en la iteracion...
+    if (Settings::addTax())
+        totalSum   = subTotalSum + totalTax;
+    else totalSum = subTotalSum;
+    
+    qDebug()<<" RESERVATION PAYMENT:"<<reservationPayment;
+
+    ///refresh labels.
+    ui_mainview.labelTotal->setText(QString("%1").arg(KGlobal::locale()->formatMoney(totalSum)));
+    ui_mainview.lblSubtotal->setText(QString("%1").arg(KGlobal::locale()->formatMoney(subTotalSum)));
+    long double paid, change;
+    bool isNum;
+    paid = ui_mainview.editAmount->text().toDouble(&isNum);
+    if (isNum) change = paid - totalSum; else change = 0.0;
+    if (paid <= 0) change = 0.0;
+    ui_mainview.labelChange->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(change)));
+    ui_mainview.lblSaleTaxes->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(totalTax)));
+    //update client discount
+    QString dStr;
+    if (clientInfo.discount >0) {
+        dStr = i18n("Discount: %1%  [%2]",clientInfo.discount, KGlobal::locale()->formatMoney(discMoney));
+    } else if (oDiscountMoney >0 ){
+        dStr = i18n("Discount: %1", KGlobal::locale()->formatMoney(oDiscountMoney));
+    }
+    ui_mainview.lblClientDiscount->setText(dStr);
+    
+    //END of Rewrite
 }
 
 void lemonView::doEmitSignalQueryDb()
@@ -1299,6 +1357,35 @@ double lemonView::getTotalQtyOnList(const ProductInfo &info)
     } //it was a group
   }
   return result;
+}
+
+void lemonView::updateItem(ProductInfo prod)
+{
+    QTableWidgetItem *item = ui_mainview.tableWidget->item(prod.row, colCode);
+    displayItemInfo(item);
+
+    //check if discounts
+    double itemDiscount = 0;
+    if (prod.disc > 0 || (prod.discpercentage > 0 && prod.validDiscount) ) {
+        qDebug()<<"Item may have a discount.  Disc:"<<prod.disc<<" discPercent:"<<prod.discpercentage<<" valid Discount:"<<prod.validDiscount;
+        if (prod.disc > 0 && !prod.validDiscount)
+            itemDiscount += prod.disc; //price change
+        if ( prod.discpercentage > 0 && prod.validDiscount )
+            itemDiscount += (prod.discpercentage/100)*prod.qtyOnList; //item offer
+        qDebug()<<"ItemDiscount:"<<itemDiscount;
+    }
+    //change color for discounts
+    item  = ui_mainview.tableWidget->item(prod.row, colDisc);
+    if (itemDiscount > 0) {
+        QBrush b = QBrush(QColor::fromRgb(255,0,0), Qt::SolidPattern);
+        item->setForeground(b);
+    }
+    item->setData(Qt::EditRole, QVariant(itemDiscount));
+    //now update product total
+    item = ui_mainview.tableWidget->item(prod.row, colDue);
+    item->setData(Qt::EditRole, QVariant((prod.qtyOnList*prod.price)-itemDiscount));
+
+    ui_mainview.tableWidget->resizeRowsToContents();
 }
 
 int lemonView::doInsertItem(QString itemCode, QString itemDesc, double itemQty, double itemPrice, double itemDiscount, QString itemUnits)
@@ -1878,9 +1965,10 @@ void lemonView::finishCurrentTransaction()
     } else {
         ticket.isAReservation     = false;
         ticket.reservationStarted = false;
+        ticket.reservationId = 0;
         qDebug()<<" >>>>>>>>>>>>>>>>>>>>>>>>>>>>> OK no reservation <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" ;
     }
-        
+
 
     QHashIterator<qulonglong, ProductInfo> i(productsHash);
     int position=0;
@@ -4582,6 +4670,10 @@ void  lemonView::occasionalDiscount()
 
 void lemonView::applyOccasionalDiscount()
 {
+
+    ///NOTE: FIXME! The nonDiscountable items should not be discounted with dollar discount or Percentage discount.
+    ///             Now the problem is with special Orders. How to allow/disallow discounts for them?
+    
     //validate discount: the input has a proper validator.
     if (ui_mainview.rbPercentage->isChecked()) {
         oDiscountMoney = 0; //this is 0 when applying a percentage discount.
@@ -4589,11 +4681,70 @@ void lemonView::applyOccasionalDiscount()
     } else if (ui_mainview.rbMoney->isChecked()) {
         oDiscountMoney = ui_mainview.editDiscount->text().toDouble();
         clientInfo.discount = 0;
+    } else if (ui_mainview.rbPriceChange->isChecked()) {
+        double priceDiff = 0;
+        clientInfo.discount = 0; //reset
+        oDiscountMoney = 0; //reset
+        ///To change price to an item, it must be selected (obviously already in the purchase list). Only to normal items, no SpecialOrders.
+        ///Discount to the whole sale is allowed too.
+        if (ui_mainview.tableWidget->currentRow()!=-1 && ui_mainview.tableWidget->selectedItems().count()>4) {
+            int row = ui_mainview.tableWidget->currentRow();
+            QTableWidgetItem *item = ui_mainview.tableWidget->item(row, colCode);
+            qulonglong code = item->data(Qt::DisplayRole).toULongLong();
+            if (code <= 0) {
+                //it is an special order, not a normal product.
+                ///TODO: Implement price change for Special Orders, or is it not a good idea?
+            }
+            qDebug()<<"Selected code for changing price: "<<code;
+            if (code > 0) {
+                ProductInfo info = productsHash.take(code); //insert it later...
+                ///NOTE: price change will be applied over the normal price. Not applying item discounts. If exists any it will be cleared.
+                if (info.isNotDiscountable) {
+                    notifierPanel->setSize(350,150);
+                    notifierPanel->setOnBottom(false);
+                    notifierPanel->showNotification("<b>Cannot change price</b> to product marked as not discountable.",5000);
+                    discountPanel->hidePanel();
+                    ui_mainview.editItemCode->setFocus();
+                    return;
+                }
+                priceDiff = info.price - ui_mainview.editDiscount->text().toDouble();
+                info.disc = priceDiff; // set item discount money. discPercentage will be zero.
+                info.discpercentage = 0;
+                info.validDiscount = false; ///to detect the difference between offers and price changes.
+                productsHash.insert(code, info); //reinsert it with the new discount.
+                ///update purchase list!
+                updateItem(info);
+                //LOG the price change!
+                Azahar *myDb = new Azahar;
+                myDb->setDatabase(db);
+                QString authBy = dlgPassword->username();
+                if (authBy.isEmpty()) authBy = myDb->getUserName(1); //default admin.
+                log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Changing price to product %1, from %2 to %3. Authorized by %4", 
+                                                                                   code, info.price, ui_mainview.editDiscount->text().toDouble(), authBy));
+                delete myDb;
+                qDebug()<<QString("Changing price to: %1, from %2 to %3.").arg(code).arg(info.price).arg(ui_mainview.editDiscount->text().toDouble());
+            } else {
+                // SO cannot be price changed.
+                notifierPanel->setSize(350,150);
+                notifierPanel->setOnBottom(false);
+                notifierPanel->showNotification("<b>Cannot change price</b> to Special Orders, only to normal products.",5000);
+            }
+        } else {
+            notifierPanel->setSize(350,150);
+            notifierPanel->setOnBottom(false);
+            notifierPanel->showNotification("First <b>select a product</b> to <i>change the price</i> from the sale list.",5000);
+        }
+        ui_mainview.editItemCode->setFocus();
+        refreshTotalLabel();
+        ui_mainview.editDiscount->clear();
+        discountPanel->hidePanel();
+        return; //exit the method, we dont want to run the code at line 4641 and below.
     } else { //by coupon.
         //FIXME:CODE IT!
-        oDiscountMoney = 0;
-        clientInfo.discount = 0;
+        oDiscountMoney = 0; //reset
+        clientInfo.discount = 0; //reset
     }
+    qDebug()<<"Continuing with discount...";
     //clientInfo.discount = discPercent;
     updateClientInfo();
     refreshTotalLabel();

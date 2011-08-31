@@ -27,6 +27,7 @@ class LoginWindow;
 class MibitTip;
 class MibitPasswordDialog;
 class MibitFloatPanel;
+class MibitNotifier;
 
 #include <qwidget.h>
 #include <QList>
@@ -121,6 +122,7 @@ public:
     MibitPasswordDialog *lockDialog;
     MibitFloatPanel *currencyPanel;
     MibitFloatPanel *discountPanel;
+    MibitNotifier *notifierPanel;
 
     double oDiscountMoney;
 
@@ -209,6 +211,7 @@ public:
      * Slot used to insert an item into the buy list, do the real insert
      */
     int doInsertItem(QString itemCode, QString itemDesc, double itemQty, double itemPrice, double itemDiscount, QString itemUnits);
+    void updateItem(ProductInfo prod);
     /**
      * Slot used to delete the current item.
     */

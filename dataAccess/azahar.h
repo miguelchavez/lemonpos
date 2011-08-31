@@ -223,6 +223,7 @@ class Azahar : public QObject
     int                     getStatusId(QString texto);
     double                  getSpecialOrderAverageTax(qulonglong id, AzaharRTypes returnType= rtPercentage);
     double                  getSpecialOrderAverageDiscount(qulonglong id);
+    int                     getSpecialOrderNonDiscountables(qulonglong id);
 
     //Reservations
     qulonglong              insertReservation(ReservationInfo info);

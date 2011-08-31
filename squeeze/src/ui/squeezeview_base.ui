@@ -99,7 +99,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>11</number>
+      <number>13</number>
      </property>
      <widget class="QWidget" name="pageWelcome">
       <layout class="QGridLayout" name="gridLayout">
@@ -2345,6 +2345,9 @@ color:black;</string>
         <bool>false</bool>
        </property>
        <layout class="QGridLayout" name="gridLayout_7">
+        <property name="margin">
+         <number>6</number>
+        </property>
         <item row="0" column="0">
          <layout class="QVBoxLayout" name="verticalLayout_14">
           <item>
