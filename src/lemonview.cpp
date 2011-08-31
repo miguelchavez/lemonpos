@@ -1384,6 +1384,11 @@ void lemonView::updateItem(ProductInfo prod)
     //now update product total
     item = ui_mainview.tableWidget->item(prod.row, colDue);
     item->setData(Qt::EditRole, QVariant((prod.qtyOnList*prod.price)-itemDiscount));
+    //set the color of the total if discounted.
+    if (itemDiscount > 0) {
+        QBrush b = QBrush(QColor::fromRgb(255,0,0), Qt::SolidPattern);
+        item->setForeground(b);
+    }
 
     ui_mainview.tableWidget->resizeRowsToContents();
 }
