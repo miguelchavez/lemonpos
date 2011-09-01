@@ -62,6 +62,7 @@ class ResumeDialog : public KDialog
     void    item_Clicked(const QModelIndex &index, const QModelIndex &indexp);
     void    setupModel();
     void    selectItem();
+    void    filterClient();
   protected slots:
     virtual void slotButtonClicked(int button);
   private:

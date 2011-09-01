@@ -48,6 +48,7 @@ ResumeDialog::ResumeDialog( QWidget *parent )
     enableButtonOk(false);
 
     connect(ui->tableWidget, SIGNAL(clicked(const QModelIndex &)), SLOT(itemClicked(const QModelIndex &)));
+    connect( ui->editSearch, SIGNAL(returnPressed()), SLOT(filterClient()) );
     setDefaultButton(KDialog::Ok);
 }
 
@@ -148,6 +149,7 @@ void ResumeDialog::setupModel()
   int trClientIndex= trModel->fieldIndex("clientid");
   int trItemsIndex = trModel->fieldIndex("itemslist");
   int trTerminalNumIndex= trModel->fieldIndex("terminalnum");
+  int trItemCountIndex= trModel->fieldIndex("itemcount");
 
   trModel->setHeaderData(trIdIndex, Qt::Horizontal, i18n("Tr. #"));
   trModel->setHeaderData(trTimeIndex, Qt::Horizontal, i18n("Time"));
@@ -162,6 +164,7 @@ void ResumeDialog::setupModel()
   ui->tableWidget->setColumnHidden(trStateIndex, true);
   ui->tableWidget->setColumnHidden(trUserIndex, true);
   ui->tableWidget->setColumnHidden(trItemsIndex, true);
+  ui->tableWidget->setColumnHidden(trItemCountIndex, true);
 
   ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
   ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -207,3 +210,29 @@ void ResumeDialog::slotButtonClicked(int button)
   else QDialog::reject();
 }
 
+
+void ResumeDialog::filterClient()
+{
+    QString str = ui->editSearch->text();
+    //analize string, if it is a number, then search by id, if alphanum then by name.
+    if (str.isEmpty() || str == " "){ //clean filter
+        trModel->setFilter("");
+        trModel->setSort(0, Qt::DescendingOrder);
+        trModel->select();
+    } else {
+        bool isNum = false;
+        qulonglong clientId = str.toULongLong(&isNum);
+        if (isNum){
+            //filter by clientId  NOTE: Would be better to not exclude by userid?
+            //int trDateIndex = trModel->fieldIndex("date");
+            trModel->setFilter(QString("userid = %1 and clientid = %2").arg(userId).arg(clientId));
+            //sorting by id can be a date-time sort. The id is depending the time when it is created.
+            trModel->setSort(/*trDateIndex*/0, Qt::DescendingOrder); //it can be sorted only by one field.
+            trModel->select();
+            //clean edit after filtering? This can be faster to make search one after another if needed.
+            ui->editSearch->clear();
+        } else {
+            //filter by client name. First we need to get the id corresponding to the CLIENT NAME. A bit more difficult if searching partial names -> could be many results.
+        }
+    }
+}
