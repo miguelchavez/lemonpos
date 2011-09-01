@@ -285,7 +285,7 @@ void lemon::setupActions()
 
   QAction *suspendSaleAction = actionCollection()->addAction("suspendSale");
   suspendSaleAction->setText(i18n("Suspend Sale"));
-  suspendSaleAction->setIcon(KIcon("lemon-box")); //TODO:CREATE ICON!
+  suspendSaleAction->setIcon(KIcon("lemon-suspend"));
   suspendSaleAction->setShortcut(Qt::CTRL+Qt::Key_Backspace);
   connect(suspendSaleAction, SIGNAL(triggered(bool)), m_view, SLOT( suspendSale() ));
   qDebug()<<"Suspend Sale shortcut:"<<suspendSaleAction->shortcuts();
@@ -306,7 +306,7 @@ void lemon::setupActions()
 
   QAction *resumeAction = actionCollection()->addAction("resumeSale");
   resumeAction->setText(i18n("Resume Sale"));
-  resumeAction->setIcon(KIcon("lemon-box")); //TODO:CREATE ICON!
+  resumeAction->setIcon(KIcon("lemon-resume"));
   resumeAction->setShortcut(Qt::CTRL+Qt::Key_R);
   connect(resumeAction, SIGNAL(triggered(bool)), m_view, SLOT( resumeSale() ));
   qDebug()<<"resumeSale shortcut:"<<resumeAction->shortcuts();
