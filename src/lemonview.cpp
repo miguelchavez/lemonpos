@@ -238,6 +238,7 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   connect(ui_mainview.buttonSearchDone, SIGNAL(clicked()), SLOT(buttonDone()) );
   connect(ui_mainview.checkCard, SIGNAL(toggled(bool)), SLOT(checksChanged())  );
   connect(ui_mainview.checkCash, SIGNAL(toggled(bool)), SLOT(checksChanged())  );
+  connect(ui_mainview.checkOwnCredit, SIGNAL(toggled(bool)), SLOT(checksChanged())  );
   connect(ui_mainview.editAmount,SIGNAL(returnPressed()), SLOT(finishCurrentTransaction()) );
   connect(ui_mainview.editAmount, SIGNAL(textChanged(const QString &)), SLOT(refreshTotalLabel()));
   connect(ui_mainview.editCardNumber, SIGNAL(returnPressed()), SLOT(goSelectCardAuthNumber()) );
@@ -553,13 +554,18 @@ void lemonView::checksChanged()
     ui_mainview.editAmount->setFocus();
     ui_mainview.editAmount->setSelection(0,ui_mainview.editAmount->text().length());
   }//cash
-  else  //Card, need editCardkNumber...
+  else if (ui_mainview.checkCard->isChecked()) //Card, need editCardkNumber...
   {
     ui_mainview.stackedWidget->setCurrentIndex(1);
     ui_mainview.editAmount->setText(QString::number(totalSum));
     ui_mainview.editCardNumber->setFocus();
     ui_mainview.editCardNumber->setSelection(0,ui_mainview.editCardNumber->text().length());
-  }
+  } else { //own credit
+    ui_mainview.stackedWidget->setCurrentIndex(0);
+    ui_mainview.editAmount->setText(QString::number(totalSum));
+    ui_mainview.editAmount->setFocus();
+    ui_mainview.editAmount->setSelection(0,ui_mainview.editAmount->text().length());
+}
   refreshTotalLabel();
 }
 
@@ -1899,7 +1905,7 @@ void lemonView::finishCurrentTransaction()
       pType = pCash;
       if (!ui_mainview.editAmount->text().isEmpty()) payWith = ui_mainview.editAmount->text().toDouble();
       changeGiven = payWith- totalSum;
-    } else {
+    } else if (ui_mainview.checkCard->isChecked()) {
       pType = pCard;
       if (ui_mainview.editCardNumber->hasAcceptableInput() ) {
         cardNum = ui_mainview.editCardNumber->text().replace(0,15,"***************"); //FIXED: Only save last 4 digits;
@@ -1907,6 +1913,11 @@ void lemonView::finishCurrentTransaction()
       if (ui_mainview.editCardAuthNumber->hasAcceptableInput())
         authnumber = ui_mainview.editCardAuthNumber->text();
       payWith = payTotal;
+    } else { //own credit
+      pType = pOwnCredit;
+      payWith = payTotal;
+      changeGiven = 0;
+      ///TODO: Any other ownCredit stuff?
     }
 
     tInfo.id = currentTransaction;
@@ -1951,6 +1962,10 @@ void lemonView::finishCurrentTransaction()
     tInfo.terminalnum=Settings::editTerminalNumber();
     tInfo.providerid = 1; //default... at sale we dont use providers.
     tInfo.totalTax = totalTax;
+
+    if (pType == pOwnCredit) {
+        tInfo.state = tCompletedOwnCreditPending; ///setting pending payment status for the OwnCredit.
+    }
 
     QStringList productIDs; productIDs.clear();
     int cantidad=0;
@@ -1998,7 +2013,7 @@ void lemonView::finishCurrentTransaction()
       position++;
       productIDs.append(QString::number(i.key())+"/"+QString::number(i.value().qtyOnList));
       if (i.value().units == uPiece) cantidad += i.value().qtyOnList; else cantidad += 1; // :)
-      utilidad  += (i.value().price - i.value().cost - i.value().disc) * i.value().qtyOnList;
+      utilidad  += (i.value().price - i.value().cost - i.value().disc) * i.value().qtyOnList; //FIXME: Now with REWRITTEN TOTALS CALCULATION!! WARNING with discount
       pDiscounts+= i.value().disc * i.value().qtyOnList;
       //decrement stock qty, increment soldunits.. CHECK FOR GROUP
       if (!i.value().isAGroup)
@@ -2103,7 +2118,7 @@ void lemonView::finishCurrentTransaction()
             //the Special Order is being completed... CALCULATE PROFIT.
             double discount =  (siInfo.price * siInfo.disc * siInfo.qty) + lastDiscount;
             qDebug()<<"LAST DISCOUNT:"<<lastDiscount;
-            utilidad += ((siInfo.price - siInfo.cost)*siInfo.qty) - discount;
+            utilidad += ((siInfo.price - siInfo.cost)*siInfo.qty) - discount;//FIXME: Now with REWRITTEN TOTALS CALCULATION!! WARNING with discount
             qDebug()<<" Profit for the SO:"<<((siInfo.price - siInfo.cost)*siInfo.qty)-discount<<"discount here:"<<(siInfo.price * siInfo.disc * siInfo.qty)<<" All Discount on the SO:"<<discount;
             //NOTE: Disconunts on any SO content is taken into consideration when adding to the transaction,
             //      so the siInfo.price that comes from the SO Editor does NOT include discounts.
@@ -2217,6 +2232,7 @@ void lemonView::finishCurrentTransaction()
     //if (!Settings::addTax()) _taxes = totalTax;
     // NOTE: If taxes included in price ( !addTax() ) the profit include tax amount.
     //       Taxes paid to the gov. are calculated with profit.TODO:VERIFY this information! accountants knowledge fro each country needed.
+    ///FIXME: Now with REWRITTEN TOTALS CALCULATION!! WARNING with discount
     utilidad = utilidad - discMoney; //The net profit  == profit minus the discount (client || occasional)
     if ( !specialOrders.isEmpty() ) {
       if ( !completingOrder ) {
@@ -2247,7 +2263,7 @@ void lemonView::finishCurrentTransaction()
           //open drawer only if there is a printer available.
           if (Settings::openDrawer() && Settings::smallTicketDotMatrix() && Settings::printTicket())
             drawer->open();
-        } else {
+        } else { /// OwnCredit also will be incremented in CARD transactions. No cash IN for this sales.
           drawer->incCardTransactions();
           drawer->addCard(payWith);
         }

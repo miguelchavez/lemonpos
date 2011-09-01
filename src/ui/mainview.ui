@@ -427,6 +427,17 @@
                </layout>
               </item>
               <item>
+               <widget class="QRadioButton" name="checkOwnCredit">
+                <property name="text">
+                 <string>&amp;Internal Credit</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="mainview.qrc">
+                  <normaloff>:/images/icons/images/owncredit.png</normaloff>:/images/icons/images/owncredit.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QStackedWidget" name="stackedWidget">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
