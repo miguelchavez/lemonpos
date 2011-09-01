@@ -203,6 +203,14 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   connect(ui_mainview.rbCoupon, SIGNAL(toggled()), SLOT(changeDiscValidator()) );
   oDiscountMoney = 0;
 
+  //float panel for credits.
+  creditPanel = new MibitFloatPanel(ui_mainview.frame, path, Top);
+  creditPanel->setSize(600,400);
+  creditPanel->addWidget(ui_mainview.creditWidget);
+  creditPanel->setMode(pmManual);
+  creditPanel->setHiddenTotally(true);
+  creditPanel->hide();
+
   path = KStandardDirs::locate("appdata", "styles/");
   path = path+"tip.svg";
   notifierPanel = new MibitNotifier(this,path, DesktopIcon("dialog-warning", 32));

@@ -122,6 +122,7 @@ public:
     MibitPasswordDialog *lockDialog;
     MibitFloatPanel *currencyPanel;
     MibitFloatPanel *discountPanel;
+    MibitFloatPanel *creditPanel;
     MibitNotifier *notifierPanel;
 
     double oDiscountMoney;
