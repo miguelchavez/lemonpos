@@ -1815,7 +1815,7 @@ void lemonView::finishCurrentTransaction()
   QString msg;
   ui_mainview.mainPanel->setCurrentIndex(pageMain);
   if (ui_mainview.editAmount->text().isEmpty()) ui_mainview.editAmount->setText("0.0");
-  if (ui_mainview.checkCash->isChecked()) {
+  if (ui_mainview.checkCash->isChecked() || ui_mainview.checkOwnCredit->isChecked()) {
     double amnt = ui_mainview.editAmount->text().toDouble();
 
 
@@ -1963,8 +1963,21 @@ void lemonView::finishCurrentTransaction()
     tInfo.providerid = 1; //default... at sale we dont use providers.
     tInfo.totalTax = totalTax;
 
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    
     if (pType == pOwnCredit) {
         tInfo.state = tCompletedOwnCreditPending; ///setting pending payment status for the OwnCredit.
+        //create the credit record
+        CreditInfo credit;
+        credit.saleId = currentTransaction;
+        credit.clientId = clientInfo.id;
+        credit.date = tInfo.date; //if date of the sale is changed the creidt will be also.
+        credit.time = tInfo.time;
+        credit.total = totalSum;
+        credit.paymentId = 0;
+        qDebug()<<"CREATING CREDIT.";
+        myDb->insertCredit(credit);
     }
 
     QStringList productIDs; productIDs.clear();
@@ -1973,8 +1986,6 @@ void lemonView::finishCurrentTransaction()
     double soGTotal=0; //totals for all so.
     QDateTime soDeliveryDT;
 
-    Azahar *myDb = new Azahar;
-    myDb->setDatabase(db);
 
     if (finishingReservation) {
         //set reservation status to rCompleted.
