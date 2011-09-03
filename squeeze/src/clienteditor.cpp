@@ -40,15 +40,21 @@ ClientEditor::ClientEditor( QWidget *parent )
     setMainWidget( ui );
     setCaption( i18n("Client Editor") );
     setButtons( KDialog::Ok|KDialog::Cancel );
+    setDefaultButton(KDialog::NoDefault); //disable default button (return Pressed)
+    enableButton(KDialog::Ok, false);
 
     connect( ui->btnChangeClientPhoto   , SIGNAL( clicked() ), this, SLOT( changePhoto() ) );
-    connect( ui->editClientName, SIGNAL(textEdited(const QString &)),this, SLOT(checkName()) );
+    connect( ui->editClientName, SIGNAL(textEdited(const QString &)),this, SLOT( checkNameDelayed()) );
+    connect(ui->editClientCode, SIGNAL(returnPressed()),ui->editClientName, SLOT(setFocus()) );
+    connect(ui->editClientCode, SIGNAL(editingFinished()),this, SLOT( checkNameDelayed() )); //both returnPressed and lost focus fires this signal. But only fired if validator is accepted.
 
     QRegExp regexpC("[0-9]{1,13}");
     QRegExpValidator * validator = new QRegExpValidator(regexpC, this);
     ui->editClientPoints->setValidator(validator);
     ui->editClientDiscount->setValidator((new QDoubleValidator(0.00, 100.000, 3,ui->editClientDiscount)));
+    ui->editClientCode->setValidator(validator);
 
+    ui->editClientCode->setEmptyMessage(i18n("Enter a 6, 12, or 13 digits Bar Code."));
     ui->editClientName->setEmptyMessage(i18n("Enter client full name"));
     ui->editClientPhone->setEmptyMessage(i18n("Phone number"));
     ui->editClientCell->setEmptyMessage(i18n("Cell phone number"));
@@ -59,6 +65,7 @@ ClientEditor::ClientEditor( QWidget *parent )
     ui->sinceDatePicker->setDate(QDate::currentDate());
     
     QTimer::singleShot(750, this, SLOT(checkName()));
+    ui->editClientCode->setFocus();
 }
 
 ClientEditor::~ClientEditor()
@@ -76,10 +83,22 @@ void ClientEditor::changePhoto()
 }
 
 
+void ClientEditor::checkNameDelayed()
+{
+    QTimer::singleShot(750, this, SLOT(checkName()));
+}
+
 void ClientEditor::checkName()
 {
-  if (ui->editClientName->text().isEmpty()) enableButtonOk(false);
-  else enableButtonOk(true);
+  if (ui->editClientCode->hasFocus()) {
+      enableButtonOk(false);
+  }
+  else {
+      if (ui->editClientName->text().isEmpty())
+        enableButtonOk(false);
+      else
+        enableButtonOk(true);
+  }
 }
 
 #include "clienteditor.moc"

@@ -10,3 +10,6 @@ ALTER TABLE products CHANGE stockqty  stockqty double NOT NULL default '0';
 ALTER TABLE products ADD `hasUnlimitedStock` bool NOT NULL default false AFTER `taxmodel`;
 ALTER TABLE products ADD `isNotDiscountable` bool NOT NULL default false AFTER `hasUnlimitedStock`;
 
+
+#The next is for the client alphacodes. For the 0.9.5 version. ENABLED if the code is backported.
+#ALTER TABLE clients  ADD   `code` varchar(13) collate utf8_general_ci default '0000000000000';

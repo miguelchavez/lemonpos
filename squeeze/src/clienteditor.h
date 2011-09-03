@@ -38,6 +38,7 @@ class ClientEditor : public KDialog
   public:
     ClientEditor( QWidget *parent=0 );
     ~ClientEditor();
+    void setCode(QString code) { ui->editClientCode->setText(code); };
     void setName(QString name) { ui->editClientName->setText(name); };
     void setAddress(QString address) { ui->editClientAddress->setText(address); } ;
     void setPhone(QString phone) { ui->editClientPhone->setText(phone); };
@@ -48,6 +49,7 @@ class ClientEditor : public KDialog
     void setId(long int id) { clientId = id; };
     void setSinceDate(QDate date) { ui->sinceDatePicker->setDate(date); }
 
+    QString getCode(){ return ui->editClientCode->text();};
     QString getName(){ return ui->editClientName->text();};
     QString getAddress(){ return ui->editClientAddress->toPlainText();};
     QString getPhone(){ return ui->editClientPhone->text();};
@@ -61,6 +63,7 @@ class ClientEditor : public KDialog
   private slots:
     void changePhoto();
     void checkName();
+    void checkNameDelayed();
 
 
   private:

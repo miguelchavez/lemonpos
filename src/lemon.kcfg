@@ -39,6 +39,18 @@
     </entry>
   </group>
   <group name="General Preferences">
+    <entry name="groupUserIdAsCode" type="Bool">
+      <label>Use Code Input for Customer Identification.</label>
+      <default>0</default>
+    </entry>
+    <entry name="rb6Digits" type="Bool">
+        <label>Use 6 digits for customer id.</label>
+        <default>0</default>
+    </entry>
+    <entry name="rb12DigitsCustom" type="Bool">
+        <label>Use 12/13 Digits for customer id.</label>
+        <default>0</default>
+    </entry>
     <entry name="editTerminalNumber" type="Int">
       <label>POS Number</label>
       <default>1</default>

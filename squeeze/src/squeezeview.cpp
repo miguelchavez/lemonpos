@@ -2018,6 +2018,8 @@ void squeezeView::clientsViewOnSelected(const QModelIndex & index)
     int id = model->data(indx, Qt::DisplayRole).toInt();
     indx = model->index(row, clientsModel->fieldIndex("name"));
     QString name = model->data(indx, Qt::DisplayRole).toString();
+    indx = model->index(row, clientsModel->fieldIndex("code"));
+    QString code = model->data(indx, Qt::DisplayRole).toString();
     indx = model->index(row, clientsModel->fieldIndex("address"));
     QString address = model->data(indx, Qt::DisplayRole).toString();
     indx = model->index(row, clientsModel->fieldIndex("phone"));
@@ -2040,6 +2042,7 @@ void squeezeView::clientsViewOnSelected(const QModelIndex & index)
     //Launch Edit dialog
     ClientEditor *clientEditorDlg = new ClientEditor(this);
     //Set data on dialog
+    clientEditorDlg->setCode(code);
     clientEditorDlg->setId(id);
     clientEditorDlg->setName(name);
     clientEditorDlg->setAddress(address);
@@ -2052,6 +2055,7 @@ void squeezeView::clientsViewOnSelected(const QModelIndex & index)
 
     if (clientEditorDlg->exec() ) {
       cInfo.id       = id;
+      cInfo.code     = clientEditorDlg->getCode();
       cInfo.name     = clientEditorDlg->getName();
       cInfo.address  = clientEditorDlg->getAddress();
       cInfo.phone    = clientEditorDlg->getPhone();
@@ -2489,6 +2493,7 @@ void squeezeView::createClient()
     QPixmap photo;
 
     if (clientEditorDlg->exec() ) {
+      info.code     = clientEditorDlg->getCode();
       info.name     = clientEditorDlg->getName();
       info.address  = clientEditorDlg->getAddress();
       info.phone    = clientEditorDlg->getPhone();

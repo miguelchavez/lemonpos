@@ -189,6 +189,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 CREATE TABLE IF NOT EXISTS `clients` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
+  `code` varchar(13) collate utf8_general_ci default '0000000000000',
   `name` varchar(255) collate utf8_general_ci default '',
   `since` date NOT NULL default '2009-01-01',
   `address` varchar(255) collate utf8_general_ci default NULL,

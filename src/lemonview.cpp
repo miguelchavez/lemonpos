@@ -1202,6 +1202,7 @@ if ( doNotAddMoreItems ) { //only for reservations
 }
   
   double qty  = 1;
+  bool qtyWritten = false;
   QString codeX = code;
   ProductInfo info;
   info.code = 0;
@@ -1212,6 +1213,58 @@ if ( doNotAddMoreItems ) { //only for reservations
   if (list.count()==2) {
     qty =   list.takeAt(0).toDouble();
     codeX = list.takeAt(0);
+    qtyWritten = true;
+  }
+
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+
+  //Now ClientsID can be entered in the product editline for speed up clients selection.
+  //There are two ways of identifying clients.
+  //    1.- By using a 6 digit (UPC-E) barcode (code). Discarding any product with 6 digits code.
+  //    2.- By using a 12/13 (UPC/EAN) barcode (code). Discarding any 12/13 digits code starting with "4".
+  //    -A case where a qty (2*XXXXXX) is entered can bypass this client identification. So we know a product will be entered and not a client id.
+
+  if (Settings::groupUserIdAsCode() && !qtyWritten ) {
+      bool clientFound = false;
+      ClientInfo cI;
+      if (!specialOrders.isEmpty()) {
+          notifierPanel->setSize(350,150);
+          notifierPanel->setOnBottom(false);
+          notifierPanel->showNotification(i18n("Cannot change client while Special Orders are in Purchase.",codeX),4000);
+          ui_mainview.editItemCode->clear();
+          ui_mainview.editItemCode->setFocus();
+          return;
+      }
+      if (Settings::rb6Digits() && codeX.length() == 6) {
+          //A 6 digit code for Customer ID.
+          cI = myDb->getClientInfo(codeX);
+          if (cI.id >0)
+            clientFound = true;
+    } else if (codeX.length() >11 && codeX.startsWith("4")){
+        //A 12/13 digit code for Customer ID Starting with "4".
+        cI = myDb->getClientInfo(codeX);
+        if (cI.id >0)
+          clientFound = true;
+    }
+    if (clientFound) {
+        clientInfo = cI;//to avoid false client information to be set in the clientInfo.
+        updateClientInfo();
+        refreshTotalLabel();
+        notifierPanel->setSize(350,150);
+        notifierPanel->setOnBottom(false);
+        notifierPanel->showNotification(i18n("<b>Welcome</b> <i>%1</i>.",clientInfo.name),4000);
+        ui_mainview.editItemCode->clear();
+        ui_mainview.editItemCode->setFocus();
+        return;
+    } else {
+        notifierPanel->setSize(350,150);
+        notifierPanel->setOnBottom(false);
+        notifierPanel->showNotification(i18n("No Client found with code %1.",codeX),4000);
+        ui_mainview.editItemCode->clear();
+        ui_mainview.editItemCode->setFocus();
+        return;
+    }
   }
 
   //Here there are barcodes that support weight. Such products begin with a 2 and its length is 13.
@@ -1233,8 +1286,6 @@ if ( doNotAddMoreItems ) { //only for reservations
         qDebug()<<"  New codeX:"<<codeX<<" weight:"<<pWeight<<" Double weight:"<<qty;
     }
 
-  Azahar *myDb = new Azahar;
-  myDb->setDatabase(db);
   info = myDb->getProductInfo(codeX); //includes discount and validdiscount
   qDebug()<<" CodeX = "<<codeX<<" Numeric Code:"<<info.code<<" Alphacode:"<<info.alphaCode<<" Required Qty:"<<qty;
   delete myDb;
@@ -4740,10 +4791,10 @@ void lemonView::applyOccasionalDiscount()
                 ProductInfo info = productsHash.take(code); //insert it later...
                 ///NOTE: price change will be applied over the normal price. Not applying item discounts. If exists any it will be cleared.
                 if (info.isNotDiscountable) {
+                    discountPanel->hidePanel();
                     notifierPanel->setSize(350,150);
                     notifierPanel->setOnBottom(false);
                     notifierPanel->showNotification("<b>Cannot change price</b> to product marked as not discountable.",5000);
-                    discountPanel->hidePanel();
                     ui_mainview.editItemCode->setFocus();
                     return;
                 }

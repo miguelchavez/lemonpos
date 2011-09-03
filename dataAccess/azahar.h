@@ -132,6 +132,7 @@ class Azahar : public QObject
     bool         incrementClientPoints(qulonglong id, qulonglong points);
     bool         decrementClientPoints(qulonglong id, qulonglong points);
     ClientInfo   getClientInfo(qulonglong clientId);
+    ClientInfo   getClientInfo(QString clientCode);
     QHash<QString, ClientInfo> getClientsHash();
     QStringList  getClientsList();
     QString      getMainClient();

@@ -82,6 +82,7 @@ struct UserInfo
 struct ClientInfo
 {
   unsigned int id;
+  QString      code;
   QString      name;
   QString      address;
   QString      phone;
