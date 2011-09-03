@@ -1227,6 +1227,7 @@ if ( doNotAddMoreItems ) { //only for reservations
 
   if (Settings::groupUserIdAsCode() && !qtyWritten ) {
       bool clientFound = false;
+      bool check=false;
       ClientInfo cI;
       if (!specialOrders.isEmpty()) {
           notifierPanel->setSize(350,150);
@@ -1239,33 +1240,39 @@ if ( doNotAddMoreItems ) { //only for reservations
       if (Settings::rb6Digits() && codeX.length() == 6) {
           //A 6 digit code for Customer ID.
           cI = myDb->getClientInfo(codeX);
+          check = true;
           if (cI.id >0)
             clientFound = true;
     } else if (codeX.length() >11 && codeX.startsWith("4")){
         //A 12/13 digit code for Customer ID Starting with "4".
+        check = true;
         cI = myDb->getClientInfo(codeX);
         if (cI.id >0)
           clientFound = true;
-    }
-    if (clientFound) {
-        clientInfo = cI;//to avoid false client information to be set in the clientInfo.
-        updateClientInfo();
-        refreshTotalLabel();
-        notifierPanel->setSize(350,150);
-        notifierPanel->setOnBottom(false);
-        notifierPanel->showNotification(i18n("<b>Welcome</b> <i>%1</i>.",clientInfo.name),4000);
-        ui_mainview.editItemCode->clear();
-        ui_mainview.editItemCode->setFocus();
-        return;
-    } else {
-        notifierPanel->setSize(350,150);
-        notifierPanel->setOnBottom(false);
-        notifierPanel->showNotification(i18n("No Client found with code %1.",codeX),4000);
-        ui_mainview.editItemCode->clear();
-        ui_mainview.editItemCode->setFocus();
-        return;
-    }
-  }
+    } else
+        check = false; // no 6digit or 12digit code configured, 
+    
+    if (check) {
+        if (clientFound) {
+            clientInfo = cI;
+            updateClientInfo();
+            refreshTotalLabel();
+            notifierPanel->setSize(350,150);
+            notifierPanel->setOnBottom(false);
+            notifierPanel->showNotification(i18n("<b>Welcome</b> <i>%1</i>.",clientInfo.name),4000);
+            ui_mainview.editItemCode->clear();
+            ui_mainview.editItemCode->setFocus();
+            return;   
+        } else {
+            notifierPanel->setSize(350,150);
+            notifierPanel->setOnBottom(false);
+            notifierPanel->showNotification(i18n("No Client found with code %1.",codeX),4000);
+            ui_mainview.editItemCode->clear();
+            ui_mainview.editItemCode->setFocus();
+            return;
+        }
+    }//if check...
+  }//if config for client identification
 
   //Here there are barcodes that support weight. Such products begin with a 2 and its length is 13.
     ///@link http://en.wikipedia.org/wiki/Universal_Product_Code#Prefixes
