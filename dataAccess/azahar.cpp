@@ -4161,9 +4161,6 @@ CreditInfo Azahar::getCreditInfo(const qulonglong &id)
     if (!db.isOpen()) db.open();
     if (db.isOpen()) {
         QSqlQuery myQuery(db);
-        //SELECT C.customerid AS customerid, C.saleid AS saleid, C.date AS date, C.time AS time, C.total AS total, CP.id AS CP_ID \
-        //FROM credits AS C, credit_payments as CP, \
-        //WHERE C.id=:id AND C.id=CP.id
         myQuery.prepare("SELECT * FROM credits WHERE id=:id;");
         myQuery.bindValue(":id", id);
         if (myQuery.exec() ) {
@@ -4173,6 +4170,7 @@ CreditInfo Azahar::getCreditInfo(const qulonglong &id)
                 int fieldDate    = myQuery.record().indexOf("date");
                 int fieldTime    = myQuery.record().indexOf("time");
                 int fieldTotal   = myQuery.record().indexOf("total");
+                int fieldPaid    = myQuery.record().indexOf("paid");
 
                 result.id = id;
                 result.clientId = myQuery.value(fieldClient).toULongLong();
@@ -4180,6 +4178,7 @@ CreditInfo Azahar::getCreditInfo(const qulonglong &id)
                 result.total    = myQuery.value(fieldTotal).toDouble();
                 result.date     = myQuery.value(fieldDate).toDate();
                 result.time     = myQuery.value(fieldTime).toTime();
+                result.paid     = myQuery.value(fieldPaid).toBool();
             }
             //now get the payment id if any.
             result.paymentId = getPaymentForCredit(id);
@@ -4250,12 +4249,13 @@ qulonglong  Azahar::insertCredit(const CreditInfo &info)
     qulonglong result = 0;
     if (!db.isOpen()) db.open();
     QSqlQuery query(db);
-    query.prepare("INSERT INTO credits (customerid, saleid, date, time, total) VALUES (:client, :transaction,  :date, :time, :total);");
+    query.prepare("INSERT INTO credits (customerid, saleid, date, time, total, paid) VALUES (:client, :transaction,  :date, :time, :total, :paid);");
     query.bindValue(":transaction", info.saleId);
     query.bindValue(":client", info.clientId);
     query.bindValue(":date", info.date);
     query.bindValue(":time", info.time);
     query.bindValue(":total", info.total);
+    query.bindValue(":paid", info.paid);
     
     if (!query.exec()) {
         setError(query.lastError().text());
@@ -4265,22 +4265,168 @@ qulonglong  Azahar::insertCredit(const CreditInfo &info)
     return result;
 }
 
+bool  Azahar::setCreditPaid(const qulonglong &id)
+{
+    bool result = false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query.prepare("UPDATE credits set paid=true WHERE id=:id;");
+    query.bindValue(":id", id);
+    
+    if (!query.exec()) {
+        setError(query.lastError().text());
+        qDebug()<< __FUNCTION__ << query.lastError().text();
+    }
+    return result;
+}
+
 qulonglong  Azahar::insertCreditPayment(const CreditPaymentInfo &info)
 {
     qulonglong result = 0;
     if (!db.isOpen()) db.open();
     QSqlQuery query(db);
-    query.prepare("INSERT INTO credit_payments (creditid, amount, date, time) VALUES (:credit, amount, :date, :time);");
+    query.prepare("INSERT INTO credit_payments (creditid, amount, date, time) VALUES (:credit, :amount, :date, :time);");
     query.bindValue(":credit", info.creditId);
     query.bindValue(":date", info.date);
     query.bindValue(":time", info.time);
-    query.bindValue(":total", info.amount);
+    query.bindValue(":amount", info.amount);
     
     if (!query.exec()) {
         setError(query.lastError().text());
         qDebug()<< __FUNCTION__ << query.lastError().text();
     }
     else result = query.lastInsertId().toULongLong();
+    return result;
+}
+
+QList<CreditInfo> Azahar::getCreditsForClient(const QString &clientCode, const bool &paid)
+{
+    /// paid==true -> only returns paid credits. else returns unpaid credits...
+    QList<CreditInfo> result;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        myQuery.prepare("SELECT * FROM credits WHERE customerid=:id AND paid=:paid;");
+        myQuery.bindValue(":id", clientCode);
+        myQuery.bindValue(":paid", paid);
+        if (myQuery.exec() ) {
+            while (myQuery.next()) {
+                int fieldClient  = myQuery.record().indexOf("customerid");
+                int fieldTr      = myQuery.record().indexOf("saleid");
+                int fieldDate    = myQuery.record().indexOf("date");
+                int fieldTime    = myQuery.record().indexOf("time");
+                int fieldTotal   = myQuery.record().indexOf("total");
+                int fieldPaid    = myQuery.record().indexOf("paid");
+                int fieldId    = myQuery.record().indexOf("id");
+
+                CreditInfo credit;
+                credit.id       = myQuery.value(fieldId).toULongLong();
+                credit.clientId = myQuery.value(fieldClient).toULongLong();
+                credit.saleId   = myQuery.value(fieldTr).toULongLong();
+                credit.total    = myQuery.value(fieldTotal).toDouble();
+                credit.date     = myQuery.value(fieldDate).toDate();
+                credit.time     = myQuery.value(fieldTime).toTime();
+                credit.paid     = myQuery.value(fieldPaid).toBool();
+                if (credit.paid)
+                    credit.paymentId = getPaymentForCredit(credit.id);
+                //insert to the list.
+                result.append(credit);
+            }
+        }
+        else {
+            setError(myQuery.lastError().text());
+        }
+    }
+    return result;
+}
+
+bool Azahar::incDebit(const qulonglong &clientId, const double &amount)
+{
+    bool result = false;
+    DebitInfo debit = getDebitForClient(clientId);
+    if (debit.id > 0){
+        debit.amount += amount;
+        result = updateDebit(debit);
+    } else {
+        debit.amount = amount;
+        debit.clientId = clientId;
+        result = insertDebit(debit);
+    }
+    return result;
+}
+
+bool Azahar::decDebit(const qulonglong &clientId, const double &amount)
+{
+    bool result = false;
+    DebitInfo debit = getDebitForClient(clientId);
+    if (debit.id > 0){
+        debit.amount -= amount;
+        result = updateDebit(debit);
+    } else {
+        debit.amount = amount;
+        debit.clientId = clientId;
+        result = insertDebit(debit);
+    }
+    return result;
+}
+
+bool Azahar::insertDebit(const DebitInfo &debit)
+{
+    bool result = false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO debits (customerid, amount) VALUES (:client, :amount);");
+    query.bindValue(":client", debit.clientId);
+    query.bindValue(":amount", debit.amount);
+    
+    if (!query.exec()) {
+        setError(query.lastError().text());
+        qDebug()<< __FUNCTION__ << query.lastError().text();
+    } else result = true;
+    return result;
+}
+
+bool Azahar::updateDebit(const DebitInfo &debit)
+{
+    bool result = false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query.prepare("UPDATE debits set amount=:amount WHERE id=:id;");
+    query.bindValue(":id", debit.id);
+    query.bindValue(":amount", debit.amount);
+    
+    if (!query.exec()) {
+        setError(query.lastError().text());
+        qDebug()<< __FUNCTION__ << query.lastError().text();
+    }
+    return result;
+}
+
+DebitInfo Azahar::getDebitForClient(const qulonglong &client)
+{
+    DebitInfo result;
+    result.id = 0;
+    result.amount = 0;
+    result.clientId = 0;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        myQuery.prepare("SELECT * FROM debits WHERE customerid=:client;");
+        myQuery.bindValue(":client", client);
+        if (myQuery.exec() ) {
+            while (myQuery.next()) {
+                int fieldId       = myQuery.record().indexOf("id");
+                int fieldAmount   = myQuery.record().indexOf("amount");
+                
+                result.id = myQuery.value(fieldId).toULongLong();
+                result.clientId  = client;
+                result.amount    = myQuery.value(fieldAmount).toDouble();
+            }
+        }
+        else {
+            setError(myQuery.lastError().text());
+        }
+    }
     return result;
 }
 

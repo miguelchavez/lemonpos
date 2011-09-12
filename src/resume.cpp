@@ -220,19 +220,12 @@ void ResumeDialog::filterClient()
         trModel->setSort(0, Qt::DescendingOrder);
         trModel->select();
     } else {
-        bool isNum = false;
-        qulonglong clientId = str.toULongLong(&isNum);
-        if (isNum){
-            //filter by clientId  NOTE: Would be better to not exclude by userid?
-            //int trDateIndex = trModel->fieldIndex("date");
-            trModel->setFilter(QString("userid = %1 and clientid = %2").arg(userId).arg(clientId));
-            //sorting by id can be a date-time sort. The id is depending the time when it is created.
-            trModel->setSort(/*trDateIndex*/0, Qt::DescendingOrder); //it can be sorted only by one field.
-            trModel->select();
-            //clean edit after filtering? This can be faster to make search one after another if needed.
-            ui->editSearch->clear();
-        } else {
-            //filter by client name. First we need to get the id corresponding to the CLIENT NAME. A bit more difficult if searching partial names -> could be many results.
-        }
+        //search by client code (alphanum, 0000001 and not 1)
+        //int trDateIndex = trModel->fieldIndex("date");
+        trModel->setFilter(QString("code = '%1'").arg(str)); //userid = %1 .arg(userId)
+        trModel->setSort(/*trDateIndex*/0, Qt::DescendingOrder); //it can be sorted only by one field.
+        trModel->select();
+        //clean edit after filtering? This can be faster to make search one after another if needed.
+        ui->editSearch->clear();
     }
 }

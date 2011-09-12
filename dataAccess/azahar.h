@@ -255,7 +255,15 @@ class Azahar : public QObject
     qulonglong getPaymentForCredit(const qulonglong &id);
     qulonglong       insertCredit(const CreditInfo &info);
     qulonglong       insertCreditPayment(const CreditPaymentInfo &info);
-    //QList<> getCreditTransactions();
+    QList<CreditInfo> getCreditsForClient(const QString &clientCode, const bool &paid);
+    bool              setCreditPaid(const qulonglong &id);
+
+    //Debits
+    bool              incDebit(const qulonglong &clientId, const double &amount);
+    bool              decDebit(const qulonglong &clientId, const double &amount);
+    bool              insertDebit(const DebitInfo &debit);
+    bool              updateDebit(const DebitInfo &debit);
+    DebitInfo         getDebitForClient(const qulonglong &client);
     
 
 };

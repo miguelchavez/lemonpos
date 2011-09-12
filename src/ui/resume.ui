@@ -88,7 +88,7 @@ p, li { white-space: pre-wrap; }
       </size>
      </property>
      <property name="title">
-      <string>Contents</string>
+      <string>Items</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>

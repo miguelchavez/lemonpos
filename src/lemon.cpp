@@ -324,6 +324,13 @@ void lemon::setupActions()
   resumeRAction->setShortcut(Qt::CTRL+Qt::SHIFT+Qt::Key_R);
   connect(resumeRAction, SIGNAL(triggered(bool)), m_view, SLOT( resumeReservation() ));
   qDebug()<<"Reservations shortcut:"<<resumeRAction->shortcuts();
+
+  QAction *showCreditsAction = actionCollection()->addAction("showCredits");
+  showCreditsAction->setText(i18n("Show Credits"));
+  showCreditsAction->setIcon(KIcon("lemon-credits"));
+  showCreditsAction->setShortcut(Qt::CTRL+Qt::SHIFT+Qt::Key_C);
+  connect(showCreditsAction, SIGNAL(triggered(bool)), m_view, SLOT( showCredits() ));
+  qDebug()<<"ShowCredits shortcut:"<<showCreditsAction->shortcuts();
   
   setupGUI();
 

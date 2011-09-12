@@ -96,6 +96,7 @@ public:
     LoginWindow *dlgPassword;
     QHash<qulonglong, ProductInfo> productsHash;
     QSqlTableModel *productsModel;
+    QSqlRelationalTableModel *creditsModel;
     QHash<QString, int> categoriesHash;
     ClientInfo clientInfo;
     QHash<QString, ClientInfo> clientsHash;
@@ -126,6 +127,11 @@ public:
     MibitNotifier *notifierPanel;
 
     double oDiscountMoney;
+
+    QString clientCodeForCredit;
+    double creditTotal;
+    qulonglong creditId;
+    QList<CreditInfo> creditsForPayment;
 
     void loadIcons();
     void setUpInputs();
@@ -362,6 +368,17 @@ public:
     void suspendReservation();
     void resumeReservation();
     void postponeReservation();
+
+    void showCredits();
+    void filterClientForCredit();
+    void calculateTotalForClient();
+    void creditClicked(const QModelIndex &index, const QModelIndex &indexp);
+    void showCreditPaySelected();
+    void showCreditPayAll();
+    void tenderedChanged();
+    void doCreditPayment();
+    void insertCashInForCredit(const CreditInfo &credit);
+    void insertCashInForDebit(const qulonglong &clientId, const double &amount);
 
 };
 

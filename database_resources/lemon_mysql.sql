@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS `credits` (
   `total` double unsigned NOT NULL default '0.0',
   `date` date NOT NULL,
   `time` time NOT NULL,
+  `paid` bool default false,
   PRIMARY KEY  (`id`),
   KEY `SEC` (`saleid`, `customerid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -85,6 +86,14 @@ CREATE TABLE IF NOT EXISTS `credit_payments` (
   `time` time NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `SEC` (`creditid`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `debits` (
+  `id` bigint(20) unsigned NOT NULL auto_increment,
+  `customerid` bigint(20) unsigned NOT NULL,
+  `amount` double unsigned NOT NULL default '0.0',
+  PRIMARY KEY  (`id`),
+  KEY `SEC` (`customerid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 

@@ -439,6 +439,7 @@ struct CreditInfo
     QDate      date;
     QTime      time;
     double     paymentId; //Support one or more payments?
+    bool       paid;
     double     total;
 };
 
@@ -450,6 +451,14 @@ struct CreditPaymentInfo
     QTime      time;
     double     amount;
 };
+
+struct DebitInfo //one debit account per user.
+{
+    qulonglong id;
+    qulonglong clientId;
+    double     amount;
+};
+
 
 
 #endif

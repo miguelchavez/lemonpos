@@ -204,12 +204,15 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   oDiscountMoney = 0;
 
   //float panel for credits.
+  path = KStandardDirs::locate("appdata", "styles/");
+  path = path+ "panel_top_big.svg";
   creditPanel = new MibitFloatPanel(ui_mainview.frame, path, Top);
   creditPanel->setSize(600,400);
   creditPanel->addWidget(ui_mainview.creditWidget);
   creditPanel->setMode(pmManual);
   creditPanel->setHiddenTotally(true);
   creditPanel->hide();
+  connect( ui_mainview.editClientIdForCredit, SIGNAL(returnPressed()), SLOT(filterClientForCredit()) );
 
   path = KStandardDirs::locate("appdata", "styles/");
   path = path+"tip.svg";
@@ -267,6 +270,13 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   connect(ui_mainview.btnApplyDiscount, SIGNAL(clicked()), SLOT(applyOccasionalDiscount() ) );
   connect(ui_mainview.editDiscount, SIGNAL(returnPressed()), SLOT(applyOccasionalDiscount() ) );
   connect(ui_mainview.btnCancelDiscount, SIGNAL(clicked()), discountPanel, SLOT(hidePanel() ) );
+
+  connect(ui_mainview.btnCalculateAllCredits, SIGNAL(clicked()), SLOT(calculateTotalForClient() ) );
+  connect(ui_mainview.btnPaySelectedCredit, SIGNAL(clicked()), SLOT(showCreditPaySelected()));
+  connect(ui_mainview.btnPayAllCredits, SIGNAL(clicked()), SLOT(showCreditPayAll()));
+  connect(ui_mainview.editCreditTendered, SIGNAL(textChanged(const QString &)), SLOT(tenderedChanged()) );
+  connect(ui_mainview.editCreditTendered, SIGNAL(returnPressed()), SLOT(doCreditPayment()) );
+  connect(ui_mainview.btnCancelCreditPayment, SIGNAL(clicked()), creditPanel, SLOT(hidePanel()));
 
   timerClock->start(1000);
 
@@ -393,11 +403,18 @@ void lemonView::setUpInputs()
   QRegExpValidator *regexpAlpha = new QRegExpValidator(regexpAN, this);
   ui_mainview.editCardAuthNumber->setValidator(regexpAlpha);
 
+  QRegExp regexpCC("[0-9]{1,13}");
+  QRegExpValidator * cValidator = new QRegExpValidator(regexpCC, this);
+  ui_mainview.editClientIdForCredit->setValidator(cValidator);
+
   //ui_mainview.editAmount->setInputMask("000,000.00");
 
  //filter for new discount edit line. at the begining, it is by percentage discount the default.
   QDoubleValidator *doubleVal = new QDoubleValidator(0.001, 99.00, 4, this);
   ui_mainview.editDiscount->setValidator(doubleVal);
+
+  ui_mainview.editCreditTendered->setValidator(validatorFloat);
+  ui_mainview.creditPaymentWidget->hide();
 }
 
 void lemonView::changeDiscValidator()
@@ -2034,6 +2051,7 @@ void lemonView::finishCurrentTransaction()
         credit.time = tInfo.time;
         credit.total = totalSum;
         credit.paymentId = 0;
+        credit.paid = false;
         qDebug()<<"CREATING CREDIT.";
         myDb->insertCredit(credit);
     }
@@ -3360,7 +3378,7 @@ void lemonView::corteDeCaja()
         //QDateTime dateTime; dateTime.setDate(cfInfo.date); dateTime.setTime(cfInfo.time);
         QString dateF   = KGlobal::locale()->formatTime(cfInfo.time);
         QString typeSign; /*cfInfo.typeStr*/
-        if (cfInfo.type == ctCashIn || cfInfo.type == ctCashInReservation )
+        if (cfInfo.type == ctCashIn || cfInfo.type == ctCashInReservation || cfInfo.type == ctCashInCreditPayment || cfInfo.type == ctCashInDebit)
             typeSign = "+";
         else //TODO: IN THE FUTURE REVIEW THIS CODE, IF ADDING MORE CASH IN/OUT CASES.
             typeSign = "-";
@@ -3589,6 +3607,41 @@ void lemonView::setupModel()
     //Crashes without debug information.
     if (productsModel->tableName() != "products")
       productsModel->setTable("products");
+    if (creditsModel->tableName() != "credits")
+        creditsModel->setTable("credits");
+
+    int crIdIndex = creditsModel->fieldIndex("id");
+    int crDateIndex = creditsModel->fieldIndex("date");
+    int crTimeIndex= creditsModel->fieldIndex("time");
+    int crSaleIndex = creditsModel->fieldIndex("saleid");
+    int crPaymentIndex= creditsModel->fieldIndex("paymentid");
+    int crClientIndex = creditsModel->fieldIndex("customerid");
+    int crTotalIndex = creditsModel->fieldIndex("total");
+    creditsModel->setRelation(crClientIndex, QSqlRelation("clients", "id", "name"));
+
+    creditsModel->setHeaderData(crDateIndex, Qt::Horizontal, i18n("Date"));
+    creditsModel->setHeaderData(crTimeIndex, Qt::Horizontal, i18n("Timer"));
+    creditsModel->setHeaderData(crSaleIndex, Qt::Horizontal, i18n("Sale"));
+    creditsModel->setHeaderData(crClientIndex, Qt::Horizontal, i18n("Client"));
+    creditsModel->setHeaderData(crTotalIndex, Qt::Horizontal, i18n("Total"));
+    creditsModel->setHeaderData(crPaymentIndex, Qt::Horizontal, i18n("Pago"));
+    ui_mainview.tableCredits->setColumnHidden(crIdIndex, true);
+
+    ui_mainview.tableCredits->setModel(creditsModel);
+    ui_mainview.tableCredits->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui_mainview.tableCredits->setSelectionMode(QAbstractItemView::SingleSelection);
+    creditsModel->setFilter(QString("paid=false")); //just showing the unpaid credits.
+    creditsModel->setSort(0, Qt::DescendingOrder);
+    creditsModel->select();
+    //connecting the signal for updating the credit details.
+    QItemSelectionModel *selModel = ui_mainview.tableCredits->selectionModel();
+    connect(selModel,
+            SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+            SLOT(creditClicked(const QModelIndex &, const QModelIndex &)));
+    
+    ui_mainview.tableCredits->resizeRowsToContents();
+    ui_mainview.tableCredits->resizeColumnsToContents();
+    
     productsModel->setEditStrategy(QSqlTableModel::OnRowChange);
     ui_mainview.listView->setModel(productsModel);
     ui_mainview.listView->setResizeMode(QListView::Adjust);
@@ -3615,7 +3668,8 @@ void lemonView::setupModel()
 
     ui_mainview.comboFilterByCategory->setCurrentIndex(0);
     connect(ui_mainview.comboFilterByCategory,SIGNAL(currentIndexChanged(int)), this, SLOT( setFilter()) );
-    connect(ui_mainview.editFilterByDesc,SIGNAL(textEdited(const QString &)), this, SLOT( setFilter()) );
+//     connect(ui_mainview.editFilterByDesc,SIGNAL(textEdited(const QString &)), this, SLOT( setFilter()) ); //THIS MAKES SLOW SEARCH WITH LARGE DB.
+    connect(ui_mainview.editFilterByDesc,SIGNAL(returnPressed()), this, SLOT( setFilter()) );
     connect(ui_mainview.rbFilterByDesc, SIGNAL(toggled(bool)), this, SLOT( setFilter()) );
     connect(ui_mainview.rbFilterByCategory, SIGNAL(toggled(bool)), this, SLOT( setFilter()) );
 
@@ -3776,6 +3830,7 @@ void lemonView::connectToDb()
     //finally, when connection stablished, setup all models.
     if (!modelsCreated) { //Create models...
       productsModel       = new QSqlTableModel();
+      creditsModel        = new QSqlRelationalTableModel();
       historyTicketsModel = new QSqlRelationalTableModel();
       modelsCreated = true;
     }
@@ -5131,6 +5186,422 @@ void lemonView::postponeReservation()
     myDb->setDatabase(db);
 
     myDb->setTransactionReservationStatus(getCurrentTransaction());
+    delete myDb;
+}
+
+//-----------CREDITS-----------------
+
+///NOTE & WARNING: Credits are linked to clients. If a client CODE changes, THE CREDITS MUST BE CHANGED TOO! FIXME!!!!
+
+void lemonView::showCredits()
+{
+    ui_mainview.editClientIdForCredit->clear();
+    ui_mainview.creditContent->clear();
+    clientCodeForCredit = "";
+    creditsModel->setFilter("paid=false");
+    creditsModel->select();
+
+    ui_mainview.creditPaymentWidget->hide();
+    ui_mainview.editCreditTendered->clear();
+    ui_mainview.lblCreditChange->setText("0.0");
+    creditPanel->showPanel();
+    ui_mainview.editClientIdForCredit->setFocus();
+    ui_mainview.tableCredits->setEnabled(true);
+    
+    creditId = 0;
+    creditTotal = 0;
+    creditsForPayment.clear();
+}
+
+void lemonView::filterClientForCredit()
+{
+    QString clientCode = ui_mainview.editClientIdForCredit->text();
+    creditId = 0;
+    if (clientCode.isEmpty() || clientCode == " "){ //clean filter
+        creditsModel->setFilter("paid=false");
+        creditsModel->setSort(0, Qt::DescendingOrder);
+        creditsModel->select();
+        ui_mainview.creditContent->clear();//clear totals for customer credits
+        clientCodeForCredit = "";
+        ui_mainview.tableCredits->setEnabled(true);
+    } else {
+        //search by client code (alphanum, 0000001 and not 1)
+        creditsModel->setFilter(QString("code = '%1' AND paid=false").arg(clientCode));
+        creditsModel->setSort(/*crDateIndex*/0, Qt::DescendingOrder);
+        creditsModel->select();
+        clientCodeForCredit = clientCode; //for calculate later the total...
+        ui_mainview.editClientIdForCredit->clear();
+        //calculate total for unpaid customer creidts
+        calculateTotalForClient();
+        ui_mainview.tableCredits->setEnabled(true);
+    }
+}
+
+void lemonView::showCreditPaySelected()
+{
+    creditsForPayment.clear();
+    creditTotal  = 0;
+    if (creditId <= 0) return;
+    
+    ui_mainview.tableCredits->setEnabled(false);
+    ui_mainview.creditPaymentWidget->show();
+
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    CreditInfo crInfo = myDb->getCreditInfo(creditId);
+    creditTotal = crInfo.total;
+    creditsForPayment.append(crInfo);
+    
+    ui_mainview.editCreditTendered->setFocus();
+    delete myDb;
+}
+
+void lemonView::showCreditPayAll()
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    
+    creditsForPayment.clear();
+    creditsForPayment = myDb->getCreditsForClient(clientCodeForCredit, false);//just get unpaid credits.
+    delete myDb;
+    
+    creditTotal  = 0;
+    creditId = 0;
+    if ( creditsForPayment.isEmpty() ) return;
+    
+    ui_mainview.tableCredits->setEnabled(false);
+    ui_mainview.creditPaymentWidget->show();
+    
+    foreach(CreditInfo credit, creditsForPayment){
+        creditTotal += credit.total;
+    }
+    
+    ui_mainview.editCreditTendered->setFocus();
+}
+
+void lemonView::tenderedChanged()
+{
+    if ( creditsForPayment.isEmpty() ) return;
+
+    double tendered = ui_mainview.editCreditTendered->text().toDouble();
+    double change   = tendered - creditTotal;
+
+    ui_mainview.lblCreditChange->setText(KGlobal::locale()->formatMoney(change));
+}
+
+void lemonView::doCreditPayment()
+{
+    double tendered = ui_mainview.editCreditTendered->text().toDouble();
+    double change   = tendered - creditTotal;
+    if ( creditsForPayment.isEmpty() || change < 0 ) return;
+
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+
+    double cSum = 0; //just for debug
+    qulonglong client = 0;
+    //for each credit make a payment, including cash in.
+    foreach(CreditInfo credit, creditsForPayment){
+        CreditPaymentInfo payment;
+        client = credit.clientId;
+        payment.creditId = credit.id;
+        payment.date = QDate::currentDate();
+        payment.time = QTime::currentTime();
+        payment.amount = credit.total;
+        qulonglong pId = myDb->insertCreditPayment(payment);
+        if (pId > 0) {
+            myDb->setCreditPaid(credit.id);
+            insertCashInForCredit(credit);
+            cSum += credit.total;
+        } else qDebug()<<"ERROR CREATING CREDIT PAYMENT:"<<myDb->lastError();
+    }
+    //now save debits if any...
+    if (ui_mainview.chKeepDebit->isChecked() && change > 0) {
+        insertCashInForDebit(client, change);
+        myDb->incDebit(client, change);
+    }
+    
+    qDebug()<<"TotalCredit="<<creditTotal<<" credit Sum Paid:"<<cSum<<" change:"<<change;
+    
+    ui_mainview.tableCredits->setEnabled(true);
+    ui_mainview.creditPaymentWidget->hide();
+
+    //close db and credit dialog
+    creditPanel->hidePanel();
+    delete myDb;
+    creditId = 0;
+}
+
+
+void lemonView::insertCashInForCredit(const CreditInfo &credit)
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    
+    CashFlowInfo info;
+    info.amount = credit.total;
+    info.reason = i18n("Payment for Credit %1", credit.id);
+    info.date = QDate::currentDate();
+    info.time = QTime::currentTime();
+    info.terminalNum = Settings::editTerminalNumber();
+    info.userid = loggedUserId;
+    info.type   = ctCashInCreditPayment;
+    qulonglong cfId = myDb->insertCashFlow(info);
+    //affect drawer
+    //NOTE: What about CUPS printers?
+    if (Settings::openDrawer() && Settings::smallTicketDotMatrix() && Settings::printTicket() )
+        drawer->open();
+    drawer->addCash(info.amount);
+    drawer->insertCashflow(cfId);
+    
+    QString authBy = loggedUserName;
+    log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Cash-IN-CreditPayment [%1] for credit %5 by %2 at terminal %3 on %4",QString::number(info.amount, 'f',2),authBy,Settings::editTerminalNumber(),QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"), credit.id));
+
+    delete myDb;
+}
+
+void lemonView::insertCashInForDebit(const qulonglong &clientId, const double &amount)
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    
+    CashFlowInfo info;
+    info.amount = amount;
+    info.reason = i18n("Debit Deposit for client %1", clientId);
+    info.date = QDate::currentDate();
+    info.time = QTime::currentTime();
+    info.terminalNum = Settings::editTerminalNumber();
+    info.userid = loggedUserId;
+    info.type   = ctCashInDebit;
+    qulonglong cfId = myDb->insertCashFlow(info);
+    //affect drawer
+    //NOTE: What about CUPS printers?
+    if (Settings::openDrawer() && Settings::smallTicketDotMatrix() && Settings::printTicket() )
+        drawer->open();
+    drawer->addCash(info.amount);
+    drawer->insertCashflow(cfId);
+    
+    QString authBy = loggedUserName;
+    log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Cash-IN-DebitDeposit [%1] for debit %5 by %2 at terminal %3 on %4",QString::number(info.amount, 'f',2),authBy,Settings::editTerminalNumber(),QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"), clientId));
+    
+    delete myDb;
+}
+
+
+
+///NOTE: Ver como imprimir en PDF desde un QTextDocument/QTextEdit aqui: http://cartan.cas.suffolk.edu/qtdocs/demos-textedit-textedit-cpp.html
+
+void lemonView::calculateTotalForClient()
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    //get clientCODE from the inputline?
+    if (!clientCodeForCredit.isEmpty()) {
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
+        QList<CreditInfo> credits = myDb->getCreditsForClient(clientCodeForCredit, false);
+        ClientInfo cInfo  = myDb->getClientInfo(clientCodeForCredit);
+        double creditTotal = 0;
+        ui_mainview.creditContent->clear();
+        
+        if (cInfo.id <= 0) return; //client does not exists.
+
+        //print client info.
+        ///Use QTextDocument via QTextEdit
+        QTextCursor cursor(ui_mainview.creditContent->textCursor());
+        cursor.movePosition(QTextCursor::Start);
+        
+        QTextFrame *topFrame = cursor.currentFrame();
+        QTextFrameFormat topFrameFormat = topFrame->frameFormat();
+        topFrameFormat.setPadding(5);
+        topFrame->setFrameFormat(topFrameFormat);
+        
+        QTextCharFormat textFormat;
+        QTextCharFormat boldFormat;
+        QTextCharFormat italicsFormat;
+        QTextCharFormat titleFormat;
+        QTextCharFormat hdrFormat;
+        QTextBlockFormat blockCenter;
+        QTextBlockFormat blockLeft;
+        QTextBlockFormat blockRight;
+        boldFormat.setFontWeight(QFont::Bold);
+        italicsFormat.setFontItalic(true);
+        titleFormat.setFontPointSize(18);
+        titleFormat.setFontItalic(true);
+        titleFormat.setFontWeight(QFont::Bold);
+        hdrFormat = boldFormat;
+        hdrFormat.setFontUnderline(true);
+        blockCenter.setAlignment(Qt::AlignHCenter);
+        blockLeft.setAlignment(Qt::AlignLeft);
+        blockRight.setAlignment(Qt::AlignRight);
+        
+        //title
+        cursor.setBlockFormat(blockCenter);
+        cursor.insertText(i18n("UNPAID CREDITS"), titleFormat);
+        cursor.insertBlock();
+        cursor.insertText(cInfo.name, italicsFormat);
+        cursor.insertBlock();
+        cursor.insertText(KGlobal::locale()->formatDateTime(QDateTime::currentDateTime(), KLocale::LongDate));
+        cursor.insertBlock();
+        cursor.insertBlock();
+        cursor.insertBlock();
+
+        QTextTableFormat itemsTableFormat;
+        itemsTableFormat.setAlignment(Qt::AlignHCenter);
+        itemsTableFormat.setWidth(QTextLength(QTextLength::PercentageLength, 100));
+        QTextTable *itemsTable = cursor.insertTable(1, 3, itemsTableFormat);
+
+        //table
+        QTextFrameFormat itemsFrameFormat = cursor.currentFrame()->frameFormat();
+        itemsFrameFormat.setBorder(0);
+        itemsFrameFormat.setPadding(1);
+        cursor.currentFrame()->setFrameFormat(itemsFrameFormat);
+        cursor = itemsTable->cellAt(0, 0).firstCursorPosition();
+        cursor.insertText(i18n("Date"), hdrFormat);
+        cursor = itemsTable->cellAt(0, 1).firstCursorPosition();
+        cursor.insertText(i18n("Time"), hdrFormat);
+        cursor = itemsTable->cellAt(0, 2).firstCursorPosition();
+        cursor.insertText(i18n("Total"), hdrFormat);
+        
+        foreach(CreditInfo credit, credits){
+            creditTotal += credit.total;
+            int row = itemsTable->rows();
+            itemsTable->insertRows(row, 1);
+            cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
+            cursor.insertText(KGlobal::locale()->formatDate(credit.date, KLocale::ShortDate), textFormat);
+            cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
+            cursor.insertText(KGlobal::locale()->formatTime(credit.time), textFormat);
+            cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
+            cursor.insertText(KGlobal::locale()->formatMoney(credit.total), textFormat);
+        }
+        
+        cursor.setPosition(topFrame->lastPosition());
+        cursor.insertBlock();
+        cursor.insertHtml("<hr>");
+        cursor.insertBlock();
+        //totals.
+        cursor.setBlockFormat(blockRight);
+        cursor.insertText(i18n("Grand Total: "), boldFormat);
+        cursor.insertText(KGlobal::locale()->formatMoney(creditTotal), italicsFormat);
+        cursor.insertBlock();
+        
+        ui_mainview.creditContent->setReadOnly(true);
+        delete myDb;
+    }
+}
+
+void lemonView::creditClicked(const QModelIndex &index, const QModelIndex &indexp)
+{
+    creditId = creditsModel->record(index.row()).value("id").toULongLong();
+    if (creditId <= 0 ) return;
+    
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    CreditInfo crInfo = myDb->getCreditInfo(creditId);
+    ClientInfo cInfo  = myDb->getClientInfo(crInfo.clientId);
+    QList<TransactionItemInfo> itemList = myDb->getTransactionItems(crInfo.saleId);
+    TransactionInfo trInfo = myDb->getTransactionInfo(crInfo.saleId);
+    qDebug()<<"Credit Num:"<<crInfo.id<<" tr Num:"<<crInfo.saleId<<" total:"<<crInfo.total;
+
+    ///Use QTextDocument via QTextEdit
+    ui_mainview.creditContent->clear();
+    QTextCursor cursor(ui_mainview.creditContent->textCursor());
+    cursor.movePosition(QTextCursor::Start);
+
+    QTextFrame *topFrame = cursor.currentFrame();
+    QTextFrameFormat topFrameFormat = topFrame->frameFormat();
+    topFrameFormat.setPadding(5);
+    topFrame->setFrameFormat(topFrameFormat);
+
+    QTextCharFormat textFormat;
+    QTextCharFormat boldFormat;
+    QTextCharFormat italicsFormat;
+    QTextCharFormat titleFormat;
+    QTextCharFormat hdrFormat;
+    QTextBlockFormat blockCenter;
+    QTextBlockFormat blockLeft;
+    QTextBlockFormat blockRight;
+    boldFormat.setFontWeight(QFont::Bold);
+    italicsFormat.setFontItalic(true);
+    titleFormat.setFontPointSize(18);
+    titleFormat.setFontItalic(true);
+    titleFormat.setFontWeight(QFont::Bold);
+    hdrFormat = boldFormat;
+    hdrFormat.setFontUnderline(true);
+    blockCenter.setAlignment(Qt::AlignHCenter);
+    blockLeft.setAlignment(Qt::AlignLeft);
+    blockRight.setAlignment(Qt::AlignRight);
+
+    //title
+    cursor.setBlockFormat(blockCenter);
+    cursor.insertText(i18n("CREDIT #"), titleFormat);
+    cursor.insertText(QString::number(crInfo.id));
+    cursor.insertBlock();
+    cursor.insertText(i18n(" Sale # "), boldFormat);
+    cursor.insertText(QString::number(crInfo.saleId), italicsFormat);
+    cursor.insertBlock(blockLeft);
+    QDateTime dt;
+    dt.setDate(crInfo.date);
+    dt.setTime(crInfo.time);
+    cursor.insertText(KGlobal::locale()->formatDateTime(dt, KLocale::LongDate)); //crInfo.date.toString()+", "+crInfo.time.toString()); //TODO:still missing localization.
+    cursor.insertBlock();
+    cursor.insertBlock();
+    cursor.insertBlock();
+    
+    //Customer data
+    cursor.insertText(cInfo.name, boldFormat);
+    cursor.insertBlock();
+    cursor.insertText(cInfo.address, italicsFormat);
+    cursor.insertBlock();
+    cursor.insertBlock();
+
+    //Transaction items.
+    QTextTableFormat itemsTableFormat;
+    itemsTableFormat.setAlignment(Qt::AlignHCenter);
+    itemsTableFormat.setWidth(QTextLength(QTextLength::PercentageLength, 100));
+    QTextTable *itemsTable = cursor.insertTable(1, 3, itemsTableFormat);
+    
+    QTextFrameFormat itemsFrameFormat = cursor.currentFrame()->frameFormat();
+    itemsFrameFormat.setBorder(0);
+    itemsFrameFormat.setPadding(1);
+    cursor.currentFrame()->setFrameFormat(itemsFrameFormat);
+    cursor = itemsTable->cellAt(0, 0).firstCursorPosition();
+    cursor.insertText(i18n("Qty"), hdrFormat);
+    cursor = itemsTable->cellAt(0, 1).firstCursorPosition();
+    cursor.insertText(i18n("Item"), hdrFormat);
+    cursor = itemsTable->cellAt(0, 2).firstCursorPosition();
+    cursor.insertText(i18n("Total"), hdrFormat);
+
+    foreach(TransactionItemInfo item, itemList) {
+        int row = itemsTable->rows();
+        itemsTable->insertRows(row, 1);
+        cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
+        cursor.insertText(QString::number(item.qty), textFormat);
+        cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
+        cursor.insertText(item.name, textFormat);
+        cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
+        cursor.insertText(KGlobal::locale()->formatMoney(item.total), textFormat);
+    }
+
+    cursor.setPosition(topFrame->lastPosition());
+    cursor.insertBlock();
+    cursor.insertHtml("<hr>");
+    cursor.insertBlock();
+    //totals.
+    cursor.setBlockFormat(blockRight);
+    cursor.insertText(i18n("Taxes: "), boldFormat);
+    cursor.insertText(KGlobal::locale()->formatMoney(trInfo.totalTax), italicsFormat);
+    cursor.insertBlock(blockRight);
+    if (trInfo.discmoney > 0) {
+        cursor.insertText(i18n("Discount: "), boldFormat);
+        cursor.insertText(KGlobal::locale()->formatMoney(-trInfo.discmoney), italicsFormat);
+        cursor.insertBlock();
+    }
+    cursor.insertText(i18n("Total: "), boldFormat);
+    cursor.insertText(KGlobal::locale()->formatMoney(crInfo.total), italicsFormat);
+    cursor.insertBlock();
+    
+    ui_mainview.creditContent->setReadOnly(true);
     delete myDb;
 }
 
