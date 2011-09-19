@@ -96,8 +96,6 @@ public:
     LoginWindow *dlgPassword;
     QHash<qulonglong, ProductInfo> productsHash;
     QSqlTableModel *productsModel;
-//     QSqlRelationalTableModel *creditsModel;
-    QSqlRelationalTableModel *creditDetailsModel;
     QHash<QString, int> categoriesHash;
     ClientInfo clientInfo;
     QHash<QString, ClientInfo> clientsHash;
@@ -375,6 +373,7 @@ public:
     void tenderedChanged();
     void doCreditPayment();
     void insertCashInForCredit(const CreditInfo &credit, const double &amount);
+    void printCreditReport();
 };
 
 #endif // LEMONVIEW_H

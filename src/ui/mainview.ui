@@ -1939,7 +1939,7 @@ p, li { white-space: pre-wrap; }
          <item row="0" column="1">
           <widget class="QWidget" name="widget_2" native="true">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -1961,7 +1961,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QLineEdit" name="editClientIdForCredit">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -1980,7 +1980,7 @@ p, li { white-space: pre-wrap; }
          <item row="1" column="1">
           <widget class="QWidget" name="creditPaymentWidget" native="true">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+            <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -1997,7 +1997,7 @@ p, li { white-space: pre-wrap; }
               <item row="0" column="0">
                <widget class="QLabel" name="label_18">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -2017,7 +2017,7 @@ p, li { white-space: pre-wrap; }
               <item row="0" column="1">
                <widget class="MibitLineEdit" name="editCreditTendered">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -2123,6 +2123,13 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
+             <widget class="QPushButton" name="btnPrintCreditReport">
+              <property name="text">
+               <string>Print</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="btnCancelCreditPayment">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -2131,7 +2138,7 @@ p, li { white-space: pre-wrap; }
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Cancel</string>
+               <string>Close</string>
               </property>
              </widget>
             </item>

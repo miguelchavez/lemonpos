@@ -212,7 +212,6 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   creditPanel->setMode(pmManual);
   creditPanel->setHiddenTotally(true);
   creditPanel->hide();
-  connect( ui_mainview.editClientIdForCredit, SIGNAL(returnPressed()), SLOT(filterClientForCredit()) );
 
   path = KStandardDirs::locate("appdata", "styles/");
   path = path+"tip.svg";
@@ -275,6 +274,8 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   connect(ui_mainview.editCreditTendered, SIGNAL(textChanged(const QString &)), SLOT(tenderedChanged()) );
   connect(ui_mainview.editCreditTendered, SIGNAL(returnPressed()), SLOT(doCreditPayment()) );
   connect(ui_mainview.btnCancelCreditPayment, SIGNAL(clicked()), creditPanel, SLOT(hidePanel()));
+  connect(ui_mainview.btnPrintCreditReport, SIGNAL(clicked()), SLOT(printCreditReport()));
+  connect(ui_mainview.editClientIdForCredit, SIGNAL(returnPressed()), SLOT(filterClientForCredit()));
 
   timerClock->start(1000);
 
@@ -3619,33 +3620,7 @@ void lemonView::setupModel()
     //Crashes without debug information.
     if (productsModel->tableName() != "products")
       productsModel->setTable("products");
-    if (creditDetailsModel->tableName() != "credit_history")
-        creditDetailsModel->setTable("credit_history");
 
-    int crIdIndex = creditDetailsModel->fieldIndex("id");
-    //int crSaleIndex = creditDetailsModel->fieldIndex("saleid");
-    int crClientIndex = creditDetailsModel->fieldIndex("customerid");
-    //int crDateIndex = creditDetailsModel->fieldIndex("date");
-    //int crTimeIndex = creditDetailsModel->fieldIndex("time");
-    int crTotalIndex = creditDetailsModel->fieldIndex("amount");
-    creditDetailsModel->setRelation(crClientIndex, QSqlRelation("clients", "id", "name"));
-
-    creditDetailsModel->setHeaderData(crClientIndex, Qt::Horizontal, i18n("Client"));
-    creditDetailsModel->setHeaderData(crTotalIndex, Qt::Horizontal, i18n("Amount"));
-//     ui_mainview.tableCreditDetails->setColumnHidden(crIdIndex, true);
-
-//     ui_mainview.tableCreditDetails->setModel(creditDetailsModel);
-//     ui_mainview.tableCreditDetails->setEditTriggers(QAbstractItemView::NoEditTriggers);
-//     ui_mainview.tableCreditDetails->setSelectionMode(QAbstractItemView::SingleSelection);
-    creditDetailsModel->setSort(0, Qt::DescendingOrder);
-    creditDetailsModel->select();
-    //connecting the signal for updating the credit details.
-    //QItemSelectionModel *selModel = ui_mainview.tableCreditDetails->selectionModel();
-    //connect(selModel, SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)), SLOT(creditClicked(const QModelIndex &, const QModelIndex &)));
-    
-//     ui_mainview.tableCreditDetails->resizeRowsToContents();
-//     ui_mainview.tableCreditDetails->resizeColumnsToContents();
-    
     productsModel->setEditStrategy(QSqlTableModel::OnRowChange);
     ui_mainview.listView->setModel(productsModel);
     ui_mainview.listView->setResizeMode(QListView::Adjust);
@@ -3834,7 +3809,6 @@ void lemonView::connectToDb()
     //finally, when connection stablished, setup all models.
     if (!modelsCreated) { //Create models...
       productsModel       = new QSqlTableModel();
-      creditDetailsModel  = new QSqlRelationalTableModel();
       historyTicketsModel = new QSqlRelationalTableModel();
       modelsCreated = true;
     }
@@ -5201,8 +5175,6 @@ void lemonView::showCredits()
 {
     ui_mainview.editClientIdForCredit->clear();
     ui_mainview.creditContent->clear();
-    creditDetailsModel->setFilter("id=0"); //set an invalid filter... we don want to show everybody credits.
-    creditDetailsModel->select();
 
     ui_mainview.creditPaymentWidget->hide();
     ui_mainview.editCreditTendered->clear();
@@ -5218,9 +5190,6 @@ void lemonView::filterClientForCredit()
 {
     QString clientCode = ui_mainview.editClientIdForCredit->text();
     if (clientCode.isEmpty() || clientCode == " "){ //clean filter
-        creditDetailsModel->setFilter("id=0");
-        creditDetailsModel->setSort(0, Qt::DescendingOrder);
-        creditDetailsModel->select();
         ui_mainview.creditContent->clear();//clear totals for customer credits
         crInfo.id =0;
         crClientInfo.id = 0;
@@ -5231,9 +5200,6 @@ void lemonView::filterClientForCredit()
         crClientInfo = myDb->getClientInfo(clientCode);
         crInfo = myDb->getCreditInfoForClient(clientInfo.id); //this returns a new credit if no one found for that client.
         delete myDb;
-        creditDetailsModel->setFilter(QString("customerid='%1'").arg(crClientInfo.id));
-        creditDetailsModel->setSort(/*crDateIndex*/0, Qt::DescendingOrder);
-        creditDetailsModel->select();
         //calculate total for unpaid customer creidts
         calculateTotalForClient();
     }
@@ -5338,6 +5304,15 @@ void lemonView::doCreditPayment()
     //print ticket. NOTE: This prints the credit report.. We want to print the NEW PAYMENT ALSO, so add to the document.
     calculateTotalForClient();
     
+    printCreditReport();
+
+    //close db and credit dialog, delaying a bit.
+    QTimer::singleShot(1000, creditPanel, SLOT(hidePanel()));
+    delete myDb;
+}
+
+void lemonView::printCreditReport()
+{
     if (Settings::printTicket()) {
         if (Settings::smallTicketCUPS()) {
             QPrinter printer(QPrinter::HighResolution);
@@ -5351,7 +5326,7 @@ void lemonView::doCreditPayment()
             QDir dir;
             if (!dir.exists(fn))
                 dir.mkdir(fn);
-            fn = fn+QString("credit-%1__%2.pdf").arg(crClientInfo.code).arg(crHistory.date.toString("dd-MMM-yy"));
+            fn = fn+QString("credit-%1__%2.pdf").arg(crClientInfo.code).arg(QDate::currentDate().toString("dd-MMM-yy"));
             qDebug()<<" Exporting credit report to:"<<fn;
             printer.setOutputFileName(fn);
             printer.setOutputFormat(QPrinter::PdfFormat);
@@ -5360,10 +5335,6 @@ void lemonView::doCreditPayment()
             ui_mainview.creditContent->print(&printer);
         }
     }
-
-    //close db and credit dialog, delaying a bit.
-    QTimer::singleShot(1000, creditPanel, SLOT(hidePanel()));
-    delete myDb;
 }
 
 
@@ -5396,7 +5367,7 @@ void lemonView::insertCashInForCredit(const CreditInfo &credit, const double &am
 
 
 
-///NOTE: Ver como imprimir en PDF desde un QTextDocument/QTextEdit aqui: http://cartan.cas.suffolk.edu/qtdocs/demos-textedit-textedit-cpp.html
+///http://cartan.cas.suffolk.edu/qtdocs/demos-textedit-textedit-cpp.html
 
 void lemonView::calculateTotalForClient()
 {
@@ -5493,13 +5464,16 @@ void lemonView::calculateTotalForClient()
             if (credit.saleId > 0) {
                 QList<TransactionItemInfo> saleItems = myDb->getTransactionItems(credit.saleId);
                 foreach(TransactionItemInfo item, saleItems) {
-                    itemsTable->insertRows(row, 1); //insert item name in the first column.
+                    int row = itemsTable->rows();
+                    itemsTable->insertRows(row, 1); //insert item name in the first column. Wee need to see the text length to not add very long text.
+                    if (item.name.length() > 12)
+                        item.name = item.name.left(12);//just keep first 12 chars...
                     cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
-                    cursor.insertText(item.name, textFormat);
+                    cursor.insertText(item.name, italicsFormat);
                     cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
-                    cursor.insertText("x"+QString::number(item.qty), textFormat);
+                    cursor.insertText("x"+QString::number(item.qty), italicsFormat);
                     cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
-                    cursor.insertText(KGlobal::locale()->formatMoney(item.total), textFormat);
+                    cursor.insertText(KGlobal::locale()->formatMoney(item.total), italicsFormat);
                 }
             }
         }
