@@ -249,22 +249,14 @@ class Azahar : public QObject
     bool     insertCurrency(const QString name, const double &factor);
     bool     deleteCurrency(const qulonglong &cid);
 
-    //Credits and its Payments
-    CreditInfo getCreditInfo(const qulonglong &id);
-    CreditPaymentInfo getCreditPaymentInfo(const qulonglong &id);
-    qulonglong getPaymentForCredit(const qulonglong &id);
-    qulonglong       insertCredit(const CreditInfo &info);
-    qulonglong       insertCreditPayment(const CreditPaymentInfo &info);
-    QList<CreditInfo> getCreditsForClient(const QString &clientCode, const bool &paid);
-    bool              setCreditPaid(const qulonglong &id);
-
-    //Debits
-    bool              incDebit(const qulonglong &clientId, const double &amount);
-    bool              decDebit(const qulonglong &clientId, const double &amount);
-    bool              insertDebit(const DebitInfo &debit);
-    bool              updateDebit(const DebitInfo &debit);
-    DebitInfo         getDebitForClient(const qulonglong &client);
+    //Credits and its history
+    CreditInfo        getCreditInfo(const qulonglong &id);
+    CreditInfo        getCreditInfoForClient(const qulonglong &clientId);
+    QList<CreditHistoryInfo> getCreditHistoryForClient(const qulonglong &clientId, const int &lastDays=0);
     
+    qulonglong        insertCredit(const CreditInfo &info);
+    bool              updateCredit(const CreditInfo &info);
+    qulonglong        insertCreditHistory(const CreditHistoryInfo &info);
 
 };
 

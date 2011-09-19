@@ -434,31 +434,19 @@ struct ReservationInfo
 struct CreditInfo
 {
     qulonglong id;
-    qulonglong saleId;
     qulonglong clientId;
-    QDate      date;
-    QTime      time;
-    double     paymentId; //Support one or more payments?
-    bool       paid;
     double     total;
 };
 
-struct CreditPaymentInfo
+struct CreditHistoryInfo
 {
     qulonglong id;
-    qulonglong creditId;
+    qulonglong customerId;
+    qulonglong saleId;
     QDate      date;
     QTime      time;
     double     amount;
 };
-
-struct DebitInfo //one debit account per user.
-{
-    qulonglong id;
-    qulonglong clientId;
-    double     amount;
-};
-
 
 
 #endif

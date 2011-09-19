@@ -96,7 +96,8 @@ public:
     LoginWindow *dlgPassword;
     QHash<qulonglong, ProductInfo> productsHash;
     QSqlTableModel *productsModel;
-    QSqlRelationalTableModel *creditsModel;
+//     QSqlRelationalTableModel *creditsModel;
+    QSqlRelationalTableModel *creditDetailsModel;
     QHash<QString, int> categoriesHash;
     ClientInfo clientInfo;
     QHash<QString, ClientInfo> clientsHash;
@@ -128,10 +129,8 @@ public:
 
     double oDiscountMoney;
 
-    QString clientCodeForCredit;
-    double creditTotal;
-    qulonglong creditId;
-    QList<CreditInfo> creditsForPayment;
+    ClientInfo crClientInfo;
+    CreditInfo crInfo;
 
     void loadIcons();
     void setUpInputs();
@@ -372,14 +371,10 @@ public:
     void showCredits();
     void filterClientForCredit();
     void calculateTotalForClient();
-    void creditClicked(const QModelIndex &index, const QModelIndex &indexp);
-    void showCreditPaySelected();
-    void showCreditPayAll();
+    void showCreditPayment();
     void tenderedChanged();
     void doCreditPayment();
-    void insertCashInForCredit(const CreditInfo &credit);
-    void insertCashInForDebit(const qulonglong &clientId, const double &amount);
-
+    void insertCashInForCredit(const CreditInfo &credit, const double &amount);
 };
 
 #endif // LEMONVIEW_H

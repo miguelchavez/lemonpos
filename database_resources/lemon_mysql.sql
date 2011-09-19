@@ -66,32 +66,25 @@ CREATE TABLE IF NOT EXISTS `products` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
+#One credit per customer. Accepts +/- amounts for credit/debit.
 CREATE TABLE IF NOT EXISTS `credits` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
-  `saleid` bigint(20) unsigned NOT NULL,
   `customerid` bigint(20) unsigned NOT NULL,
-  `total` double unsigned NOT NULL default '0.0',
-  `date` date NOT NULL,
-  `time` time NOT NULL,
-  `paid` bool default false,
+  `total` double NOT NULL default '0.0',
   PRIMARY KEY  (`id`),
-  KEY `SEC` (`saleid`, `customerid`)
+  KEY `SEC` (`customerid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-CREATE TABLE IF NOT EXISTS `credit_payments` (
-  `id` bigint(20) unsigned NOT NULL auto_increment,
-  `creditid` bigint(20) unsigned NOT NULL,
-  `amount` double unsigned NOT NULL default '0',
-  `date` date NOT NULL,
-  `time` time NOT NULL,
-  PRIMARY KEY  (`id`),
-  KEY `SEC` (`creditid`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
-CREATE TABLE IF NOT EXISTS `debits` (
+#One credit_history to have a record of each credit applied.
+# + for credit given to customer
+# - for credit payments or deposits.
+CREATE TABLE IF NOT EXISTS `credit_history` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
   `customerid` bigint(20) unsigned NOT NULL,
-  `amount` double unsigned NOT NULL default '0.0',
+  `saleid` bigint(20) unsigned NOT NULL DEFAULT 0,
+  `amount` double NOT NULL default '0.0',
+  `date` date NOT NULL,
+  `time` time NOT NULL, 
   PRIMARY KEY  (`id`),
   KEY `SEC` (`customerid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;

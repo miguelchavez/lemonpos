@@ -60,9 +60,12 @@ MibitNotifier::MibitNotifier(QWidget *parent, const QString &file, const QPixmap
     message->setWordWrap(true);
     message->setAlignment(Qt::AlignJustify|Qt::AlignVCenter);
     message->setMargin(10);
+    QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    sizePolicy.setHeightForWidth(message->sizePolicy().hasHeightForWidth());
+    message->setSizePolicy(sizePolicy);
 
     hLayout->addWidget(img,0,Qt::AlignLeft);
-    hLayout->addWidget(message,1,Qt::AlignLeft);
+    hLayout->addWidget(message,1,Qt::AlignJustify);
 
     timeLine  = new QTimeLine(animRate, this);
     connect(timeLine, SIGNAL(frameChanged(int)), this, SLOT(animate(int)));
@@ -74,7 +77,10 @@ void MibitNotifier::showNotification( const QString &msg, const int &timeToLive)
     /// Warning: if a tip is showing, if another showTip() is called, it is ignored.
     if (timeLine->state() == QTimeLine::NotRunning && !m_canClose /*size().height() <= 0*/) {
         //set default msg if the sent is empty.
-        if (msg.isEmpty()) setMessage(message->text()); else setMessage( msg );
+        if (!msg.isEmpty()) {
+            setMessage( msg );
+            message->setMinimumWidth(maxWidth-70);
+        } else setMessage(message->text()); 
         //change svg skin if is not on top.
         if (!m_onTop) setSVG("rotated_"+m_fileName); else setSVG(m_fileName);
         setGeometry(-1000,-1000,0,0);

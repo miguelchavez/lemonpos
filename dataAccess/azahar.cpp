@@ -4153,56 +4153,64 @@ ReservationInfo  Azahar::getReservationInfoFromTr(const qulonglong &trId)
 //credits
 CreditInfo Azahar::getCreditInfo(const qulonglong &id)
 {
+    CreditInfo result;  //NOTE: This method is not used.
+//     result.id=0;
+//     result.clientId = 0;
+//     result.total = 0;
+//     if (!db.isOpen()) db.open();
+//     if (db.isOpen()) {
+//         QSqlQuery myQuery(db);
+//         myQuery.prepare("SELECT * FROM credits WHERE id=:id;");
+//         myQuery.bindValue(":id", id);
+//         if (myQuery.exec() ) {
+//             while (myQuery.next()) {
+//                 int fieldClient  = myQuery.record().indexOf("customerid");
+//                 int fieldTotal   = myQuery.record().indexOf("total");
+//                 result.id = id;
+//                 result.clientId = myQuery.value(fieldClient).toULongLong();
+//                 result.total    = myQuery.value(fieldTotal).toDouble();
+//             }
+//         }
+//         else {
+//             setError(myQuery.lastError().text());
+//         }
+//     }
+    return result;
+}
+
+CreditInfo Azahar::getCreditInfoForClient(const qulonglong &clientId)
+{
     CreditInfo result;
     result.id=0;
-    result.saleId = 0;
     result.clientId = 0;
-    result.paymentId = 0; //this is not in the credit table, it could be a record of the credit_payments
+    result.total = 0;
     if (!db.isOpen()) db.open();
     if (db.isOpen()) {
         QSqlQuery myQuery(db);
-        myQuery.prepare("SELECT * FROM credits WHERE id=:id;");
-        myQuery.bindValue(":id", id);
+        myQuery.prepare("SELECT * FROM credits WHERE customerid=:id;");
+        myQuery.bindValue(":id", clientId);
         if (myQuery.exec() ) {
             while (myQuery.next()) {
-                int fieldClient  = myQuery.record().indexOf("customerid");
-                int fieldTr      = myQuery.record().indexOf("saleid");
-                int fieldDate    = myQuery.record().indexOf("date");
-                int fieldTime    = myQuery.record().indexOf("time");
-                int fieldTotal   = myQuery.record().indexOf("total");
-                int fieldPaid    = myQuery.record().indexOf("paid");
-
-                result.id = id;
-                result.clientId = myQuery.value(fieldClient).toULongLong();
-                result.saleId   = myQuery.value(fieldTr).toULongLong();
+                int fieldId     = myQuery.record().indexOf("id");
+                int fieldTotal  = myQuery.record().indexOf("total");
+                result.clientId = clientId;
+                result.id       = myQuery.value(fieldId).toULongLong();
                 result.total    = myQuery.value(fieldTotal).toDouble();
-                result.date     = myQuery.value(fieldDate).toDate();
-                result.time     = myQuery.value(fieldTime).toTime();
-                result.paid     = myQuery.value(fieldPaid).toBool();
             }
-            //now get the payment id if any.
-            result.paymentId = getPaymentForCredit(id);
-        }
-        else {
-            setError(myQuery.lastError().text());
-        }
-    }
-    return result;
-}
+            if (myQuery.size() == -1){
+                //NO RECORD FOUND, CREATE A NEW ONE.
+                if ( getClientInfo(clientId).id > 0 ) {
+                    qDebug()<<__FUNCTION__<<" Creating new credit for client ID:"<<clientId;
+                    result.clientId = clientId;
+                    result.total = 0;
+                    qulonglong newId = insertCredit(result);
+                    result.id = newId; //now we can return result with the new credit.
+                } else { //NOTE: INVALID CLIENT ID. INVALID CREDIT ALSO!
+                    result.clientId = 0;
+                    result.total = 0;
+                    qDebug()<<__FUNCTION__<<" CREDIT NOT FOUND AND NOT CREATED BECAUSE NO CLIENT FOUND WITH ID:"<<clientId;
+                }
 
-qulonglong Azahar::getPaymentForCredit(const qulonglong &id)
-{
-    qulonglong result = 0;
-    if (!db.isOpen()) db.open();
-    if (db.isOpen()) {
-        QSqlQuery myQuery(db);
-        myQuery.prepare("SELECT id FROM credit_payments WHERE creditid=:id;");
-        myQuery.bindValue(":id", id);
-        if (myQuery.exec() ) {
-            while (myQuery.next()) {
-                int fieldId  = myQuery.record().indexOf("id");
-                
-                result = myQuery.value(fieldId).toULongLong();
             }
         }
         else {
@@ -4212,50 +4220,15 @@ qulonglong Azahar::getPaymentForCredit(const qulonglong &id)
     return result;
 }
 
-CreditPaymentInfo Azahar::getCreditPaymentInfo(const qulonglong &id)
-{
-    CreditPaymentInfo result;
-    result.id=0;
-    result.creditId = 0;
-    result.amount = 0;
-    if (!db.isOpen()) db.open();
-    if (db.isOpen()) {
-        QSqlQuery myQuery(db);
-        myQuery.prepare("SELECT * FROM credit_payments WHERE id=:id;");
-        myQuery.bindValue(":id", id);
-        if (myQuery.exec() ) {
-            while (myQuery.next()) {
-                int fieldCredit  = myQuery.record().indexOf("creditid");
-                int fieldDate    = myQuery.record().indexOf("date");
-                int fieldTime    = myQuery.record().indexOf("time");
-                int fieldTotal   = myQuery.record().indexOf("amount");
-                
-                result.id = id;
-                result.creditId  = myQuery.value(fieldCredit).toULongLong();
-                result.amount    = myQuery.value(fieldTotal).toDouble();
-                result.date      = myQuery.value(fieldDate).toDate();
-                result.time      = myQuery.value(fieldTime).toTime();
-            }
-        }
-        else {
-            setError(myQuery.lastError().text());
-        }
-    }
-    return result;
-}
 
 qulonglong  Azahar::insertCredit(const CreditInfo &info)
 {
     qulonglong result = 0;
     if (!db.isOpen()) db.open();
     QSqlQuery query(db);
-    query.prepare("INSERT INTO credits (customerid, saleid, date, time, total, paid) VALUES (:client, :transaction,  :date, :time, :total, :paid);");
-    query.bindValue(":transaction", info.saleId);
+    query.prepare("INSERT INTO credits (customerid, total) VALUES (:client, :total);");
     query.bindValue(":client", info.clientId);
-    query.bindValue(":date", info.date);
-    query.bindValue(":time", info.time);
     query.bindValue(":total", info.total);
-    query.bindValue(":paid", info.paid);
     
     if (!query.exec()) {
         setError(query.lastError().text());
@@ -4265,31 +4238,75 @@ qulonglong  Azahar::insertCredit(const CreditInfo &info)
     return result;
 }
 
-bool  Azahar::setCreditPaid(const qulonglong &id)
+bool Azahar::updateCredit(const CreditInfo &info)
 {
     bool result = false;
     if (!db.isOpen()) db.open();
     QSqlQuery query(db);
-    query.prepare("UPDATE credits set paid=true WHERE id=:id;");
-    query.bindValue(":id", id);
+    query.prepare("UPDATE credits SET customerid=:client, total=:total WHERE id=:id;");
+    query.bindValue(":client", info.clientId);
+    query.bindValue(":total", info.total);
+    query.bindValue(":id", info.id);
     
     if (!query.exec()) {
         setError(query.lastError().text());
         qDebug()<< __FUNCTION__ << query.lastError().text();
     }
+    else result = query.lastInsertId().toULongLong();
     return result;
 }
 
-qulonglong  Azahar::insertCreditPayment(const CreditPaymentInfo &info)
+
+QList<CreditHistoryInfo> Azahar:: getCreditHistoryForClient(const qulonglong &clientId, const int &lastDays)
+{
+    QList<CreditHistoryInfo> result;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QDate today = QDate::currentDate();
+        QDate limitDate;
+        if (lastDays > 0) 
+            limitDate = today.addDays(-lastDays);
+        else
+            limitDate = today.addDays(-30);//default is one month ago.
+        QSqlQuery myQuery(db);
+        myQuery.prepare("SELECT * FROM credit_history WHERE customerid=:clientId AND date >= :lDate ;");
+        myQuery.bindValue(":clientId", clientId);
+        myQuery.bindValue(":lDate", limitDate);
+        if (myQuery.exec()) {
+            while (myQuery.next()) {
+                int fieldId     = myQuery.record().indexOf("id");
+                int fieldSaleId = myQuery.record().indexOf("saleid");
+                int fieldTotal  = myQuery.record().indexOf("amount");
+                int fieldDate   = myQuery.record().indexOf("date");
+                int fieldTime   = myQuery.record().indexOf("time");
+                CreditHistoryInfo info;
+                info.id = myQuery.value(fieldId).toULongLong();
+                info.customerId = clientId;
+                info.saleId   = myQuery.value(fieldSaleId).toULongLong();
+                info.amount   = myQuery.value(fieldTotal).toDouble();
+                info.date     = myQuery.value(fieldDate).toDate();
+                info.time     = myQuery.value(fieldTime).toTime();
+                result.append(info);
+            }
+        }
+        else {
+            qDebug()<<"ERROR: "<<myQuery.lastError();
+        }
+    }
+    return result;
+}
+
+qulonglong  Azahar::insertCreditHistory(const CreditHistoryInfo &info)
 {
     qulonglong result = 0;
     if (!db.isOpen()) db.open();
     QSqlQuery query(db);
-    query.prepare("INSERT INTO credit_payments (creditid, amount, date, time) VALUES (:credit, :amount, :date, :time);");
-    query.bindValue(":credit", info.creditId);
+    query.prepare("INSERT INTO credit_history (customerid, saleid, amount, date, time) VALUES (:clientId, :saleId, :amount, :date, :time);");
+    query.bindValue(":clientId", info.customerId);
     query.bindValue(":date", info.date);
     query.bindValue(":time", info.time);
     query.bindValue(":amount", info.amount);
+    query.bindValue(":saleId", info.saleId);
     
     if (!query.exec()) {
         setError(query.lastError().text());
@@ -4299,135 +4316,9 @@ qulonglong  Azahar::insertCreditPayment(const CreditPaymentInfo &info)
     return result;
 }
 
-QList<CreditInfo> Azahar::getCreditsForClient(const QString &clientCode, const bool &paid)
-{
-    /// paid==true -> only returns paid credits. else returns unpaid credits...
-    QList<CreditInfo> result;
-    if (!db.isOpen()) db.open();
-    if (db.isOpen()) {
-        QSqlQuery myQuery(db);
-        myQuery.prepare("SELECT * FROM credits WHERE customerid=:id AND paid=:paid;");
-        myQuery.bindValue(":id", clientCode);
-        myQuery.bindValue(":paid", paid);
-        if (myQuery.exec() ) {
-            while (myQuery.next()) {
-                int fieldClient  = myQuery.record().indexOf("customerid");
-                int fieldTr      = myQuery.record().indexOf("saleid");
-                int fieldDate    = myQuery.record().indexOf("date");
-                int fieldTime    = myQuery.record().indexOf("time");
-                int fieldTotal   = myQuery.record().indexOf("total");
-                int fieldPaid    = myQuery.record().indexOf("paid");
-                int fieldId    = myQuery.record().indexOf("id");
 
-                CreditInfo credit;
-                credit.id       = myQuery.value(fieldId).toULongLong();
-                credit.clientId = myQuery.value(fieldClient).toULongLong();
-                credit.saleId   = myQuery.value(fieldTr).toULongLong();
-                credit.total    = myQuery.value(fieldTotal).toDouble();
-                credit.date     = myQuery.value(fieldDate).toDate();
-                credit.time     = myQuery.value(fieldTime).toTime();
-                credit.paid     = myQuery.value(fieldPaid).toBool();
-                if (credit.paid)
-                    credit.paymentId = getPaymentForCredit(credit.id);
-                //insert to the list.
-                result.append(credit);
-            }
-        }
-        else {
-            setError(myQuery.lastError().text());
-        }
-    }
-    return result;
-}
 
-bool Azahar::incDebit(const qulonglong &clientId, const double &amount)
-{
-    bool result = false;
-    DebitInfo debit = getDebitForClient(clientId);
-    if (debit.id > 0){
-        debit.amount += amount;
-        result = updateDebit(debit);
-    } else {
-        debit.amount = amount;
-        debit.clientId = clientId;
-        result = insertDebit(debit);
-    }
-    return result;
-}
 
-bool Azahar::decDebit(const qulonglong &clientId, const double &amount)
-{
-    bool result = false;
-    DebitInfo debit = getDebitForClient(clientId);
-    if (debit.id > 0){
-        debit.amount -= amount;
-        result = updateDebit(debit);
-    } else {
-        debit.amount = amount;
-        debit.clientId = clientId;
-        result = insertDebit(debit);
-    }
-    return result;
-}
 
-bool Azahar::insertDebit(const DebitInfo &debit)
-{
-    bool result = false;
-    if (!db.isOpen()) db.open();
-    QSqlQuery query(db);
-    query.prepare("INSERT INTO debits (customerid, amount) VALUES (:client, :amount);");
-    query.bindValue(":client", debit.clientId);
-    query.bindValue(":amount", debit.amount);
-    
-    if (!query.exec()) {
-        setError(query.lastError().text());
-        qDebug()<< __FUNCTION__ << query.lastError().text();
-    } else result = true;
-    return result;
-}
-
-bool Azahar::updateDebit(const DebitInfo &debit)
-{
-    bool result = false;
-    if (!db.isOpen()) db.open();
-    QSqlQuery query(db);
-    query.prepare("UPDATE debits set amount=:amount WHERE id=:id;");
-    query.bindValue(":id", debit.id);
-    query.bindValue(":amount", debit.amount);
-    
-    if (!query.exec()) {
-        setError(query.lastError().text());
-        qDebug()<< __FUNCTION__ << query.lastError().text();
-    }
-    return result;
-}
-
-DebitInfo Azahar::getDebitForClient(const qulonglong &client)
-{
-    DebitInfo result;
-    result.id = 0;
-    result.amount = 0;
-    result.clientId = 0;
-    if (!db.isOpen()) db.open();
-    if (db.isOpen()) {
-        QSqlQuery myQuery(db);
-        myQuery.prepare("SELECT * FROM debits WHERE customerid=:client;");
-        myQuery.bindValue(":client", client);
-        if (myQuery.exec() ) {
-            while (myQuery.next()) {
-                int fieldId       = myQuery.record().indexOf("id");
-                int fieldAmount   = myQuery.record().indexOf("amount");
-                
-                result.id = myQuery.value(fieldId).toULongLong();
-                result.clientId  = client;
-                result.amount    = myQuery.value(fieldAmount).toDouble();
-            }
-        }
-        else {
-            setError(myQuery.lastError().text());
-        }
-    }
-    return result;
-}
 
 #include "azahar.moc"
