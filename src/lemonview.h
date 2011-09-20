@@ -134,6 +134,8 @@ public:
     void setUpInputs();
     void setupModel();
 
+    RoundingInfo roundUsStandard(const double &number);
+
   signals:
     /**
    * Use this signal to change the content of the statusbar

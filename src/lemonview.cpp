@@ -568,6 +568,9 @@ void lemonView::buttonDone()
 
 void lemonView::checksChanged()
 {
+  bool readOnly = ui_mainview.checkOwnCredit->isChecked() || ui_mainview.checkCard->isChecked();
+  ui_mainview.editAmount->setReadOnly(readOnly);
+
   if (ui_mainview.checkCash->isChecked())
   {
     ui_mainview.stackedWidget->setCurrentIndex(0);
@@ -580,12 +583,11 @@ void lemonView::checksChanged()
     ui_mainview.editAmount->setText(QString::number(totalSum));
     ui_mainview.editCardNumber->setFocus();
     ui_mainview.editCardNumber->setSelection(0,ui_mainview.editCardNumber->text().length());
-  } else { //own credit
+  } else { //own credit. Do not allow change the amount.
     ui_mainview.stackedWidget->setCurrentIndex(0);
     ui_mainview.editAmount->setText(QString::number(totalSum));
     ui_mainview.editAmount->setFocus();
-    ui_mainview.editAmount->setSelection(0,ui_mainview.editAmount->text().length());
-}
+  }
   refreshTotalLabel();
 }
 
@@ -950,6 +952,7 @@ void lemonView::refreshTotalLabel()
     double taxes = 0;
     int nonDiscountables = 0;
     double gDiscountPercentage = 0;
+    bool roundToUSStandard = Settings::roundToUSStandard();
 
     ///We need to iterate the products to get the nonDiscountable items, and the totals.
     //FIXME: Still missing the Special Orders iteration likke this one.
@@ -1069,17 +1072,48 @@ void lemonView::refreshTotalLabel()
     if (Settings::addTax())
         totalSum   = subTotalSum + totalTax;
     else totalSum = subTotalSum;
-    
-    qDebug()<<" RESERVATION PAYMENT:"<<reservationPayment;
 
-    ///refresh labels.
-    ui_mainview.labelTotal->setText(QString("%1").arg(KGlobal::locale()->formatMoney(totalSum)));
-    ui_mainview.lblSubtotal->setText(QString("%1").arg(KGlobal::locale()->formatMoney(subTotalSum)));
     long double paid, change;
     bool isNum;
     paid = ui_mainview.editAmount->text().toDouble(&isNum);
     if (isNum) change = paid - totalSum; else change = 0.0;
     if (paid <= 0) change = 0.0;
+    
+    if (reservationPayment > 0) qDebug()<<" RESERVATION PAYMENT:"<<reservationPayment;
+
+    qDebug()<<"SUBTOTAL: "<<subTotalSum<<" TOTAL: "<<totalSum<<"Fromatted SUBTOTAL:"<<KGlobal::locale()->formatMoney(subTotalSum)<<" Formatted TOTAL:"<<KGlobal::locale()->formatMoney(totalSum);
+
+    if ( roundToUSStandard ) {
+        //first round taxes
+        RoundingInfo rTotalTax = roundUsStandard(totalTax);
+        //then round subtotal
+        RoundingInfo rSubTotalSum = roundUsStandard(subTotalSum);
+        //then round total
+        RoundingInfo rTotalSum = roundUsStandard(totalSum);
+        //then round discMoney
+        RoundingInfo rDiscMoney = roundUsStandard(discMoney);
+        //then round oDiscountMoney
+        RoundingInfo rOdiscMoney = roundUsStandard(oDiscountMoney);
+        //then round change
+        RoundingInfo rChange = roundUsStandard(change);
+
+        //assigning them.
+        totalTax    = rTotalTax.doubleResult;
+        subTotalSum = rSubTotalSum.doubleResult;
+        totalSum    = rTotalSum.doubleResult;
+        discMoney   = rDiscMoney.doubleResult;
+        oDiscountMoney = rOdiscMoney.doubleResult;
+        change      = rChange.doubleResult; //NOTE: When rounding the change it could be tricky if we play beyond reality.
+                                            //      Example: paid: 109.91 (which it never should hapen because $.01 coins does not exists, right?)
+                                            //      purchase: 109.75 rounding gets 109.80
+                                            //      so, the change before rounding is 0.15 (109.91 - 109.80) , rounding is 0.20.
+                                            //      But if instead of paying 109.91, a more real payment is 109.90;
+                                            //      the change before rounding is 0.14, rounding is 0.10 which is correct.
+    }
+    
+    ///refresh labels.
+    ui_mainview.labelTotal->setText(QString("%1").arg(KGlobal::locale()->formatMoney(totalSum)));
+    ui_mainview.lblSubtotal->setText(QString("%1").arg(KGlobal::locale()->formatMoney(subTotalSum)));
     ui_mainview.labelChange->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(change)));
     ui_mainview.lblSaleTaxes->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(totalTax)));
     //update client discount
@@ -1092,6 +1126,61 @@ void lemonView::refreshTotalLabel()
     ui_mainview.lblClientDiscount->setText(dStr);
     
     //END of Rewrite
+}
+
+RoundingInfo lemonView::roundUsStandard(const double &number)
+{
+    RoundingInfo result;
+    result.doubleResult = 0.0;
+    result.intIntPart = 0;
+    result.intDecPart = 0;
+    result.strResult = "0.0";
+
+    if (number == 0.0) return result;
+    
+    QString num = QString::number(number, 'f', 2 ); //round to two decimal places first and get a string. The number is represented as INT_PART.XX
+    QString decPart = num.right(2); //last two digits are the decimal part.
+    num.chop(3); //remove last 2 digits and decimals separator. DO NOT USE num any more to get data from the whole number
+    QString intPart = num;
+    QString newDecPart = "00"; //we will fill this number
+    
+    // X1 -> X4 rounds down to X0
+    // X5 -> X9 rounds up to (X+1)0
+    //Example:  22 rounds down to 20, 68 rounds up to 70
+    QString ldDecPart = decPart.right(1); //last decimal part
+    QString fdDecPart = decPart.left(1); //first decimal part
+    int iLdDecPart = ldDecPart.toInt();
+    int iFdDecPart = fdDecPart.toInt();
+    int intIntPart = intPart.toInt();
+    
+    //We need to examine the last digit in the decPart. decPart is two digits (ex: 01, 78, 99)
+    if ( iLdDecPart == 0 )
+        newDecPart = fdDecPart+"0"; // no rounding..
+    else if ( iLdDecPart > 0 && iLdDecPart < 5)
+        newDecPart = fdDecPart+"0"; // rounds down to X0. No further checks
+    else {
+        // rounds up to (X+1)0. Further checks to see if the INT_PART needs an increment ( example: 1.98 rounds to 2.00 )
+        int xPlusOne = iFdDecPart+1;
+        if ( xPlusOne > 9 ){
+            newDecPart = "00"; // rounds up to .00
+            intIntPart += 1; // INT_PART+1
+        } else {
+            newDecPart = QString::number( xPlusOne )+"0"; 
+        }
+        //qDebug()<<"fdDecPart:"<<fdDecPart<<"iFdDecPart:"<<iFdDecPart<<"xPlusOne:"<<xPlusOne;
+    }
+
+    QString newIntPart = QString::number( intIntPart );
+    int intNewDecPart  = newDecPart.toInt();
+
+    result.intIntPart   = intIntPart;
+    result.intDecPart   = intNewDecPart;
+    result.strResult    = newIntPart + "." + newDecPart; //Here using a DOT as decimal separator. FIXME: Use locale to get the decimal separator. But KLocale formatMoney/Number can do it from the result.doubleResult.
+    result.doubleResult = (result.strResult).toDouble();
+
+    qDebug()<<__FUNCTION__<<"Original number: "<<number<<"doubleResult:"<<result.doubleResult<<" strResult:"<<result.strResult<<" |  intIntPart:"<<result.intIntPart<<" intDecPart:"<<result.intDecPart;
+
+    return result;
 }
 
 void lemonView::doEmitSignalQueryDb()
@@ -1910,13 +1999,16 @@ void lemonView::finishCurrentTransaction()
     double dif1 = amnt - totalSum;
     double dif2 = totalSum - amnt;
 
-    //qDebug()<<"  dif1    :"<<QString::number(dif1,'f',64);
-    //qDebug()<<"  dif1    :"<<QString::number(dif2,'f',64);
+    if (dif1 < 0) dif1 = dif1*(-1);
+    if (dif2 < 0) dif2 = dif2*(-1);
+
+    qDebug()<<"  dif1    :"<<QString::number(dif1,'f',64);
+    qDebug()<<"  dif2    :"<<QString::number(dif2,'f',64);
     qDebug()<<"  amnt    :"<<QString::number(amnt,'f',64);
     qDebug()<<"  totalSum:"<<QString::number(totalSum,'f',64);
 
     bool iguales = false;
-    if ( (dif1 < 0.000001) && (dif2 < 0.000001) ) {
+    if ( (dif1 < 0.0001) && (dif2 < 0.0001) ) {
         iguales = true;//the difference is practically zero.
     }
 

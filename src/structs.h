@@ -448,5 +448,12 @@ struct CreditHistoryInfo
     double     amount;
 };
 
+struct RoundingInfo
+{
+    QString strResult;
+    double  doubleResult;
+    int     intDecPart;
+    int     intIntPart;
+};
 
 #endif
