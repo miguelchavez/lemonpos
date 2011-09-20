@@ -3898,7 +3898,7 @@ void lemonView::updateClientInfo()
   ui_mainview.lblClientPhoto->setPixmap(pix);
 
   Azahar *myDb = new Azahar;
-  myDb->setDatabase(db);
+  myDb->setDatabase(db); //NOTE:maybe its better to add creditInfo to clientInfo, and from azahar::getClientInfo() get the creditInfoForClient. Need more code review at azahar.
 
   CreditInfo credit = myDb->getCreditInfoForClient(clientInfo.id, false);//do not create new credit if not found.
   if (credit.id > 0 and credit.total != 0 )
@@ -4796,15 +4796,6 @@ void  lemonView::occasionalDiscount()
   }
   
   if (continuar) {
-    //bool ok=false;
-    //double discPercent = 0;
-    //double moneyDiscount = 0;
-    //InputDialog *dlg = new InputDialog(this, false, dialogMoney, i18n("Enter the discount percentage to apply"), 0.01, 99.0);
-    //if (dlg->exec())
-    //{
-    //  discPercent = dlg->dValue;
-    //  ok = true;
-    //}
     //SHOW THE NEW DISCOUNT PANEL
     discountPanel->showPanel();
     //the new code is at applyOccasionalDiscount().
