@@ -4178,7 +4178,7 @@ CreditInfo Azahar::getCreditInfo(const qulonglong &id)
     return result;
 }
 
-CreditInfo Azahar::getCreditInfoForClient(const qulonglong &clientId)
+CreditInfo Azahar::getCreditInfoForClient(const qulonglong &clientId, const bool &create)
 {
     CreditInfo result;
     result.id=0;
@@ -4197,7 +4197,7 @@ CreditInfo Azahar::getCreditInfoForClient(const qulonglong &clientId)
                 result.id       = myQuery.value(fieldId).toULongLong();
                 result.total    = myQuery.value(fieldTotal).toDouble();
             }
-            if (myQuery.size() == -1){
+            if (myQuery.size() == -1 && create) {
                 //NO RECORD FOUND, CREATE A NEW ONE.
                 if ( getClientInfo(clientId).id > 0 ) {
                     qDebug()<<__FUNCTION__<<" Creating new credit for client ID:"<<clientId;

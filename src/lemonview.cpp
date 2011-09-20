@@ -3885,6 +3885,8 @@ void lemonView::updateClientInfo()
       dStr = i18n("Discount: 1% ", KGlobal::locale()->formatMoney(oDiscountMoney));
   }
   QString pStr = i18n("%1 points", clientInfo.points);
+  if (clientInfo.points <= 0)
+      pStr = "";
   //QString dStr = i18n("Discount: %1% ",clientInfo.discount);
   //double discMoney = (clientInfo.discount/100)*totalSumWODisc;
   //QString frmDisc = i18n("[%1]", KGlobal::locale()->formatMoney(discMoney));
@@ -3894,6 +3896,16 @@ void lemonView::updateClientInfo()
   QPixmap pix;
   pix.loadFromData(clientInfo.photo);
   ui_mainview.lblClientPhoto->setPixmap(pix);
+
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+
+  CreditInfo credit = myDb->getCreditInfoForClient(clientInfo.id, false);//do not create new credit if not found.
+  if (credit.id > 0 and credit.total != 0 )
+      ui_mainview.lblCreditInfo->setText(i18n("Credit Total: %1", KGlobal::locale()->formatMoney(credit.total)));
+  else
+      ui_mainview.lblCreditInfo->setText("");
+  delete myDb;
   qDebug()<<"Updating client info...";
 }
 

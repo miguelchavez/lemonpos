@@ -251,7 +251,7 @@ class Azahar : public QObject
 
     //Credits and its history
     CreditInfo        getCreditInfo(const qulonglong &id);
-    CreditInfo        getCreditInfoForClient(const qulonglong &clientId);
+    CreditInfo        getCreditInfoForClient(const qulonglong &clientId, const bool &create=true); //by default it creates a new credit record if no one found for the customer.
     QList<CreditHistoryInfo> getCreditHistoryForClient(const qulonglong &clientId, const int &lastDays=0);
     
     qulonglong        insertCredit(const CreditInfo &info);
