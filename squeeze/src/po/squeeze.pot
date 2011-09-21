@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/tracker/?"
 "atid=1011570&group_id=209899&func=browse\n"
-"POT-Creation-Date: 2011-04-23 21:16-0500\n"
+"POT-Creation-Date: 2011-09-20 18:17-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,23 +22,27 @@ msgstr ""
 msgid "Client Editor"
 msgstr ""
 
-#: clienteditor.cpp:52
+#: clienteditor.cpp:57
+msgid "Enter a 6, 12, or 13 digits Bar Code."
+msgstr ""
+
+#: clienteditor.cpp:58
 msgid "Enter client full name"
 msgstr ""
 
-#: clienteditor.cpp:53
+#: clienteditor.cpp:59
 msgid "Phone number"
 msgstr ""
 
-#: clienteditor.cpp:54
+#: clienteditor.cpp:60
 msgid "Cell phone number"
 msgstr ""
 
-#: clienteditor.cpp:55
+#: clienteditor.cpp:61
 msgid "Accumulated points"
 msgstr ""
 
-#: clienteditor.cpp:56
+#: clienteditor.cpp:62
 msgid "Personal discount"
 msgstr ""
 
@@ -58,45 +62,45 @@ msgstr ""
 msgid "Miguel Chavez Gamboa"
 msgstr ""
 
-#: main.cpp:40
+#: main.cpp:41
 msgid "Roberto Aceves"
 msgstr ""
 
-#: main.cpp:40
+#: main.cpp:41
 msgid "Many ideas and general help"
 msgstr ""
 
-#: main.cpp:41
+#: main.cpp:42
 msgid "Biel Frontera"
 msgstr ""
 
-#: main.cpp:41 main.cpp:42
+#: main.cpp:42 main.cpp:43
 msgid "Code contributor"
 msgstr ""
 
-#: main.cpp:42
+#: main.cpp:43
 msgid "Vitali Kari"
 msgstr ""
 
-#: main.cpp:43
+#: main.cpp:44
 msgid "Jose Nivar"
 msgstr ""
 
-#: main.cpp:43
+#: main.cpp:44
 msgid "Many ideas, bug reports and testing"
 msgstr ""
 
-#: main.cpp:44
+#: main.cpp:45
 msgid "Benjamin Burt"
 msgstr ""
 
-#: main.cpp:44
+#: main.cpp:45
 msgid ""
 "Many ideas, Documentation Writer, How-to Videos Creation, and general help "
 "and support"
 msgstr ""
 
-#: main.cpp:47
+#: main.cpp:48
 msgid "Document to open"
 msgstr ""
 
@@ -114,7 +118,7 @@ msgstr ""
 
 #. i18n: file: squeezeui.rc:26
 #. i18n: ectx: ToolBar (cReports)
-#: po/extractedrc.cpp:9 squeeze.cpp:367 squeezeview.cpp:528 extractedrc.cpp:9
+#: po/extractedrc.cpp:9 squeeze.cpp:367 squeezeview.cpp:534 extractedrc.cpp:9
 msgid "Reports"
 msgstr ""
 
@@ -168,26 +172,35 @@ msgstr ""
 #. i18n: ectx: property (windowTitle), widget (QWidget, providersEditor)
 #. i18n: file: ui/squeezeview_base.ui:26
 #. i18n: ectx: property (windowTitle), widget (QWidget, squeezeview_base)
-#: po/extractedrc.cpp:21 po/extractedrc.cpp:48 po/extractedrc.cpp:72
-#: po/extractedrc.cpp:108 po/extractedrc.cpp:156 po/extractedrc.cpp:439
-#: po/extractedrc.cpp:460 po/extractedrc.cpp:604 extractedrc.cpp:21
-#: extractedrc.cpp:48 extractedrc.cpp:72 extractedrc.cpp:108
-#: extractedrc.cpp:156 extractedrc.cpp:439 extractedrc.cpp:460
-#: extractedrc.cpp:604
+#: po/extractedrc.cpp:21 po/extractedrc.cpp:51 po/extractedrc.cpp:75
+#: po/extractedrc.cpp:111 po/extractedrc.cpp:159 po/extractedrc.cpp:448
+#: po/extractedrc.cpp:469 po/extractedrc.cpp:613 extractedrc.cpp:21
+#: extractedrc.cpp:51 extractedrc.cpp:75 extractedrc.cpp:111
+#: extractedrc.cpp:159 extractedrc.cpp:448 extractedrc.cpp:469
+#: extractedrc.cpp:613
 msgid "Form"
 msgstr ""
 
 #. i18n: file: ui/editclient_widget.ui:20
 #. i18n: ectx: property (text), widget (QLabel, label_14)
-#. i18n: file: ui/providerseditor.ui:26
-#. i18n: ectx: property (text), widget (QLabel, label_15)
+#. i18n: file: ui/producteditor.bkp.ui:41
+#. i18n: ectx: property (text), widget (QLabel, label_5)
+#. i18n: file: ui/producteditor.ui:41
+#. i18n: ectx: property (text), widget (QLabel, label_5)
+#. i18n: file: ui/purchaseeditor.ui:128
+#. i18n: ectx: property (text), widget (QLabel, label_5)
 #. i18n: file: ui/editclient_widget.ui:20
 #. i18n: ectx: property (text), widget (QLabel, label_14)
-#. i18n: file: ui/providerseditor.ui:26
-#. i18n: ectx: property (text), widget (QLabel, label_15)
-#: po/extractedrc.cpp:24 po/extractedrc.cpp:463 extractedrc.cpp:24
-#: extractedrc.cpp:463
-msgid "&Name:"
+#. i18n: file: ui/producteditor.bkp.ui:41
+#. i18n: ectx: property (text), widget (QLabel, label_5)
+#. i18n: file: ui/producteditor.ui:41
+#. i18n: ectx: property (text), widget (QLabel, label_5)
+#. i18n: file: ui/purchaseeditor.ui:128
+#. i18n: ectx: property (text), widget (QLabel, label_5)
+#: po/extractedrc.cpp:24 po/extractedrc.cpp:180 po/extractedrc.cpp:308
+#: po/extractedrc.cpp:513 extractedrc.cpp:24 extractedrc.cpp:180
+#: extractedrc.cpp:308 extractedrc.cpp:513
+msgid "&Code:"
 msgstr ""
 
 #. i18n: file: ui/editclient_widget.ui:61
@@ -202,8 +215,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_16)
 #. i18n: file: ui/providerseditor.ui:39
 #. i18n: ectx: property (text), widget (QLabel, label_16)
-#: po/extractedrc.cpp:27 po/extractedrc.cpp:87 po/extractedrc.cpp:466
-#: extractedrc.cpp:27 extractedrc.cpp:87 extractedrc.cpp:466
+#: po/extractedrc.cpp:27 po/extractedrc.cpp:90 po/extractedrc.cpp:475
+#: extractedrc.cpp:27 extractedrc.cpp:90 extractedrc.cpp:475
 msgid "&Address:"
 msgstr ""
 
@@ -215,8 +228,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_17)
 #. i18n: file: ui/edituser_widget.ui:133
 #. i18n: ectx: property (text), widget (QLabel, label_17)
-#: po/extractedrc.cpp:30 po/extractedrc.cpp:90 extractedrc.cpp:30
-#: extractedrc.cpp:90
+#: po/extractedrc.cpp:30 po/extractedrc.cpp:93 extractedrc.cpp:30
+#: extractedrc.cpp:93
 msgid "Phone"
 msgstr ""
 
@@ -228,8 +241,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_18)
 #. i18n: file: ui/edituser_widget.ui:146
 #. i18n: ectx: property (text), widget (QLabel, label_18)
-#: po/extractedrc.cpp:33 po/extractedrc.cpp:93 extractedrc.cpp:33
-#: extractedrc.cpp:93
+#: po/extractedrc.cpp:33 po/extractedrc.cpp:96 extractedrc.cpp:33
+#: extractedrc.cpp:96
 msgid "Cell Phone:"
 msgstr ""
 
@@ -241,8 +254,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QPushButton, btnChangeClientPhoto)
 #. i18n: file: ui/edituser_widget.ui:87
 #. i18n: ectx: property (text), widget (QPushButton, btnChangeUserPhoto)
-#: po/extractedrc.cpp:36 po/extractedrc.cpp:84 extractedrc.cpp:36
-#: extractedrc.cpp:84
+#: po/extractedrc.cpp:36 po/extractedrc.cpp:87 extractedrc.cpp:36
+#: extractedrc.cpp:87
 msgid "Change &Photo"
 msgstr ""
 
@@ -258,8 +271,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_15)
 #. i18n: file: ui/producteditor.ui:289
 #. i18n: ectx: property (text), widget (QLabel, label_15)
-#: po/extractedrc.cpp:39 po/extractedrc.cpp:198 po/extractedrc.cpp:329
-#: extractedrc.cpp:39 extractedrc.cpp:198 extractedrc.cpp:329
+#: po/extractedrc.cpp:39 po/extractedrc.cpp:201 po/extractedrc.cpp:332
+#: extractedrc.cpp:39 extractedrc.cpp:201 extractedrc.cpp:332
 msgid "Points:"
 msgstr ""
 
@@ -275,6 +288,19 @@ msgstr ""
 msgid "Since:"
 msgstr ""
 
+#. i18n: file: ui/editclient_widget.ui:216
+#. i18n: ectx: property (text), widget (QLabel, label_4)
+#. i18n: file: ui/providerseditor.ui:26
+#. i18n: ectx: property (text), widget (QLabel, label_15)
+#. i18n: file: ui/editclient_widget.ui:216
+#. i18n: ectx: property (text), widget (QLabel, label_4)
+#. i18n: file: ui/providerseditor.ui:26
+#. i18n: ectx: property (text), widget (QLabel, label_15)
+#: po/extractedrc.cpp:48 po/extractedrc.cpp:472 extractedrc.cpp:48
+#: extractedrc.cpp:472
+msgid "&Name:"
+msgstr ""
+
 #. i18n: file: ui/editpromo_widget.ui:37
 #. i18n: ectx: property (text), widget (QLabel, label9)
 #. i18n: file: ui/promo.ui:37
@@ -283,8 +309,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label9)
 #. i18n: file: ui/promo.ui:37
 #. i18n: ectx: property (text), widget (QLabel, label9)
-#: po/extractedrc.cpp:51 po/extractedrc.cpp:442 extractedrc.cpp:51
-#: extractedrc.cpp:442
+#: po/extractedrc.cpp:54 po/extractedrc.cpp:451 extractedrc.cpp:54
+#: extractedrc.cpp:451
 msgid "Discount for product:"
 msgstr ""
 
@@ -296,8 +322,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QRadioButton, chByName)
 #. i18n: file: ui/promo.ui:49
 #. i18n: ectx: property (text), widget (QRadioButton, chByName)
-#: po/extractedrc.cpp:54 po/extractedrc.cpp:445 extractedrc.cpp:54
-#: extractedrc.cpp:445
+#: po/extractedrc.cpp:57 po/extractedrc.cpp:454 extractedrc.cpp:57
+#: extractedrc.cpp:454
 msgid "Filter by name"
 msgstr ""
 
@@ -309,8 +335,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QRadioButton, chByCat)
 #. i18n: file: ui/promo.ui:62
 #. i18n: ectx: property (text), widget (QRadioButton, chByCat)
-#: po/extractedrc.cpp:57 po/extractedrc.cpp:448 extractedrc.cpp:57
-#: extractedrc.cpp:448
+#: po/extractedrc.cpp:60 po/extractedrc.cpp:457 extractedrc.cpp:60
+#: extractedrc.cpp:457
 msgid "Filter by category"
 msgstr ""
 
@@ -322,14 +348,14 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_9)
 #. i18n: file: ui/promo.ui:80
 #. i18n: ectx: property (text), widget (QLabel, label_9)
-#: po/extractedrc.cpp:60 po/extractedrc.cpp:451 extractedrc.cpp:60
-#: extractedrc.cpp:451
+#: po/extractedrc.cpp:63 po/extractedrc.cpp:460 extractedrc.cpp:63
+#: extractedrc.cpp:460
 msgid "Discount percentage:"
 msgstr ""
 
 #. i18n: file: ui/editpromo_widget.ui:93
 #. i18n: ectx: property (text), widget (QLabel, label)
-#: po/extractedrc.cpp:63 extractedrc.cpp:63
+#: po/extractedrc.cpp:66 extractedrc.cpp:66
 msgid "New product price:"
 msgstr ""
 
@@ -341,8 +367,8 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, groupValidDate_2)
 #. i18n: file: ui/promo.ui:122
 #. i18n: ectx: property (title), widget (QGroupBox, groupValidDate_2)
-#: po/extractedrc.cpp:66 po/extractedrc.cpp:454 extractedrc.cpp:66
-#: extractedrc.cpp:454
+#: po/extractedrc.cpp:69 po/extractedrc.cpp:463 extractedrc.cpp:69
+#: extractedrc.cpp:463
 msgid "Valid From"
 msgstr ""
 
@@ -354,8 +380,8 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, groupValidDate)
 #. i18n: file: ui/promo.ui:161
 #. i18n: ectx: property (title), widget (QGroupBox, groupValidDate)
-#: po/extractedrc.cpp:69 po/extractedrc.cpp:457 extractedrc.cpp:69
-#: extractedrc.cpp:457
+#: po/extractedrc.cpp:72 po/extractedrc.cpp:466 extractedrc.cpp:72
+#: extractedrc.cpp:466
 msgid "Valid Until"
 msgstr ""
 
@@ -367,8 +393,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_14)
 #. i18n: file: ui/prefs_db.ui:38
 #. i18n: ectx: property (text), widget (QLabel, label_2)
-#: po/extractedrc.cpp:75 po/extractedrc.cpp:165 extractedrc.cpp:75
-#: extractedrc.cpp:165
+#: po/extractedrc.cpp:78 po/extractedrc.cpp:168 extractedrc.cpp:78
+#: extractedrc.cpp:168
 msgid "&Username:"
 msgstr ""
 
@@ -380,147 +406,147 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, labelp)
 #. i18n: file: ui/prefs_db.ui:51
 #. i18n: ectx: property (text), widget (QLabel, label_3)
-#: po/extractedrc.cpp:78 po/extractedrc.cpp:168 extractedrc.cpp:78
-#: extractedrc.cpp:168
+#: po/extractedrc.cpp:81 po/extractedrc.cpp:171 extractedrc.cpp:81
+#: extractedrc.cpp:171
 msgid "&Password:"
 msgstr ""
 
 #. i18n: file: ui/edituser_widget.ui:74
 #. i18n: ectx: property (text), widget (QLabel, label_15)
-#: po/extractedrc.cpp:81 extractedrc.cpp:81
+#: po/extractedrc.cpp:84 extractedrc.cpp:84
 msgid "&Full Name:"
 msgstr ""
 
 #. i18n: file: ui/edituser_widget.ui:159
 #. i18n: ectx: property (title), widget (QGroupBox, groupRoles)
-#: po/extractedrc.cpp:96 extractedrc.cpp:96
+#: po/extractedrc.cpp:99 extractedrc.cpp:99
 msgid "User Role"
 msgstr ""
 
 #. i18n: file: ui/edituser_widget.ui:165
 #. i18n: ectx: property (text), widget (QRadioButton, chRoleBasic)
-#: po/extractedrc.cpp:99 squeezeview.cpp:1319 squeezeview.cpp:1499
-#: squeezeview.cpp:2727 extractedrc.cpp:99
+#: po/extractedrc.cpp:102 squeezeview.cpp:1325 squeezeview.cpp:1505
+#: squeezeview.cpp:2734 extractedrc.cpp:102
 msgid "Vendor"
 msgstr ""
 
 #. i18n: file: ui/edituser_widget.ui:175
 #. i18n: ectx: property (text), widget (QRadioButton, chRoleSupervisor)
-#: po/extractedrc.cpp:102 extractedrc.cpp:102
+#: po/extractedrc.cpp:105 extractedrc.cpp:105
 msgid "Supervisor"
 msgstr ""
 
 #. i18n: file: ui/edituser_widget.ui:182
 #. i18n: ectx: property (text), widget (QRadioButton, chRoleAdmin)
-#: po/extractedrc.cpp:105 extractedrc.cpp:105
+#: po/extractedrc.cpp:108 extractedrc.cpp:108
 msgid "Administrator"
 msgstr ""
 
 #. i18n: file: ui/pref_printers.ui:32
 #. i18n: ectx: property (title), widget (QGroupBox, kcfg_printTicket)
-#: po/extractedrc.cpp:111 extractedrc.cpp:111
+#: po/extractedrc.cpp:114 extractedrc.cpp:114
 msgid "Print the ticket as"
 msgstr ""
 
 #. i18n: file: ui/pref_printers.ui:44
 #. i18n: ectx: property (text), widget (QRadioButton, kcfg_smallTicketCUPS)
-#: po/extractedrc.cpp:114 extractedrc.cpp:114
+#: po/extractedrc.cpp:117 extractedrc.cpp:117
 msgid "Small receipt using a thermal ticket printer (using CUPS)"
 msgstr ""
 
 #. i18n: file: ui/pref_printers.ui:60
 #. i18n: ectx: property (text), widget (QRadioButton, kcfg_smallTicketDotMatrix)
-#: po/extractedrc.cpp:117 extractedrc.cpp:117
+#: po/extractedrc.cpp:120 extractedrc.cpp:120
 msgid "Small receipt using a dot-matrix ticket printer (using /dev/lpX)"
 msgstr ""
 
 #. i18n: file: ui/pref_printers.ui:75
 #. i18n: ectx: property (text), widget (QLabel, Printerdevice)
-#: po/extractedrc.cpp:120 extractedrc.cpp:120
+#: po/extractedrc.cpp:123 extractedrc.cpp:123
 msgid "Printer Device:"
 msgstr ""
 
 #. i18n: file: ui/pref_printers.ui:92
 #. i18n: ectx: property (text), widget (QLabel, label_2)
-#: po/extractedrc.cpp:123 extractedrc.cpp:123
+#: po/extractedrc.cpp:126 extractedrc.cpp:126
 msgid "Printer Codec:"
 msgstr ""
 
 #. i18n: file: ui/pref_printers.ui:104
 #. i18n: ectx: property (text), widget (QRadioButton, kcfg_bigReceipt)
-#: po/extractedrc.cpp:126 extractedrc.cpp:126
+#: po/extractedrc.cpp:129 extractedrc.cpp:129
 msgid "Big format [A4, Letter] receipt using normal printer (using CUPS)"
 msgstr ""
 
 #. i18n: file: ui/pref_printers.ui:127
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_printBalances)
-#: po/extractedrc.cpp:129 extractedrc.cpp:129
+#: po/extractedrc.cpp:132 extractedrc.cpp:132
 msgid "Print Balances on your selected printer (above)."
 msgstr ""
 
 #. i18n: file: ui/pref_printers.ui:137
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_printChangedDateTicket)
-#: po/extractedrc.cpp:132 extractedrc.cpp:132
+#: po/extractedrc.cpp:135 extractedrc.cpp:135
 msgid "Print Date Changed Tickets"
 msgstr ""
 
 #. i18n: file: ui/prefs_base.ui:19
 #. i18n: ectx: property (text), widget (QLabel, label)
-#: po/extractedrc.cpp:135 extractedrc.cpp:135
+#: po/extractedrc.cpp:138 extractedrc.cpp:138
 msgid "Style:"
 msgstr ""
 
 #. i18n: file: ui/prefs_base.ui:26
 #. i18n: ectx: property (text), widget (QLineEdit, kcfg_styleName)
-#: po/extractedrc.cpp:138 extractedrc.cpp:138
+#: po/extractedrc.cpp:141 extractedrc.cpp:141
 msgid "simple"
 msgstr ""
 
 #. i18n: file: ui/prefs_base.ui:38
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
-#: po/extractedrc.cpp:141 extractedrc.cpp:141
+#: po/extractedrc.cpp:144 extractedrc.cpp:144
 msgid "Most Sold Products, Alert Range"
 msgstr ""
 
 #. i18n: file: ui/prefs_base.ui:46
 #. i18n: ectx: property (text), widget (QLabel, label_3)
-#: po/extractedrc.cpp:144 extractedrc.cpp:144
+#: po/extractedrc.cpp:147 extractedrc.cpp:147
 msgid "Min Value:"
 msgstr ""
 
 #. i18n: file: ui/prefs_base.ui:73
 #. i18n: ectx: property (text), widget (QLabel, label_2)
-#: po/extractedrc.cpp:147 extractedrc.cpp:147
+#: po/extractedrc.cpp:150 extractedrc.cpp:150
 msgid "Max Value:"
 msgstr ""
 
 #. i18n: file: ui/prefs_base.ui:98
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_lowSecurityMode)
-#: po/extractedrc.cpp:150 extractedrc.cpp:150
+#: po/extractedrc.cpp:153 extractedrc.cpp:153
 msgid "Low security mode"
 msgstr ""
 
 #. i18n: file: ui/prefs_base.ui:105
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_isProductsGridDefault)
-#: po/extractedrc.cpp:153 extractedrc.cpp:153
+#: po/extractedrc.cpp:156 extractedrc.cpp:156
 msgid "Grid is the default view for products"
 msgstr ""
 
 #. i18n: file: ui/prefs_db.ui:19
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
-#: po/extractedrc.cpp:159 squeeze.cpp:472 squeeze.cpp:496 extractedrc.cpp:159
+#: po/extractedrc.cpp:162 squeeze.cpp:472 squeeze.cpp:496 extractedrc.cpp:162
 msgid "Database"
 msgstr ""
 
 #. i18n: file: ui/prefs_db.ui:25
 #. i18n: ectx: property (text), widget (QLabel, label)
-#: po/extractedrc.cpp:162 extractedrc.cpp:162
+#: po/extractedrc.cpp:165 extractedrc.cpp:165
 msgid "&Server:"
 msgstr ""
 
 #. i18n: file: ui/prefs_db.ui:77
 #. i18n: ectx: property (text), widget (QLabel, label_4)
-#: po/extractedrc.cpp:171 extractedrc.cpp:171
+#: po/extractedrc.cpp:174 extractedrc.cpp:174
 msgid "&Database Name:"
 msgstr ""
 
@@ -532,28 +558,11 @@ msgstr ""
 #. i18n: ectx: property (windowTitle), widget (QWidget, productEditor)
 #. i18n: file: ui/producteditor.ui:26
 #. i18n: ectx: property (windowTitle), widget (QWidget, productEditor)
-#: po/extractedrc.cpp:174 po/extractedrc.cpp:302 producteditor.cpp:59
-#: providerseditor.cpp:53 extractedrc.cpp:174 extractedrc.cpp:302
+#: po/extractedrc.cpp:177 po/extractedrc.cpp:305 producteditor.cpp:59
+#: providerseditor.cpp:53 extractedrc.cpp:177 extractedrc.cpp:305
 msgid "Product Editor"
 msgstr ""
 
-#. i18n: file: ui/producteditor.bkp.ui:41
-#. i18n: ectx: property (text), widget (QLabel, label_5)
-#. i18n: file: ui/producteditor.ui:41
-#. i18n: ectx: property (text), widget (QLabel, label_5)
-#. i18n: file: ui/purchaseeditor.ui:122
-#. i18n: ectx: property (text), widget (QLabel, label_5)
-#. i18n: file: ui/producteditor.bkp.ui:41
-#. i18n: ectx: property (text), widget (QLabel, label_5)
-#. i18n: file: ui/producteditor.ui:41
-#. i18n: ectx: property (text), widget (QLabel, label_5)
-#. i18n: file: ui/purchaseeditor.ui:122
-#. i18n: ectx: property (text), widget (QLabel, label_5)
-#: po/extractedrc.cpp:177 po/extractedrc.cpp:305 po/extractedrc.cpp:504
-#: extractedrc.cpp:177 extractedrc.cpp:305 extractedrc.cpp:504
-msgid "&Code:"
-msgstr ""
-
 #. i18n: file: ui/producteditor.bkp.ui:96
 #. i18n: ectx: property (toolTip), widget (QPushButton, btnChangeCode)
 #. i18n: file: ui/producteditor.ui:96
@@ -562,8 +571,8 @@ msgstr ""
 #. i18n: ectx: property (toolTip), widget (QPushButton, btnChangeCode)
 #. i18n: file: ui/producteditor.ui:96
 #. i18n: ectx: property (toolTip), widget (QPushButton, btnChangeCode)
-#: po/extractedrc.cpp:180 po/extractedrc.cpp:308 extractedrc.cpp:180
-#: extractedrc.cpp:308
+#: po/extractedrc.cpp:183 po/extractedrc.cpp:311 extractedrc.cpp:183
+#: extractedrc.cpp:311
 msgid "Enable Code Editing"
 msgstr ""
 
@@ -571,16 +580,16 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QPushButton, btnPhoto)
 #. i18n: file: ui/producteditor.ui:144
 #. i18n: ectx: property (text), widget (QPushButton, btnPhoto)
-#. i18n: file: ui/purchaseeditor.ui:239
+#. i18n: file: ui/purchaseeditor.ui:278
 #. i18n: ectx: property (text), widget (QPushButton, btnPhoto)
 #. i18n: file: ui/producteditor.bkp.ui:144
 #. i18n: ectx: property (text), widget (QPushButton, btnPhoto)
 #. i18n: file: ui/producteditor.ui:144
 #. i18n: ectx: property (text), widget (QPushButton, btnPhoto)
-#. i18n: file: ui/purchaseeditor.ui:239
+#. i18n: file: ui/purchaseeditor.ui:278
 #. i18n: ectx: property (text), widget (QPushButton, btnPhoto)
-#: po/extractedrc.cpp:183 po/extractedrc.cpp:311 po/extractedrc.cpp:510
-#: extractedrc.cpp:183 extractedrc.cpp:311 extractedrc.cpp:510
+#: po/extractedrc.cpp:186 po/extractedrc.cpp:314 po/extractedrc.cpp:519
+#: extractedrc.cpp:186 extractedrc.cpp:314 extractedrc.cpp:519
 msgid "Change photo"
 msgstr ""
 
@@ -588,16 +597,16 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_14)
 #. i18n: file: ui/producteditor.ui:188
 #. i18n: ectx: property (text), widget (QLabel, label_14)
-#. i18n: file: ui/purchaseeditor.ui:271
+#. i18n: file: ui/purchaseeditor.ui:310
 #. i18n: ectx: property (text), widget (QLabel, label_16)
 #. i18n: file: ui/producteditor.bkp.ui:162
 #. i18n: ectx: property (text), widget (QLabel, label_14)
 #. i18n: file: ui/producteditor.ui:188
 #. i18n: ectx: property (text), widget (QLabel, label_14)
-#. i18n: file: ui/purchaseeditor.ui:271
+#. i18n: file: ui/purchaseeditor.ui:310
 #. i18n: ectx: property (text), widget (QLabel, label_16)
-#: po/extractedrc.cpp:186 po/extractedrc.cpp:317 po/extractedrc.cpp:513
-#: extractedrc.cpp:186 extractedrc.cpp:317 extractedrc.cpp:513
+#: po/extractedrc.cpp:189 po/extractedrc.cpp:320 po/extractedrc.cpp:522
+#: extractedrc.cpp:189 extractedrc.cpp:320 extractedrc.cpp:522
 msgid "&Description:"
 msgstr ""
 
@@ -609,8 +618,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, labelStockQty)
 #. i18n: file: ui/producteditor.ui:223
 #. i18n: ectx: property (text), widget (QLabel, labelStockQty)
-#: po/extractedrc.cpp:189 po/extractedrc.cpp:320 extractedrc.cpp:189
-#: extractedrc.cpp:320
+#: po/extractedrc.cpp:192 po/extractedrc.cpp:323 extractedrc.cpp:192
+#: extractedrc.cpp:323
 msgid "&Stock Qty:"
 msgstr ""
 
@@ -622,8 +631,8 @@ msgstr ""
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editStockQty)
 #. i18n: file: ui/producteditor.ui:254
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editStockQty)
-#: po/extractedrc.cpp:192 po/extractedrc.cpp:323 extractedrc.cpp:192
-#: extractedrc.cpp:323
+#: po/extractedrc.cpp:195 po/extractedrc.cpp:326 extractedrc.cpp:195
+#: extractedrc.cpp:326
 msgid "To change stock please use check-in/check-out"
 msgstr ""
 
@@ -635,8 +644,8 @@ msgstr ""
 #. i18n: ectx: property (toolTip), widget (QPushButton, btnStockCorrect)
 #. i18n: file: ui/producteditor.ui:270
 #. i18n: ectx: property (toolTip), widget (QPushButton, btnStockCorrect)
-#: po/extractedrc.cpp:195 po/extractedrc.cpp:326 extractedrc.cpp:195
-#: extractedrc.cpp:326
+#: po/extractedrc.cpp:198 po/extractedrc.cpp:329 extractedrc.cpp:198
+#: extractedrc.cpp:329
 msgid "Make a stock correction"
 msgstr ""
 
@@ -644,16 +653,16 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_8)
 #. i18n: file: ui/producteditor.ui:336
 #. i18n: ectx: property (text), widget (QLabel, label_8)
-#. i18n: file: ui/purchaseeditor.ui:319
+#. i18n: file: ui/purchaseeditor.ui:358
 #. i18n: ectx: property (text), widget (QLabel, label_8)
 #. i18n: file: ui/producteditor.bkp.ui:310
 #. i18n: ectx: property (text), widget (QLabel, label_8)
 #. i18n: file: ui/producteditor.ui:336
 #. i18n: ectx: property (text), widget (QLabel, label_8)
-#. i18n: file: ui/purchaseeditor.ui:319
+#. i18n: file: ui/purchaseeditor.ui:358
 #. i18n: ectx: property (text), widget (QLabel, label_8)
-#: po/extractedrc.cpp:201 po/extractedrc.cpp:332 po/extractedrc.cpp:516
-#: extractedrc.cpp:201 extractedrc.cpp:332 extractedrc.cpp:516
+#: po/extractedrc.cpp:204 po/extractedrc.cpp:335 po/extractedrc.cpp:525
+#: extractedrc.cpp:204 extractedrc.cpp:335 extractedrc.cpp:525
 msgid "C&ategory:"
 msgstr ""
 
@@ -661,16 +670,16 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_7)
 #. i18n: file: ui/producteditor.ui:368
 #. i18n: ectx: property (text), widget (QLabel, label_7)
-#. i18n: file: ui/purchaseeditor.ui:367
+#. i18n: file: ui/purchaseeditor.ui:406
 #. i18n: ectx: property (text), widget (QLabel, label_17)
 #. i18n: file: ui/producteditor.bkp.ui:342
 #. i18n: ectx: property (text), widget (QLabel, label_7)
 #. i18n: file: ui/producteditor.ui:368
 #. i18n: ectx: property (text), widget (QLabel, label_7)
-#. i18n: file: ui/purchaseeditor.ui:367
+#. i18n: file: ui/purchaseeditor.ui:406
 #. i18n: ectx: property (text), widget (QLabel, label_17)
-#: po/extractedrc.cpp:204 po/extractedrc.cpp:335 po/extractedrc.cpp:519
-#: extractedrc.cpp:204 extractedrc.cpp:335 extractedrc.cpp:519
+#: po/extractedrc.cpp:207 po/extractedrc.cpp:338 po/extractedrc.cpp:528
+#: extractedrc.cpp:207 extractedrc.cpp:338 extractedrc.cpp:528
 msgid "So&ld by:"
 msgstr ""
 
@@ -678,16 +687,16 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_9)
 #. i18n: file: ui/producteditor.ui:400
 #. i18n: ectx: property (text), widget (QLabel, label_9)
-#. i18n: file: ui/purchaseeditor.ui:474
+#. i18n: file: ui/purchaseeditor.ui:513
 #. i18n: ectx: property (text), widget (QLabel, label_9)
 #. i18n: file: ui/producteditor.bkp.ui:374
 #. i18n: ectx: property (text), widget (QLabel, label_9)
 #. i18n: file: ui/producteditor.ui:400
 #. i18n: ectx: property (text), widget (QLabel, label_9)
-#. i18n: file: ui/purchaseeditor.ui:474
+#. i18n: file: ui/purchaseeditor.ui:513
 #. i18n: ectx: property (text), widget (QLabel, label_9)
-#: po/extractedrc.cpp:207 po/extractedrc.cpp:338 po/extractedrc.cpp:525
-#: extractedrc.cpp:207 extractedrc.cpp:338 extractedrc.cpp:525
+#: po/extractedrc.cpp:210 po/extractedrc.cpp:341 po/extractedrc.cpp:534
+#: extractedrc.cpp:210 extractedrc.cpp:341 extractedrc.cpp:534
 msgid "C&ost:"
 msgstr ""
 
@@ -699,8 +708,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QCheckBox, chIsARaw)
 #. i18n: file: ui/producteditor.ui:435
 #. i18n: ectx: property (text), widget (QCheckBox, chIsARaw)
-#: po/extractedrc.cpp:210 po/extractedrc.cpp:341 extractedrc.cpp:210
-#: extractedrc.cpp:341
+#: po/extractedrc.cpp:213 po/extractedrc.cpp:344 extractedrc.cpp:213
+#: extractedrc.cpp:344
 msgid "It's A Raw Product"
 msgstr ""
 
@@ -712,8 +721,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_10)
 #. i18n: file: ui/producteditor.ui:451
 #. i18n: ectx: property (text), widget (QLabel, label_10)
-#: po/extractedrc.cpp:214 po/extractedrc.cpp:345 extractedrc.cpp:214
-#: extractedrc.cpp:345
+#: po/extractedrc.cpp:217 po/extractedrc.cpp:348 extractedrc.cpp:217
+#: extractedrc.cpp:348
 #, no-c-format
 msgid "&Tax (%):"
 msgstr ""
@@ -722,16 +731,16 @@ msgstr ""
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editTax)
 #. i18n: file: ui/producteditor.ui:482
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editTax)
-#. i18n: file: ui/purchaseeditor.ui:555
+#. i18n: file: ui/purchaseeditor.ui:594
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editTax)
 #. i18n: file: ui/producteditor.bkp.ui:456
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editTax)
 #. i18n: file: ui/producteditor.ui:482
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editTax)
-#. i18n: file: ui/purchaseeditor.ui:555
+#. i18n: file: ui/purchaseeditor.ui:594
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editTax)
-#: po/extractedrc.cpp:217 po/extractedrc.cpp:348 po/extractedrc.cpp:531
-#: extractedrc.cpp:217 extractedrc.cpp:348 extractedrc.cpp:531
+#: po/extractedrc.cpp:220 po/extractedrc.cpp:351 po/extractedrc.cpp:540
+#: extractedrc.cpp:220 extractedrc.cpp:351 extractedrc.cpp:540
 msgid "This is the tax in percentage."
 msgstr ""
 
@@ -743,8 +752,8 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
 #. i18n: file: ui/producteditor.ui:508
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
-#: po/extractedrc.cpp:220 po/extractedrc.cpp:354 extractedrc.cpp:220
-#: extractedrc.cpp:354
+#: po/extractedrc.cpp:223 po/extractedrc.cpp:357 extractedrc.cpp:223
+#: extractedrc.cpp:357
 msgid "Calcutate Price"
 msgstr ""
 
@@ -752,16 +761,16 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_3)
 #. i18n: file: ui/producteditor.ui:520
 #. i18n: ectx: property (text), widget (QLabel, label_3)
-#. i18n: file: ui/purchaseeditor.ui:640
+#. i18n: file: ui/purchaseeditor.ui:679
 #. i18n: ectx: property (text), widget (QLabel, label_11)
 #. i18n: file: ui/producteditor.bkp.ui:487
 #. i18n: ectx: property (text), widget (QLabel, label_3)
 #. i18n: file: ui/producteditor.ui:520
 #. i18n: ectx: property (text), widget (QLabel, label_3)
-#. i18n: file: ui/purchaseeditor.ui:640
+#. i18n: file: ui/purchaseeditor.ui:679
 #. i18n: ectx: property (text), widget (QLabel, label_11)
-#: po/extractedrc.cpp:224 po/extractedrc.cpp:358 po/extractedrc.cpp:544
-#: extractedrc.cpp:224 extractedrc.cpp:358 extractedrc.cpp:544
+#: po/extractedrc.cpp:227 po/extractedrc.cpp:361 po/extractedrc.cpp:553
+#: extractedrc.cpp:227 extractedrc.cpp:361 extractedrc.cpp:553
 #, no-c-format
 msgid "Pro&fit (%):"
 msgstr ""
@@ -770,16 +779,16 @@ msgstr ""
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnCalculatePrice)
 #. i18n: file: ui/producteditor.ui:919
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnCalculatePrice)
-#. i18n: file: ui/purchaseeditor.ui:1092
+#. i18n: file: ui/purchaseeditor.ui:1131
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnCalculatePrice)
 #. i18n: file: ui/producteditor.bkp.ui:886
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnCalculatePrice)
 #. i18n: file: ui/producteditor.ui:919
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnCalculatePrice)
-#. i18n: file: ui/purchaseeditor.ui:1092
+#. i18n: file: ui/purchaseeditor.ui:1131
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnCalculatePrice)
-#: po/extractedrc.cpp:227 po/extractedrc.cpp:361 po/extractedrc.cpp:556
-#: extractedrc.cpp:227 extractedrc.cpp:361 extractedrc.cpp:556
+#: po/extractedrc.cpp:230 po/extractedrc.cpp:364 po/extractedrc.cpp:565
+#: extractedrc.cpp:230 extractedrc.cpp:364 extractedrc.cpp:565
 msgid "Calculate price based on utility"
 msgstr ""
 
@@ -787,16 +796,16 @@ msgstr ""
 #. i18n: ectx: property (statusTip), widget (QToolButton, btnCalculatePrice)
 #. i18n: file: ui/producteditor.ui:922
 #. i18n: ectx: property (statusTip), widget (QToolButton, btnCalculatePrice)
-#. i18n: file: ui/purchaseeditor.ui:1095
+#. i18n: file: ui/purchaseeditor.ui:1134
 #. i18n: ectx: property (statusTip), widget (QToolButton, btnCalculatePrice)
 #. i18n: file: ui/producteditor.bkp.ui:889
 #. i18n: ectx: property (statusTip), widget (QToolButton, btnCalculatePrice)
 #. i18n: file: ui/producteditor.ui:922
 #. i18n: ectx: property (statusTip), widget (QToolButton, btnCalculatePrice)
-#. i18n: file: ui/purchaseeditor.ui:1095
+#. i18n: file: ui/purchaseeditor.ui:1134
 #. i18n: ectx: property (statusTip), widget (QToolButton, btnCalculatePrice)
-#: po/extractedrc.cpp:230 po/extractedrc.cpp:364 po/extractedrc.cpp:559
-#: extractedrc.cpp:230 extractedrc.cpp:364 extractedrc.cpp:559
+#: po/extractedrc.cpp:233 po/extractedrc.cpp:367 po/extractedrc.cpp:568
+#: extractedrc.cpp:233 extractedrc.cpp:367 extractedrc.cpp:568
 msgid "Calculate price automatically"
 msgstr ""
 
@@ -804,7 +813,7 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QToolButton, btnCalculatePrice)
 #. i18n: file: ui/producteditor.ui:925
 #. i18n: ectx: property (text), widget (QToolButton, btnCalculatePrice)
-#. i18n: file: ui/purchaseeditor.ui:1098
+#. i18n: file: ui/purchaseeditor.ui:1137
 #. i18n: ectx: property (text), widget (QToolButton, btnCalculatePrice)
 #. i18n: file: ui/squeezeview_base.ui:1679
 #. i18n: ectx: property (prefix), widget (QDoubleSpinBox, editBalancesFilterByCasInLess)
@@ -818,7 +827,7 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QToolButton, btnCalculatePrice)
 #. i18n: file: ui/producteditor.ui:925
 #. i18n: ectx: property (text), widget (QToolButton, btnCalculatePrice)
-#. i18n: file: ui/purchaseeditor.ui:1098
+#. i18n: file: ui/purchaseeditor.ui:1137
 #. i18n: ectx: property (text), widget (QToolButton, btnCalculatePrice)
 #. i18n: file: ui/squeezeview_base.ui:1679
 #. i18n: ectx: property (prefix), widget (QDoubleSpinBox, editBalancesFilterByCasInLess)
@@ -828,11 +837,11 @@ msgstr ""
 #. i18n: ectx: property (prefix), widget (QDoubleSpinBox, editTransAmountLess)
 #. i18n: file: ui/squeezeview_base.ui:1944
 #. i18n: ectx: property (prefix), widget (QDoubleSpinBox, editTransAmountGreater)
-#: po/extractedrc.cpp:233 po/extractedrc.cpp:367 po/extractedrc.cpp:562
-#: po/extractedrc.cpp:773 po/extractedrc.cpp:779 po/extractedrc.cpp:821
-#: po/extractedrc.cpp:827 extractedrc.cpp:233 extractedrc.cpp:367
-#: extractedrc.cpp:562 extractedrc.cpp:773 extractedrc.cpp:779
-#: extractedrc.cpp:821 extractedrc.cpp:827
+#: po/extractedrc.cpp:236 po/extractedrc.cpp:370 po/extractedrc.cpp:571
+#: po/extractedrc.cpp:782 po/extractedrc.cpp:788 po/extractedrc.cpp:830
+#: po/extractedrc.cpp:836 extractedrc.cpp:236 extractedrc.cpp:370
+#: extractedrc.cpp:571 extractedrc.cpp:782 extractedrc.cpp:788
+#: extractedrc.cpp:830 extractedrc.cpp:836
 msgid "$"
 msgstr ""
 
@@ -840,16 +849,16 @@ msgstr ""
 #. i18n: ectx: property (statusTip), widget (QLabel, label_12)
 #. i18n: file: ui/producteditor.ui:941
 #. i18n: ectx: property (statusTip), widget (QLabel, label_12)
-#. i18n: file: ui/purchaseeditor.ui:574
+#. i18n: file: ui/purchaseeditor.ui:613
 #. i18n: ectx: property (statusTip), widget (QLabel, label_14)
 #. i18n: file: ui/producteditor.bkp.ui:908
 #. i18n: ectx: property (statusTip), widget (QLabel, label_12)
 #. i18n: file: ui/producteditor.ui:941
 #. i18n: ectx: property (statusTip), widget (QLabel, label_12)
-#. i18n: file: ui/purchaseeditor.ui:574
+#. i18n: file: ui/purchaseeditor.ui:613
 #. i18n: ectx: property (statusTip), widget (QLabel, label_14)
-#: po/extractedrc.cpp:236 po/extractedrc.cpp:370 po/extractedrc.cpp:534
-#: extractedrc.cpp:236 extractedrc.cpp:370 extractedrc.cpp:534
+#: po/extractedrc.cpp:239 po/extractedrc.cpp:373 po/extractedrc.cpp:543
+#: extractedrc.cpp:239 extractedrc.cpp:373 extractedrc.cpp:543
 msgid "Special Tax"
 msgstr ""
 
@@ -861,8 +870,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_12)
 #. i18n: file: ui/producteditor.ui:947
 #. i18n: ectx: property (text), widget (QLabel, label_12)
-#: po/extractedrc.cpp:240 po/extractedrc.cpp:374 extractedrc.cpp:240
-#: extractedrc.cpp:374
+#: po/extractedrc.cpp:243 po/extractedrc.cpp:377 extractedrc.cpp:243
+#: extractedrc.cpp:377
 #, no-c-format
 msgid "Ot&her Taxes (%):"
 msgstr ""
@@ -871,16 +880,16 @@ msgstr ""
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editExtraTaxes)
 #. i18n: file: ui/producteditor.ui:978
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editExtraTaxes)
-#. i18n: file: ui/purchaseeditor.ui:611
+#. i18n: file: ui/purchaseeditor.ui:650
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editExtraTaxes)
 #. i18n: file: ui/producteditor.bkp.ui:945
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editExtraTaxes)
 #. i18n: file: ui/producteditor.ui:978
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editExtraTaxes)
-#. i18n: file: ui/purchaseeditor.ui:611
+#. i18n: file: ui/purchaseeditor.ui:650
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editExtraTaxes)
-#: po/extractedrc.cpp:243 po/extractedrc.cpp:377 po/extractedrc.cpp:540
-#: extractedrc.cpp:243 extractedrc.cpp:377 extractedrc.cpp:540
+#: po/extractedrc.cpp:246 po/extractedrc.cpp:380 po/extractedrc.cpp:549
+#: extractedrc.cpp:246 extractedrc.cpp:380 extractedrc.cpp:549
 msgid "This is the extra tax in percentage."
 msgstr ""
 
@@ -888,16 +897,16 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_13)
 #. i18n: file: ui/producteditor.ui:1001
 #. i18n: ectx: property (text), widget (QLabel, label_13)
-#. i18n: file: ui/purchaseeditor.ui:687
+#. i18n: file: ui/purchaseeditor.ui:726
 #. i18n: ectx: property (text), widget (QLabel, label_13)
 #. i18n: file: ui/producteditor.bkp.ui:961
 #. i18n: ectx: property (text), widget (QLabel, label_13)
 #. i18n: file: ui/producteditor.ui:1001
 #. i18n: ectx: property (text), widget (QLabel, label_13)
-#. i18n: file: ui/purchaseeditor.ui:687
+#. i18n: file: ui/purchaseeditor.ui:726
 #. i18n: ectx: property (text), widget (QLabel, label_13)
-#: po/extractedrc.cpp:246 po/extractedrc.cpp:383 po/extractedrc.cpp:550
-#: extractedrc.cpp:246 extractedrc.cpp:383 extractedrc.cpp:550
+#: po/extractedrc.cpp:249 po/extractedrc.cpp:386 po/extractedrc.cpp:559
+#: extractedrc.cpp:249 extractedrc.cpp:386 extractedrc.cpp:559
 msgid "&Public price:"
 msgstr ""
 
@@ -905,16 +914,16 @@ msgstr ""
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editFinalPrice)
 #. i18n: file: ui/producteditor.ui:1032
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editFinalPrice)
-#. i18n: file: ui/purchaseeditor.ui:718
+#. i18n: file: ui/purchaseeditor.ui:757
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editFinalPrice)
 #. i18n: file: ui/producteditor.bkp.ui:992
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editFinalPrice)
 #. i18n: file: ui/producteditor.ui:1032
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editFinalPrice)
-#. i18n: file: ui/purchaseeditor.ui:718
+#. i18n: file: ui/purchaseeditor.ui:757
 #. i18n: ectx: property (statusTip), widget (QLineEdit, editFinalPrice)
-#: po/extractedrc.cpp:249 po/extractedrc.cpp:386 po/extractedrc.cpp:553
-#: extractedrc.cpp:249 extractedrc.cpp:386 extractedrc.cpp:553
+#: po/extractedrc.cpp:252 po/extractedrc.cpp:389 po/extractedrc.cpp:562
+#: extractedrc.cpp:252 extractedrc.cpp:389 extractedrc.cpp:562
 msgid "Can be calculated with de + button"
 msgstr ""
 
@@ -926,8 +935,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QCheckBox, chIsAGroup)
 #. i18n: file: ui/producteditor.ui:489
 #. i18n: ectx: property (text), widget (QCheckBox, chIsAGroup)
-#: po/extractedrc.cpp:252 po/extractedrc.cpp:351 extractedrc.cpp:252
-#: extractedrc.cpp:351
+#: po/extractedrc.cpp:255 po/extractedrc.cpp:354 extractedrc.cpp:255
+#: extractedrc.cpp:354
 msgid "It's a Group/Pack"
 msgstr ""
 
@@ -939,8 +948,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QPushButton, btnShowGroup)
 #. i18n: file: ui/producteditor.ui:985
 #. i18n: ectx: property (text), widget (QPushButton, btnShowGroup)
-#: po/extractedrc.cpp:255 po/extractedrc.cpp:380 extractedrc.cpp:255
-#: extractedrc.cpp:380
+#: po/extractedrc.cpp:258 po/extractedrc.cpp:383 extractedrc.cpp:258
+#: extractedrc.cpp:383
 msgid "Show Group details"
 msgstr ""
 
@@ -952,8 +961,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label)
 #. i18n: file: ui/producteditor.ui:1054
 #. i18n: ectx: property (text), widget (QLabel, label)
-#: po/extractedrc.cpp:258 po/extractedrc.cpp:389 extractedrc.cpp:258
-#: extractedrc.cpp:389
+#: po/extractedrc.cpp:261 po/extractedrc.cpp:392 extractedrc.cpp:261
+#: extractedrc.cpp:392
 msgid ""
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
 "REC-html40/strict.dtd\">\n"
@@ -980,8 +989,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_6)
 #. i18n: file: ui/producteditor.ui:1071
 #. i18n: ectx: property (text), widget (QLabel, label_6)
-#: po/extractedrc.cpp:266 po/extractedrc.cpp:397 extractedrc.cpp:266
-#: extractedrc.cpp:397
+#: po/extractedrc.cpp:269 po/extractedrc.cpp:400 extractedrc.cpp:269
+#: extractedrc.cpp:400
 #, no-c-format
 msgid "Price drop % for the group:"
 msgstr ""
@@ -994,8 +1003,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #. i18n: file: ui/producteditor.ui:1088
 #. i18n: ectx: property (text), widget (QLabel, label_4)
-#: po/extractedrc.cpp:269 po/extractedrc.cpp:400 extractedrc.cpp:269
-#: extractedrc.cpp:400
+#: po/extractedrc.cpp:272 po/extractedrc.cpp:403 extractedrc.cpp:272
+#: extractedrc.cpp:403
 msgid "Group Price:"
 msgstr ""
 
@@ -1027,11 +1036,11 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_6)
 #. i18n: file: ui/squeezeview_base.ui:2102
 #. i18n: ectx: property (text), widget (QLabel, lblReservationDetails)
-#: po/extractedrc.cpp:272 po/extractedrc.cpp:403 po/extractedrc.cpp:607
-#: po/extractedrc.cpp:613 po/extractedrc.cpp:674 po/extractedrc.cpp:719
-#: po/extractedrc.cpp:842 extractedrc.cpp:272 extractedrc.cpp:403
-#: extractedrc.cpp:607 extractedrc.cpp:613 extractedrc.cpp:674
-#: extractedrc.cpp:719 extractedrc.cpp:842
+#: po/extractedrc.cpp:275 po/extractedrc.cpp:406 po/extractedrc.cpp:616
+#: po/extractedrc.cpp:622 po/extractedrc.cpp:683 po/extractedrc.cpp:728
+#: po/extractedrc.cpp:851 extractedrc.cpp:275 extractedrc.cpp:406
+#: extractedrc.cpp:616 extractedrc.cpp:622 extractedrc.cpp:683
+#: extractedrc.cpp:728 extractedrc.cpp:851
 msgid "TextLabel"
 msgstr ""
 
@@ -1043,8 +1052,8 @@ msgstr ""
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnAdd)
 #. i18n: file: ui/producteditor.ui:1176
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnAdd)
-#: po/extractedrc.cpp:275 po/extractedrc.cpp:409 extractedrc.cpp:275
-#: extractedrc.cpp:409
+#: po/extractedrc.cpp:278 po/extractedrc.cpp:412 extractedrc.cpp:278
+#: extractedrc.cpp:412
 msgid "Add selected products to the group"
 msgstr ""
 
@@ -1056,8 +1065,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QToolButton, btnAdd)
 #. i18n: file: ui/producteditor.ui:1179
 #. i18n: ectx: property (text), widget (QToolButton, btnAdd)
-#: po/extractedrc.cpp:278 po/extractedrc.cpp:412 extractedrc.cpp:278
-#: extractedrc.cpp:412
+#: po/extractedrc.cpp:281 po/extractedrc.cpp:415 extractedrc.cpp:281
+#: extractedrc.cpp:415
 msgid ">"
 msgstr ""
 
@@ -1069,8 +1078,8 @@ msgstr ""
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnRemove)
 #. i18n: file: ui/producteditor.ui:1192
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnRemove)
-#: po/extractedrc.cpp:281 po/extractedrc.cpp:415 extractedrc.cpp:281
-#: extractedrc.cpp:415
+#: po/extractedrc.cpp:284 po/extractedrc.cpp:418 extractedrc.cpp:284
+#: extractedrc.cpp:418
 msgid "Remove selected products from the group"
 msgstr ""
 
@@ -1082,8 +1091,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QToolButton, btnRemove)
 #. i18n: file: ui/producteditor.ui:1195
 #. i18n: ectx: property (text), widget (QToolButton, btnRemove)
-#: po/extractedrc.cpp:284 po/extractedrc.cpp:418 extractedrc.cpp:284
-#: extractedrc.cpp:418
+#: po/extractedrc.cpp:287 po/extractedrc.cpp:421 extractedrc.cpp:287
+#: extractedrc.cpp:421
 msgid "<"
 msgstr ""
 
@@ -1095,8 +1104,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
 #. i18n: file: ui/producteditor.ui:1230
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
-#: po/extractedrc.cpp:287 po/extractedrc.cpp:421 squeezeview.cpp:1611
-#: extractedrc.cpp:287 extractedrc.cpp:421
+#: po/extractedrc.cpp:290 po/extractedrc.cpp:424 squeezeview.cpp:1617
+#: extractedrc.cpp:290 extractedrc.cpp:424
 msgid "Qty"
 msgstr ""
 
@@ -1104,18 +1113,18 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
 #. i18n: file: ui/producteditor.ui:1235
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
-#. i18n: file: ui/purchaseeditor.ui:1643
+#. i18n: file: ui/purchaseeditor.ui:1682
 #. i18n: ectx: property (text), widget (QTableWidget, tableView)
 #. i18n: file: ui/producteditor.bkp.ui:1143
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
 #. i18n: file: ui/producteditor.ui:1235
 #. i18n: ectx: property (text), widget (QTableWidget, groupView)
-#. i18n: file: ui/purchaseeditor.ui:1643
+#. i18n: file: ui/purchaseeditor.ui:1682
 #. i18n: ectx: property (text), widget (QTableWidget, tableView)
-#: po/extractedrc.cpp:290 po/extractedrc.cpp:424 po/extractedrc.cpp:592
-#: squeezeview.cpp:1191 squeezeview.cpp:1216 squeezeview.cpp:3158
-#: squeezeview.cpp:3221 squeezeview.cpp:3283 extractedrc.cpp:290
-#: extractedrc.cpp:424 extractedrc.cpp:592
+#: po/extractedrc.cpp:293 po/extractedrc.cpp:427 po/extractedrc.cpp:601
+#: squeezeview.cpp:1197 squeezeview.cpp:1222 squeezeview.cpp:3216
+#: squeezeview.cpp:3297 squeezeview.cpp:3376 extractedrc.cpp:293
+#: extractedrc.cpp:427 extractedrc.cpp:601
 msgid "Description"
 msgstr ""
 
@@ -1127,8 +1136,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #. i18n: file: ui/producteditor.ui:1245
 #. i18n: ectx: property (text), widget (QLabel, label_2)
-#: po/extractedrc.cpp:293 po/extractedrc.cpp:427 extractedrc.cpp:293
-#: extractedrc.cpp:427
+#: po/extractedrc.cpp:296 po/extractedrc.cpp:430 extractedrc.cpp:296
+#: extractedrc.cpp:430
 msgid "Filter:"
 msgstr ""
 
@@ -1140,8 +1149,8 @@ msgstr ""
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editFilter)
 #. i18n: file: ui/producteditor.ui:1252
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editFilter)
-#: po/extractedrc.cpp:296 po/extractedrc.cpp:430 extractedrc.cpp:296
-#: extractedrc.cpp:430
+#: po/extractedrc.cpp:299 po/extractedrc.cpp:433 extractedrc.cpp:299
+#: extractedrc.cpp:433
 msgid "You can filter the products by description,"
 msgstr ""
 
@@ -1153,20 +1162,20 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QPushButton, btnCloseGroup)
 #. i18n: file: ui/producteditor.ui:1264
 #. i18n: ectx: property (text), widget (QPushButton, btnCloseGroup)
-#: po/extractedrc.cpp:299 po/extractedrc.cpp:433 extractedrc.cpp:299
-#: extractedrc.cpp:433
+#: po/extractedrc.cpp:302 po/extractedrc.cpp:436 extractedrc.cpp:302
+#: extractedrc.cpp:436
 msgid "Close this panel"
 msgstr ""
 
 #. i18n: file: ui/producteditor.ui:153
 #. i18n: ectx: property (text), widget (QLabel, label_11)
-#: po/extractedrc.cpp:314 extractedrc.cpp:314
+#: po/extractedrc.cpp:317 extractedrc.cpp:317
 msgid "Alphacode:"
 msgstr ""
 
 #. i18n: file: ui/producteditor.ui:1141
 #. i18n: ectx: property (text), widget (QLabel, label_16)
-#: po/extractedrc.cpp:406 extractedrc.cpp:406
+#: po/extractedrc.cpp:409 extractedrc.cpp:409
 msgid "qty:"
 msgstr ""
 
@@ -1190,65 +1199,77 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QToolButton, btnBalances)
 #. i18n: file: ui/squeezeview_base.ui:1405
 #. i18n: ectx: property (text), widget (QToolButton, btnSO)
-#: po/extractedrc.cpp:436 po/extractedrc.cpp:728 po/extractedrc.cpp:734
-#: po/extractedrc.cpp:740 po/extractedrc.cpp:746 extractedrc.cpp:436
-#: extractedrc.cpp:728 extractedrc.cpp:734 extractedrc.cpp:740
-#: extractedrc.cpp:746
+#: po/extractedrc.cpp:439 po/extractedrc.cpp:737 po/extractedrc.cpp:743
+#: po/extractedrc.cpp:749 po/extractedrc.cpp:755 extractedrc.cpp:439
+#: extractedrc.cpp:737 extractedrc.cpp:743 extractedrc.cpp:749
+#: extractedrc.cpp:755
 msgid "..."
+msgstr ""
+
+#. i18n: file: ui/producteditor.ui:1281
+#. i18n: ectx: property (text), widget (QCheckBox, chUnlimitedStock)
+#: po/extractedrc.cpp:442 extractedrc.cpp:442
+msgid "Unlimited Stock"
+msgstr ""
+
+#. i18n: file: ui/producteditor.ui:1288
+#. i18n: ectx: property (text), widget (QCheckBox, chNotDiscountable)
+#: po/extractedrc.cpp:445 extractedrc.cpp:445
+msgid "Non Discount item"
 msgstr ""
 
 #. i18n: file: ui/providerseditor.ui:65
 #. i18n: ectx: property (text), widget (QLabel, label_17)
-#: po/extractedrc.cpp:469 extractedrc.cpp:469
+#: po/extractedrc.cpp:478 extractedrc.cpp:478
 msgid "&Phone"
 msgstr ""
 
 #. i18n: file: ui/providerseditor.ui:78
 #. i18n: ectx: property (text), widget (QLabel, label_18)
-#: po/extractedrc.cpp:472 extractedrc.cpp:472
+#: po/extractedrc.cpp:481 extractedrc.cpp:481
 msgid "&Cell Phone:"
 msgstr ""
 
 #. i18n: file: ui/providerseditor.ui:97
 #. i18n: ectx: property (title), widget (QGroupBox, groupProducts)
-#: po/extractedrc.cpp:475 extractedrc.cpp:475
+#: po/extractedrc.cpp:484 extractedrc.cpp:484
 msgid "Products "
 msgstr ""
 
 #. i18n: file: ui/providerseditor.ui:130
 #. i18n: ectx: property (text), widget (QPushButton, btnAttach)
-#: po/extractedrc.cpp:478 extractedrc.cpp:478
+#: po/extractedrc.cpp:487 extractedrc.cpp:487
 msgid "Add selected"
 msgstr ""
 
 #. i18n: file: ui/providerseditor.ui:137
 #. i18n: ectx: property (text), widget (QPushButton, btnCancelAttach)
-#: po/extractedrc.cpp:481 ../../src/inputdialog.cpp:175 extractedrc.cpp:481
+#: po/extractedrc.cpp:490 ../../src/inputdialog.cpp:175 extractedrc.cpp:490
 msgid "Cancel"
 msgstr ""
 
 #. i18n: file: ui/providerseditor.ui:154
 #. i18n: ectx: property (text), widget (QPushButton, btnAdd)
-#: po/extractedrc.cpp:484 extractedrc.cpp:484
+#: po/extractedrc.cpp:493 extractedrc.cpp:493
 msgid "Add"
 msgstr ""
 
 #. i18n: file: ui/providerseditor.ui:161
 #. i18n: ectx: property (text), widget (QPushButton, btnRemove)
-#: po/extractedrc.cpp:487 extractedrc.cpp:487
+#: po/extractedrc.cpp:496 extractedrc.cpp:496
 msgid "Remove"
 msgstr ""
 
 #. i18n: file: ui/purchaseeditor.ui:38
 #. i18n: ectx: property (windowTitle), widget (QWidget, purchaseEditor)
-#: po/extractedrc.cpp:490 purchaseeditor.cpp:42 squeeze.cpp:349
-#: extractedrc.cpp:490
+#: po/extractedrc.cpp:499 purchaseeditor.cpp:45 squeeze.cpp:349
+#: extractedrc.cpp:499
 msgid "Purchase"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:73
+#. i18n: file: ui/purchaseeditor.ui:79
 #. i18n: ectx: property (text), widget (QLabel, label)
-#: po/extractedrc.cpp:493 extractedrc.cpp:493
+#: po/extractedrc.cpp:502 extractedrc.cpp:502
 msgid ""
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
 "REC-html40/strict.dtd\">\n"
@@ -1268,179 +1289,179 @@ msgid ""
 "p></body></html>"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:93
+#. i18n: file: ui/purchaseeditor.ui:99
 #. i18n: ectx: attribute (title), widget (QWidget, tab)
-#: po/extractedrc.cpp:501 extractedrc.cpp:501
+#: po/extractedrc.cpp:510 extractedrc.cpp:510
 msgid "Product Information"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:163
+#. i18n: file: ui/purchaseeditor.ui:199
 #. i18n: ectx: property (text), widget (QLabel, label_12)
-#: po/extractedrc.cpp:507 extractedrc.cpp:507
+#: po/extractedrc.cpp:516 extractedrc.cpp:516
 msgid "Pu&rchase Qty:"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:411
+#. i18n: file: ui/purchaseeditor.ui:450
 #. i18n: ectx: property (text), widget (QLabel, label_15)
-#: po/extractedrc.cpp:522 extractedrc.cpp:522
+#: po/extractedrc.cpp:531 extractedrc.cpp:531
 msgid "&Points:"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:524
+#. i18n: file: ui/purchaseeditor.ui:563
 #. i18n: ectx: property (text), widget (QLabel, label_10)
-#: po/extractedrc.cpp:528 extractedrc.cpp:528
+#: po/extractedrc.cpp:537 extractedrc.cpp:537
 msgid "&Taxes 1).-"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:580
+#. i18n: file: ui/purchaseeditor.ui:619
 #. i18n: ectx: property (text), widget (QLabel, label_14)
-#: po/extractedrc.cpp:537 extractedrc.cpp:537
+#: po/extractedrc.cpp:546 extractedrc.cpp:546
 msgid "2).-"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:665
+#. i18n: file: ui/purchaseeditor.ui:704
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editUtility)
-#: po/extractedrc.cpp:547 extractedrc.cpp:547
+#: po/extractedrc.cpp:556 extractedrc.cpp:556
 msgid "For price auto-calculation only"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:1125
+#. i18n: file: ui/purchaseeditor.ui:1164
 #. i18n: ectx: property (title), widget (QGroupBox, groupBoxedItem)
-#: po/extractedrc.cpp:565 extractedrc.cpp:565
+#: po/extractedrc.cpp:574 extractedrc.cpp:574
 msgid "Boxed products"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:1143
+#. i18n: file: ui/purchaseeditor.ui:1182
 #. i18n: ectx: property (text), widget (QLabel, label_4)
-#: po/extractedrc.cpp:568 extractedrc.cpp:568
+#: po/extractedrc.cpp:577 extractedrc.cpp:577
 msgid "&Items/box:"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:1168
+#. i18n: file: ui/purchaseeditor.ui:1207
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editItemsPerBox)
-#: po/extractedrc.cpp:571 extractedrc.cpp:571
+#: po/extractedrc.cpp:580 extractedrc.cpp:580
 msgid "Items per box"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:1181
+#. i18n: file: ui/purchaseeditor.ui:1220
 #. i18n: ectx: property (text), widget (QLabel, label_7)
-#: po/extractedrc.cpp:574 extractedrc.cpp:574
+#: po/extractedrc.cpp:583 extractedrc.cpp:583
 msgid "P&rice/box :"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:1206
+#. i18n: file: ui/purchaseeditor.ui:1245
 #. i18n: ectx: property (toolTip), widget (QLineEdit, editPricePerBox)
-#: po/extractedrc.cpp:577 extractedrc.cpp:577
+#: po/extractedrc.cpp:586 extractedrc.cpp:586
 msgid "Price per box"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:1218
+#. i18n: file: ui/purchaseeditor.ui:1257
 #. i18n: ectx: property (text), widget (QCheckBox, chIsAGroup)
-#: po/extractedrc.cpp:580 extractedrc.cpp:580
+#: po/extractedrc.cpp:589 extractedrc.cpp:589
 msgid "Group. There will be added all its grouped products to the purchase."
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:1607
+#. i18n: file: ui/purchaseeditor.ui:1646
 #. i18n: ectx: property (text), widget (QPushButton, btnAddItem)
-#: po/extractedrc.cpp:583 extractedrc.cpp:583
+#: po/extractedrc.cpp:592 extractedrc.cpp:592
 msgid "add this product"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:1616
+#. i18n: file: ui/purchaseeditor.ui:1655
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
-#: po/extractedrc.cpp:586 extractedrc.cpp:586
+#: po/extractedrc.cpp:595 extractedrc.cpp:595
 msgid "Items in this purchase"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:1638
+#. i18n: file: ui/purchaseeditor.ui:1677
 #. i18n: ectx: property (text), widget (QTableWidget, tableView)
-#: po/extractedrc.cpp:589 squeezeview.cpp:1036 squeezeview.cpp:3157
-#: squeezeview.cpp:3220 squeezeview.cpp:3282 extractedrc.cpp:589
+#: po/extractedrc.cpp:598 squeezeview.cpp:1042 squeezeview.cpp:3215
+#: squeezeview.cpp:3296 squeezeview.cpp:3375 extractedrc.cpp:598
 msgid "Code"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:1648
+#. i18n: file: ui/purchaseeditor.ui:1687
 #. i18n: ectx: property (text), widget (QTableWidget, tableView)
-#: po/extractedrc.cpp:595 extractedrc.cpp:595
+#: po/extractedrc.cpp:604 extractedrc.cpp:604
 msgid "Purchased Qty"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:1653
+#. i18n: file: ui/purchaseeditor.ui:1692
 #. i18n: ectx: property (text), widget (QTableWidget, tableView)
-#: po/extractedrc.cpp:598 extractedrc.cpp:598
+#: po/extractedrc.cpp:607 extractedrc.cpp:607
 msgid "Total Qty"
 msgstr ""
 
-#. i18n: file: ui/purchaseeditor.ui:1676
+#. i18n: file: ui/purchaseeditor.ui:1715
 #. i18n: ectx: property (text), widget (QPushButton, btnRemoveItem)
-#: po/extractedrc.cpp:601 extractedrc.cpp:601
+#: po/extractedrc.cpp:610 extractedrc.cpp:610
 msgid "Remove Item from list"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:71
 #. i18n: ectx: property (text), widget (QLabel, headerLabel)
-#: po/extractedrc.cpp:610 extractedrc.cpp:610
+#: po/extractedrc.cpp:619 extractedrc.cpp:619
 msgid "welcome"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:115
 #. i18n: ectx: property (text), widget (QLabel, lblGraphSoldItems)
-#: po/extractedrc.cpp:616 extractedrc.cpp:616
+#: po/extractedrc.cpp:625 extractedrc.cpp:625
 msgid "5 Most Sold Items"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:131
 #. i18n: ectx: property (text), widget (QLabel, lblGraphAlmostSoldOutItems)
-#: po/extractedrc.cpp:619 extractedrc.cpp:619
+#: po/extractedrc.cpp:628 extractedrc.cpp:628
 msgid "Almost Sold Out Items (Top 5 sold items)"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:147
 #. i18n: ectx: property (text), widget (QLabel, lblGraphSales)
-#: po/extractedrc.cpp:622 extractedrc.cpp:622
+#: po/extractedrc.cpp:631 extractedrc.cpp:631
 msgid "Sales"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:163
 #. i18n: ectx: property (text), widget (QLabel, lblGraphProfit)
-#: po/extractedrc.cpp:625 squeezeview.cpp:1326 squeezeview.cpp:2865
-#: squeezeview.cpp:2980 squeezeview.cpp:3073 extractedrc.cpp:625
+#: po/extractedrc.cpp:634 squeezeview.cpp:1332 squeezeview.cpp:2872
+#: squeezeview.cpp:3004 squeezeview.cpp:3114 extractedrc.cpp:634
 msgid "Profit"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:659
 #. i18n: ectx: property (text), widget (QLabel, lblProd1)
-#: po/extractedrc.cpp:628 extractedrc.cpp:628
+#: po/extractedrc.cpp:637 extractedrc.cpp:637
 msgid "1.-"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:689
 #. i18n: ectx: property (text), widget (QLabel, lblProd2)
-#: po/extractedrc.cpp:631 extractedrc.cpp:631
+#: po/extractedrc.cpp:640 extractedrc.cpp:640
 msgid "2.-"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:716
 #. i18n: ectx: property (text), widget (QLabel, lblProd3)
-#: po/extractedrc.cpp:634 extractedrc.cpp:634
+#: po/extractedrc.cpp:643 extractedrc.cpp:643
 msgid "3.-"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:743
 #. i18n: ectx: property (text), widget (QLabel, lblProd4)
-#: po/extractedrc.cpp:637 extractedrc.cpp:637
+#: po/extractedrc.cpp:646 extractedrc.cpp:646
 msgid "4.-"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:770
 #. i18n: ectx: property (text), widget (QLabel, lblProd5)
-#: po/extractedrc.cpp:640 extractedrc.cpp:640
+#: po/extractedrc.cpp:649 extractedrc.cpp:649
 msgid "5.-"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:882
 #. i18n: ectx: property (text), widget (QLabel, label)
-#: po/extractedrc.cpp:643 extractedrc.cpp:643
+#: po/extractedrc.cpp:652 extractedrc.cpp:652
 msgid ""
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
 "REC-html40/strict.dtd\">\n"
@@ -1457,25 +1478,25 @@ msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:889
 #. i18n: ectx: property (text), widget (QRadioButton, chViewProductsListAsTable)
-#: po/extractedrc.cpp:650 extractedrc.cpp:650
+#: po/extractedrc.cpp:659 extractedrc.cpp:659
 msgid "Table"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:896
 #. i18n: ectx: property (text), widget (QRadioButton, chViewProductsListAsGrid)
-#: po/extractedrc.cpp:653 extractedrc.cpp:653
+#: po/extractedrc.cpp:662 extractedrc.cpp:662
 msgid "Grid"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:943
 #. i18n: ectx: property (text), widget (QPushButton, btnAddProduct)
-#: po/extractedrc.cpp:656 extractedrc.cpp:656
+#: po/extractedrc.cpp:665 extractedrc.cpp:665
 msgid "Add Product"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:950
 #. i18n: ectx: property (text), widget (QPushButton, btnDeleteProduct)
-#: po/extractedrc.cpp:659 extractedrc.cpp:659
+#: po/extractedrc.cpp:668 extractedrc.cpp:668
 msgid "Delete Product"
 msgstr ""
 
@@ -1507,35 +1528,35 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QPushButton, btnExportClients)
 #. i18n: file: ui/squeezeview_base.ui:1530
 #. i18n: ectx: property (text), widget (QPushButton, btnExport)
-#: po/extractedrc.cpp:662 po/extractedrc.cpp:671 po/extractedrc.cpp:686
-#: po/extractedrc.cpp:695 po/extractedrc.cpp:704 po/extractedrc.cpp:713
-#: po/extractedrc.cpp:752 extractedrc.cpp:662 extractedrc.cpp:671
-#: extractedrc.cpp:686 extractedrc.cpp:695 extractedrc.cpp:704
-#: extractedrc.cpp:713 extractedrc.cpp:752
+#: po/extractedrc.cpp:671 po/extractedrc.cpp:680 po/extractedrc.cpp:695
+#: po/extractedrc.cpp:704 po/extractedrc.cpp:713 po/extractedrc.cpp:722
+#: po/extractedrc.cpp:761 extractedrc.cpp:671 extractedrc.cpp:680
+#: extractedrc.cpp:695 extractedrc.cpp:704 extractedrc.cpp:713
+#: extractedrc.cpp:722 extractedrc.cpp:761
 msgid "Export"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1010
 #. i18n: ectx: property (text), widget (QPushButton, btnAddOffer)
-#: po/extractedrc.cpp:665 extractedrc.cpp:665
+#: po/extractedrc.cpp:674 extractedrc.cpp:674
 msgid "Create New Offer"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1017
 #. i18n: ectx: property (text), widget (QPushButton, btnDeleteOffer)
-#: po/extractedrc.cpp:668 extractedrc.cpp:668
+#: po/extractedrc.cpp:677 extractedrc.cpp:677
 msgid "Delete Selected Offer"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1044
 #. i18n: ectx: property (toolTip), widget (QListView, usersView)
-#: po/extractedrc.cpp:677 extractedrc.cpp:677
+#: po/extractedrc.cpp:686 extractedrc.cpp:686
 msgid "To edit an user, double click on it."
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1072
 #. i18n: ectx: property (text), widget (QPushButton, btnAddUser)
-#: po/extractedrc.cpp:680 extractedrc.cpp:680
+#: po/extractedrc.cpp:689 extractedrc.cpp:689
 msgid "Add User"
 msgstr ""
 
@@ -1555,72 +1576,72 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QPushButton, btnDeleteCategory)
 #. i18n: file: ui/squeezeview_base.ui:1237
 #. i18n: ectx: property (text), widget (QPushButton, btnDeleteClient)
-#: po/extractedrc.cpp:683 po/extractedrc.cpp:692 po/extractedrc.cpp:701
-#: po/extractedrc.cpp:710 extractedrc.cpp:683 extractedrc.cpp:692
-#: extractedrc.cpp:701 extractedrc.cpp:710
+#: po/extractedrc.cpp:692 po/extractedrc.cpp:701 po/extractedrc.cpp:710
+#: po/extractedrc.cpp:719 extractedrc.cpp:692 extractedrc.cpp:701
+#: extractedrc.cpp:710 extractedrc.cpp:719
 msgid "Delete Selected"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1130
 #. i18n: ectx: property (text), widget (QPushButton, btnAddMeasure)
-#: po/extractedrc.cpp:689 extractedrc.cpp:689
+#: po/extractedrc.cpp:698 extractedrc.cpp:698
 msgid "Add Measure"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1185
 #. i18n: ectx: property (text), widget (QPushButton, btnAddCategory)
-#: po/extractedrc.cpp:698 extractedrc.cpp:698
+#: po/extractedrc.cpp:707 extractedrc.cpp:707
 msgid "Add Category"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1230
 #. i18n: ectx: property (text), widget (QPushButton, btnAddClient)
-#: po/extractedrc.cpp:707 extractedrc.cpp:707
+#: po/extractedrc.cpp:716 extractedrc.cpp:716
 msgid "Add Client"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1275
 #. i18n: ectx: property (text), widget (QPushButton, btnAddRandomMsg)
-#: po/extractedrc.cpp:716 extractedrc.cpp:716
+#: po/extractedrc.cpp:725 extractedrc.cpp:725
 msgid "Add New Message"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1316
 #. i18n: ectx: attribute (title), widget (QWidget, tabOnScreen)
-#: po/extractedrc.cpp:722 extractedrc.cpp:722
+#: po/extractedrc.cpp:731 extractedrc.cpp:731
 msgid "On Screen"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1330
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnCashFlow)
-#: po/extractedrc.cpp:725 squeeze.cpp:331 squeezeview.cpp:519
-#: extractedrc.cpp:725
+#: po/extractedrc.cpp:734 squeeze.cpp:331 squeezeview.cpp:525
+#: extractedrc.cpp:734
 msgid "Cash Flow"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1352
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnTransactions)
-#: po/extractedrc.cpp:731 squeeze.cpp:337 squeezeview.cpp:484
-#: squeezeview.cpp:1505 extractedrc.cpp:731
+#: po/extractedrc.cpp:740 squeeze.cpp:337 squeezeview.cpp:490
+#: squeezeview.cpp:1511 extractedrc.cpp:740
 msgid "Transactions"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1377
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnBalances)
-#: po/extractedrc.cpp:737 squeeze.cpp:325 squeezeview.cpp:496
-#: extractedrc.cpp:737
+#: po/extractedrc.cpp:746 squeeze.cpp:325 squeezeview.cpp:502
+#: extractedrc.cpp:746
 msgid "Balances"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1402
 #. i18n: ectx: property (toolTip), widget (QToolButton, btnSO)
-#: po/extractedrc.cpp:743 squeezeview.cpp:507 extractedrc.cpp:743
+#: po/extractedrc.cpp:752 squeezeview.cpp:513 extractedrc.cpp:752
 msgid "Special Orders"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1523
 #. i18n: ectx: property (text), widget (QPushButton, btnPrintBalance)
-#: po/extractedrc.cpp:749 extractedrc.cpp:749
+#: po/extractedrc.cpp:758 extractedrc.cpp:758
 msgid "Print"
 msgstr ""
 
@@ -1644,22 +1665,22 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, groupFilterProducts)
 #. i18n: file: ui/squeezeview_base.ui:2339
 #. i18n: ectx: property (title), widget (QGroupBox, groupSOFilter)
-#: po/extractedrc.cpp:755 po/extractedrc.cpp:785 po/extractedrc.cpp:845
-#: po/extractedrc.cpp:860 po/extractedrc.cpp:890 extractedrc.cpp:755
-#: extractedrc.cpp:785 extractedrc.cpp:845 extractedrc.cpp:860
-#: extractedrc.cpp:890
+#: po/extractedrc.cpp:764 po/extractedrc.cpp:794 po/extractedrc.cpp:854
+#: po/extractedrc.cpp:869 po/extractedrc.cpp:899 extractedrc.cpp:764
+#: extractedrc.cpp:794 extractedrc.cpp:854 extractedrc.cpp:869
+#: extractedrc.cpp:899
 msgid "Filter"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1593
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilterByState)
-#: po/extractedrc.cpp:758 extractedrc.cpp:758
+#: po/extractedrc.cpp:767 extractedrc.cpp:767
 msgid "show not empty balances"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1600
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilterBySuspicious)
-#: po/extractedrc.cpp:761 extractedrc.cpp:761
+#: po/extractedrc.cpp:770 extractedrc.cpp:770
 msgid "show suspicious balances"
 msgstr ""
 
@@ -1671,8 +1692,8 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilterByDate)
 #. i18n: file: ui/squeezeview_base.ui:1832
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByDate)
-#: po/extractedrc.cpp:764 po/extractedrc.cpp:809 extractedrc.cpp:764
-#: extractedrc.cpp:809
+#: po/extractedrc.cpp:773 po/extractedrc.cpp:818 extractedrc.cpp:773
+#: extractedrc.cpp:818
 msgid "by Date:"
 msgstr ""
 
@@ -1684,20 +1705,20 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilterByUser)
 #. i18n: file: ui/squeezeview_base.ui:1856
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByUser)
-#: po/extractedrc.cpp:767 po/extractedrc.cpp:812 extractedrc.cpp:767
-#: extractedrc.cpp:812
+#: po/extractedrc.cpp:776 po/extractedrc.cpp:821 extractedrc.cpp:776
+#: extractedrc.cpp:821
 msgid "by Vendor Name"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1660
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilterByCashInLess)
-#: po/extractedrc.cpp:770 extractedrc.cpp:770
+#: po/extractedrc.cpp:779 extractedrc.cpp:779
 msgid "Cash In <"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1689
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilterByCashInGrater)
-#: po/extractedrc.cpp:776 extractedrc.cpp:776
+#: po/extractedrc.cpp:785 extractedrc.cpp:785
 msgid "Cash In >"
 msgstr ""
 
@@ -1709,256 +1730,256 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QRadioButton, rbBalancesFilgerByTerminalNum)
 #. i18n: file: ui/squeezeview_base.ui:1954
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterTerminalNum)
-#: po/extractedrc.cpp:782 po/extractedrc.cpp:830 extractedrc.cpp:782
-#: extractedrc.cpp:830
+#: po/extractedrc.cpp:791 po/extractedrc.cpp:839 extractedrc.cpp:791
+#: extractedrc.cpp:839
 msgid "by Terminal Number"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1783
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransactionsFilterOnlySales)
-#: po/extractedrc.cpp:788 extractedrc.cpp:788
+#: po/extractedrc.cpp:797 extractedrc.cpp:797
 msgid "Only Sales"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1790
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByStateFinished)
-#: po/extractedrc.cpp:791 extractedrc.cpp:791
+#: po/extractedrc.cpp:800 extractedrc.cpp:800
 msgid "show finished transactions"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1797
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransactionsFilterOnlyPurchases)
-#: po/extractedrc.cpp:794 extractedrc.cpp:794
+#: po/extractedrc.cpp:803 extractedrc.cpp:803
 msgid "Only Purchases"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1804
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByStateCancelled)
-#: po/extractedrc.cpp:797 extractedrc.cpp:797
+#: po/extractedrc.cpp:806 extractedrc.cpp:806
 msgid "show cancelled transactions"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1811
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransactionsFilterOnlyChangesReturns)
-#: po/extractedrc.cpp:800 extractedrc.cpp:800
+#: po/extractedrc.cpp:809 extractedrc.cpp:809
 msgid "Only Changes and Returns"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1818
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByPaidCredit)
-#: po/extractedrc.cpp:803 extractedrc.cpp:803
+#: po/extractedrc.cpp:812 extractedrc.cpp:812
 msgid "show transactions paid with card"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1825
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByPaidCash)
-#: po/extractedrc.cpp:806 extractedrc.cpp:806
+#: po/extractedrc.cpp:815 extractedrc.cpp:815
 msgid "show transactions paid in cash"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1879
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByClient)
-#: po/extractedrc.cpp:815 extractedrc.cpp:815
+#: po/extractedrc.cpp:824 extractedrc.cpp:824
 msgid "by Client Name:"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1902
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByAmountLess)
-#: po/extractedrc.cpp:818 extractedrc.cpp:818
+#: po/extractedrc.cpp:827 extractedrc.cpp:827
 msgid "Amount Paid <"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1931
 #. i18n: ectx: property (text), widget (QRadioButton, rbTransFilterByAmountGreater)
-#: po/extractedrc.cpp:824 extractedrc.cpp:824
+#: po/extractedrc.cpp:833 extractedrc.cpp:833
 msgid "Amount Paid >"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:1983
 #. i18n: ectx: attribute (title), widget (QWidget, tabPrinted)
-#: po/extractedrc.cpp:833 extractedrc.cpp:833
+#: po/extractedrc.cpp:842 extractedrc.cpp:842
 msgid "Printed"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2055
 #. i18n: ectx: property (text), widget (QPushButton, btnAddCurrency)
-#: po/extractedrc.cpp:836 extractedrc.cpp:836
+#: po/extractedrc.cpp:845 extractedrc.cpp:845
 msgid "Add Currency"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2062
 #. i18n: ectx: property (text), widget (QPushButton, btnDeleteCurrency)
-#: po/extractedrc.cpp:839 extractedrc.cpp:839
+#: po/extractedrc.cpp:848 extractedrc.cpp:848
 msgid "Delete Currency"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2142
 #. i18n: ectx: property (text), widget (QRadioButton, chOffersFilterByProduct)
-#: po/extractedrc.cpp:848 extractedrc.cpp:848
+#: po/extractedrc.cpp:857 extractedrc.cpp:857
 msgid "by product description"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2164
 #. i18n: ectx: property (text), widget (QRadioButton, chOffersTodayDiscounts)
-#: po/extractedrc.cpp:851 extractedrc.cpp:851
+#: po/extractedrc.cpp:860 extractedrc.cpp:860
 msgid "by today discounts"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2174
 #. i18n: ectx: property (text), widget (QRadioButton, chOffersSelectDate)
-#: po/extractedrc.cpp:854 extractedrc.cpp:854
+#: po/extractedrc.cpp:863 extractedrc.cpp:863
 msgid "by valid discount for date:"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2181
 #. i18n: ectx: property (text), widget (QRadioButton, chOffersOldDiscounts)
-#: po/extractedrc.cpp:857 extractedrc.cpp:857
+#: po/extractedrc.cpp:866 extractedrc.cpp:866
 msgid "by old discounts"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2247
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByDesc)
-#: po/extractedrc.cpp:863 extractedrc.cpp:863
+#: po/extractedrc.cpp:872 extractedrc.cpp:872
 msgid "by description"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2264
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByCategory)
-#: po/extractedrc.cpp:866 extractedrc.cpp:866
+#: po/extractedrc.cpp:875 extractedrc.cpp:875
 msgid "by category"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2281
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByAvailable)
-#: po/extractedrc.cpp:869 extractedrc.cpp:869
+#: po/extractedrc.cpp:878 extractedrc.cpp:878
 msgid "show available items"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2288
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByAlmostSoldOut)
-#: po/extractedrc.cpp:872 extractedrc.cpp:872
+#: po/extractedrc.cpp:881 extractedrc.cpp:881
 msgid "show almost sold out items"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2295
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByNotAvailable)
-#: po/extractedrc.cpp:875 extractedrc.cpp:875
+#: po/extractedrc.cpp:884 extractedrc.cpp:884
 msgid "show sold out items"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2302
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByLessSold)
-#: po/extractedrc.cpp:878 extractedrc.cpp:878
+#: po/extractedrc.cpp:887 extractedrc.cpp:887
 msgid "show less sold"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2309
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByMostSold)
-#: po/extractedrc.cpp:881 extractedrc.cpp:881
+#: po/extractedrc.cpp:890 extractedrc.cpp:890
 msgid "show most sold"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2316
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByRaw)
-#: po/extractedrc.cpp:884 extractedrc.cpp:884
+#: po/extractedrc.cpp:893 extractedrc.cpp:893
 msgid "show raw products only"
 msgstr ""
 
 #. i18n: file: ui/squeezeview_base.ui:2323
 #. i18n: ectx: property (text), widget (QRadioButton, rbProductsFilterByGroup)
-#: po/extractedrc.cpp:887 extractedrc.cpp:887
+#: po/extractedrc.cpp:896 extractedrc.cpp:896
 msgid "show only group/pack products"
 msgstr ""
 
-#. i18n: file: ui/squeezeview_base.ui:2353
+#. i18n: file: ui/squeezeview_base.ui:2356
 #. i18n: ectx: property (text), widget (QLabel, label_5)
-#: po/extractedrc.cpp:893 extractedrc.cpp:893
+#: po/extractedrc.cpp:902 extractedrc.cpp:902
 msgid "By Date:"
 msgstr ""
 
-#. i18n: file: ui/squeezeview_base.ui:2365
+#. i18n: file: ui/squeezeview_base.ui:2368
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByDate)
-#: po/extractedrc.cpp:896 extractedrc.cpp:896
+#: po/extractedrc.cpp:905 extractedrc.cpp:905
 msgid "All orders for day:"
 msgstr ""
 
-#. i18n: file: ui/squeezeview_base.ui:2395
+#. i18n: file: ui/squeezeview_base.ui:2398
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByThisWeek)
-#: po/extractedrc.cpp:899 extractedrc.cpp:899
+#: po/extractedrc.cpp:908 extractedrc.cpp:908
 msgid "All orders whitin 7 days"
 msgstr ""
 
-#. i18n: file: ui/squeezeview_base.ui:2402
+#. i18n: file: ui/squeezeview_base.ui:2405
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByThisMonth)
-#: po/extractedrc.cpp:902 extractedrc.cpp:902
+#: po/extractedrc.cpp:911 extractedrc.cpp:911
 msgid "All orders within 30 days"
 msgstr ""
 
-#. i18n: file: ui/squeezeview_base.ui:2431
+#. i18n: file: ui/squeezeview_base.ui:2434
 #. i18n: ectx: property (text), widget (QLabel, label_4)
-#: po/extractedrc.cpp:905 extractedrc.cpp:905
+#: po/extractedrc.cpp:914 extractedrc.cpp:914
 msgid "By Order Status:"
 msgstr ""
 
-#. i18n: file: ui/squeezeview_base.ui:2443
+#. i18n: file: ui/squeezeview_base.ui:2446
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByStatusPending)
-#: po/extractedrc.cpp:908 extractedrc.cpp:908
+#: po/extractedrc.cpp:917 extractedrc.cpp:917
 msgid "All Pending orders"
 msgstr ""
 
-#. i18n: file: ui/squeezeview_base.ui:2450
+#. i18n: file: ui/squeezeview_base.ui:2453
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByStatusInProgress)
-#: po/extractedrc.cpp:911 extractedrc.cpp:911
+#: po/extractedrc.cpp:920 extractedrc.cpp:920
 msgid "All In-Progress orders"
 msgstr ""
 
-#. i18n: file: ui/squeezeview_base.ui:2457
+#. i18n: file: ui/squeezeview_base.ui:2460
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByStatusReady)
-#: po/extractedrc.cpp:914 extractedrc.cpp:914
+#: po/extractedrc.cpp:923 extractedrc.cpp:923
 msgid "All Ready orders"
 msgstr ""
 
-#. i18n: file: ui/squeezeview_base.ui:2464
+#. i18n: file: ui/squeezeview_base.ui:2467
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByStatusDelivered)
-#: po/extractedrc.cpp:917 extractedrc.cpp:917
+#: po/extractedrc.cpp:926 extractedrc.cpp:926
 msgid "All Delivered orders"
 msgstr ""
 
-#. i18n: file: ui/squeezeview_base.ui:2471
+#. i18n: file: ui/squeezeview_base.ui:2474
 #. i18n: ectx: property (text), widget (QRadioButton, rbSOByStatusCancelled)
-#: po/extractedrc.cpp:920 extractedrc.cpp:920
+#: po/extractedrc.cpp:929 extractedrc.cpp:929
 msgid "All Cancelled orders"
 msgstr ""
 
-#: po/extractedrc.cpp:921 extractedrc.cpp:921
+#: po/extractedrc.cpp:930 extractedrc.cpp:930
 msgctxt "NAME OF TRANSLATORS"
 msgid "Your names"
 msgstr ""
 
-#: po/extractedrc.cpp:922 extractedrc.cpp:922
+#: po/extractedrc.cpp:931 extractedrc.cpp:931
 msgctxt "EMAIL OF TRANSLATORS"
 msgid "Your emails"
 msgstr ""
 
-#: producteditor.cpp:125
+#: producteditor.cpp:127
 msgid "Purchase Qty:"
 msgstr ""
 
-#: producteditor.cpp:127
+#: producteditor.cpp:129
 msgid "Stock Qty:"
 msgstr ""
 
-#: producteditor.cpp:354
+#: producteditor.cpp:356
 msgid "Gross Profit: %1% (%2)"
 msgstr ""
 
-#: producteditor.cpp:378 squeezeview.cpp:2196
+#: producteditor.cpp:380 squeezeview.cpp:2183
 msgid ""
 "Enter the quantity and reason for the change, then press <ENTER> to accept, "
 "<ESC> to cancel"
 msgstr ""
 
-#: producteditor.cpp:439
+#: producteditor.cpp:445
 msgid "Code %1 already exists."
 msgstr ""
 
@@ -1974,11 +1995,20 @@ msgstr ""
 msgid "Last Price"
 msgstr ""
 
-#: purchaseeditor.cpp:514 purchaseeditor.cpp:548
+#: purchaseeditor.cpp:447
+msgid "<b>Unlimited Stock Products cannot be purchased.</b>"
+msgstr ""
+
+#: purchaseeditor.cpp:509 purchaseeditor.cpp:530
+msgid ""
+"<b>Stock cannot go negative.</b> The <i>minimum</i> purchase can be <b>%1</b>"
+msgstr ""
+
+#: purchaseeditor.cpp:591 purchaseeditor.cpp:625
 msgid "Items in this purchase [ %1  items,  %2 ]"
 msgstr ""
 
-#: purchaseeditor.cpp:566
+#: purchaseeditor.cpp:643
 msgid "No Photo"
 msgstr ""
 
@@ -1990,11 +2020,11 @@ msgstr ""
 msgid "Users"
 msgstr ""
 
-#: squeeze.cpp:295 squeezeview.cpp:474
+#: squeeze.cpp:295 squeezeview.cpp:480
 msgid "Clients"
 msgstr ""
 
-#: squeeze.cpp:301 squeezeview.cpp:420 squeezeview.cpp:661
+#: squeeze.cpp:301 squeezeview.cpp:426 squeezeview.cpp:667
 msgid "Products"
 msgstr ""
 
@@ -2002,11 +2032,11 @@ msgstr ""
 msgid "Measures"
 msgstr ""
 
-#: squeeze.cpp:313 squeezeview.cpp:465
+#: squeeze.cpp:313 squeezeview.cpp:471
 msgid "Categories"
 msgstr ""
 
-#: squeeze.cpp:319 squeezeview.cpp:432
+#: squeeze.cpp:319 squeezeview.cpp:438
 msgid "Offers"
 msgstr ""
 
@@ -2046,7 +2076,7 @@ msgstr ""
 msgid "Show Special Orders"
 msgstr ""
 
-#: squeeze.cpp:409 squeezeview.cpp:540
+#: squeeze.cpp:409 squeezeview.cpp:546
 msgid "Ticket Messages"
 msgstr ""
 
@@ -2070,613 +2100,613 @@ msgstr ""
 msgid "Printers"
 msgstr ""
 
-#: squeezeview.cpp:97
+#: squeezeview.cpp:99
 msgid "Authorisation Required"
 msgstr ""
 
-#: squeezeview.cpp:98
+#: squeezeview.cpp:100
 msgid "Enter administrator/supervisor user and password please."
 msgstr ""
 
-#: squeezeview.cpp:103
+#: squeezeview.cpp:105
 msgid "Basic Information"
 msgstr ""
 
-#: squeezeview.cpp:133
+#: squeezeview.cpp:135
 msgid "End of Day"
 msgstr ""
 
-#: squeezeview.cpp:134
+#: squeezeview.cpp:136
 msgid "General End of Day"
 msgstr ""
 
-#: squeezeview.cpp:135
+#: squeezeview.cpp:137
 msgid "End of Month"
 msgstr ""
 
-#: squeezeview.cpp:136 squeezeview.cpp:3281
+#: squeezeview.cpp:138 squeezeview.cpp:3374
 msgid "Sold Out Products"
 msgstr ""
 
-#: squeezeview.cpp:137
+#: squeezeview.cpp:139
 msgid "Low Stock Products"
 msgstr ""
 
-#: squeezeview.cpp:138
+#: squeezeview.cpp:140
 msgid "Stock Report"
 msgstr ""
 
-#: squeezeview.cpp:203
+#: squeezeview.cpp:209
 msgid "Unable to connect to the database"
 msgstr ""
 
-#: squeezeview.cpp:405
+#: squeezeview.cpp:411
 msgid "Quick Information"
 msgstr ""
 
-#: squeezeview.cpp:447
+#: squeezeview.cpp:453
 msgid "Vendors"
 msgstr ""
 
-#: squeezeview.cpp:456
+#: squeezeview.cpp:462
 msgid "Weight and Measures"
 msgstr ""
 
-#: squeezeview.cpp:548
+#: squeezeview.cpp:554
 msgid "Currencies"
 msgstr ""
 
-#: squeezeview.cpp:556
+#: squeezeview.cpp:562
 msgid "Reservations"
 msgstr ""
 
-#: squeezeview.cpp:646 squeezeview.cpp:652
+#: squeezeview.cpp:652 squeezeview.cpp:658
 msgid "%1"
 msgstr ""
 
-#: squeezeview.cpp:647
+#: squeezeview.cpp:653
 msgid "Month Sales (%1)"
 msgstr ""
 
-#: squeezeview.cpp:653
+#: squeezeview.cpp:659
 msgid "Month Profit (%1)"
 msgstr ""
 
-#: squeezeview.cpp:662 squeezeview.cpp:1042 squeezeview.cpp:3285
+#: squeezeview.cpp:668 squeezeview.cpp:1048 squeezeview.cpp:3378
 msgid "Sold Units"
 msgstr ""
 
-#: squeezeview.cpp:939
+#: squeezeview.cpp:945
 msgid "Trying connection in %1 seconds..."
 msgstr ""
 
-#: squeezeview.cpp:943
+#: squeezeview.cpp:949
 msgid "Connecting..."
 msgstr ""
 
-#: squeezeview.cpp:978 squeezeview.cpp:1206 squeezeview.cpp:1233
-#: squeezeview.cpp:1261 squeezeview.cpp:1463 squeezeview.cpp:1716
+#: squeezeview.cpp:984 squeezeview.cpp:1212 squeezeview.cpp:1239
+#: squeezeview.cpp:1267 squeezeview.cpp:1469 squeezeview.cpp:1722
 msgid ""
 "Squeeze has encountered an error, click details to see the error details."
 msgstr ""
 
-#: squeezeview.cpp:978 squeezeview.cpp:1206 squeezeview.cpp:1233
-#: squeezeview.cpp:1261 squeezeview.cpp:1463 squeezeview.cpp:1716
+#: squeezeview.cpp:984 squeezeview.cpp:1212 squeezeview.cpp:1239
+#: squeezeview.cpp:1267 squeezeview.cpp:1469 squeezeview.cpp:1722
 msgid "Error"
 msgstr ""
 
-#: squeezeview.cpp:1037 squeezeview.cpp:1448 squeezeview.cpp:1609
+#: squeezeview.cpp:1043 squeezeview.cpp:1454 squeezeview.cpp:1615
 msgid "Name"
 msgstr ""
 
-#: squeezeview.cpp:1038
+#: squeezeview.cpp:1044
 msgid "Category"
 msgstr ""
 
-#: squeezeview.cpp:1039 squeezeview.cpp:1612
+#: squeezeview.cpp:1045 squeezeview.cpp:1618
 msgid "Price"
 msgstr ""
 
-#: squeezeview.cpp:1040 squeezeview.cpp:1613
+#: squeezeview.cpp:1046 squeezeview.cpp:1619
 msgid "Cost"
 msgstr ""
 
-#: squeezeview.cpp:1041 squeezeview.cpp:3284
+#: squeezeview.cpp:1047 squeezeview.cpp:3377
 msgid "Stock Qty"
 msgstr ""
 
-#: squeezeview.cpp:1043
+#: squeezeview.cpp:1049
 msgid "Last Sold"
 msgstr ""
 
-#: squeezeview.cpp:1044
+#: squeezeview.cpp:1050
 msgid "Last Provider"
 msgstr ""
 
-#: squeezeview.cpp:1045
+#: squeezeview.cpp:1051
 msgid "Alpha Code"
 msgstr ""
 
-#: squeezeview.cpp:1159 squeezeview.cpp:1309 squeezeview.cpp:1497
-#: squeezeview.cpp:2724 squeezeview.cpp:2859 squeezeview.cpp:2974
-#: squeezeview.cpp:3067 squeezeview.cpp:3360 squeezeview.cpp:3397
+#: squeezeview.cpp:1165 squeezeview.cpp:1315 squeezeview.cpp:1503
+#: squeezeview.cpp:2731 squeezeview.cpp:2866 squeezeview.cpp:2998
+#: squeezeview.cpp:3108 squeezeview.cpp:3470 squeezeview.cpp:3507
 msgid "Id"
 msgstr ""
 
-#: squeezeview.cpp:1160
+#: squeezeview.cpp:1166
 msgid "Product Affected"
 msgstr ""
 
-#: squeezeview.cpp:1161
+#: squeezeview.cpp:1167
 msgid "Discount Applied (%)"
 msgstr ""
 
-#: squeezeview.cpp:1162
+#: squeezeview.cpp:1168
 msgid "Valid from"
 msgstr ""
 
-#: squeezeview.cpp:1163
+#: squeezeview.cpp:1169
 msgid "Valid until"
 msgstr ""
 
-#: squeezeview.cpp:1310 squeezeview.cpp:1694
+#: squeezeview.cpp:1316 squeezeview.cpp:1700
 msgid "Client"
 msgstr ""
 
-#: squeezeview.cpp:1311 squeezeview.cpp:2725 squeezeview.cpp:3374
+#: squeezeview.cpp:1317 squeezeview.cpp:2732 squeezeview.cpp:3484
 msgid "Type"
 msgstr ""
 
-#: squeezeview.cpp:1312 squeezeview.cpp:2730 squeezeview.cpp:2864
-#: squeezeview.cpp:2979 squeezeview.cpp:3072 squeezeview.cpp:3362
-#: squeezeview.cpp:3397
+#: squeezeview.cpp:1318 squeezeview.cpp:2737 squeezeview.cpp:2871
+#: squeezeview.cpp:3003 squeezeview.cpp:3113 squeezeview.cpp:3472
+#: squeezeview.cpp:3507
 msgid "Amount"
 msgstr ""
 
-#: squeezeview.cpp:1313 squeezeview.cpp:1498 squeezeview.cpp:1610
-#: squeezeview.cpp:1695 squeezeview.cpp:2726 squeezeview.cpp:3074
-#: squeezeview.cpp:3518
+#: squeezeview.cpp:1319 squeezeview.cpp:1504 squeezeview.cpp:1616
+#: squeezeview.cpp:1701 squeezeview.cpp:2733 squeezeview.cpp:3115
+#: squeezeview.cpp:3645
 msgid "Date"
 msgstr ""
 
-#: squeezeview.cpp:1314 squeezeview.cpp:2728 squeezeview.cpp:2863
-#: squeezeview.cpp:2978 squeezeview.cpp:3071 squeezeview.cpp:3361
-#: squeezeview.cpp:3376 squeezeview.cpp:3519
+#: squeezeview.cpp:1320 squeezeview.cpp:2735 squeezeview.cpp:2870
+#: squeezeview.cpp:3002 squeezeview.cpp:3112 squeezeview.cpp:3471
+#: squeezeview.cpp:3486 squeezeview.cpp:3646
 msgid "Time"
 msgstr ""
 
-#: squeezeview.cpp:1315
+#: squeezeview.cpp:1321
 msgid "Paid with"
 msgstr ""
 
-#: squeezeview.cpp:1316
+#: squeezeview.cpp:1322
 msgid "Change Given"
 msgstr ""
 
-#: squeezeview.cpp:1317
+#: squeezeview.cpp:1323
 msgid "Pay Method"
 msgstr ""
 
-#: squeezeview.cpp:1318
+#: squeezeview.cpp:1324
 msgid "State"
 msgstr ""
 
-#: squeezeview.cpp:1320
+#: squeezeview.cpp:1326
 msgid "Card Num"
 msgstr ""
 
-#: squeezeview.cpp:1321
+#: squeezeview.cpp:1327
 msgid "Items Count"
 msgstr ""
 
-#: squeezeview.cpp:1322
+#: squeezeview.cpp:1328
 msgid "Points"
 msgstr ""
 
-#: squeezeview.cpp:1323
+#: squeezeview.cpp:1329
 msgid "Discount %1"
 msgstr ""
 
-#: squeezeview.cpp:1324
+#: squeezeview.cpp:1330
 msgid "Discount %"
 msgstr ""
 
-#: squeezeview.cpp:1325
+#: squeezeview.cpp:1331
 msgid "Card Authorization #"
 msgstr ""
 
-#: squeezeview.cpp:1327 squeezeview.cpp:1506
+#: squeezeview.cpp:1333 squeezeview.cpp:1512
 msgid "Terminal #"
 msgstr ""
 
-#: squeezeview.cpp:1328
+#: squeezeview.cpp:1334
 msgid "Provider"
 msgstr ""
 
-#: squeezeview.cpp:1500
+#: squeezeview.cpp:1506
 msgid "Initial amount"
 msgstr ""
 
-#: squeezeview.cpp:1501 squeezeview.cpp:3356 squeezeview.cpp:3388
+#: squeezeview.cpp:1507 squeezeview.cpp:3466 squeezeview.cpp:3498
 msgid "In"
 msgstr ""
 
-#: squeezeview.cpp:1502 squeezeview.cpp:3357 squeezeview.cpp:3390
+#: squeezeview.cpp:1508 squeezeview.cpp:3467 squeezeview.cpp:3500
 msgid "Out"
 msgstr ""
 
-#: squeezeview.cpp:1503
+#: squeezeview.cpp:1509
 msgid "Cash in drawer"
 msgstr ""
 
-#: squeezeview.cpp:1504
+#: squeezeview.cpp:1510
 msgid "Received by Card"
 msgstr ""
 
-#: squeezeview.cpp:1608
+#: squeezeview.cpp:1614
 msgid "Order #"
 msgstr ""
 
-#: squeezeview.cpp:1614
+#: squeezeview.cpp:1620
 msgid "Sold by"
 msgstr ""
 
-#: squeezeview.cpp:1615 squeezeview.cpp:1696
+#: squeezeview.cpp:1621 squeezeview.cpp:1702
 msgid "Status"
 msgstr ""
 
-#: squeezeview.cpp:1616
+#: squeezeview.cpp:1622
 msgid "Tr. Id"
 msgstr ""
 
-#: squeezeview.cpp:1617
+#: squeezeview.cpp:1623
 msgid "Notes"
 msgstr ""
 
-#: squeezeview.cpp:1618
+#: squeezeview.cpp:1624
 msgid "Payment"
 msgstr ""
 
-#: squeezeview.cpp:1619
+#: squeezeview.cpp:1625
 msgid "Payment Complete"
 msgstr ""
 
-#: squeezeview.cpp:1692
+#: squeezeview.cpp:1698
 msgid "Reservation"
 msgstr ""
 
-#: squeezeview.cpp:1693
+#: squeezeview.cpp:1699
 msgid "Tr. #"
 msgstr ""
 
-#: squeezeview.cpp:1697
+#: squeezeview.cpp:1703
 msgid "Prepayment"
 msgstr ""
 
-#: squeezeview.cpp:1698
+#: squeezeview.cpp:1704
 msgid "Total"
 msgstr ""
 
-#: squeezeview.cpp:1761
+#: squeezeview.cpp:1767
 msgid "Settings changed"
 msgstr ""
 
-#: squeezeview.cpp:2165 squeezeview.cpp:2418
+#: squeezeview.cpp:2152 squeezeview.cpp:2424
 msgid "Purchase #%4 - %1 x %2 (%3)"
 msgstr ""
 
-#: squeezeview.cpp:2173
+#: squeezeview.cpp:2160
 msgid "Purchase #%4 - [new] - %1 x %2 (%3)"
 msgstr ""
 
-#: squeezeview.cpp:2214
+#: squeezeview.cpp:2212
 msgid ""
 "The desired product is a group and its stock cannot be modified, try "
 "modifying each of its contents."
 msgstr ""
 
-#: squeezeview.cpp:2214
+#: squeezeview.cpp:2212
 msgid "Cannot modify stock"
 msgstr ""
 
-#: squeezeview.cpp:2232
+#: squeezeview.cpp:2230
 msgid "Stock Correction: [Product %1] from %2 to %3. Reason:%4"
 msgstr ""
 
-#: squeezeview.cpp:2437
+#: squeezeview.cpp:2443
 msgid "New Weight or Measure"
 msgstr ""
 
-#: squeezeview.cpp:2437
+#: squeezeview.cpp:2443
 msgid "Enter the new weight or measure to insert:"
 msgstr ""
 
-#: squeezeview.cpp:2454
+#: squeezeview.cpp:2460
 msgid "New category"
 msgstr ""
 
-#: squeezeview.cpp:2454
+#: squeezeview.cpp:2460
 msgid "Enter the new category to insert:"
 msgstr ""
 
-#: squeezeview.cpp:2516
+#: squeezeview.cpp:2523
 msgid "Please select a client to delete, then press the delete button again."
 msgstr ""
 
-#: squeezeview.cpp:2516 squeezeview.cpp:2536 squeezeview.cpp:2547
-#: squeezeview.cpp:2570 squeezeview.cpp:2582 squeezeview.cpp:2615
-#: squeezeview.cpp:2643 squeezeview.cpp:2663 squeezeview.cpp:2675
-#: squeezeview.cpp:2696 squeezeview.cpp:3603 squeezeview.cpp:3622
+#: squeezeview.cpp:2523 squeezeview.cpp:2543 squeezeview.cpp:2554
+#: squeezeview.cpp:2577 squeezeview.cpp:2589 squeezeview.cpp:2622
+#: squeezeview.cpp:2650 squeezeview.cpp:2670 squeezeview.cpp:2682
+#: squeezeview.cpp:2703 squeezeview.cpp:3730 squeezeview.cpp:3749
 msgid "Cannot delete"
 msgstr ""
 
-#: squeezeview.cpp:2522
+#: squeezeview.cpp:2529
 msgid "Do you really want to delete the client named %1?"
 msgstr ""
 
-#: squeezeview.cpp:2523 squeezeview.cpp:2556 squeezeview.cpp:2587
-#: squeezeview.cpp:2619 squeezeview.cpp:2652 squeezeview.cpp:2684
-#: squeezeview.cpp:3612
+#: squeezeview.cpp:2530 squeezeview.cpp:2563 squeezeview.cpp:2594
+#: squeezeview.cpp:2626 squeezeview.cpp:2659 squeezeview.cpp:2691
+#: squeezeview.cpp:3739
 msgid "Delete"
 msgstr ""
 
-#: squeezeview.cpp:2536
+#: squeezeview.cpp:2543
 msgid "Default client cannot be deleted."
 msgstr ""
 
-#: squeezeview.cpp:2547
+#: squeezeview.cpp:2554
 msgid "Please select a user to delete, then press the delete button again."
 msgstr ""
 
-#: squeezeview.cpp:2555
+#: squeezeview.cpp:2562
 msgid "Do you really want to delete the user named %1?"
 msgstr ""
 
-#: squeezeview.cpp:2570
+#: squeezeview.cpp:2577
 msgid "Admin user cannot be deleted."
 msgstr ""
 
-#: squeezeview.cpp:2582
+#: squeezeview.cpp:2589
 msgid "Please select an offer to delete, then press the delete button again."
 msgstr ""
 
-#: squeezeview.cpp:2586
+#: squeezeview.cpp:2593
 msgid "Do you really want to delete the selected discount?"
 msgstr ""
 
-#: squeezeview.cpp:2615
+#: squeezeview.cpp:2622
 msgid "Please select a product to delete, then press the delete button."
 msgstr ""
 
-#: squeezeview.cpp:2618
+#: squeezeview.cpp:2625
 msgid "Do you really want to delete the selected product?"
 msgstr ""
 
-#: squeezeview.cpp:2643 squeezeview.cpp:3603
+#: squeezeview.cpp:2650 squeezeview.cpp:3730
 msgid "Please select a row to delete, then press the delete button again."
 msgstr ""
 
-#: squeezeview.cpp:2651
+#: squeezeview.cpp:2658
 msgid "Do you really want to delete the measure '%1'?"
 msgstr ""
 
-#: squeezeview.cpp:2663
+#: squeezeview.cpp:2670
 msgid "Default measure cannot be deleted."
 msgstr ""
 
-#: squeezeview.cpp:2675
+#: squeezeview.cpp:2682
 msgid "Please select a category to delete, then press the delete button again."
 msgstr ""
 
-#: squeezeview.cpp:2683
+#: squeezeview.cpp:2690
 msgid "Do you really want to delete the category '%1'?"
 msgstr ""
 
-#: squeezeview.cpp:2696
+#: squeezeview.cpp:2703
 msgid "Default category cannot be deleted."
 msgstr ""
 
-#: squeezeview.cpp:2729 squeezeview.cpp:3375
+#: squeezeview.cpp:2736 squeezeview.cpp:3485
 msgid "Reason"
 msgstr ""
 
-#: squeezeview.cpp:2731
+#: squeezeview.cpp:2738
 msgid "Terminal Num."
 msgstr ""
 
-#: squeezeview.cpp:2774
+#: squeezeview.cpp:2781
 msgid "Save As"
 msgstr ""
 
-#: squeezeview.cpp:2774
+#: squeezeview.cpp:2781
 msgid "CSV files (*.csv)"
 msgstr ""
 
-#: squeezeview.cpp:2788
+#: squeezeview.cpp:2795
 msgid "Exporting data..."
 msgstr ""
 
-#: squeezeview.cpp:2788
+#: squeezeview.cpp:2795
 msgid "Abort"
 msgstr ""
 
-#: squeezeview.cpp:2858 squeezeview.cpp:2973
+#: squeezeview.cpp:2865 squeezeview.cpp:2997
 msgid "End of day report"
 msgstr ""
 
-#: squeezeview.cpp:2861 squeezeview.cpp:3069
+#: squeezeview.cpp:2868 squeezeview.cpp:3110
 msgid "All Terminals"
 msgstr ""
 
-#: squeezeview.cpp:2866 squeezeview.cpp:2981 squeezeview.cpp:3364
+#: squeezeview.cpp:2873 squeezeview.cpp:3005 squeezeview.cpp:3474
 msgid "Method"
 msgstr ""
 
-#: squeezeview.cpp:2867
+#: squeezeview.cpp:2874
 msgid "Total taxes collected today: "
 msgstr ""
 
-#: squeezeview.cpp:2899 squeezeview.cpp:3014 squeezeview.cpp:3106
+#: squeezeview.cpp:2906 squeezeview.cpp:3038 squeezeview.cpp:3147
 msgid "Total Sales : %1"
 msgstr ""
 
-#: squeezeview.cpp:2900 squeezeview.cpp:3015 squeezeview.cpp:3107
+#: squeezeview.cpp:2907 squeezeview.cpp:3039 squeezeview.cpp:3148
 msgid "Total Profit: %1"
 msgstr ""
 
-#: squeezeview.cpp:2917 squeezeview.cpp:2926 squeezeview.cpp:3032
-#: squeezeview.cpp:3041
+#: squeezeview.cpp:2924 squeezeview.cpp:2950 squeezeview.cpp:3056
+#: squeezeview.cpp:3082
 msgid "Print end of day report"
 msgstr ""
 
-#: squeezeview.cpp:2940
+#: squeezeview.cpp:2964
 msgid ""
 "Enter the Terminal number for the end of day, then press <ENTER> to accept, "
 "<ESC> to cancel"
 msgstr ""
 
-#: squeezeview.cpp:2962
+#: squeezeview.cpp:2986
 msgid "No transactions to print!"
 msgstr ""
 
-#: squeezeview.cpp:2963
+#: squeezeview.cpp:2987
 msgid "No transactions for  terminal #%1 for today."
 msgstr ""
 
-#: squeezeview.cpp:2976
+#: squeezeview.cpp:3000
 msgid "terminal # %1 "
 msgstr ""
 
-#: squeezeview.cpp:2982
+#: squeezeview.cpp:3006
 msgid "Total taxes collected for this terminal: "
 msgstr ""
 
-#: squeezeview.cpp:3066
+#: squeezeview.cpp:3107
 msgid "End of Month report"
 msgstr ""
 
-#: squeezeview.cpp:3075
+#: squeezeview.cpp:3116
 msgid "Total taxes collected for the month: "
 msgstr ""
 
-#: squeezeview.cpp:3124 squeezeview.cpp:3133
+#: squeezeview.cpp:3165 squeezeview.cpp:3191
 msgid "Print end of Month report"
 msgstr ""
 
-#: squeezeview.cpp:3155
+#: squeezeview.cpp:3213
 msgid "Low Stock Products (< %1)"
 msgstr ""
 
-#: squeezeview.cpp:3159 squeezeview.cpp:3222
+#: squeezeview.cpp:3217 squeezeview.cpp:3298
 msgid "Stock Qty."
 msgstr ""
 
-#: squeezeview.cpp:3160 squeezeview.cpp:3223
+#: squeezeview.cpp:3218 squeezeview.cpp:3299
 msgid "Sold"
 msgstr ""
 
-#: squeezeview.cpp:3161 squeezeview.cpp:3224 squeezeview.cpp:3286
+#: squeezeview.cpp:3219 squeezeview.cpp:3300 squeezeview.cpp:3379
 msgid "Units"
 msgstr ""
 
-#: squeezeview.cpp:3188 squeezeview.cpp:3197 squeezeview.cpp:3251
-#: squeezeview.cpp:3260
+#: squeezeview.cpp:3246 squeezeview.cpp:3272 squeezeview.cpp:3327
+#: squeezeview.cpp:3353
 msgid "Print Low Stock Report"
 msgstr ""
 
-#: squeezeview.cpp:3218
+#: squeezeview.cpp:3294
 msgid "Product Stock (excluding groups)"
 msgstr ""
 
-#: squeezeview.cpp:3314 squeezeview.cpp:3323
+#: squeezeview.cpp:3407 squeezeview.cpp:3433
 msgid "Print Sold Out Products"
 msgstr ""
 
-#: squeezeview.cpp:3341
+#: squeezeview.cpp:3451
 msgid "Please select a balance to print, then press the print button again."
 msgstr ""
 
-#: squeezeview.cpp:3341
+#: squeezeview.cpp:3451
 msgid "Cannot print"
 msgstr ""
 
-#: squeezeview.cpp:3350
+#: squeezeview.cpp:3460
 msgid "Balance Id:%1"
 msgstr ""
 
-#: squeezeview.cpp:3354 squeezeview.cpp:3381
+#: squeezeview.cpp:3464 squeezeview.cpp:3491
 msgid "%1 at Terminal # %2"
 msgstr ""
 
-#: squeezeview.cpp:3355
+#: squeezeview.cpp:3465
 msgid "Deposit"
 msgstr ""
 
-#: squeezeview.cpp:3358 squeezeview.cpp:3393
+#: squeezeview.cpp:3468 squeezeview.cpp:3503
 msgid "In Drawer"
 msgstr ""
 
-#: squeezeview.cpp:3359 squeezeview.cpp:3395
+#: squeezeview.cpp:3469 squeezeview.cpp:3505
 msgid "Transactions Details"
 msgstr ""
 
-#: squeezeview.cpp:3363 squeezeview.cpp:3397
+#: squeezeview.cpp:3473 squeezeview.cpp:3507
 msgid "Paid"
 msgstr ""
 
-#: squeezeview.cpp:3365
+#: squeezeview.cpp:3475
 msgid "Start: %1"
 msgstr ""
 
-#: squeezeview.cpp:3366
+#: squeezeview.cpp:3476
 msgid "End  : %1"
 msgstr ""
 
-#: squeezeview.cpp:3373
+#: squeezeview.cpp:3483
 msgid "Cash flow Details"
 msgstr ""
 
-#: squeezeview.cpp:3385
+#: squeezeview.cpp:3495
 msgid "Initial Amount deposited:"
 msgstr ""
 
-#: squeezeview.cpp:3473
+#: squeezeview.cpp:3583
 msgid "Print Balance"
 msgstr ""
 
-#: squeezeview.cpp:3498
+#: squeezeview.cpp:3625
 msgid "Events Log"
 msgstr ""
 
-#: squeezeview.cpp:3517
+#: squeezeview.cpp:3644
 msgid "User"
 msgstr ""
 
-#: squeezeview.cpp:3520
+#: squeezeview.cpp:3647
 msgid "Event"
 msgstr ""
 
-#: squeezeview.cpp:3550
+#: squeezeview.cpp:3677
 msgid "Message"
 msgstr ""
 
-#: squeezeview.cpp:3551
+#: squeezeview.cpp:3678
 msgid "Month"
 msgstr ""
 
-#: squeezeview.cpp:3568
+#: squeezeview.cpp:3695
 msgid "Enter the new ticket message."
 msgstr ""
 
-#: squeezeview.cpp:3584
+#: squeezeview.cpp:3711
 msgid "Enter the new currency"
 msgstr ""
 
-#: squeezeview.cpp:3611
+#: squeezeview.cpp:3738
 msgid "Do you really want to delete the currency '%1'?"
 msgstr ""
 
-#: squeezeview.cpp:3622
+#: squeezeview.cpp:3749
 msgid "Default currencies cannot be deleted."
 msgstr ""
 
