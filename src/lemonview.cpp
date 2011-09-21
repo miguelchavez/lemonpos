@@ -3974,7 +3974,7 @@ void lemonView::updateClientInfo()
       double discMoney = (clientInfo.discount/100)*totalSumWODisc;
       dStr = i18n("Discount: %1%  [%2]",clientInfo.discount, KGlobal::locale()->formatMoney(discMoney));
   } else if (oDiscountMoney >0 ){
-      dStr = i18n("Discount: 1% ", KGlobal::locale()->formatMoney(oDiscountMoney));
+      dStr = i18n("Discount: %1% ", KGlobal::locale()->formatMoney(oDiscountMoney));
   }
   QString pStr = i18n("%1 points", clientInfo.points);
   if (clientInfo.points <= 0)
