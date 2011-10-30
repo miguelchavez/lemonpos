@@ -3222,7 +3222,7 @@ bool     Azahar::getConfigUseCUPS()
 
 QString     Azahar::getConfigDbVersion()
 {
-    QString result = false;
+    QString result = "";
     if (!db.isOpen()) db.open();
     if (db.isOpen()) {
         QSqlQuery myQuery(db);
