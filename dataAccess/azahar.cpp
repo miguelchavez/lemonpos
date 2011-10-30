@@ -111,7 +111,7 @@ double Azahar::getProductStockQty(qulonglong code)
       QString error = query.lastError().text();
       QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),error);
     }
-    if (query.size() == -1)
+    if (query.size() <= 0)
       setError(i18n("Error serching product id %1, Rows affected: %2", code,query.size()));
     else {
       while (query.next()) {
@@ -138,7 +138,7 @@ qulonglong Azahar::getProductOfferCode(qulonglong code)
       QString error = query.lastError().text();
       QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),error);
     }
-    if (query.size() == -1)
+    if (query.size() <= 0)
       setError(i18n("Error serching offer id %1, Rows affected: %2", code,query.size()));
     else {
       while (query.next()) {
@@ -1058,7 +1058,7 @@ QString Azahar::getProductGroupElementsStr(qulonglong id)
       QString error = query.lastError().text();
       QString details = i18n("Error #%1, Type:%2\n'%3'",QString::number(errNum), QString::number(errType),error);
     }
-    if (query.size() == -1)
+    if (query.size() <= 0)
       setError(i18n("Error serching product id %1, Rows affected: %2", id,query.size()));
     else {
       while (query.next()) {
@@ -4197,7 +4197,8 @@ CreditInfo Azahar::getCreditInfoForClient(const qulonglong &clientId, const bool
                 result.id       = myQuery.value(fieldId).toULongLong();
                 result.total    = myQuery.value(fieldTotal).toDouble();
             }
-            if (myQuery.size() == -1 && create) {
+            qDebug()<<__FUNCTION__<<" Getting CREDIT INFO FOR CLIENT ID:"<<clientId<<" .. create="<<create<<" query size:"<<myQuery.size();
+            if (myQuery.size() <= 0 && create) {
                 //NO RECORD FOUND, CREATE A NEW ONE.
                 if ( getClientInfo(clientId).id > 0 ) {
                     qDebug()<<__FUNCTION__<<" Creating new credit for client ID:"<<clientId;
