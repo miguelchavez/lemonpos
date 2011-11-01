@@ -1124,6 +1124,11 @@ void lemonView::refreshTotalLabel()
         dStr = i18n("Discount: %1", KGlobal::locale()->formatMoney(oDiscountMoney));
     }
     ui_mainview.lblClientDiscount->setText(dStr);
+
+    if ( ui_mainview.checkOwnCredit->isChecked() || ui_mainview.checkCard->isChecked() ) {
+        //Set the amount to pay.
+        ui_mainview.editAmount->setText(QString::number(totalSum));
+    }
     
     //END of Rewrite
 }
@@ -1369,9 +1374,9 @@ if ( doNotAddMoreItems ) { //only for reservations
             //get client Remaining credit (-) to inform the client.
             CreditInfo credit = myDb->getCreditInfoForClient(cI.id);
             if (credit.total <= 0) //if it is negative then inform.
-                msg = i18n("<b>Welcome</b> <i>%1</i>. You have remaining credit of %2 to use.",clientInfo.name, KGlobal::locale()->formatMoney(-credit.total));
+                msg = i18n("<b>Welcome</b> <i>%1</i>. You have remaining <b>debit</b> of %2 to use.",clientInfo.name, KGlobal::locale()->formatMoney(-credit.total));
             else
-                msg = i18n("<b>Welcome</b> <i>%1</i>.",clientInfo.name);
+                msg = i18n("<b>Welcome</b> <i>%1</i>. You have remaining <b>credit</b> of %2 used.",clientInfo.name, KGlobal::locale()->formatMoney(-credit.total));
             updateClientInfo();
             refreshTotalLabel();
             notifierPanel->setSize(350,150);
