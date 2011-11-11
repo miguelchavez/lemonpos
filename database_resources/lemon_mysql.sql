@@ -470,6 +470,11 @@ INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(1, 'Normal cash OUT');
 INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(2, 'Money return on ticket cancel');
 INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(3, 'Money return on product return');
 INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(4, 'Normal Cash IN');
+INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(5, 'Cash IN Reservation');
+INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(6, 'Cash OUT Reservation');
+INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(7, 'Cash IN Credit Payment');
+INSERT INTO lemondb.cashflowtypes (typeid, text) VALUES(8, 'Cash IN Debit');
+
 #Insert default provider
 INSERT INTO lemondb.providers (id,name,address,phone,cellphone) VALUES(1,'No provider', '-NA-', '-NA-', '-NA-');
 
