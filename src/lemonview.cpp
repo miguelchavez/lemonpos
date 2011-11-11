@@ -2576,7 +2576,7 @@ void lemonView::printTicket(TicketInfo ticket)
   QString hDisc          = i18n("Discount");
   QString hTotal         = i18n("Total");
   QString hClientDisc    = i18n("Your Personal Discount");
-  QString hClientBuyPoints  = i18n("Your points this buy: %1", ticket.buyPoints); 
+  QString hClientBuyPoints  = i18n("Your points this buy: %1", ticket.buyPoints);
   QString hClientPoints  = i18n("Your total points: %1", ticket.clientPoints);
   QString hTicket  = i18n("# %1", ticket.number);
   QString terminal = i18n("Terminal #%1", ticket.terminal);
@@ -2765,6 +2765,13 @@ void lemonView::printTicket(TicketInfo ticket)
       Azahar *myDb = new Azahar;
       myDb->setDatabase(db);
       QString clientName = myDb->getClientInfo(ticket.clientid).name;
+      CreditInfo crInfo  = myDb->getCreditInfoForClient(ticket.clientid, false); //gets the credit info for the client, wihtout creating a new creditInfo if not exists.
+      if (crInfo.id > 0) {
+          //the client has credit info.
+          ptInfo.thPoints   = i18n(" %3 [ %4 ]| You got %1 points | Your accumulated is :%2 | | Your credit balance is: %5", ticket.buyPoints, ticket.clientPoints, clientName, ticket.clientid, KGlobal::locale()->formatMoney(crInfo.total, QString(), 2));
+      } else {
+          ptInfo.thPoints   = i18n(" %3 [ %4 ]| You got %1 points | Your accumulated is :%2 | ", ticket.buyPoints, ticket.clientPoints, clientName, ticket.clientid);
+      }
 
       ptInfo.ticketInfo = ticket;
       ptInfo.storeLogo  = logoPixmap;
@@ -2783,7 +2790,6 @@ void lemonView::printTicket(TicketInfo ticket)
       ptInfo.thDiscount = hDisc;
       ptInfo.thTotal    = hTotal;
       ptInfo.thTotals   = KGlobal::locale()->formatMoney(ptInfo.ticketInfo.total, QString(), 2);
-      ptInfo.thPoints   = i18n(" %3 [ %4 ]| You got %1 points | Your accumulated is :%2 | ", ticket.buyPoints, ticket.clientPoints, clientName, ticket.clientid);
       ptInfo.thArticles = i18np("%1 article.", "%1 articles.", ptInfo.ticketInfo.itemcount);
       ptInfo.thPaid     = KGlobal::locale()->formatMoney(ptInfo.ticketInfo.paidwith, QString(), 2);
       ptInfo.thChange   = KGlobal::locale()->formatMoney(ptInfo.ticketInfo.change, QString(), 2);
@@ -3429,10 +3435,13 @@ void lemonView::corteDeCaja()
       info = myDb->getTransactionInfo(idNum);
       QString dPayMethod;
 
-      //check if its completed and not cancelled
-      if (info.state != tCompleted) {
-        qDebug()<<"Excluding from balance a transaction marked as state:"<<info.state;
-        continue;
+      //check if its completed and not cancelled FIXME: OwnCredit transactions?
+      if (info.state != tCompleted ) {
+        if (info.state != tCompletedOwnCreditPending ) {
+            //Print the ownCredit Completed but not paid sales. Any other not print...
+            qDebug()<<"Excluding from balance a transaction marked as state:"<<info.state;
+            continue;
+        }
       }
 
       dId       = QString::number(info.id);
@@ -5298,7 +5307,8 @@ void lemonView::filterClientForCredit()
         Azahar *myDb = new Azahar;
         myDb->setDatabase(db);
         crClientInfo = myDb->getClientInfo(clientCode);
-        crInfo = myDb->getCreditInfoForClient(clientInfo.id); //this returns a new credit if no one found for that client.
+        crInfo = myDb->getCreditInfoForClient(crClientInfo.id); //this returns a new credit if no one found for that client.
+        qDebug()<<__FUNCTION__<<"Getting credit info for clientId:"<<crInfo.clientId<<" -- $"<<crInfo.total;
         delete myDb;
         //calculate total for unpaid customer creidts
         calculateTotalForClient();
@@ -5522,18 +5532,20 @@ void lemonView::calculateTotalForClient()
         cursor.setBlockFormat(blockCenter);
         cursor.insertText(KGlobal::locale()->formatMoney(crInfo.total), boldFormat);
         cursor.insertBlock();
+        qDebug()<<__FUNCTION__<<"Credit for "<<crInfo.clientId<<" -- $"<<crInfo.total;
+
 
         cursor.setBlockFormat(blockCenter);
-        cursor.insertText(i18n("Credit History"), italicsFormat);
+        cursor.insertBlock();
+        cursor.insertText(i18n("Today Credit History"), italicsFormat);
         cursor.insertBlock();
         cursor.insertHtml("<hr>");
-        //cursor.insertBlock();
 
         QTextTableFormat itemsTableFormat;
         itemsTableFormat.setAlignment(Qt::AlignHCenter);
         itemsTableFormat.setWidth(QTextLength(QTextLength::PercentageLength, 100));
         QTextTable *itemsTable = cursor.insertTable(1, 4, itemsTableFormat);
-
+        
         //table
         QTextFrameFormat itemsFrameFormat = cursor.currentFrame()->frameFormat();
         itemsFrameFormat.setBorder(0);
@@ -5549,31 +5561,94 @@ void lemonView::calculateTotalForClient()
         cursor.insertText(i18n("Sale #"), hdrFormat);
 
         foreach(CreditHistoryInfo credit, creditHistory){
-            int row = itemsTable->rows();
-            itemsTable->insertRows(row, 1);
-            cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
-            cursor.insertText(KGlobal::locale()->formatDate(credit.date, KLocale::ShortDate), textFormat);
-            cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
-            cursor.insertText(KGlobal::locale()->formatTime(credit.time), textFormat);
-            cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
-            cursor.insertText(KGlobal::locale()->formatMoney(credit.amount), textFormat);
-            cursor = itemsTable->cellAt(row, 3).firstCursorPosition();
-            cursor.insertText(QString::number(credit.saleId), textFormat);
+            if (credit.date == QDate::currentDate() ) {
+                int row = itemsTable->rows();
+                itemsTable->insertRows(row, 1);
+                cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
+                cursor.insertText(KGlobal::locale()->formatDate(credit.date, KLocale::ShortDate), boldFormat);
+                cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
+                cursor.insertText(KGlobal::locale()->formatTime(credit.time), textFormat);
+                cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
+                cursor.insertText(KGlobal::locale()->formatMoney(credit.amount), boldFormat);
+                cursor = itemsTable->cellAt(row, 3).firstCursorPosition();
+                cursor.insertText(QString::number(credit.saleId), textFormat);
+                
+                ///now, we can print products for each sale asociated to the credit.
+                if (credit.saleId > 0) {
+                    QList<TransactionItemInfo> saleItems = myDb->getTransactionItems(credit.saleId);
+                    foreach(TransactionItemInfo item, saleItems) {
+                        int row = itemsTable->rows();
+                        itemsTable->insertRows(row, 1); //insert item name in the first column. Wee need to see the text length to not add very long text.
+                        if (item.name.length() > 12)
+                            item.name = item.name.left(12);//just keep first 12 chars...
+                            cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
+                        cursor.insertText(item.name, italicsFormat);
+                        cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
+                        cursor.insertText("x"+QString::number(item.qty), italicsFormat);
+                        cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
+                        cursor.insertText(KGlobal::locale()->formatMoney(item.total), italicsFormat);
+                    }
+                }
+            }
+        }
+        
+        //Beyond today...
+        cursor.movePosition(QTextCursor::NextBlock);
+        cursor.setBlockFormat(blockCenter);
+        cursor.insertBlock();
+        cursor.insertBlock();
+        cursor.insertText(i18n("More Credit History"), italicsFormat);
+        cursor.insertBlock();
+        cursor.insertHtml("<hr>");
+        //cursor.insertBlock();
 
-            ///now, we can print products for each sale asociated to the credit.
-            if (credit.saleId > 0) {
-                QList<TransactionItemInfo> saleItems = myDb->getTransactionItems(credit.saleId);
-                foreach(TransactionItemInfo item, saleItems) {
-                    int row = itemsTable->rows();
-                    itemsTable->insertRows(row, 1); //insert item name in the first column. Wee need to see the text length to not add very long text.
-                    if (item.name.length() > 12)
-                        item.name = item.name.left(12);//just keep first 12 chars...
-                    cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
-                    cursor.insertText(item.name, italicsFormat);
-                    cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
-                    cursor.insertText("x"+QString::number(item.qty), italicsFormat);
-                    cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
-                    cursor.insertText(KGlobal::locale()->formatMoney(item.total), italicsFormat);
+        //QTextTableFormat itemsTableFormat;
+        itemsTableFormat.setAlignment(Qt::AlignHCenter);
+        itemsTableFormat.setWidth(QTextLength(QTextLength::PercentageLength, 100));
+        /*QTextTable **/itemsTable = cursor.insertTable(1, 4, itemsTableFormat);
+
+        //table
+        /*QTextFrameFormat*/ itemsFrameFormat = cursor.currentFrame()->frameFormat();
+        itemsFrameFormat.setBorder(0);
+        itemsFrameFormat.setPadding(1);
+        cursor.currentFrame()->setFrameFormat(itemsFrameFormat);
+        cursor = itemsTable->cellAt(0, 0).firstCursorPosition();
+        cursor.insertText(i18n("Date"), hdrFormat);
+        cursor = itemsTable->cellAt(0, 1).firstCursorPosition();
+        cursor.insertText(i18n("Time"), hdrFormat);
+        cursor = itemsTable->cellAt(0, 2).firstCursorPosition();
+        cursor.insertText(i18n("Amount"), hdrFormat);
+        cursor = itemsTable->cellAt(0, 3).firstCursorPosition();
+        cursor.insertText(i18n("Sale #"), hdrFormat);
+
+        foreach(CreditHistoryInfo credit, creditHistory){
+            if (credit.date != QDate::currentDate() ) {
+                int row = itemsTable->rows();
+                itemsTable->insertRows(row, 1);
+                cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
+                cursor.insertText(KGlobal::locale()->formatDate(credit.date, KLocale::ShortDate), boldFormat);
+                cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
+                cursor.insertText(KGlobal::locale()->formatTime(credit.time), textFormat);
+                cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
+                cursor.insertText(KGlobal::locale()->formatMoney(credit.amount), boldFormat);
+                cursor = itemsTable->cellAt(row, 3).firstCursorPosition();
+                cursor.insertText(QString::number(credit.saleId), textFormat);
+                
+                ///now, we can print products for each sale asociated to the credit.
+                if (credit.saleId > 0) {
+                    QList<TransactionItemInfo> saleItems = myDb->getTransactionItems(credit.saleId);
+                    foreach(TransactionItemInfo item, saleItems) {
+                        int row = itemsTable->rows();
+                        itemsTable->insertRows(row, 1); //insert item name in the first column. Wee need to see the text length to not add very long text.
+                        if (item.name.length() > 12)
+                            item.name = item.name.left(12);//just keep first 12 chars...
+                            cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
+                        cursor.insertText(item.name, italicsFormat);
+                        cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
+                        cursor.insertText("x"+QString::number(item.qty), italicsFormat);
+                        cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
+                        cursor.insertText(KGlobal::locale()->formatMoney(item.total), italicsFormat);
+                    }
                 }
             }
         }
