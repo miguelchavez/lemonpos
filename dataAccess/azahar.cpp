@@ -1684,7 +1684,7 @@ ClientInfo Azahar::getClientInfo(qulonglong clientId)
     if (!db.isOpen()) db.open();
     if (db.isOpen()) {
       QSqlQuery qC(db);
-      if (qC.exec("select * from clients;")) {
+      if (qC.exec(QString("select * from clients where id=%1;").arg(clientId))) {
         while (qC.next()) {
           int fieldId     = qC.record().indexOf("id");
           int fieldCode   = qC.record().indexOf("code");
@@ -1696,19 +1696,17 @@ ClientInfo Azahar::getClientInfo(qulonglong clientId)
           int fieldPhone  = qC.record().indexOf("phone");
           int fieldCell   = qC.record().indexOf("phone_movil");
           int fieldAdd    = qC.record().indexOf("address");
-          if (qC.value(fieldId).toUInt() == clientId) {
-            info.id = qC.value(fieldId).toUInt();
-            info.code       = qC.value(fieldCode).toString();
-            info.name       = qC.value(fieldName).toString();
-            info.points     = qC.value(fieldPoints).toULongLong();
-            info.discount   = qC.value(fieldDisc).toDouble();
-            info.photo      = qC.value(fieldPhoto).toByteArray();
-            info.since      = qC.value(fieldSince).toDate();
-            info.phone      = qC.value(fieldPhone).toString();
-            info.cell       = qC.value(fieldCell).toString();
-            info.address    = qC.value(fieldAdd).toString();
-            break;
-          }
+          //Should be only one
+          info.id         = qC.value(fieldId).toUInt();
+          info.code       = qC.value(fieldCode).toString();
+          info.name       = qC.value(fieldName).toString();
+          info.points     = qC.value(fieldPoints).toULongLong();
+          info.discount   = qC.value(fieldDisc).toDouble();
+          info.photo      = qC.value(fieldPhoto).toByteArray();
+          info.since      = qC.value(fieldSince).toDate();
+          info.phone      = qC.value(fieldPhone).toString();
+          info.cell       = qC.value(fieldCell).toString();
+          info.address    = qC.value(fieldAdd).toString();
         }
       }
       else {
@@ -1738,19 +1736,16 @@ ClientInfo Azahar::getClientInfo(QString clientCode)
                 int fieldPhone  = qC.record().indexOf("phone");
                 int fieldCell   = qC.record().indexOf("phone_movil");
                 int fieldAdd    = qC.record().indexOf("address");
-                if (qC.value(fieldCode).toString() == clientCode) {
-                    info.id         = qC.value(fieldId).toUInt();
-                    info.code       = qC.value(fieldCode).toString();
-                    info.name       = qC.value(fieldName).toString();
-                    info.points     = qC.value(fieldPoints).toULongLong();
-                    info.discount   = qC.value(fieldDisc).toDouble();
-                    info.photo      = qC.value(fieldPhoto).toByteArray();
-                    info.since      = qC.value(fieldSince).toDate();
-                    info.phone      = qC.value(fieldPhone).toString();
-                    info.cell       = qC.value(fieldCell).toString();
-                    info.address    = qC.value(fieldAdd).toString();
-                    break;
-                }
+                info.id         = qC.value(fieldId).toUInt();
+                info.code       = qC.value(fieldCode).toString();
+                info.name       = qC.value(fieldName).toString();
+                info.points     = qC.value(fieldPoints).toULongLong();
+                info.discount   = qC.value(fieldDisc).toDouble();
+                info.photo      = qC.value(fieldPhoto).toByteArray();
+                info.since      = qC.value(fieldSince).toDate();
+                info.phone      = qC.value(fieldPhone).toString();
+                info.cell       = qC.value(fieldCell).toString();
+                info.address    = qC.value(fieldAdd).toString();
             }
         }
         else {
@@ -1977,7 +1972,7 @@ QList<TransactionInfo> Azahar::getMonthTransactionsForPie()
   QDate today = QDate::currentDate();
   QDate startDate = QDate(today.year(), today.month(), 1); //get the 1st of the month.
   //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-  qryTrans.prepare("SELECT date,SUM(amount),SUM(utility) from transactions where (date BETWEEN :dateSTART AND :dateEND ) AND (type=1) AND (state=2) GROUP BY date ASC;");
+  qryTrans.prepare("SELECT date,SUM(amount),SUM(utility) from transactions where (date BETWEEN :dateSTART AND :dateEND ) AND (type=1) AND (state=2 OR state=8 OR state=9) GROUP BY date ASC;");
   qryTrans.bindValue("dateSTART", startDate.toString("yyyy-MM-dd"));
   qryTrans.bindValue("dateEND", today.toString("yyyy-MM-dd"));
   //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
@@ -2013,7 +2008,7 @@ QList<TransactionInfo> Azahar::getMonthTransactions()
   QDate today = QDate::currentDate();
   QDate startDate = QDate(today.year(), today.month(), 1); //get the 1st of the month.
   //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-  qryTrans.prepare("SELECT id,date from transactions where (date BETWEEN :dateSTART AND :dateEND ) AND (type=1) AND (state=2) ORDER BY date,id ASC;");
+  qryTrans.prepare("SELECT id,date from transactions where (date BETWEEN :dateSTART AND :dateEND ) AND (type=1) AND (state=2 OR state=8 OR state=9) ORDER BY date,id ASC;");
   qryTrans.bindValue("dateSTART", startDate.toString("yyyy-MM-dd"));
   qryTrans.bindValue("dateEND", today.toString("yyyy-MM-dd"));
   //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
@@ -2044,8 +2039,8 @@ QList<TransactionInfo> Azahar::getDayTransactions(int terminal)
     TransactionInfo info;
     QSqlQuery qryTrans(db);
     QDate today = QDate::currentDate();
-    //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-    qryTrans.prepare("SELECT id,time,paidwith,paymethod,amount,utility,totalTax from transactions where (date = :today) AND (terminalnum=:terminal) AND (type=1) AND (state=2) ORDER BY id ASC;");
+    //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query. State 8 = OwnCreditCompletedPaymentPending
+    qryTrans.prepare("SELECT id,time,paidwith,paymethod,amount,utility,totalTax from transactions where (date = :today) AND (terminalnum=:terminal) AND (type=1) AND (state=2 OR state=8 OR state=9) ORDER BY id ASC;");
     qryTrans.bindValue("today", today.toString("yyyy-MM-dd"));
     qryTrans.bindValue(":terminal", terminal);
     //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
@@ -2083,7 +2078,7 @@ QList<TransactionInfo> Azahar::getDayTransactions()
   QSqlQuery qryTrans(db);
   QDate today = QDate::currentDate();
   //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-  qryTrans.prepare("SELECT id,time,paidwith,paymethod,amount,utility,totalTax from transactions where (date = :today) AND (type=1) AND (state=2) ORDER BY id ASC;");
+  qryTrans.prepare("SELECT id,time,paidwith,paymethod,amount,utility,totalTax from transactions where (date = :today) AND (type=1) AND (state=2 OR state=8 OR state=9) ORDER BY id ASC;");
   qryTrans.bindValue("today", today.toString("yyyy-MM-dd"));
   //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
   if (!qryTrans.exec() ) {
@@ -2119,7 +2114,7 @@ AmountAndProfitInfo  Azahar::getDaySalesAndProfit(int terminal)
     QSqlQuery qryTrans(db);
     QDate today = QDate::currentDate();
     //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-    qryTrans.prepare("SELECT SUM(amount),SUM(utility) from transactions where (date = :today) AND (terminalnum=:terminal) AND (type=1) AND (state=2) GROUP BY date ASC;");
+    qryTrans.prepare("SELECT SUM(amount),SUM(utility) from transactions where (date = :today) AND (terminalnum=:terminal) AND (type=1) AND (state=2 OR state=8 OR state=9) GROUP BY date ASC;");
     qryTrans.bindValue("today", today.toString("yyyy-MM-dd"));
     qryTrans.bindValue(":terminal", terminal);
     //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
@@ -2150,7 +2145,7 @@ AmountAndProfitInfo  Azahar::getDaySalesAndProfit()
   QSqlQuery qryTrans(db);
   QDate today = QDate::currentDate();
   //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-  qryTrans.prepare("SELECT SUM(amount),SUM(utility) from transactions where (date = :today) AND (type=1) AND (state=2) GROUP BY date ASC;");
+  qryTrans.prepare("SELECT SUM(amount),SUM(utility) from transactions where (date = :today) AND (type=1) AND (state=2 OR state=8 OR state=9) GROUP BY date ASC;");
   qryTrans.bindValue("today", today.toString("yyyy-MM-dd"));
   //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
   if (!qryTrans.exec() ) {
@@ -2182,7 +2177,7 @@ AmountAndProfitInfo  Azahar::getMonthSalesAndProfit()
   QDate today = QDate::currentDate();
   QDate startDate = QDate(today.year(), today.month(), 1); //get the 1st of the month.
   //NOTE: in the next query, the state and type are hardcoded (not using the enums) because problems when preparing query.
-  qryTrans.prepare("SELECT date,SUM(amount),SUM(utility) from transactions where (date BETWEEN :dateSTART AND :dateEND) AND (type=1) AND (state=2) GROUP BY type ASC;"); //group by type is to get the sum of all trans
+  qryTrans.prepare("SELECT date,SUM(amount),SUM(utility) from transactions where (date BETWEEN :dateSTART AND :dateEND) AND (type=1) AND (state=2 OR state=8 OR state=9) GROUP BY type ASC;"); //group by type is to get the sum of all trans
   qryTrans.bindValue("dateSTART", startDate.toString("yyyy-MM-dd"));
   qryTrans.bindValue("dateEND", today.toString("yyyy-MM-dd"));
   //tCompleted=2, tSell=1. With a placeholder, the value is inserted as a string, and cause the query to fail.
@@ -2897,6 +2892,7 @@ QList<CashFlowInfo> Azahar::getCashFlowInfoList(const QList<qulonglong> &idList)
         info.time        = query.value(fieldTime).toTime();
         info.terminalNum = query.value(fieldTermNum).toULongLong();
         result.append(info);
+        qDebug()<<__FUNCTION__<<" Cash Flow:"<<info.id<<" type:"<<info.type<<" reason:"<<info.reason;
       }
     }
     else {
@@ -4196,6 +4192,7 @@ CreditInfo Azahar::getCreditInfoForClient(const qulonglong &clientId, const bool
                 result.clientId = clientId;
                 result.id       = myQuery.value(fieldId).toULongLong();
                 result.total    = myQuery.value(fieldTotal).toDouble();
+                qDebug()<<__FUNCTION__<<" ----> Got credit:"<<result.id<<" for $"<<result.total;
             }
             qDebug()<<__FUNCTION__<<" Getting CREDIT INFO FOR CLIENT ID:"<<clientId<<" .. create="<<create<<" query size:"<<myQuery.size();
             if (myQuery.size() <= 0 && create) {
@@ -4288,6 +4285,7 @@ QList<CreditHistoryInfo> Azahar:: getCreditHistoryForClient(const qulonglong &cl
                 info.date     = myQuery.value(fieldDate).toDate();
                 info.time     = myQuery.value(fieldTime).toTime();
                 result.append(info);
+                qDebug()<<__FUNCTION__<<" Got history for "<<info.customerId<<" SaleID:"<<info.saleId<<" Amount:"<<info.amount;
             }
         }
         else {
