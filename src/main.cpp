@@ -22,6 +22,8 @@
 
 
 #include "lemon.h"
+#include "settings.h"
+
 #include <kapplication.h>
 #include <kaboutdata.h>
 #include <kcmdlineargs.h>
@@ -30,6 +32,12 @@
 #include <QPixmap>
 #include <ksplashscreen.h>
 #include <kstandarddirs.h>
+
+#include <QProcess>
+#include <QStringList>
+#include <QString>
+#include <QDir>
+#include <QDate>
 
 static const char description[] =
     I18N_NOOP("Lemon, A point of sale for linux");
@@ -70,6 +78,26 @@ int main(int argc, char **argv)
             QPixmap image (KStandardDirs().findResource("data", "lemon/images/splash_screen.png"));
             splash = new KSplashScreen(image, Qt::WindowStaysOnTopHint);
             splash->show();
+
+            //NOTE: Is this the best place to launch the backup process?
+            QString fn = QString("%1/lemon-backup/").arg(QDir::homePath());
+            QDir dir;
+            if (!dir.exists(fn))
+                dir.mkdir(fn);
+            fn = fn+QString("lemon-db--backup--%1.sql").arg(QDate::currentDate().toString("dd-MMM-yyyy")); //FIXME: Include TIME.
+            qDebug()<<"BACKUP DATABASE at " << fn;
+            
+            QStringList params;
+            QString pswd = "-p" + Settings::editDBPassword();
+            QString usr  = "-u" + Settings::editDBUsername();
+            QString hst  = "-h" + Settings::editDBServer();
+            QString dnm  = Settings::editDBName();
+            QString fnm  = "-r" + fn;
+            params << hst << usr << pswd  << fnm << dnm;
+            QProcess mysqldump;
+            mysqldump.start("mysqldump", params);
+            mysqldump.waitForFinished();
+            
             lemon *widget = new lemon;
             widget->show();
             splash->finish(widget);
