@@ -591,6 +591,9 @@ void lemon::disableUi()
   action = actionCollection()->action("resumeReservation");
   action->setDisabled(true);
 
+  action = actionCollection()->action("showCredits");
+  action->setDisabled(true);
+
   action = actionCollection()->action("login");
   action->setEnabled(true); //enable login!
   
@@ -662,6 +665,9 @@ void lemon::enableUi()
   action->setEnabled(true);
 
   action = actionCollection()->action("makeReservation");
+  action->setEnabled(true);
+
+  action = actionCollection()->action("showCredits");
   action->setEnabled(true);
   
   if (m_view->canStartSelling()) {
