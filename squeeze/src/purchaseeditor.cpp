@@ -434,7 +434,7 @@ void PurchaseEditor::addItemToList()
   else if (ui->editTax->text().isEmpty()) ui->editTax->setFocus();
   else if (ui->editFinalPrice->text().isEmpty()) ui->editFinalPrice->setFocus();
   else if (ui->editQty->text().isEmpty() || ui->editQty->text()=="0") ui->editQty->setFocus();
-  else if ((ui->editUtility->text().isEmpty() && ui->editFinalPrice->text().isEmpty()) || ui->editFinalPrice->text().toDouble()<=ui->editCost->text().toDouble() ) ui->editFinalPrice->setFocus();
+  else if ((ui->editUtility->text().isEmpty() && ui->editFinalPrice->text().isEmpty()) || ui->editFinalPrice->text().toDouble() < ui->editCost->text().toDouble() ) ui->editFinalPrice->setFocus();
   else if (ui->groupBoxedItem->isChecked() && (ui->editItemsPerBox->text().isEmpty() || ui->editItemsPerBox->text()=="0"))  ui->editItemsPerBox->setFocus();
   else if (ui->groupBoxedItem->isChecked() && (ui->editPricePerBox->text().isEmpty() || ui->editPricePerBox->text()=="0")) ui->editPricePerBox->setFocus();
   else ok = true;
