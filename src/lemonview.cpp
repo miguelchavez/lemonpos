@@ -943,6 +943,7 @@ void lemonView::refreshTotalLabel()
 
     ///NOTE: FIXME! The nonDiscountable items should not be discounted with dollar discount or Percentage discount.
     ///             Now the problem is with special Orders. How to allow/disallow discounts for them?
+    ///             I think S.O. can have only occasional discounts.
     totalSum = 0;
     totalTax = 0;
     totalSumWODisc = 0;
@@ -964,13 +965,13 @@ void lemonView::refreshTotalLabel()
         //Get out tax if is included in price.
         if (!Settings::addTax())
             iPrice = prod.price/(1+((prod.tax+prod.extratax)/100));
+        
         //if item has discount, apply it.
-        if (prod.validDiscount && !prod.isNotDiscountable)
-            iPrice -= (prod.discpercentage/100)*prod.price;
-        if (!prod.validDiscount && prod.disc > 0 && !prod.isNotDiscountable) {///if this is true, then there is a product price change.
+        //first apply price change if any, then apply global discount.
+        if (!prod.validDiscount && prod.disc > 0 && !prod.isNotDiscountable) ///if this is true, then there is a product price change.
             iPrice -= prod.disc; //product price changed.
-            discMoney += prod.disc;
-        }
+        if (prod.validDiscount && !prod.isNotDiscountable)
+            iPrice -= (prod.discpercentage/100)*iPrice; //prod.price;  because the price could be changed.
 
         sum_pre += iPrice * prod.qtyOnList;
     }
@@ -1006,12 +1007,12 @@ void lemonView::refreshTotalLabel()
         double iPriceWD = iPrice; //price without discounts and taxes (if addtax...).
 
         //if item has discount, apply it.
-        if (prod.validDiscount && !prod.isNotDiscountable)
-            iPrice -= (prod.discpercentage/100)*prod.price;
         if (!prod.validDiscount && prod.disc > 0 && !prod.isNotDiscountable) ///if this is true, then there is a product price change.
             iPrice -= prod.disc; //product price changed.
+        if (prod.validDiscount && !prod.isNotDiscountable)
+            iPrice -= (prod.discpercentage/100)*iPrice; //prod.price;  because the price could be changed.
         if ( gDiscountPercentage > 0 ) //apply general discount. gDiscountPercentage is in PERCENTAGE Already... do not divide by 100. 
-            iPrice -= (gDiscountPercentage)*prod.price; ///NOTE: if gDiscountPercentage is grater than 1 then it will produce negative price!
+            iPrice -= (gDiscountPercentage)*iPrice; /// prod.price NOTE: if gDiscountPercentage is greater than 1 then it will produce negative price!
 
         //item taxes.  totalTax is the tax in money (discount applied if apply) for the qtyOnList items
         ///Now tax is calculated over the price with discounts including general discount (percentage or dollar and price changes). MCH Aug 30 2011.
@@ -1090,7 +1091,10 @@ void lemonView::refreshTotalLabel()
         RoundingInfo rSubTotalSum = roundUsStandard(subTotalSum);
         //then round total
         RoundingInfo rTotalSum = roundUsStandard(totalSum);
-        //then round discMoney
+
+        /// FIXME: DESHACER EL COMMIT ANTERIOR, inclui archivos (con commit -a) que no debia!!!!
+        
+        ///then round discMoney: FIXME: discount must not be rounded!.. example: total= 2.95 -> 3.0 discount= 0.5 => 1.0, grand total= 3-1 = 2 and should be 2.90.
         RoundingInfo rDiscMoney = roundUsStandard(discMoney);
         //then round oDiscountMoney
         RoundingInfo rOdiscMoney = roundUsStandard(oDiscountMoney);
@@ -1130,6 +1134,7 @@ void lemonView::refreshTotalLabel()
         ui_mainview.editAmount->setText(QString::number(totalSum));
     }
     
+    qDebug()<<"****** discMoney:"<<discMoney;
     //END of Rewrite
 }
 
@@ -1577,6 +1582,8 @@ void lemonView::updateItem(ProductInfo prod)
     item->setData(Qt::EditRole, QVariant(itemDiscount));
     //now update product total
     item = ui_mainview.tableWidget->item(prod.row, colDue);
+    //we modified discount per item, so now multiply by item qty to update the final price with discount.  dec 10 2011.
+    itemDiscount = itemDiscount*prod.qtyOnList;
     item->setData(Qt::EditRole, QVariant((prod.qtyOnList*prod.price)-itemDiscount));
     //set the color of the total if discounted.
     if (itemDiscount > 0) {
