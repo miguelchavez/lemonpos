@@ -956,7 +956,6 @@ void lemonView::refreshTotalLabel()
     bool roundToUSStandard = Settings::roundToUSStandard();
 
     ///We need to iterate the products to get the nonDiscountable items, and the totals.
-    //FIXME: Still missing the Special Orders iteration likke this one.
     foreach(ProductInfo prod, productsHash) {
         if (prod.isNotDiscountable)
             nonDiscountables++;
@@ -974,6 +973,28 @@ void lemonView::refreshTotalLabel()
             iPrice -= (prod.discpercentage/100)*iPrice; //prod.price;  because the price could be changed.
 
         sum_pre += iPrice * prod.qtyOnList;
+    }
+    //now get the sum_pre for S.O.
+    foreach(SpecialOrderInfo soInfo, specialOrders) {
+        double iPrice   = soInfo.payment;
+        if (!Settings::addTax())
+            iPrice = soInfo.payment/(1+((soInfo.averageTax)/100));
+        //get discount
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
+        
+        double soDiscount  = myDb->getSpecialOrderAverageDiscount(soInfo.orderid)/100;
+        nonDiscountables += myDb->getSpecialOrderNonDiscountables(soInfo.orderid);
+        
+        if (soDiscount > 0)
+            iPrice -= soDiscount*iPrice;
+        //client and ocassional discounts.
+        if (clientInfo.discount>0)
+            iPrice -= (clientInfo.discount/100)*iPrice; //applied over the discounted price (if it has discount)
+        ///NOTE: SO are not allowed (implemented) for price change.
+            
+        sum_pre += iPrice * soInfo.qty;
+        delete myDb; //NOTE:create and delete this on every so item ??
     }
 
     bool notApply = false;
@@ -1027,7 +1048,7 @@ void lemonView::refreshTotalLabel()
 
         qDebug()<<prod.desc<<" - Price without Tax and discounts:"<<iPrice<<" item Tax $:"<<iTax<<"  Accumulated Tax in the purchase:"<<taxes<< " Purchase Accumulated:"<<sum;
     }
-    qDebug()<<" SUM:"<<sum;
+    qDebug()<<" SUM:"<<sum<<" SUM_PRE:"<<sum_pre;
     //now iterate the SO. In case there are SO then no products are allowed, sum will be 0 at this point.
     foreach(SpecialOrderInfo soInfo, specialOrders) {
         double iPrice   = soInfo.payment;
@@ -1052,7 +1073,7 @@ void lemonView::refreshTotalLabel()
         totalSumWODisc += iPriceWD * soInfo.qty; //total sum without discounts and taxes if addtax...
         taxes += myDb->getSpecialOrderAverageTax(soInfo.orderid, rtMoney);
         //buyPoints += (info.points*info.qtyOnList); NOTE & FIXME: SO does not get the POINTS. we would need to get frmo the elements (raw products).
-        delete myDb;
+        delete myDb; //NOTE:create and delete this on every so item ??
         qDebug()<<"<SO> Price without tax and discounts: $"<<iPrice<<" Tax:$"<<myDb->getSpecialOrderAverageTax(soInfo.orderid, rtMoney)<<" Accumulated tax:$"<<taxes<<" Accumulated Purchase:"<<sum;
     }
 
@@ -1066,7 +1087,10 @@ void lemonView::refreshTotalLabel()
     }
 
     if (gDiscountPercentage > 0)
-        discMoney += gDiscountPercentage * sum; //until now, discMoney has price change discount OR Global Dollar discount OR Global Percentage discount
+        discMoney = gDiscountPercentage * sum_pre;
+
+    qDebug()<<"[] discMoney: "<<discMoney<<" gDiscount:"<<gDiscount<<" gDiscountPercentage:"<<gDiscountPercentage;
+        
     ///we get subtotal.
     totalTax       = taxes;
     subTotalSum    = sum - reservationPayment; //- gDiscount: ya se incluyo en la iteracion...
@@ -1092,12 +1116,7 @@ void lemonView::refreshTotalLabel()
         //then round total
         RoundingInfo rTotalSum = roundUsStandard(totalSum);
 
-        /// FIXME: DESHACER EL COMMIT ANTERIOR, inclui archivos (con commit -a) que no debia!!!!
-        
-        ///then round discMoney: FIXME: discount must not be rounded!.. example: total= 2.95 -> 3.0 discount= 0.5 => 1.0, grand total= 3-1 = 2 and should be 2.90.
-        RoundingInfo rDiscMoney = roundUsStandard(discMoney);
-        //then round oDiscountMoney
-        RoundingInfo rOdiscMoney = roundUsStandard(oDiscountMoney);
+        ///NOTE: discount must not be rounded!.. example: total= 2.95 -> 3.0 discount= 0.5 => 1.0, grand total= 3-1 = 2 and should be 2.90.
         //then round change
         RoundingInfo rChange = roundUsStandard(change);
 
@@ -1105,8 +1124,6 @@ void lemonView::refreshTotalLabel()
         totalTax    = rTotalTax.doubleResult;
         subTotalSum = rSubTotalSum.doubleResult;
         totalSum    = rTotalSum.doubleResult;
-        discMoney   = rDiscMoney.doubleResult;
-        oDiscountMoney = rOdiscMoney.doubleResult;
         change      = rChange.doubleResult; //NOTE: When rounding the change it could be tricky if we play beyond reality.
                                             //      Example: paid: 109.91 (which it never should hapen because $.01 coins does not exists, right?)
                                             //      purchase: 109.75 rounding gets 109.80
