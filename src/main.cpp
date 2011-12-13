@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                  *
+ *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                       *
  *   miguel.chavez.gamboa@gmail.com                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -43,6 +43,8 @@ static const char description[] =
     I18N_NOOP("Lemon, A point of sale for linux");
 
 static const char version[] = "0.9.5";
+///VERSION 0.9.5 is named "colima" and the branch name is the same.
+
 KSplashScreen *splash;
 
 int main(int argc, char **argv)
