@@ -837,13 +837,13 @@ void lemonView::login()
       emit signalLoggedUser();
       //Now check roles instead of names
       if (loggedUserRole == roleAdmin) {
-	emit signalAdminLoggedOn();
-	//if (!canStartSelling()) startOperation();
+        emit signalAdminLoggedOn();
+        //if (!canStartSelling()) startOperation();
       } else {
-	emit signalAdminLoggedOff();
+        emit signalAdminLoggedOff();
         if (loggedUserRole == roleSupervisor)
           emit signalSupervisorLoggedOn();
-	else {
+        else {
           emit signalEnableStartOperationAction();
           //slotDoStartOperation();
         }
@@ -3544,9 +3544,9 @@ void lemonView::corteDeCaja()
       QPrintDialog printDialog( &printer );
       printDialog.setWindowTitle(i18n("Print Balance"));
       if ( printDialog.exec() ) {
-	printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
-	printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
-	//TODO: Set Copies: printer.setCopyCount(2); //NOTE:Introduced in Qt 4.7 --WARNING-- See also setCollateCopies()
+        printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+        printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+        //TODO: Set Copies: printer.setCopyCount(2); //NOTE:Introduced in Qt 4.7 --WARNING-- See also setCollateCopies()
         PrintCUPS::printSmallBalance(pbInfo, printer);
       } else {
           //NOTE: This is a proposition:
