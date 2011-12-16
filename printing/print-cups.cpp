@@ -708,6 +708,14 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
         textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, spQty);
         painter.drawText((printer.width() - textWidth.width() - Margin), Margin+yPos, spQty);
         yPos = yPos + fm.lineSpacing()*3;
+
+        ///NOTE:The taxes are not added to the ticket when reservation starts. When reservation is finished this taxes are added to the
+        //      total. This could cause confusions, because at the first ticket printed (when reservation started) the total does not
+        //      include the taxes and in the final ticket it does include taxes. Even the transaction itself when the reservation starts
+        //      does not include taxes (totalTaxes=0). NOTE 2: Verify with both Settings::addTaxes(). When addTaxes()==false, then the
+        //      prices will embed the tax and this is not a problem (not verified).
+        
+        //      We could include a text in the ticket explaining in both tickets that the taxes are included ONLY in the final ticket.
     }
     
     // NOW SPECIAL ORDERS STUFF
