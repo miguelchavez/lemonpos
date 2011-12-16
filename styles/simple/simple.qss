@@ -25,14 +25,14 @@
 */
 
 LoginWindow#passwordDialog {
-   background-image: url([STYLE_PATH]passwordBackground_wide.png); /* choose resolution and provide the image */
+   background-image: url([STYLE_PATH]passwordBackground_1366x768.png); /* choose resolution and provide the image */
    background-position: top left;
    background-attachment: fixed;
    background-repeat:no-repeat;
 }
 
 LoginWindow#loginDialog {
-   background-image: url([STYLE_PATH]loginBackground_1280x1024.png); /* choose resolution and provide the image */
+   background-image: url([STYLE_PATH]loginBackground_1366x768.png); /* choose resolution and provide the image */
    background-position: center center;
    background-attachment: fixed;
    background-repeat:no-repeat;
@@ -46,7 +46,7 @@ LoginWindow#passwordDialog > QLabel#labelCaption {
 }
 
 LoginWindow#loginDialog > QLabel#labelCaption {
-  color: black; /*0.6 a3ff00;*/
+  color: white;
   font-weight: bold;
   font-size:40px;
 }
@@ -58,7 +58,7 @@ LoginWindow#passwordDialog > QLabel#labelPrompt {
 }
 
 LoginWindow#loginDialog > QLabel#labelPrompt {
-  color: #fc7600; /*0.6 #e6ff00;*/
+  color: #fff500;
   font-weight: bold;
   font-size:18px;
 }

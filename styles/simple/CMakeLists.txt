@@ -1,10 +1,8 @@
 install( FILES
          backg.png
-         loginBackground.png
          loginBackground_1280x800.png
-	 loginBackground_1280x1024.png
-	 loginBackground_1024x768.png
-         passwordBackground_wide.png
+         loginBackground_1024x768.png
+         loginBackground_1366x768.png
          passwordBackground.png
          pricechecker.png
          priceCheckerBack.png
