@@ -955,7 +955,30 @@ void lemonView::refreshTotalLabel()
     double gDiscountPercentage = 0;
     bool roundToUSStandard = Settings::roundToUSStandard();
 
+    qDebug()<<"** RESERVATION Payment:"<<reservationPayment;
+    //If we are dealing with a reservation, then we do not need to calculate any totals; we already have it on the reservation info.
+    if (reservationPayment > 0) {
+        qDebug()<< __FUNCTION__ <<"  There is a reservation payment, therefore it is a reservation.";
+        //we need to double check the reservation payment.
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
+        ReservationInfo rInfo = myDb->getReservationInfoFromTr( currentTransaction );
+        if (rInfo.id > 0  && rInfo.transaction_id > 0 && rInfo.transaction_id == currentTransaction) {
+            qDebug()<<" Ok, this is a reservation.  Tr #:"<<currentTransaction<<" Reservation #:"<<rInfo.id<<" Reservation Payment:"<<rInfo.payment<<" Reservation Total:"<<rInfo.total;
+            reservationPayment = rInfo.payment;
+            //Now set totals according. This is due to the fact that items here could be changed its price.
+            totalTax       = rInfo.totalTaxes; //FIXME! falta quitarle la parte correspondiente al prepago.
+            subTotalSum    = rInfo.total - reservationPayment;
+        } else {
+            //The currentTransaction does not have a reservation; reset reservationPayment.
+            qDebug()<<"The tr #"<<currentTransaction<<" Is not reserved. ReservationPayment of "<<reservationPayment<<" is invalid; resetting to 0.";
+            reservationPayment = 0;
+        }
+        delete myDb;
+    }
+
     ///We need to iterate the products to get the nonDiscountable items, and the totals.
+    if (reservationPayment <= 0)
     foreach(ProductInfo prod, productsHash) {
         if (prod.isNotDiscountable)
             nonDiscountables++;
@@ -975,6 +998,7 @@ void lemonView::refreshTotalLabel()
         sum_pre += iPrice * prod.qtyOnList;
     }
     //now get the sum_pre for S.O.
+    if (reservationPayment <= 0)
     foreach(SpecialOrderInfo soInfo, specialOrders) {
         double iPrice   = soInfo.payment;
         if (!Settings::addTax())
@@ -1002,6 +1026,7 @@ void lemonView::refreshTotalLabel()
         notApply = true;
     
     ///Now we need to get and apply GENERAL DISCOUNTS (applied to the whole sale) like client discount or ocassional discounts.
+    //NOTE: What about reservations?
     double gDiscount = 0; //in money.
     if (clientInfo.discount >0 && !notApply)
         gDiscountPercentage = clientInfo.discount/100;
@@ -1009,7 +1034,7 @@ void lemonView::refreshTotalLabel()
         gDiscount += oDiscountMoney;
     
     //get the DOLLAR discount in percentage.
-    if (gDiscount > 0)  //if 0, it means the gDiscountPercentage is already calculated in previous steps... or is really 0.
+    if (gDiscount > 0 && sum_pre > 0)  //if 0, it means the gDiscountPercentage is already calculated in previous steps... or is really 0.
         gDiscountPercentage = gDiscount/sum_pre;
     
     qDebug()<<"SUM_PRE:"<<sum_pre<<" DOLLAR DISCOUNT TO PERCENTAGE:"<<gDiscountPercentage;
@@ -1017,6 +1042,7 @@ void lemonView::refreshTotalLabel()
     
     ///iterate each product in the hash. to calculate the total sum and taxes.
     QHashIterator<qulonglong, ProductInfo> i(productsHash);
+    if (reservationPayment <= 0)
     while (i.hasNext()) {
         i.next();
         ProductInfo prod = i.value();
@@ -1050,6 +1076,7 @@ void lemonView::refreshTotalLabel()
     }
     qDebug()<<" SUM:"<<sum<<" SUM_PRE:"<<sum_pre;
     //now iterate the SO. In case there are SO then no products are allowed, sum will be 0 at this point.
+    if (reservationPayment <= 0)
     foreach(SpecialOrderInfo soInfo, specialOrders) {
         double iPrice   = soInfo.payment;
         if (!Settings::addTax())
@@ -1087,13 +1114,15 @@ void lemonView::refreshTotalLabel()
     }
 
     if (gDiscountPercentage > 0)
-        discMoney = gDiscountPercentage * sum_pre;
+        discMoney = gDiscountPercentage * sum_pre; //WARNING: if sum_pre is 0, then discMoney will be 0. This case can be when reservationPayment > 0
 
     qDebug()<<"[] discMoney: "<<discMoney<<" gDiscount:"<<gDiscount<<" gDiscountPercentage:"<<gDiscountPercentage;
         
     ///we get subtotal.
-    totalTax       = taxes;
-    subTotalSum    = sum - reservationPayment; //- gDiscount: ya se incluyo en la iteracion...
+    if (reservationPayment <= 0) {
+        totalTax       = taxes;
+        subTotalSum    = sum - reservationPayment; //- gDiscount: ya se incluyo en la iteracion...
+    } //else this are calculated before when getting rInfo.
     if (Settings::addTax())
         totalSum   = subTotalSum + totalTax;
     else totalSum = subTotalSum;
@@ -1104,8 +1133,6 @@ void lemonView::refreshTotalLabel()
     if (isNum) change = paid - totalSum; else change = 0.0;
     if (paid <= 0) change = 0.0;
     
-    if (reservationPayment > 0) qDebug()<<" RESERVATION PAYMENT:"<<reservationPayment;
-
     qDebug()<<"SUBTOTAL: "<<subTotalSum<<" TOTAL: "<<totalSum<<"Fromatted SUBTOTAL:"<<KGlobal::locale()->formatMoney(subTotalSum)<<" Formatted TOTAL:"<<KGlobal::locale()->formatMoney(totalSum);
 
     if ( roundToUSStandard ) {
@@ -4796,6 +4823,13 @@ void lemonView::updateTransaction()
 void lemonView::suspendSale()
 {
   qulonglong count = specialOrders.count() + productsHash.count();
+
+  qDebug()<<"finishingReservation:"<<finishingReservation<<" startingReservation:"<<startingReservation;
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  ReservationInfo tRInfo = myDb->getReservationInfoFromTr( currentTransaction );
+  delete myDb;
+  
   if ( operationStarted && count>0 ) {
     qulonglong tmpId = currentTransaction;
     qDebug()<<"THE SALE HAS BEEN SUSPENDED. Id="<<tmpId;
@@ -4804,6 +4838,15 @@ void lemonView::suspendSale()
     updateBalance(false);
     // clear widgets
     startAgain();
+
+    if ( tRInfo.transaction_id == currentTransaction ) {
+        qDebug()<<"The current transaction is reserved, doing a reservation suspend.";
+        // Change transaction STATUS to tReserved.
+        myDb->setTransactionStatus(currentTransaction, tReserved);
+        //reservationPayment
+        qDebug()<<"Reservation Payment:"<<reservationPayment;
+    }
+    
     //inform the user
     KNotification *notify = new KNotification("information", this);
     notify->setText(i18n("The sale %1 has been sucessfully suspended.", tmpId));
@@ -5037,6 +5080,24 @@ void lemonView::reserveItems()
     QString          paidStr = "'[Not Available]'";
     QStringList      groupList;
 
+    reservationPayment = 0; //reset before
+
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+
+    if (productsHash.isEmpty()) return; //we do not have anything to do.
+
+    //check if there is a reservation with the same transaction to avoid a duplicate or buggy behavior.
+    ReservationInfo tRInfo = myDb->getReservationInfoFromTr( currentTransaction );
+    if ( tRInfo.transaction_id == currentTransaction ) {
+        notifierPanel->setSize(350,150);
+        notifierPanel->setOnBottom(false);
+        notifierPanel->showNotification("<b>Cannot reserve this transaction</b> because it is <i>already reserved</i>.<br>You may finish this reservation or suspend sale if you selected this sale by mistake.",8000);
+        
+        qDebug()<<"This transaction already has a reservation. Tr id:"<<currentTransaction<<" Reservation Id:"<<tRInfo.id;
+        return;
+    }
+
     startingReservation = true;
     finishingReservation= false;
 
@@ -5210,6 +5271,8 @@ void lemonView::reserveItems()
         notify->setPixmap(pixmap);
         notify->sendEvent();
     }
+
+    delete myDb;
 }
 
 //NOTE: Here the store owner/admin needs to know that when lemon makes a product reservation the product qty in stock is decremented.
