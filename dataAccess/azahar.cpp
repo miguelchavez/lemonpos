@@ -4050,6 +4050,7 @@ double Azahar::getReservationTotalAmount(qulonglong id)
     return result;
 }
 
+//FIXME: On dec 15 2011, i added payments for more than one payment
 double Azahar::getReservationPayment(qulonglong id)
 {
     double result=0;
@@ -4145,6 +4146,69 @@ ReservationInfo  Azahar::getReservationInfoFromTr(const qulonglong &trId)
 }
 
 
+bool Azahar::addReservationPayment(const qulonglong &rId, const double &amount  )
+{
+    bool result = false;
+    QDate today = QDate::currentDate();
+    
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO reservation_payments (reservation_id, date, amount) VALUES (:reservation, :date, :amount);");
+    query.bindValue(":reservation", rId);
+    query.bindValue(":date", today);
+    query.bindValue(":amount", amount);
+    
+    if (!query.exec()) {
+        setError(query.lastError().text());
+        qDebug()<< __FUNCTION__ << query.lastError().text();
+    }
+    else result = true;
+    
+    return result;
+}
+
+QList<ReservationPayment> Azahar::getReservationPayments( const qulonglong &rId )
+{
+    QList<ReservationPayment> list;
+
+    if (!db.isOpen()) db.open();
+    QSqlQuery myQuery(db);
+    myQuery.prepare("SELECT * FROM reservation_payments WHERE reservation_id=:id;");
+    myQuery.bindValue(":id", rId);
+    if (myQuery.exec() ) {
+        while (myQuery.next()) {
+            int fieldR       = myQuery.record().indexOf("reservation_id");
+            int fieldId      = myQuery.record().indexOf("id");
+            int fieldDate    = myQuery.record().indexOf("date");
+            int fieldAmount  = myQuery.record().indexOf("amount");
+
+            ReservationPayment result;
+            result.id        = myQuery.value(fieldId).toULongLong();;
+            result.reservation_id = myQuery.value(fieldR).toULongLong();
+            result.amount     = myQuery.value(fieldAmount).toDouble();
+            result.date      = myQuery.value(fieldDate).toDate();
+            list.append(result);
+        }
+    }
+    else {
+        setError(myQuery.lastError().text());
+    }
+
+    return list;
+}
+
+bool Azahar::setReservationPayment(const qulonglong &id, const double &amount)
+{
+    bool result = false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query.prepare("UPDATE reservations SET payment=:amount WHERE id=:id;");
+    query.bindValue(":id", id);
+    query.bindValue(":amount", amount);
+    
+    if (!query.exec()) setError(query.lastError().text()); else result=true;
+    return result;
+}
 
 //credits
 CreditInfo Azahar::getCreditInfo(const qulonglong &id)

@@ -235,6 +235,9 @@ class Azahar : public QObject
     bool                    setTransactionReservationStatus(const qulonglong &trId);
     ReservationInfo         getReservationInfo(const qulonglong &id);
     ReservationInfo         getReservationInfoFromTr(const qulonglong &trId);
+    bool                    addReservationPayment( const qulonglong &rId, const double &amount );
+    QList<ReservationPayment> getReservationPayments( const qulonglong &rId );
+    bool                    setReservationPayment(const qulonglong &id,  const double &amount );
 
     //Random Msgs
     QString   getRandomMessage(QList<qulonglong> &excluded, const int &season);

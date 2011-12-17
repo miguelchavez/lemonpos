@@ -20,6 +20,7 @@
     <Action name="specialOrderComplete"/>
     <Action name="makeReservation"/>
     <Action name="resumeReservation"/>
+    <Action name="addReservationPayment"/>
   </ToolBar>
   <ToolBar name="adminToolBar" >
     <text>Administrator's Toolbar</text>

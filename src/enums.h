@@ -35,4 +35,8 @@ enum soStatus         {stPending=0, stInProgress=1, stReady=2, stDelivered=3, st
 
 enum reservationState {rPending=1, rCompleted=2, rCancelled=3};
 
+
+static const char db_version[] = "0950";
+static const char db_hash[] = ""; //here the idea is to hash the db file to compare the installed one with released versions.
+
 #endif

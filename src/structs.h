@@ -431,6 +431,14 @@ struct ReservationInfo
     int        status;
 };
 
+struct ReservationPayment
+{
+    qulonglong id;
+    qulonglong reservation_id;
+    double     amount;
+    QDate      date;
+};
+
 struct CreditInfo
 {
     qulonglong id;

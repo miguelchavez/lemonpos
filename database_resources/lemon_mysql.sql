@@ -359,6 +359,15 @@ CREATE TABLE IF NOT EXISTS `reservations` (
 PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+CREATE TABLE IF NOT EXISTS `reservation_payments` (
+ `id` bigint(20) unsigned NOT NULL auto_increment,
+ `reservation_id` bigint(20) unsigned NOT NULL,
+ `date` date NOT NULL default '2010-01-01',
+ `amount` double unsigned NOT NULL default '0',
+ PRIMARY KEY  (`id`),
+ KEY `SEC` (`reservation_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
 
 CREATE OR REPLACE VIEW `v_transactions` AS
 select

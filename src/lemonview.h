@@ -367,6 +367,8 @@ public:
     void suspendReservation();
     void resumeReservation();
     void postponeReservation();
+    void addReservationPayment(); //used to add a payment to a reservation without paying it totally.
+    void insertCashInForReservationPayment(const qulonglong &rid, const double &amount);
 
     void showCredits();
     void filterClientForCredit();

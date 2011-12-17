@@ -637,6 +637,7 @@ void lemonView::askForIdToCancel()
       id = dlg->iValue;
       ok = true;
     }
+    delete dlg;
     if (ok) {                 // NOTE :
       cancelTransaction(id); //Mark as cancelled in database..  is this transaction
                             //done in the current operation, or a day ago, a month ago, 10 hours ago?
@@ -669,6 +670,7 @@ void lemonView::askForTicketToReturnProduct()
       id = dlg->iValue;
       ok = true;
     }
+    delete dlg;
     if (ok) {
       // show dialog to select which items to return.
       
@@ -1874,6 +1876,7 @@ void lemonView::itemDoubleClicked(QTableWidgetItem* item)
       dqty = dlg->dValue;
       ok=true;
     }
+    delete dlg;
   }
   if (ok) {
     double newqty = dqty+iqty; //one must be zero
@@ -2233,6 +2236,9 @@ void lemonView::finishCurrentTransaction()
         ticket.reservationPayment = reservationPayment;
         ticket.purchaseTotal = myDb->getReservationTotalAmount(reservationId);
         qDebug()<<"*** Finishing RESERVATION ID:"<<reservationId<< " Purchase Total:"<<ticket.purchaseTotal<< " With a Payment of:"<<reservationPayment;
+
+        //add the reservation payment -- Dec 15 2011. Every payment must be registered, even the first one. The sum should be equal to the transaction total+taxes
+        myDb->addReservationPayment(reservationId, totalSum);
     } else if (startingReservation) {
         ticket.isAReservation     = true;
         ticket.reservationStarted = true;
@@ -3231,7 +3237,8 @@ void lemonView::startOperation(const QString &adminUser)
     qty = dlg->dValue;
     if (qty >= 0) ok = true; //allow no deposit...
   }
-
+  delete dlg;
+  
   if (ok) {
     if (!drawerCreated) {
       drawer = new Gaveta();
@@ -4352,6 +4359,7 @@ void lemonView::cashOut()
         log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Cash-OUT by %1 at terminal %2 on %3",authBy,Settings::editTerminalNumber(),QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm")));
         delete myDb;
       }
+      delete dlg;
     }
   }
 }
@@ -4395,6 +4403,7 @@ void lemonView::cashIn()
       log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Cash-IN [%1] by %2 at terminal %3 on %4",QString::number(info.amount, 'f',2),authBy,Settings::editTerminalNumber(),QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm")));
       delete myDb;
     }
+    delete dlg;
   }
 }
 
@@ -5212,11 +5221,14 @@ void lemonView::reserveItems()
             log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Cash-IN [%1] for RESERVATION [%5] by %2 at terminal %3 on %4",QString::number(info.amount, 'f',2),authBy,Settings::editTerminalNumber(),QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm")).arg(rId));
         //end cash-in
 
+        //add the reservation payment -- Dec 15 2011. Every payment must be registered, even the first one. The sum should be equal to the transaction total+taxes
+        myDb->addReservationPayment(rId, rInfo.payment);
+
         ui_mainview.editAmount->setStyleSheet("");
         ui_mainview.editCardNumber->setStyleSheet("");
 
         //TODO:PRINT A TICKET  - Print it twice? one for client other for store (stick it at the product)
-        // investigate how to manipulate printer settings (cups) 
+        // investigate how to manipulate printer settings (cups) NOTE: See at Credits code, there is an answer.
         ticket.isAReservation     = true;
         ticket.reservationStarted = true;
         ticket.reservationPayment = rInfo.payment;
@@ -5351,6 +5363,7 @@ void lemonView::resumeReservation()
         //    But, write a note on the ticket saying that a reservation payment of $X.XX was done.
     }
     delete myDb;
+    delete dlg;
 }
 
 void lemonView::postponeReservation()
@@ -5360,6 +5373,81 @@ void lemonView::postponeReservation()
     myDb->setDatabase(db);
 
     myDb->setTransactionReservationStatus(getCurrentTransaction());
+    delete myDb;
+}
+
+void lemonView::addReservationPayment()
+{
+    //This is used to add payments to a reservation without totally paying it.
+    if (finishingReservation || startingReservation) {
+        KNotification *notify = new KNotification("information", this);
+        notify->setText(i18n("You need to finish or suspend the current sale or reservation before adding a payment for a reservation."));
+        QPixmap pixmap = DesktopIcon("dialog-information",32);
+        notify->setPixmap(pixmap);
+        notify->sendEvent();
+        return;
+    }
+    
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    ReservationsDialog *dlg = new ReservationsDialog(this, drawer, loggedUserId);
+    dlg->setDb(db);
+    
+    if (dlg->exec()) {
+        qulonglong rId = dlg->getSelectedReservation();
+        //check if the reservation is not fully paid.
+        ReservationInfo rInfo = myDb->getReservationInfo(rId);
+        //payments = myDb->getReservationPayments(rId);
+        if (rInfo.payment < rInfo.total+rInfo.totalTaxes) {
+            double maxAmount = (rInfo.total+rInfo.totalTaxes) - rInfo.payment;
+            double amn = 0;
+            qDebug()<<"MAX AMOUNT:"<<maxAmount;
+            //get amount
+            InputDialog *dlgA = new InputDialog(this, false, dialogMoney, i18n("Enter the amount to pay to the reservation. The Maximum amount is %1", maxAmount), 0.01, maxAmount);
+            dlgA->setEnabled(true);
+            if (dlgA->exec() ) {
+                amn = dlgA->dValue;
+                //now apply payment
+                myDb->addReservationPayment(rId, amn);
+                //now modify reservation, to increment payment.
+                myDb->setReservationPayment(rId, rInfo.payment+amn);
+                qDebug()<<"Added a reservation payment. Reservation #"<<rId<<" Amount paid:"<<amn;
+                //cash-in.
+                insertCashInForReservationPayment(rId, amn);
+            }
+            delete dlgA;
+        } else {
+            qDebug()<<"The selected reservation cannot be paid because it is already paid.";
+        }
+    }
+    delete dlg;
+    delete myDb;
+}
+
+void lemonView::insertCashInForReservationPayment(const qulonglong &rid, const double &amount)
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    
+    CashFlowInfo info;
+    info.amount = amount;
+    info.reason = i18n("Payment for Reservation %1", rid);
+    info.date = QDate::currentDate();
+    info.time = QTime::currentTime();
+    info.terminalNum = Settings::editTerminalNumber();
+    info.userid = loggedUserId;
+    info.type   = ctCashInReservation;
+    qulonglong cfId = myDb->insertCashFlow(info);
+    //affect drawer
+    //NOTE: What about CUPS printers?
+    if (Settings::openDrawer() && Settings::smallTicketDotMatrix() && Settings::printTicket() )
+        drawer->open();
+    drawer->addCash(amount);
+    drawer->insertCashflow(cfId);
+    
+    QString authBy = loggedUserName;
+    log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Cash-IN-ReservationPayment [%1] for reservation %5 by %2 at terminal %3 on %4",QString::number(amount, 'f',2),authBy,Settings::editTerminalNumber(),QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"), rid));
+    
     delete myDb;
 }
 

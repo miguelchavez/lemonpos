@@ -42,7 +42,7 @@
 static const char description[] =
     I18N_NOOP("Lemon, A point of sale for linux");
 
-static const char version[] = "0.9.5";
+static const char version[] = "0.9.5.0";
 ///VERSION 0.9.5 is named "colima" and the branch name is the same.
 
 KSplashScreen *splash;
@@ -111,6 +111,7 @@ int main(int argc, char **argv)
             {
                 lemon *widget = new lemon;
                 widget->show();
+                qDebug()<<"lemon "<<i;
             }
         }
         args->clear();

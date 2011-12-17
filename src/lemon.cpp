@@ -313,14 +313,14 @@ void lemon::setupActions()
 
   QAction *makeReservationA = actionCollection()->addAction("makeReservation");
   makeReservationA->setText(i18n("Reserve Items"));
-  makeReservationA->setIcon(KIcon("lemon-box")); //TODO:CREATE ICON!
+  makeReservationA->setIcon(KIcon("lemon-reservation"));
   makeReservationA->setShortcut(Qt::ALT + Qt::Key_R); // Qt::ALT is the left ALT key ( not the Alt Gr )
   connect(makeReservationA, SIGNAL(triggered(bool)), m_view, SLOT( reserveItems() ));
   qDebug()<<"makeReservation shortcut:"<<makeReservationA->shortcuts();
 
   QAction *resumeRAction = actionCollection()->addAction("resumeReservation");
   resumeRAction->setText(i18n("Reservations"));
-  resumeRAction->setIcon(KIcon("lemon-box")); //TODO:CREATE ICON!
+  resumeRAction->setIcon(KIcon("lemon-reservation-view"));
   resumeRAction->setShortcut(Qt::CTRL+Qt::SHIFT+Qt::Key_R);
   connect(resumeRAction, SIGNAL(triggered(bool)), m_view, SLOT( resumeReservation() ));
   qDebug()<<"Reservations shortcut:"<<resumeRAction->shortcuts();
@@ -331,6 +331,15 @@ void lemon::setupActions()
   showCreditsAction->setShortcut(Qt::CTRL+Qt::SHIFT+Qt::Key_C);
   connect(showCreditsAction, SIGNAL(triggered(bool)), m_view, SLOT( showCredits() ));
   qDebug()<<"ShowCredits shortcut:"<<showCreditsAction->shortcuts();
+
+  QAction *addResPaymentAction = actionCollection()->addAction("addReservationPayment");
+  addResPaymentAction->setText(i18n("Add Reservation Payment"));
+  addResPaymentAction->setIcon(KIcon("lemon-reservation-payment"));
+  addResPaymentAction->setShortcut(Qt::CTRL+Qt::SHIFT+Qt::Key_P);
+  connect(addResPaymentAction, SIGNAL(triggered(bool)), m_view, SLOT( addReservationPayment() ));
+  qDebug()<<"ReservationPayment shortcut:"<<addResPaymentAction->shortcuts();
+
+  //NOTE: There is a weird bug: When the lemon-reservation-* icon is used at 22x22 pixels (default/medium size) it is not found, instead used lemon app icon.
   
   setupGUI();
 
@@ -594,6 +603,9 @@ void lemon::disableUi()
   action = actionCollection()->action("showCredits");
   action->setDisabled(true);
 
+  action = actionCollection()->action("addReservationPayment");
+  action->setDisabled(true);
+
   action = actionCollection()->action("login");
   action->setEnabled(true); //enable login!
   
@@ -665,6 +677,9 @@ void lemon::enableUi()
   action->setEnabled(true);
 
   action = actionCollection()->action("makeReservation");
+  action->setEnabled(true);
+
+  action = actionCollection()->action("addReservationPayment");
   action->setEnabled(true);
 
   action = actionCollection()->action("showCredits");
