@@ -111,27 +111,27 @@ void SOSelector::applyFilter()
     QRegExp regexp = QRegExp(text);
     if ( !regexp.isValid() )  { ui->editName->setText(""); text="";}
     if (text == "*" || text == "")
-      soModel->setFilter("status < 3");
+      soModel->setFilter("status > 0 and status < 3");
     else
-      soModel->setFilter(QString("status < 3 and name REGEXP '%1'").arg(text));
+      soModel->setFilter(QString("status > 0 and status < 3 and name REGEXP '%1'").arg(text));
   } else if (ui->rbDate->isChecked()){
     // by date
     QDate d = ui->datePicker->date();
     QDateTime dt = QDateTime(d);
     QString dtStr = dt.toString("yyyy-MM-dd hh:mm:ss");
     QString dtStr2= d.toString("yyyy-MM-dd")+" 23:59:59";
-    soModel->setFilter(QString("dateTime>='%1' and dateTime<='%2' AND status < 3").arg(dtStr).arg(dtStr2));
+    soModel->setFilter(QString("dateTime>='%1' and dateTime<='%2' AND status > 0 and status < 3").arg(dtStr).arg(dtStr2));
   } else if (ui->rbSaleId->isChecked()){
     //by ticket number
     if (ui->editSaleId->text().isEmpty())
-      soModel->setFilter("");
+      soModel->setFilter("status > 0 and status < 3");
     else {
       QString num = ui->editSaleId->text();
-      soModel->setFilter(QString("saleid=%1 AND status < 3").arg(num));
+      soModel->setFilter(QString("saleid=%1 AND status > 0 and status < 3").arg(num));
     }
   } else {
     //All
-    soModel->setFilter("");
+    soModel->setFilter("status > 0 and status < 3"); //saleid in (select id from transactions where state=2)
   }
 
   ///NOTE: Due to limitations on QSQLTableModel, we cannot use the GROUP BY statement on the model.
@@ -192,7 +192,8 @@ void SOSelector::setupModel()
   
   m_modelAssigned = true;
 
-  soModel->setFilter("");
+  //Show only ready for completion orders (status >0 and <3)
+  soModel->setFilter("status > 0 and status < 3");
   soModel->setSort(8, Qt::DescendingOrder);
   soModel->select();
 
