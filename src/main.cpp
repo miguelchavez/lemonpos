@@ -95,10 +95,12 @@ int main(int argc, char **argv)
             QString hst  = "-h" + Settings::editDBServer();
             QString dnm  = Settings::editDBName();
             QString fnm  = "-r" + fn;
-            params << hst << usr << pswd  << fnm << dnm;
+            params << hst << usr << pswd << fnm << dnm;
             QProcess mysqldump;
             mysqldump.start("mysqldump", params);
             mysqldump.waitForFinished();
+            //NOTE: The process above does not consider an error (network, mysql config, wrong password/user, etc..) and does not inform such if it happens.
+            //      It just gives an empty backup file. But once everything is working fine, it will give a backup every day.
             
             lemon *widget = new lemon;
             widget->show();
