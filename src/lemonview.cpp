@@ -957,13 +957,14 @@ void lemonView::refreshTotalLabel()
     double gDiscountPercentage = 0;
     bool roundToUSStandard = Settings::roundToUSStandard();
 
+
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+
     qDebug()<<"** RESERVATION Payment:"<<reservationPayment;
     //If we are dealing with a reservation, then we do not need to calculate any totals; we already have it on the reservation info.
     if (reservationPayment > 0) {
-        qDebug()<< __FUNCTION__ <<"  There is a reservation payment, therefore it is a reservation.";
         //we need to double check the reservation payment.
-        Azahar *myDb = new Azahar;
-        myDb->setDatabase(db);
         ReservationInfo rInfo = myDb->getReservationInfoFromTr( currentTransaction );
         if (rInfo.id > 0  && rInfo.transaction_id > 0 && rInfo.transaction_id == currentTransaction) {
             qDebug()<<" Ok, this is a reservation.  Tr #:"<<currentTransaction<<" Reservation #:"<<rInfo.id<<" Reservation Payment:"<<rInfo.payment<<" Reservation Total:"<<rInfo.total;
@@ -976,7 +977,7 @@ void lemonView::refreshTotalLabel()
             qDebug()<<"The tr #"<<currentTransaction<<" Is not reserved. ReservationPayment of "<<reservationPayment<<" is invalid; resetting to 0.";
             reservationPayment = 0;
         }
-        delete myDb;
+
     }
 
     ///We need to iterate the products to get the nonDiscountable items, and the totals.
@@ -1006,9 +1007,6 @@ void lemonView::refreshTotalLabel()
         if (!Settings::addTax())
             iPrice = soInfo.payment/(1+((soInfo.averageTax)/100));
         //get discount
-        Azahar *myDb = new Azahar;
-        myDb->setDatabase(db);
-        
         double soDiscount  = myDb->getSpecialOrderAverageDiscount(soInfo.orderid)/100;
         nonDiscountables += myDb->getSpecialOrderNonDiscountables(soInfo.orderid);
         
@@ -1020,7 +1018,6 @@ void lemonView::refreshTotalLabel()
         ///NOTE: SO are not allowed (implemented) for price change.
             
         sum_pre += iPrice * soInfo.qty;
-        delete myDb; //NOTE:create and delete this on every so item ??
     }
 
     bool notApply = false;
@@ -1081,13 +1078,12 @@ void lemonView::refreshTotalLabel()
     if (reservationPayment <= 0)
     foreach(SpecialOrderInfo soInfo, specialOrders) {
         double iPrice   = soInfo.payment;
-        if (!Settings::addTax())
-            iPrice = soInfo.payment/(1+((soInfo.averageTax)/100));
-        double iPriceWD = iPrice; //price without discounts and taxes (if addtax...).
+        double iPriceWD = iPrice;
+        if (!Settings::addTax()) {
+            iPriceWD = soInfo.payment/(1+((soInfo.averageTax)/100)); //price without discounts and taxes (if addtax...).
+        }
+            
         //get discount
-        Azahar *myDb = new Azahar;
-        myDb->setDatabase(db);
-
         double soDiscount  = myDb->getSpecialOrderAverageDiscount(soInfo.orderid)/100;
         nonDiscountables += myDb->getSpecialOrderNonDiscountables(soInfo.orderid);
         
@@ -1097,13 +1093,15 @@ void lemonView::refreshTotalLabel()
         if (clientInfo.discount>0)
             iPrice -= (clientInfo.discount/100)*iPrice; //applied over the discounted price (if it has discount)
         ///NOTE: SO are not allowed (implemented) for price change.
-        
+
+
+        ///taxes for SO will be applied to the payment.
+        double taxP = myDb->getSpecialOrderAverageTax(soInfo.orderid, rtPercentage)/100;
         sum += iPrice * soInfo.qty;
         totalSumWODisc += iPriceWD * soInfo.qty; //total sum without discounts and taxes if addtax...
-        taxes += myDb->getSpecialOrderAverageTax(soInfo.orderid, rtMoney);
+        taxes += taxP * iPriceWD * soInfo.qty;
         //buyPoints += (info.points*info.qtyOnList); NOTE & FIXME: SO does not get the POINTS. we would need to get frmo the elements (raw products).
-        delete myDb; //NOTE:create and delete this on every so item ??
-        qDebug()<<"<SO> Price without tax and discounts: $"<<iPrice<<" Tax:$"<<myDb->getSpecialOrderAverageTax(soInfo.orderid, rtMoney)<<" Accumulated tax:$"<<taxes<<" Accumulated Purchase:"<<sum;
+        qDebug()<<"<SO> Price without tax and discounts: $"<<iPrice<<" Tax:$"<<myDb->getSpecialOrderAverageTax(soInfo.orderid, rtMoney)<<" Accumulated tax:$"<<taxes<<" soInfo.averageTax %:"<<soInfo.averageTax<<" Accumulated Purchase:"<<sum;
     }
 
     if (notApply && (gDiscount > 0 || gDiscountPercentage>0))
@@ -1128,6 +1126,7 @@ void lemonView::refreshTotalLabel()
     if (Settings::addTax())
         totalSum   = subTotalSum + totalTax;
     else totalSum = subTotalSum;
+
 
     long double paid, change;
     bool isNum;
@@ -1182,6 +1181,7 @@ void lemonView::refreshTotalLabel()
     
     qDebug()<<"****** discMoney:"<<discMoney;
     //END of Rewrite
+    delete myDb;
 }
 
 RoundingInfo lemonView::roundUsStandard(const double &number)
@@ -4934,6 +4934,7 @@ void lemonView::resumeSale()
     updateBalance(false);
     updateTransaction();
   }
+  refreshTotalLabel();
   delete myDb;
 }
 
