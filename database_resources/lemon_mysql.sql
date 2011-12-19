@@ -356,6 +356,8 @@ CREATE TABLE IF NOT EXISTS `reservations` (
 `payment` double unsigned NOT NULL default '0',
 `total` double unsigned NOT NULL default '0',
 `totaltaxes` double unsigned NOT NULL default '0',
+`discount` double NOT NULL default '0',
+`item_discounts` varchar(1000) collate utf8_general_ci default '',
 PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
