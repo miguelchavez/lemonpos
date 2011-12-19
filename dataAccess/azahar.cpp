@@ -4120,6 +4120,7 @@ ReservationInfo  Azahar::getReservationInfoFromTr(const qulonglong &trId)
         myQuery.bindValue(":id", trId);
         if (myQuery.exec() ) {
             while (myQuery.next()) {
+                int fieldId      = myQuery.record().indexOf("id");
                 int fieldPayment = myQuery.record().indexOf("payment");
                 int fieldClient  = myQuery.record().indexOf("client_id");
                 int fieldTr      = myQuery.record().indexOf("transaction_id");
@@ -4128,7 +4129,7 @@ ReservationInfo  Azahar::getReservationInfoFromTr(const qulonglong &trId)
                 int fieldTotal   = myQuery.record().indexOf("total");
                 int fieldTaxes   = myQuery.record().indexOf("totaltaxes");
                 
-                result.id = trId;
+                result.id =        myQuery.value(fieldId).toULongLong();
                 result.client_id = myQuery.value(fieldClient).toULongLong();
                 result.transaction_id = myQuery.value(fieldTr).toULongLong();
                 result.total     = myQuery.value(fieldTotal).toDouble();
