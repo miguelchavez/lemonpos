@@ -429,6 +429,8 @@ struct ReservationInfo
     double     total;
     double     totalTaxes;
     int        status;
+    double     discount;
+    QString    item_discounts;
 };
 
 struct ReservationPayment
