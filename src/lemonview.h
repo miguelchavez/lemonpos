@@ -101,6 +101,7 @@ public:
     QHash<QString, ClientInfo> clientsHash;
     qulonglong buyPoints;
     double discMoney;
+    double globalDiscount; //%
     double totalSumWODisc;
     double subTotalSum;
     double reservationPayment;
