@@ -2586,7 +2586,10 @@ bool Azahar::setTransactionStatus(qulonglong trId, TransactionState state)
     if (db.isOpen())
     {
         QSqlQuery query(db);
-        query.prepare("UPDATE transactions SET transactions.state=:state WHERE transactions.id=:trid");
+        if (state == tReserved)
+            query.prepare("UPDATE transactions SET transactions.state=:state, transactions.totalTax=0 WHERE transactions.id=:trid");
+        else
+            query.prepare("UPDATE transactions SET transactions.state=:state WHERE transactions.id=:trid");
         query.bindValue(":trid", trId);
         query.bindValue(":state", state);
 
@@ -3985,7 +3988,7 @@ qulonglong Azahar::insertReservation(ReservationInfo info)
     
     if (!db.isOpen()) db.open();
     QSqlQuery query(db);
-    query.prepare("INSERT INTO reservations (transaction_id, client_id, date, status, payment, total, totaltaxes, discount, item_discounts) VALUES (:transaction, :client, :date, :status, :payment, :total, :totaltaxes, :discount, :item_discounts);");
+    query.prepare("INSERT INTO reservations (transaction_id, client_id, date, status, payment, total, totaltaxes, discount, item_discounts, profit) VALUES (:transaction, :client, :date, :status, :payment, :total, :totaltaxes, :discount, :item_discounts, :profit);");
     query.bindValue(":transaction", info.transaction_id);
     query.bindValue(":client", info.client_id);
     query.bindValue(":payment", info.payment);
@@ -3995,6 +3998,7 @@ qulonglong Azahar::insertReservation(ReservationInfo info)
     query.bindValue(":totaltaxes", info.totalTaxes);
     query.bindValue(":discount", info.discount);
     query.bindValue(":item_discounts", info.item_discounts);
+    query.bindValue(":profit", info.profit);
     
     if (!query.exec()) {
         setError(query.lastError().text());
@@ -4094,6 +4098,7 @@ ReservationInfo Azahar::getReservationInfo(const qulonglong &id)
                 int fieldTaxes   = myQuery.record().indexOf("totaltaxes");
                 int fieldDisc    = myQuery.record().indexOf("discount");
                 int fielditemD   = myQuery.record().indexOf("item_discounts");
+                int fieldProfit  = myQuery.record().indexOf("profit");
                 
                 result.id = id;
                 result.client_id = myQuery.value(fieldClient).toULongLong();
@@ -4105,6 +4110,7 @@ ReservationInfo Azahar::getReservationInfo(const qulonglong &id)
                 result.totalTaxes= myQuery.value(fieldTaxes).toDouble();
                 result.discount  = myQuery.value(fieldDisc).toDouble();
                 result.item_discounts = myQuery.value(fielditemD).toString();
+                result.profit    = myQuery.value(fieldProfit).toDouble();
             }
         }
         else {
@@ -4136,6 +4142,7 @@ ReservationInfo  Azahar::getReservationInfoFromTr(const qulonglong &trId)
                 int fieldTaxes   = myQuery.record().indexOf("totaltaxes");
                 int fieldDisc    = myQuery.record().indexOf("discount");
                 int fielditemD   = myQuery.record().indexOf("item_discounts");
+                int fieldProfit  = myQuery.record().indexOf("profit");
                 
                 result.id =        myQuery.value(fieldId).toULongLong();
                 result.client_id = myQuery.value(fieldClient).toULongLong();
@@ -4147,6 +4154,7 @@ ReservationInfo  Azahar::getReservationInfoFromTr(const qulonglong &trId)
                 result.totalTaxes= myQuery.value(fieldTaxes).toDouble();
                 result.discount  = myQuery.value(fieldDisc).toDouble();
                 result.item_discounts = myQuery.value(fielditemD).toString();
+                result.profit    = myQuery.value(fieldProfit).toDouble();
             }
         }
         else {

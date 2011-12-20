@@ -56,7 +56,9 @@ class ReservationsDialog : public KDialog
     qulonglong  getSelectedClient()      { return clientId; }
     QDate       getTrDate()              { return trDate;   }
     double      getReservationPayment()  { return rPayment; }
+    double      getReservationProfit()   { return rProfit; }
     QList<ProductInfo> getProductsList() { return pList;    }
+    QString     getItemDiscounts()       { return item_discounts; }
 
   private slots:
     void    itemClicked(const QModelIndex &index);
@@ -81,6 +83,8 @@ class ReservationsDialog : public KDialog
     MibitFloatPanel *panel;
     Gaveta *drawer;
     int userId;
+    QString item_discounts;
+    double rProfit;
 };
 
 #endif

@@ -6,6 +6,7 @@
 
 use lemondb;
 
+ALTER TABLE reservations ADD `profit` double unsigned NOT NULL default '0';
 ALTER TABLE reservations ADD `discount` double NOT NULL default '0';
 ALTER TABLE reservations ADD `item_discounts` varchar(1000) collate utf8_general_ci default '';
 

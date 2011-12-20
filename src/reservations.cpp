@@ -51,6 +51,8 @@ ReservationsDialog::ReservationsDialog( QWidget *parent, Gaveta *theDrawer, int 
     trNumber = 0;
     rNumber = 0;
     rPayment = 0;
+    rProfit = 0;
+    item_discounts = "";
 
     ui = new ReservationsDialogUI( this );
     setMainWidget( ui );
@@ -112,6 +114,8 @@ void ReservationsDialog::itemClicked(const QModelIndex &index)
   rNumber       = trModel->record(index.row()).value("id").toULongLong();
   trNumber      = trModel->record(index.row()).value("transaction_id").toULongLong();
   rPayment      = trModel->record(index.row()).value("payment").toDouble();
+  rProfit       = trModel->record(index.row()).value("profit").toDouble();
+  item_discounts= trModel->record(index.row()).value("item_discounts").toString();
   qDebug()<<"==> Selected Reservation number:"<<rNumber<<" Transaction #"<< trNumber;
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);

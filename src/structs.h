@@ -428,6 +428,7 @@ struct ReservationInfo
     double     payment;
     double     total;
     double     totalTaxes;
+    double     profit;
     int        status;
     double     discount;
     QString    item_discounts;
