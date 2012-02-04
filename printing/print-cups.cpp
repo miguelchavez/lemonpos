@@ -33,8 +33,24 @@ bool PrintCUPS::printSmallBalance(const PrintBalanceInfo &pbInfo, QPrinter &prin
 {
   bool result = false;
   // calculate font size
-  const int headerSize = printer.width()/16; //divisor found by trying, maybe has to do with font metrics?
-  const int textSize = headerSize/2; //i think the half of header size is ok
+  int headerSize = printer.width()/16; //divisor found by trying, maybe has to do with font metrics?
+  int textSize = headerSize/2; //i think the half of header size is ok
+
+  if (printer.widthMM() > 150)
+      printer.setPaperSize(QSizeF(104,110), QPrinter::Millimeter); // Resetting to 104mm (4 inches) paper.
+      //When i press "Properties" button on print dialog (qt/cups), and i cancel the dialog, then the size is set to 210mm.. i dont know why.
+      // 210 mm is the size of A4 paper (209.90mm), which it seems to be the default size..
+      // It is curious that when selecting custom size, the edit boxes for entering size are disabled and with a default 0x0 size.. why? This causes error on printing.  CUPS or qt guilty?
+
+  if (printer.widthMM() > 72 ) {
+      // The font is big in bigger papers.
+      // For paper size of 104mm (4 in). NOTE:I dont know if there is a bigger paper size for thermal POS printers.
+      // A proper aproach would be get technical details of the printer (resolution -- dots per inch/mm) and calculate font size according... a challenge.
+      headerSize = printer.width()/18;
+      textSize = headerSize/3;
+  }
+
+  
   qDebug()<<"Paper Width: "<<printer.widthMM()<<"mm"<<"; Page Width: "<<printer.width()<<"; calculated headerSize: "<<headerSize;
   
   QFont header = QFont("Impact", headerSize);
@@ -374,10 +390,26 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
 {
   bool result = false;
   // calculate font size
-  const int headerSize = printer.width()/16; //divisor found by trying, maybe has to do with font metrics?
-  const int textSize = headerSize/2; //i think the half of header size is ok
-  qDebug()<<"Paper Width: "<<printer.widthMM()<<"mm"<<"; Page Width: "<<printer.width()<<"; calculated headerSize: "<<headerSize;
+  int headerSize = printer.width()/16; //divisor found by trying, maybe has to do with font metrics?
+  int textSize = headerSize/3; //i think the half of header size is ok
 
+  if (printer.widthMM() > 150)
+      printer.setPaperSize(QSizeF(104,200), QPrinter::Millimeter); // Resetting to 104mm (4 inches) paper.
+      //When i press "Properties" button on print dialog (qt/cups), and i cancel the dialog, then the size is set to 210mm.. i dont know why.
+      // 210 mm is the size of A4 paper (209.90mm), which it seems to be the default size..
+      // It is curious that when selecting custom size, the edit boxes for entering size are disabled and with a default 0x0 size.. why? This causes error on printing.  CUPS or qt guilty?
+      
+  if (printer.widthMM() > 72 ) {
+      // The font is big in bigger papers.
+      // For paper size of 104mm (4 in). NOTE:I dont know if there is a bigger paper size for thermal POS printers.
+      // A proper aproach would be get technical details of the printer (resolution -- dots per inch/mm) and calculate font size according... a challenge.
+      headerSize = printer.width()/18;
+      textSize = headerSize/3;
+  }
+  
+  qDebug()<<"PAPER SIZE"<<printer.paperSize(QPrinter::Inch)<<"Paper Width: "<<printer.widthMM()<<"mm"<<" Height:"<<printer.heightMM()<<"; Page Width: "<<printer.width()<<"; calculated headerSize: "<<headerSize;
+
+  
   QFont header = QFont("Impact", headerSize);
   const int Margin = printer.width()/40; //divisor found by trying
   int yPos        = 0;
@@ -917,6 +949,27 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       }
     }
 
+    //Draw the ticket number as a barcode (code 39) http://es.wikipedia.org/wiki/Code_39
+    painter.setFont(QFont("Free 3 of 9", 22)); //Only numbers.
+    fm = painter.fontMetrics();
+    yPos = yPos + fm.lineSpacing()*2;
+    QString code = ptInfo.thTicket;
+    //remove all chars that we do not want on barcodes (#, space, colons, dots ). This strings comes formated, that's why we need to 'unformat it'
+    code.remove(QChar('#'), Qt::CaseSensitive);
+    code.remove(QChar(' '), Qt::CaseSensitive);
+    code.remove(QChar(','), Qt::CaseSensitive);
+    code.remove(QChar('.'), Qt::CaseSensitive);
+    code = "*"+code+"*"; //for code 39 to work.
+    painter.drawText((printer.width()/2)-(fm.size(Qt::TextExpandTabs | Qt::TextDontClip, code).width()/2)-Margin, Margin+yPos, code);
+    //now draw the number in text (no barcode) below.
+    tmpFont = QFont("Bitstream Vera Sans", textSize);
+    painter.setFont(tmpFont);
+    fm = painter.fontMetrics();
+    yPos = yPos + fm.lineSpacing()*1;
+    code.remove(QChar('*'), Qt::CaseSensitive);
+    painter.drawText((printer.width()/2)-(fm.size(Qt::TextExpandTabs | Qt::TextDontClip, code).width()/2)-Margin, Margin+yPos, code);
+    
+
     // The ticket message (tanks...)
     tmpFont = QFont("Bitstream Vera Sans", textSize);
     tmpFont.setItalic(true);
@@ -1263,8 +1316,23 @@ bool PrintCUPS::printSmallEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &pr
 {
   bool result = false;
   // calculate font size
-  const int headerSize = printer.width()/16; //divisor found by trying, maybe has to do with font metrics?
-  const int textSize = headerSize/2; //i think the half of header size is ok
+  int headerSize = printer.width()/16; //divisor found by trying, maybe has to do with font metrics?
+  int textSize = headerSize/2; //i think the half of header size is ok
+
+  if (printer.widthMM() > 150)
+      printer.setPaperSize(QSizeF(104,110), QPrinter::Millimeter); // Resetting to 104mm (4 inches) paper.
+      //When i press "Properties" button on print dialog (qt/cups), and i cancel the dialog, then the size is set to 210mm.. i dont know why.
+      // 210 mm is the size of A4 paper (209.90mm), which it seems to be the default size..
+      // It is curious that when selecting custom size, the edit boxes for entering size are disabled and with a default 0x0 size.. why? This causes error on printing.  CUPS or qt guilty?
+
+  if (printer.widthMM() > 72 ) {
+      // The font is big in bigger papers.
+      // For paper size of 104mm (4 in). NOTE:I dont know if there is a bigger paper size for thermal POS printers.
+      // A proper aproach would be get technical details of the printer (resolution -- dots per inch/mm) and calculate font size according... a challenge.
+      headerSize = printer.width()/18;
+      textSize = headerSize/3;
+  }
+  
   qDebug()<<"Paper Width: "<<printer.widthMM()<<"mm"<<"; Page Width: "<<printer.width()<<"; calculated headerSize: "<<headerSize;
   
   QFont header = QFont("Impact", headerSize);
@@ -1435,8 +1503,8 @@ bool PrintCUPS::printSmallLowStockReport(const PrintLowStockInfo &plInfo, QPrint
 {
   bool result = false;
   // calculate font size
-  const int headerSize = printer.width()/16; //divisor found by trying, maybe has to do with font metrics?
-  const int textSize = headerSize/2; //i think the half of header size is ok
+  int headerSize = printer.width()/16; //divisor found by trying, maybe has to do with font metrics?
+  int textSize = headerSize/2; //i think the half of header size is ok
   qDebug()<<"Paper Size: "<<printer.widthMM()<<"mm x "<<printer.heightMM()<<" -- calculated headerSize: "<<headerSize;
   
   QFont header = QFont("Impact", headerSize);

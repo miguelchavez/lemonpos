@@ -86,7 +86,7 @@ int main(int argc, char **argv)
             QDir dir;
             if (!dir.exists(fn))
                 dir.mkdir(fn);
-            fn = fn+QString("lemon-db--backup--%1.sql").arg(QDate::currentDate().toString("dd-MMM-yyyy")); //FIXME: Include TIME.
+            fn = fn+QString("lemon-db--backup--%1.sql").arg(QDateTime::currentDateTime().toString("dd-MMM-yyyy__hh.mm.AP"));
             qDebug()<<"BACKUP DATABASE at " << fn;
             
             QStringList params;

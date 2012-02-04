@@ -941,28 +941,26 @@ int lemonView::getItemRow(QString c)
 
 void lemonView::refreshTotalLabel()
 {
-    //BEGIN of REWRITE: This code has been rewritten from scratch. Aug 15 2011.
-
-    ///NOTE: FIXME! The nonDiscountable items should not be discounted with dollar discount or Percentage discount.
-    ///             Now the problem is with special Orders. How to allow/disallow discounts for them?
-    ///             I think S.O. can have only occasional discounts.
+    //BEGIN of REWRITE: This code has been rewritten from scratch, again. DEC 18 2011.
     totalSum = 0;
     totalTax = 0;
-    totalSumWODisc = 0;
+    totalSumWODisc = 0; //used to calculate (informative only) discount on method updateClientInfo()
     discMoney = 0;
-    double sum = 0;
-    double sum_pre=0;
-    double taxes = 0;
+    globalDiscount = 0;
+    double sum = 0.0;
+    double taxes = 0.0;
+    double totalTaxP = 0.0; //total tax percentage, calculated after tax sum is calculated, totalTaxP = taxes/sum
     int nonDiscountables = 0;
     double gDiscountPercentage = 0;
     bool roundToUSStandard = Settings::roundToUSStandard();
-
+    bool extractTaxes = !Settings::addTax(); //just a better name to understant what to do.
+    bool notApply = false;
 
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
 
-    qDebug()<<"** RESERVATION Payment:"<<reservationPayment;
-    //If we are dealing with a reservation, then we do not need to calculate any totals; we already have it on the reservation info.
+    ///If we are dealing with a reservation, then we do not need to calculate any totals; we already have it on the reservation info.
+    // FIXME: The only problem with this is that we DONT know if there was a price-change to an item because it is not RECORDED at the reservation or transaction.
     if (reservationPayment > 0) {
         //we need to double check the reservation payment.
         ReservationInfo rInfo = myDb->getReservationInfoFromTr( currentTransaction );
@@ -970,172 +968,86 @@ void lemonView::refreshTotalLabel()
             qDebug()<<" Ok, this is a reservation.  Tr #:"<<currentTransaction<<" Reservation #:"<<rInfo.id<<" Reservation Payment:"<<rInfo.payment<<" Reservation Total:"<<rInfo.total;
             reservationPayment = rInfo.payment;
             //Now set totals according. This is due to the fact that items here could be changed its price.
-            totalTax       = rInfo.totalTaxes; //FIXME! falta quitarle la parte correspondiente al prepago.
+            totalTax       = rInfo.totalTaxes; //the taxes are included only at the reservation final payment.
             subTotalSum    = rInfo.total - reservationPayment;
         } else {
             //The currentTransaction does not have a reservation; reset reservationPayment.
             qDebug()<<"The tr #"<<currentTransaction<<" Is not reserved. ReservationPayment of "<<reservationPayment<<" is invalid; resetting to 0.";
             reservationPayment = 0;
         }
-
     }
 
-    ///We need to iterate the products to get the nonDiscountable items, and the totals.
-    if (reservationPayment <= 0)
-    foreach(ProductInfo prod, productsHash) {
-        if (prod.isNotDiscountable)
-            nonDiscountables++;
+    //BEGIN no special Orders
+    if ( specialOrders.isEmpty() && reservationPayment <= 0 )
+        foreach(ProductInfo prod, productsHash) {
+            if (prod.isNotDiscountable) nonDiscountables++;
+            double iPrice = prod.price; //one item
+            double iTaxM = 0;
+            //if item has discount, apply it.
+            if (!prod.validDiscount && prod.disc > 0 && !prod.isNotDiscountable) ///if this is true, then there is a product price change.
+                iPrice -= prod.disc; //product price changed.
+            if (prod.validDiscount && !prod.isNotDiscountable)
+                iPrice -= (prod.discpercentage/100)*iPrice; //prod.price;  because the price could be changed.
+            if ( gDiscountPercentage > 0 ) //apply general discount. gDiscountPercentage is in PERCENTAGE Already... do not divide by 100.
+                iPrice -= (gDiscountPercentage)*iPrice; /// prod.price NOTE: if gDiscountPercentage is greater than 1 then it will produce negative price!
 
-        double iPrice   = prod.price;
-        //Get out tax if is included in price.
-        if (!Settings::addTax())
-            iPrice = prod.price/(1+((prod.tax+prod.extratax)/100));
-        
-        //if item has discount, apply it.
-        //first apply price change if any, then apply global discount.
-        if (!prod.validDiscount && prod.disc > 0 && !prod.isNotDiscountable) ///if this is true, then there is a product price change.
-            iPrice -= prod.disc; //product price changed.
-        if (prod.validDiscount && !prod.isNotDiscountable)
-            iPrice -= (prod.discpercentage/100)*iPrice; //prod.price;  because the price could be changed.
+            if (extractTaxes) 
+                iTaxM = iPrice - (iPrice/(1+((prod.tax+prod.extratax)/100))); //one item
+            else
+                iTaxM = iPrice * ((prod.tax+prod.extratax)/100); //one item
 
-        sum_pre += iPrice * prod.qtyOnList;
-    }
-    //now get the sum_pre for S.O.
-    if (reservationPayment <= 0)
-    foreach(SpecialOrderInfo soInfo, specialOrders) {
-        double iPrice   = soInfo.payment;
-        if (!Settings::addTax())
-            iPrice = soInfo.payment/(1+((soInfo.averageTax)/100));
-        //get discount
-        double soDiscount  = myDb->getSpecialOrderAverageDiscount(soInfo.orderid)/100;
-        nonDiscountables += myDb->getSpecialOrderNonDiscountables(soInfo.orderid);
-        
-        if (soDiscount > 0)
-            iPrice -= soDiscount*iPrice;
-        //client and ocassional discounts.
-        if (clientInfo.discount>0)
-            iPrice -= (clientInfo.discount/100)*iPrice; //applied over the discounted price (if it has discount)
-        ///NOTE: SO are not allowed (implemented) for price change.
-            
-        sum_pre += iPrice * soInfo.qty;
-    }
+            sum   += iPrice * prod.qtyOnList;
+            taxes += iTaxM  * prod.qtyOnList;
+            buyPoints += prod.points * prod.qtyOnList;
+            totalSumWODisc += (iPrice+iTaxM) * prod.qtyOnList; //WARNING: check this!: It will be used for informatavie purpose.
 
-    bool notApply = false;
+            qDebug()<<prod.desc<<" -> Price without Tax:"<<iPrice<<" item Tax $:"<<iTaxM<<"  Accumulated Tax in the purchase $:"<<taxes<< " Sum:"<<sum;
+        } //for each product
+     //END no special orders
+
+
+    //After inspecting each product or special order or reservation then continue with total global discounts, subtotal and total.
     if ((nonDiscountables == productsHash.count() && !productsHash.isEmpty())  || (nonDiscountables == specialOrders.count() && !specialOrders.isEmpty() ))
         notApply = true;
-    
+
+    //now we can calculate total tax percentage. This is an "average" tax of the whole sale.
+    if (taxes >0 && sum >0) //to avoid a NaN result
+        totalTaxP = taxes/sum; //  example, 10/100 = .10 => means 10 percent tax
+
     ///Now we need to get and apply GENERAL DISCOUNTS (applied to the whole sale) like client discount or ocassional discounts.
     //NOTE: What about reservations?
     double gDiscount = 0; //in money.
     if (clientInfo.discount >0 && !notApply)
         gDiscountPercentage = clientInfo.discount/100;
     if (oDiscountMoney > 0 && !notApply)
-        gDiscount += oDiscountMoney;
-    
-    //get the DOLLAR discount in percentage.
-    if (gDiscount > 0 && sum_pre > 0)  //if 0, it means the gDiscountPercentage is already calculated in previous steps... or is really 0.
-        gDiscountPercentage = gDiscount/sum_pre;
-    
-    qDebug()<<"SUM_PRE:"<<sum_pre<<" DOLLAR DISCOUNT TO PERCENTAGE:"<<gDiscountPercentage;
-    qDebug()<<"notApply:"<<notApply<<" nonDiscountables:"<<nonDiscountables<<" clientInfo.discount:"<<clientInfo.discount<<" oDiscountMoney:"<<oDiscountMoney<<" gDiscount:"<<gDiscount;
-    
-    ///iterate each product in the hash. to calculate the total sum and taxes.
-    QHashIterator<qulonglong, ProductInfo> i(productsHash);
-    if (reservationPayment <= 0)
-    while (i.hasNext()) {
-        i.next();
-        ProductInfo prod = i.value();
-        double iPrice   = prod.price;
-        //Get out tax if is included in price.
-        if (!Settings::addTax())
-            iPrice = prod.price/(1+((prod.tax+prod.extratax)/100));
-
-        double iPriceWD = iPrice; //price without discounts and taxes (if addtax...).
-
-        //if item has discount, apply it.
-        if (!prod.validDiscount && prod.disc > 0 && !prod.isNotDiscountable) ///if this is true, then there is a product price change.
-            iPrice -= prod.disc; //product price changed.
-        if (prod.validDiscount && !prod.isNotDiscountable)
-            iPrice -= (prod.discpercentage/100)*iPrice; //prod.price;  because the price could be changed.
-        if ( gDiscountPercentage > 0 ) //apply general discount. gDiscountPercentage is in PERCENTAGE Already... do not divide by 100. 
-            iPrice -= (gDiscountPercentage)*iPrice; /// prod.price NOTE: if gDiscountPercentage is greater than 1 then it will produce negative price!
-
-        //item taxes.  totalTax is the tax in money (discount applied if apply) for the qtyOnList items
-        ///Now tax is calculated over the price with discounts including general discount (percentage or dollar and price changes). MCH Aug 30 2011.
-        double iTax = ( ((prod.tax/100)*iPrice) + ((prod.extratax/100)*iPrice) ) * prod.qtyOnList;
-        taxes += iTax; //to debug it.
-        
-        ///To calculate the sum we sum prices with included discounts per item. It does not includes taxes if Settings:addTax is false.
-        sum += iPrice * prod.qtyOnList;
-        totalSumWODisc += iPriceWD * prod.qtyOnList; //total sum without discounts and taxes if addtax...
-
-        buyPoints += (prod.points*prod.qtyOnList);
-
-        qDebug()<<prod.desc<<" - Price without Tax and discounts:"<<iPrice<<" item Tax $:"<<iTax<<"  Accumulated Tax in the purchase:"<<taxes<< " Purchase Accumulated:"<<sum;
-    }
-    qDebug()<<" SUM:"<<sum<<" SUM_PRE:"<<sum_pre;
-    //now iterate the SO. In case there are SO then no products are allowed, sum will be 0 at this point.
-    if (reservationPayment <= 0)
-    foreach(SpecialOrderInfo soInfo, specialOrders) {
-        double iPrice   = soInfo.payment;
-        double iPriceWD = iPrice;
-        if (!Settings::addTax()) {
-            iPriceWD = soInfo.payment/(1+((soInfo.averageTax)/100)); //price without discounts and taxes (if addtax...).
-        }
-            
-        //get discount
-        double soDiscount  = myDb->getSpecialOrderAverageDiscount(soInfo.orderid)/100;
-        nonDiscountables += myDb->getSpecialOrderNonDiscountables(soInfo.orderid);
-        
-        if (soDiscount > 0)
-            iPrice -= soDiscount*iPrice;
-        //client and ocassional discounts.
-        if (clientInfo.discount>0)
-            iPrice -= (clientInfo.discount/100)*iPrice; //applied over the discounted price (if it has discount)
-        ///NOTE: SO are not allowed (implemented) for price change.
-
-
-        ///taxes for SO will be applied to the payment.
-        double taxP = myDb->getSpecialOrderAverageTax(soInfo.orderid, rtPercentage)/100;
-        sum += iPrice * soInfo.qty;
-        totalSumWODisc += iPriceWD * soInfo.qty; //total sum without discounts and taxes if addtax...
-        taxes += taxP * iPriceWD * soInfo.qty;
-        //buyPoints += (info.points*info.qtyOnList); NOTE & FIXME: SO does not get the POINTS. we would need to get frmo the elements (raw products).
-        qDebug()<<"<SO> Price without tax and discounts: $"<<iPrice<<" Tax:$"<<myDb->getSpecialOrderAverageTax(soInfo.orderid, rtMoney)<<" Accumulated tax:$"<<taxes<<" soInfo.averageTax %:"<<soInfo.averageTax<<" Accumulated Purchase:"<<sum;
-    }
-
-    if (notApply && (gDiscount > 0 || gDiscountPercentage>0))
-    {
-        //Hey, only nonDiscountable items! do not apply discounts!
-        ///WARNING: Problem when SO contains one non discountable item, and two or more SOs. REVIEW THIS CASE!
-        notifierPanel->setSize(350,150);
-        notifierPanel->setOnBottom(false);
-        notifierPanel->showNotification("<b>Cannot apply discount</b> to a product marked as not discountable.",5000);
-    }
-
+        gDiscount = oDiscountMoney;
+    //get the DOLLAR discount in percentage. Here, the global discount has precedence over the client discount.
+    if (gDiscount > 0 && sum > 0)  //if 0, it means the gDiscountPercentage is already calculated in previous steps... or is really 0.
+        gDiscountPercentage = gDiscount/sum;
     if (gDiscountPercentage > 0)
-        discMoney = gDiscountPercentage * sum_pre; //WARNING: if sum_pre is 0, then discMoney will be 0. This case can be when reservationPayment > 0
+        discMoney = gDiscountPercentage * sum;
+    globalDiscount = gDiscountPercentage; //global variable.
+    qDebug()<<"[*] discMoney: "<<discMoney<<" gDiscount:"<<gDiscount<<" gDiscountPercentage:"<<gDiscountPercentage<<" TotalTaxP:"<<totalTaxP;
+    //apply global discounts to the sum.
+    sum -= sum * gDiscountPercentage;
 
-    qDebug()<<"[] discMoney: "<<discMoney<<" gDiscount:"<<gDiscount<<" gDiscountPercentage:"<<gDiscountPercentage;
-        
     ///we get subtotal.
     if (reservationPayment <= 0) {
-        totalTax       = taxes;
-        subTotalSum    = sum - reservationPayment; //- gDiscount: ya se incluyo en la iteracion...
+        subTotalSum    = sum - reservationPayment; // discount applied some lines above.
+        totalTax       = totalTaxP * sum;
     } //else this are calculated before when getting rInfo.
     if (Settings::addTax())
         totalSum   = subTotalSum + totalTax;
     else totalSum = subTotalSum;
-
-
-    long double paid, change;
+    //we get change
+    double paid, change;
     bool isNum;
     paid = ui_mainview.editAmount->text().toDouble(&isNum);
     if (isNum) change = paid - totalSum; else change = 0.0;
     if (paid <= 0) change = 0.0;
-    
-    qDebug()<<"SUBTOTAL: "<<subTotalSum<<" TOTAL: "<<totalSum<<"Fromatted SUBTOTAL:"<<KGlobal::locale()->formatMoney(subTotalSum)<<" Formatted TOTAL:"<<KGlobal::locale()->formatMoney(totalSum);
+    qDebug()<<"[*] Sum (w/discounts):"<<sum<<" subTotal:"<<subTotalSum<<" totalTax:"<<totalTax<<" TOTAL SUM:"<<totalSum<<" Tendered:"<<paid<<" CHANGE:"<<change;
 
+    roundToUSStandard = false; //FIXME: disabled now, sometimes it is not good (+/-)
     if ( roundToUSStandard ) {
         //first round taxes
         RoundingInfo rTotalTax = roundUsStandard(totalTax);
@@ -1143,29 +1055,30 @@ void lemonView::refreshTotalLabel()
         RoundingInfo rSubTotalSum = roundUsStandard(subTotalSum);
         //then round total
         RoundingInfo rTotalSum = roundUsStandard(totalSum);
-
+        
         ///NOTE: discount must not be rounded!.. example: total= 2.95 -> 3.0 discount= 0.5 => 1.0, grand total= 3-1 = 2 and should be 2.90.
         //then round change
         RoundingInfo rChange = roundUsStandard(change);
-
+        
         //assigning them.
         totalTax    = rTotalTax.doubleResult;
         subTotalSum = rSubTotalSum.doubleResult;
         totalSum    = rTotalSum.doubleResult;
-        change      = rChange.doubleResult; //NOTE: When rounding the change it could be tricky if we play beyond reality.
-                                            //      Example: paid: 109.91 (which it never should hapen because $.01 coins does not exists, right?)
-                                            //      purchase: 109.75 rounding gets 109.80
-                                            //      so, the change before rounding is 0.15 (109.91 - 109.80) , rounding is 0.20.
-                                            //      But if instead of paying 109.91, a more real payment is 109.90;
-                                            //      the change before rounding is 0.14, rounding is 0.10 which is correct.
+        change      = rChange.doubleResult;
+        //NOTE: When rounding the change it could be tricky if we play beyond reality.
+        //      Example: paid: 109.91 (which it never should hapen because $.01 coins does not exists, right?)
+        //      purchase: 109.75 rounding gets 109.80
+        //      so, the change before rounding is 0.15 (109.91 - 109.80) , rounding is 0.20.
+        //      But if instead of paying 109.91, a more real payment is 109.90;
+        //      the change before rounding is 0.14, rounding is 0.10 which is correct.
     }
-    
+
     ///refresh labels.
     ui_mainview.labelTotal->setText(QString("%1").arg(KGlobal::locale()->formatMoney(totalSum)));
     ui_mainview.lblSubtotal->setText(QString("%1").arg(KGlobal::locale()->formatMoney(subTotalSum)));
     ui_mainview.labelChange->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(change)));
     ui_mainview.lblSaleTaxes->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(totalTax)));
-    //update client discount
+    ///update client discount
     QString dStr;
     if (clientInfo.discount >0) {
         dStr = i18n("Discount: %1%  [%2]",clientInfo.discount, KGlobal::locale()->formatMoney(discMoney));
@@ -1178,10 +1091,18 @@ void lemonView::refreshTotalLabel()
         //Set the amount to pay.
         ui_mainview.editAmount->setText(QString::number(totalSum));
     }
-    
-    qDebug()<<"****** discMoney:"<<discMoney;
-    //END of Rewrite
+
+    //inform the user if the discount cannot be applied.
+    if (notApply && (gDiscount > 0 || gDiscountPercentage>0))
+    {
+        ///WARNING: Problem when SO contains one non discountable item, and two or more SOs. REVIEW THIS CASE!
+        notifierPanel->setSize(350,150);
+        notifierPanel->setOnBottom(false);
+        notifierPanel->showNotification("<b>Cannot apply discount</b> to a product marked as not discountable.",5000);
+    }
+
     delete myDb;
+    //END of Rewrite
 }
 
 RoundingInfo lemonView::roundUsStandard(const double &number)
@@ -2202,7 +2123,15 @@ void lemonView::finishCurrentTransaction()
 
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
-    
+
+    //adding discounts for reservations (without affecting the sale totals, only transaction)
+    if (finishingReservation) {
+        //get data from reservation
+        ReservationInfo rInfo = myDb->getReservationInfoFromTr( currentTransaction );
+        tInfo.disc = rInfo.discount; //discount percentage FIXME!!!
+        tInfo.discmoney = 0; //this can cause troubles... just saving the discount percentage.
+    }
+
     if (pType == pOwnCredit) {
         tInfo.state = tCompletedOwnCreditPending; ///setting pending payment status for the OwnCredit.
         //create the credit record
@@ -2883,7 +2812,9 @@ void lemonView::printTicket(TicketInfo ticket)
       
       //This is lost when the user chooses a printer. Because the printer overrides the paper sizes.
       printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
-      printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+      //TODO:Nueva impresora. printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+      //NOTE: Ojo: si se hace click en el boton "Properties" del dialogo de Imprimir, aunque se presione "cancel", el "PAGE" se pone como 204mm
+      //NOTE: El calculo del tamano de fuente no es correcta para papeles mayores a 72mm de anchos.
 
       QString pName = printer.printerName(); //default printer name
       
@@ -2893,8 +2824,21 @@ void lemonView::printTicket(TicketInfo ticket)
       if ( printDialog.exec() ) {
         //this overrides what the user chooses if he does change sizes and margins.
         printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
-        printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+        //printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
         //TODO: Set Copies: printer.setCopyCount(2); //NOTE:Introduced in Qt 4.7 --WARNING-- See also setCollateCopies()
+        PrintCUPS::printSmallTicket(ptInfo, printer);
+
+        //export anyway
+        QString fn = QString("%1/lemon-printing/").arg(QDir::homePath());
+        QDir dir;
+        if (!dir.exists(fn))
+            dir.mkdir(fn);
+        fn = fn+QString("ticket-%1__%2.pdf").arg(ticket.number).arg(ticket.datetime.date().toString("dd-MMM-yy"));
+        qDebug()<<fn;
+        
+        printer.setOutputFileName(fn);
+        printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+        
         PrintCUPS::printSmallTicket(ptInfo, printer);
       } else {
           //NOTE: This is a proposition:
@@ -3032,6 +2976,7 @@ void lemonView::startAgain()
   clearUsedWidgets();
   buyPoints =0;
   discMoney=0;
+  globalDiscount = 0;
   refreshTotalLabel();
   createNewTransaction(tSell);
   reservationPayment = 0; //reservationPayment is for reservations only!
@@ -3071,6 +3016,7 @@ void lemonView::preCancelCurrentTransaction()
     clearUsedWidgets();
     buyPoints =0;
     discMoney=0;
+    globalDiscount = 0;
     refreshTotalLabel();
     qDebug()<<"** Cancelling an empty transaction [updating transaction]";
     updateTransaction();
@@ -3202,6 +3148,7 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
         clearUsedWidgets();
         buyPoints =0;
         discMoney=0;
+        globalDiscount = 0;
         refreshTotalLabel();
         qDebug()<<"** Cancelling current transaction [updating transaction]";
         updateTransaction();
@@ -3579,7 +3526,10 @@ void lemonView::corteDeCaja()
       printDialog.setWindowTitle(i18n("Print Balance"));
       if ( printDialog.exec() ) {
         printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
-        printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+        //TODO:Nueva impresora. printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+        //NOTE: Ojo: si se hace click en el boton "Properties" del dialogo de Imprimir, aunque se presione "cancel", el "PAGE" se pone como 204mm
+        //NOTE: El calculo del tamano de fuente no es correcta para papeles mayores a 72mm de anchos.
+        
         //TODO: Set Copies: printer.setCopyCount(2); //NOTE:Introduced in Qt 4.7 --WARNING-- See also setCollateCopies()
         PrintCUPS::printSmallBalance(pbInfo, printer);
       } else {
@@ -4822,6 +4772,7 @@ void lemonView::updateTransaction()
   info.itemcount  = cant;
   info.utility    = profit;
   //info.groups     = ""; //DEPRECATED.
+  //WARNING: Here transaction.totalTaxes is missing! Detected during updateTransaction() called on suspendReservation()/reserveItems(). totalTaxes is assigned a garbage number (example, 291.9282828293834e-300)
 
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
@@ -5000,8 +4951,8 @@ void lemonView::applyOccasionalDiscount()
         clientInfo.discount = 0;
     } else if (ui_mainview.rbPriceChange->isChecked()) {
         double priceDiff = 0;
-        clientInfo.discount = 0; //reset
-        oDiscountMoney = 0; //reset
+        //clientInfo.discount = 0; //reset FIXED: when gdiscount is applied then product price, the gDiscount is cleared!
+        //oDiscountMoney = 0; //reset
         ///To change price to an item, it must be selected (obviously already in the purchase list). Only to normal items, no SpecialOrders.
         ///Discount to the whole sale is allowed too.
         if (ui_mainview.tableWidget->currentRow()!=-1 && ui_mainview.tableWidget->selectedItems().count()>4) {
@@ -5111,6 +5062,9 @@ void lemonView::reserveItems()
     startingReservation = true;
     finishingReservation= false;
 
+    TransactionInfo tInfo = myDb->getTransactionInfo(currentTransaction);
+    qDebug()<<"[*] SAVING PROFIT TO RESERVATION $:"<<tInfo.utility;
+
     reservationPayment = ui_mainview.editAmount->text().toDouble();
     payWith = reservationPayment;
     //change given is allways 0.
@@ -5128,6 +5082,10 @@ void lemonView::reserveItems()
         // total without payment
         rInfo.total = subTotalSum; // This amount is WITHOUT TAXES.
         rInfo.totalTaxes = totalTax;
+        rInfo.profit = tInfo.utility;
+        rInfo.discount = globalDiscount*100; // gDiscountPercentage is .10 for 10%
+        rInfo.item_discounts = "";
+        QStringList discItems;
         qDebug()<< __FUNCTION__ <<" Reservation Amount:"<< rInfo.payment<<" Total :"<<rInfo.total<<" Taxes:"<< rInfo.totalTaxes;
 
         if (rInfo.payment <= 0) {
@@ -5147,8 +5105,6 @@ void lemonView::reserveItems()
         double pDiscounts=0;
         double cantidad=0;
 
-        //create the reservation record
-        qulonglong rId = myDb->insertReservation(rInfo);
 
         foreach (ProductInfo pi, productsHash) {
             //Decrement product-qty from inventory.
@@ -5189,10 +5145,19 @@ void lemonView::reserveItems()
             tLineInfo.price   = pi.price;
             tLineInfo.disc    = pi.disc*pi.qtyOnList;
             tLineInfo.total   = (pi.price - pi.disc) * pi.qtyOnList;
-            tLineInfo.tax     = pi.totaltax*pi.qtyOnList;
+            tLineInfo.tax     = (pi.tax + pi.extratax); //Now in %.  //pi.totaltax*pi.qtyOnList; //HERE, pi.totaltax is in MONEY, not percentage.
             ticketLines.append(tLineInfo);
+
+            //adding info for each product discount if any..
+            if (pi.disc > 0)
+                discItems.append(QString("%1/%2").arg(pi.code).arg(pi.disc));
             
         } //for each product
+
+        //now we have the discItems, assign to the rInfo.
+        rInfo.item_discounts = discItems.join(",");
+        //create the reservation record
+        qulonglong rId = myDb->insertReservation(rInfo);
 
         //Register the cash-in
         CashFlowInfo info;
@@ -5320,6 +5285,8 @@ void lemonView::resumeReservation()
     myDb->setDatabase(db);
     ReservationsDialog *dlg = new ReservationsDialog(this, drawer, loggedUserId);
     dlg->setDb(db);
+    QString itemDiscounts;
+    double reservProfit=0;
 
     if (dlg->exec()) {
         // Until now, the transaction has the total of totalREAL - reservation.payment.
@@ -5334,6 +5301,8 @@ void lemonView::resumeReservation()
         qulonglong clientId           = dlg->getSelectedClient();
         reservationPayment            = dlg->getReservationPayment();
         reservationId                 = dlg->getSelectedReservation();
+        itemDiscounts                 = dlg->getItemDiscounts();
+        reservProfit                  = dlg->getReservationProfit();
         //Check if there is a transaction, and suspend it before resume the reservation.
         suspendSale();
         currentTransaction = trNumber;
@@ -5345,17 +5314,42 @@ void lemonView::resumeReservation()
         updateClientInfo();
         refreshTotalLabel();
         //HERE the availability does not matter, the item is Physically Reserved.
-        //FIXME: Consider the total amount when reserved, because product price could be changed.
         foreach(ProductInfo info, pList) {
             QString qtyXcode = QString::number(info.qtyOnList) + "*" + QString::number(info.code);
             availabilityDoesNotMatters = true;
             insertItem(qtyXcode);
             availabilityDoesNotMatters = false;
         }
+        //once inserted items, see if any had discount on the original sale
+        if (!itemDiscounts.isEmpty()) {
+            QStringList lista = itemDiscounts.split(",");
+            foreach(QString elem, lista){
+                QStringList lista2 = elem.split("/");
+                //get from the productsHash the products with discounts. THE DISCOUNT IS IN MONEY for EACH PIECE/QTY.
+                ProductInfo p = productsHash.take( lista2[0].toULongLong() );
+                if (lista2.count() == 2) {
+                    double pdisc = lista2[1].toDouble();
+                    if ( pdisc > 0 ) {
+                        qDebug()<<"P.disc:"<<p.disc<<" p.validdiscount:"<<p.validDiscount<<" discpercentage:"<<p.discpercentage;
+                        p.disc = pdisc;
+                        p.discpercentage=0;
+                        p.validDiscount=false; //emulating price change...
+                        productsHash.insert(p.code, p);
+                        //refresh item line
+                        updateItem(p);
+                    }
+                }
+            }
+        }
         doNotAddMoreItems = true;
         qDebug()<<"DoNotAddMoreItems = "<<doNotAddMoreItems;
         updateBalance(false);
         updateTransaction();
+
+        //save reservationProfit on transaction
+        TransactionInfo t = myDb->getTransactionInfo(currentTransaction);
+        t.utility = reservProfit;
+        myDb->updateTransaction(t);
 
         // Next is a comment for the time the transaction is fihising
         // TODO PRINT TICKET:
@@ -5377,6 +5371,7 @@ void lemonView::postponeReservation()
     delete myDb;
 }
 
+//TODO: Print a ticket for the reservation payment, but only when calling this method, not the myDb->addReservationPayment()
 void lemonView::addReservationPayment()
 {
     //This is used to add payments to a reservation without totally paying it.
@@ -5604,7 +5599,10 @@ void lemonView::printCreditReport()
             QPrinter printer(QPrinter::HighResolution);
             printer.setFullPage( true );
             printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
-            printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter);
+            //TODO:Nueva impresora. printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
+            //NOTE: Ojo: si se hace click en el boton "Properties" del dialogo de Imprimir, aunque se presione "cancel", el "PAGE" se pone como 204mm
+            //NOTE: El calculo del tamano de fuente no es correcta para papeles mayores a 72mm de anchos.
+            
             ui_mainview.creditContent->print(&printer); //this prints directly to the default printer. No print dialog.
             
             //if export to pdf
