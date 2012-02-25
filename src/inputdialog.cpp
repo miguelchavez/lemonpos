@@ -123,6 +123,7 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
   }
   else if (type == dialogTicketMsg) {
    lineEdit->setClickMessage(i18n("Enter the number of the month or season here..."));
+   qDebug()<<"Setting month validator: min:"<<min<<" Max:"<<max;
    productCodeEdit->hide();
    productCodeLabel->hide();
   }

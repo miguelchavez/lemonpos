@@ -3683,6 +3683,11 @@ void squeezeView::setupRandomMsgModel()
     ui_mainview.randomMsgTable->setSelectionMode(QAbstractItemView::SingleSelection);
 
     randomMsgModel->select();
+
+
+    //TODO:validator for months
+    //ui_mainview.randomMsgTable->setItemDelegate( );
+    
   }
   ui_mainview.randomMsgTable->resizeColumnsToContents();
 
@@ -3692,7 +3697,7 @@ void squeezeView::setupRandomMsgModel()
 void squeezeView::createRandomMsg()
 {
  if (db.isOpen()) {
-  InputDialog *dlg = new InputDialog(this, true, dialogTicketMsg, i18n("Enter the new ticket message."));
+  InputDialog *dlg = new InputDialog(this, true, dialogTicketMsg, i18n("Enter the new ticket message."), 1, 12);
 
   if (dlg->exec()) {
     Azahar *myDb = new Azahar;
