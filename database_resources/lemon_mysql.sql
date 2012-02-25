@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   `category` int(10) unsigned NOT NULL default 0,
   `points` INT(10) UNSIGNED NOT NULL DEFAULT 0,
   `alphacode` VARCHAR( 30 ) NULL,
+  `vendorcode` VARCHAR( 30 ) NULL,
   `lastproviderid` int(10) unsigned NOT NULL default '1',
   # for grouped and on-demand-made products (special orders)
   `isARawProduct` bool NOT NULL default false,

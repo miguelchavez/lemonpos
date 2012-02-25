@@ -168,6 +168,7 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
   info.discpercentage=0;
   info.validDiscount=false;
   info.alphaCode = "-NA-";
+  info.vendorCode = "-NA-";
   info.lastProviderId = 0;
   info.isAGroup = false;
   info.isARawProduct = false;
@@ -180,6 +181,7 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
   if (db.isOpen()) {
     QString qry = QString("SELECT  P.code as CODE, \
     P.alphacode as ALPHACODE, \
+    P.vendorcode as VENDORCODE, \
     P.name as NAME ,\
     P.price as PRICE, \
     P.cost as COST ,\
@@ -237,6 +239,7 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
         //int fieldLastProviderName = query.record().indexOf("LASTPROVIDER");
         int fieldLastProviderId = query.record().indexOf("PROVIDERID");
         int fieldAlphaCode = query.record().indexOf("ALPHACODE");
+        int fieldVendorCode = query.record().indexOf("VENDORCODE");
         int fieldTaxElem = query.record().indexOf("TAXELEM");
         int fieldStock= query.record().indexOf("STOCKQTY");
         int fieldIsGroup = query.record().indexOf("ISGROUP");
@@ -248,6 +251,7 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
 
         info.code     = query.value(fieldCODE).toULongLong();
         info.alphaCode = query.value(fieldAlphaCode).toString();
+        info.vendorCode = query.value(fieldVendorCode).toString();
         info.desc     = query.value(fieldDesc).toString();
         info.price    = query.value(fieldPrice).toDouble();
         info.photo    = query.value(fieldPhoto).toByteArray();
@@ -420,6 +424,23 @@ qulonglong Azahar::getProductCodeFromAlphacode(QString text)
     return code;
 }
 
+qulonglong Azahar::getProductCodeFromVendorcode(QString text)
+{
+    QSqlQuery query(db);
+    qulonglong code=0;
+    if (query.exec(QString("select code from products where vendorcode='%1';").arg(text))) {
+        while (query.next()) {
+            int fieldId   = query.record().indexOf("code");
+            code = query.value(fieldId).toULongLong();
+        }
+    }
+    else {
+        //qDebug()<<"ERROR: "<<query.lastError();
+        setError(query.lastError().text());
+    }
+    return code;
+}
+
 /// UPDATED: This searches products by description and alphacode.   -Dec 28 2011-
 QList<qulonglong> Azahar::getProductsCode(QString regExpName)
 {
@@ -480,7 +501,7 @@ bool Azahar::insertProduct(ProductInfo info)
   if (info.hasUnlimitedStock)
       info.stockqty = 1; //for not showing "Not Available" in the product delegate.
   
-  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, category, points, alphacode, lastproviderid, isARawProduct,isAGroup, groupElements, groupPriceDrop, taxmodel, hasUnlimitedStock, isNotDiscountable ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastgetld, :units, :tax1, :tax2, :photo, :category, :points, :alphacode, :lastproviderid, :isARaw, :isAGroup, :groupE, :groupPriceDrop, :taxmodel, :unlimitedStock, :NonDiscountable);");
+  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, category, points, alphacode, vendorcode, lastproviderid, isARawProduct,isAGroup, groupElements, groupPriceDrop, taxmodel, hasUnlimitedStock, isNotDiscountable ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastgetld, :units, :tax1, :tax2, :photo, :category, :points, :alphacode, :vendorcode, :lastproviderid, :isARaw, :isAGroup, :groupE, :groupPriceDrop, :taxmodel, :unlimitedStock, :NonDiscountable);");
   query.bindValue(":code", info.code);
   query.bindValue(":name", info.desc);
   query.bindValue(":price", info.price);
@@ -495,6 +516,7 @@ bool Azahar::insertProduct(ProductInfo info)
   query.bindValue(":category", info.category);
   query.bindValue(":points", info.points);
   query.bindValue(":alphacode", info.alphaCode);
+  query.bindValue(":vendorcode", info.vendorCode);
   query.bindValue(":lastproviderid", info.lastProviderId);
   query.bindValue(":isAGroup", info.isAGroup);
   query.bindValue(":isARaw", info.isARawProduct);
@@ -560,6 +582,7 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   category=:category, \
   points=:points, \
   alphacode=:alphacode, \
+  vendorcode=:vendorcode, \
   lastproviderid=:lastproviderid, \
   isARawProduct=:isRaw, \
   isAGroup=:isGroup, \
@@ -582,6 +605,7 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   query.bindValue(":points", info.points);
   query.bindValue(":id", oldcode);
   query.bindValue(":alphacode", info.alphaCode);
+  query.bindValue(":vendorcode", info.vendorCode);
   query.bindValue(":lastproviderid", info.lastProviderId);
   query.bindValue(":isGroup", info.isAGroup);
   query.bindValue(":isRaw", info.isARawProduct);
