@@ -159,7 +159,13 @@ InputDialog::InputDialog(QWidget *parent, bool integer, DialogType type, QString
     // than 2,147,483,647. For now, its ok, its at the order of billions (thousand millions).
   } else {
     //Some people complained about decimal places in numbers accepted by lemon. They wanted more decimal places!!!
-    QDoubleValidator *validator = new QDoubleValidator(min, max, 5,this);
+    QDoubleValidator *validator;
+    if (dialogType == dialogStockCorrection) {
+        validator = new QDoubleValidator(-99999999.9, max, 5,this);
+        qDebug()<<" Validator:"<<validator;
+    } else {
+        validator = new QDoubleValidator(min, max, 5,this);
+    }
     lineEdit->setValidator(validator);
   }
   //NOTE: We remove the xX from the regexp for use as the separator between qtys and code. Only * can be used now, for Alphacode support

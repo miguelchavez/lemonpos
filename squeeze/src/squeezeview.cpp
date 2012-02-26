@@ -2181,7 +2181,7 @@ void squeezeView::stockCorrection()
   qulonglong pcode=0;
   QString reason;
   bool ok = false;
-  InputDialog *dlg = new InputDialog(this, true, dialogStockCorrection, i18n("Enter the quantity and reason for the change, then press <ENTER> to accept, <ESC> to cancel"));
+  InputDialog *dlg = new InputDialog(this, false, dialogStockCorrection, i18n("Enter the quantity and reason for the change, then press <ENTER> to accept, <ESC> to cancel"));
   if (dlg->exec())
   {
     newStockQty = dlg->dValue;
