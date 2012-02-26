@@ -48,7 +48,7 @@ class PurchaseEditor : public KDialog
     PurchaseEditor( QWidget *parent=0 );
     ~PurchaseEditor();
 
-    qulonglong getCode()     { return ui->editCode->text().toULongLong(); };
+    qulonglong getCode()     { return ui->editCode->text().toULongLong(); }; // this will be deprecated when using the vendor code which is STR.
     QString    getCodeStr()  { return ui->editCode->text(); };
     QString getDescription() { return ui->editDesc->text(); };
     double  getPurchaseQty();
@@ -75,6 +75,7 @@ class PurchaseEditor : public KDialog
 
     void    setDb(QSqlDatabase database);
     void    setCode(qulonglong c)      {ui->editCode->setText(QString::number(c)); };
+    void    setCode(QString c)         {ui->editCode->setText(c);  }
     void    setDescription(QString d)  {ui->editDesc->setText(d); };
     void    setPurchaseQty(double q)   {ui->editQty->setText(QString::number(q)); };
     void    setCategory(QString str);
