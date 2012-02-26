@@ -1796,9 +1796,11 @@ void lemonView::itemDoubleClicked(QTableWidgetItem* item)
   double dmaxItems = info.stockqty;
   QString msg = i18n("Enter the number of %1", info.unitStr); //Added on Dec 15, 2007
 
+  bool allowNegativeStock = Settings::allowNegativeStock();
+
   //Launch a dialog to as the new qty
   if (info.units == uPiece) {
-    if (dmaxItems > 0) {
+    if (dmaxItems > 0 || allowNegativeStock) {
       ok = true;
       iqty = info.qtyOnList+1;
       //NOTE: Present a dialog to enter a qty or increment by one ?
