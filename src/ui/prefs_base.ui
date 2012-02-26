@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>535</width>
-    <height>525</height>
+    <height>564</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -227,6 +227,13 @@ p, li { white-space: pre-wrap; }
        </layout>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="kcfg_allowNegativeStock">
+     <property name="text">
+      <string>Allow negative stock, but alert the user.</string>
+     </property>
     </widget>
    </item>
    <item>

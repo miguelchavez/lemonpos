@@ -1182,8 +1182,10 @@ bool lemonView::incrementTableItemQty(QString code, double q)
     qty = info.qtyOnList;
     qty_old = qty;
     QStringList itemsNotAvailable;
+
+    bool allowNegativeStock = Settings::allowNegativeStock();
     
-    //stock qty for groups are different.
+    //stock qty for groups are different. NEW: Take into account the negative stock settings.
     bool available = true;
     if (info.isAGroup) {
       Azahar *myDb = new Azahar;
@@ -1202,16 +1204,19 @@ bool lemonView::incrementTableItemQty(QString code, double q)
         // onList: items of the same product already on the shopping list.
         if (pi.stockqty >= ((qq*q)+onList) ) yes = true;
         available = (available && yes );
-        if (!yes) {
+        if (!yes && !allowNegativeStock ) {
           itemsNotAvailable << i18n("%1 has %2 %3 but requested %4 + %5",pi.desc,pi.stockqty,unitStr,qq*q,onList);
         }
         qDebug()<<pi.desc<<" qtyonstock:"<<pi.stockqty<<" needed qty (onlist and new):"<<QString::number((qq*q)+onList);
+        //New: if allowNegativeStock, then allow it anyway.
+        if (allowNegativeStock)
+            available = true;
       }
       delete myDb;
     } else {
       double onList = getTotalQtyOnList(info); // item itself and contained in any gruped product.
-      if (stockqty >= q+onList) available = true; else available = false;
-      qDebug()<<info.desc<<" qtyonstock:"<<info.stockqty<<" needed qty (onlist and new):"<<QString::number(q+onList);
+      if (stockqty >= q+onList || allowNegativeStock) available = true; else available = false;
+      qDebug()<<info.desc<<" qtyonstock:"<<info.stockqty<<" needed qty (onlist and new):"<<QString::number(q+onList)<<" Allow NegativeStock:"<<allowNegativeStock;
     }
       
     if (available) qty+=q; else {
@@ -1387,8 +1392,11 @@ if ( doNotAddMoreItems ) { //only for reservations
         qDebug()<<"  New codeX:"<<codeX<<" weight:"<<pWeight<<" Double weight:"<<qty;
     }
 
+
+  bool allowNegativeStock = Settings::allowNegativeStock();
+
   info = myDb->getProductInfo(codeX); //includes discount and validdiscount
-  qDebug()<<" CodeX = "<<codeX<<" Numeric Code:"<<info.code<<" Alphacode:"<<info.alphaCode<<" Required Qty:"<<qty;
+  qDebug()<<" CodeX = "<<codeX<<" Numeric Code:"<<info.code<<" Alphacode:"<<info.alphaCode<<" Required Qty:"<<qty<<" Allow NegativeStock:"<<allowNegativeStock;
   delete myDb;
 
   //the next 'if' checks if the hash contains the product and got values from there.. To include purchaseQty, that we need!
@@ -1448,13 +1456,16 @@ if ( doNotAddMoreItems ) { //only for reservations
             // onList: items of the same product already on the shopping list.
             if (pi.stockqty >= ((q*qty)+onList) ) yes = true;
             available = (available && yes );
-            if (!yes) {
+            if (!yes && !allowNegativeStock) {
               itemsNotAvailable << i18n("%1 has %2 %3 but requested %4 + %5",pi.desc,pi.stockqty,unitStr,qty*q,onList);
             }
             qDebug()<<pi.desc<<" qtyonstock:"<<pi.stockqty<<" needed qty:"<<QString::number(qty*q);
+            //New: if allowNegativeStock, then allow it anyway.
+            if (allowNegativeStock)
+                available = true;
           }
-          //CHECK AVAILABILITY
-          if (available || availabilityDoesNotMatters ) {
+          //CHECK AVAILABILITY OR ALLOWNEGATIVESTOCK
+          if (available || availabilityDoesNotMatters || allowNegativeStock) {
             if (availabilityDoesNotMatters) qDebug() << __FUNCTION__ <<" Availability DOES NOT MATTERS! ";
             insertedAtRow = doInsertItem( QString::number(info.code) /*codeX*/, iname, qty, info.price, descuento, info.unitStr);
           }
@@ -1464,7 +1475,7 @@ if ( doNotAddMoreItems ) { //only for reservations
         }
       } else { //It is not a grouped product
         double onList = getTotalQtyOnList(info); // item itself and contained in any gruped product.
-        if (info.stockqty >=  qty+onList || availabilityDoesNotMatters) {
+        if (info.stockqty >=  qty+onList || availabilityDoesNotMatters || allowNegativeStock) {
           if (availabilityDoesNotMatters) qDebug() << __FUNCTION__ <<" Availability DOES NOT MATTERS! ";
           insertedAtRow = doInsertItem( QString::number(info.code) /*codeX*/, iname, qty, info.price, descuento, info.unitStr);
         }
@@ -1472,10 +1483,13 @@ if ( doNotAddMoreItems ) { //only for reservations
           msg = i18n("<html><font color=red><b>There are only %1 articles of your choice at stock.<br> You requested %2</b></font></html>", info.stockqty,qty+onList);
       }
     } else qDebug()<<"\n\n***Este ELSE no importa!!! ya se tomaron acciones al respecto***\nTHIS SHOULD NOT BE PRINTED!!!\n\n";
-      
+
+    if (allowNegativeStock)
+        msg = i18n("<html><font color=red>The product you requested %1 articles <b>has a negative or zero stock level.</b></font></html>", qty);
+    
     if (!msg.isEmpty()) {
         if (ui_mainview.mainPanel->currentIndex() == pageMain) {
-          tipCode->showTip(msg, 6000);
+          tipCode->showTip(msg, 7000);
         }
         if (ui_mainview.mainPanel->currentIndex() == pageSearch) {
           ui_mainview.labelSearchMsg->setText(msg);
