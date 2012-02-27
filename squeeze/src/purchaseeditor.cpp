@@ -520,13 +520,10 @@ void PurchaseEditor::insertProduct(ProductInfo info)
             suggested = -info.stockqty;
         qDebug()<<"Purchase Qty:"<<info.purchaseQty<<" product stock:"<<info.stockqty<<" final Stock:"<<finalStock;
         if (finalStock < 0) {
-            //this cannot be saved, negative stock is not allowed in database.
-            qDebug()<<"Cannot be negative stock!, suggested purchase:"<<suggested;
+            qDebug()<<"Negative stock!, suggested purchase:"<<suggested;
             //launch a message
-            errorPanel->showTip(i18n("<b>Stock cannot go negative.</b> The <i>minimum</i> purchase can be <b>%1</b>", suggested), 10000);
-            setPurchaseQty(suggested);
-            ui->editQty->setFocus();
-            return;
+            errorPanel->showTip(i18n("<b>Stock is negative.</b> The <i>minimum</i> suggested purchase is <b>%1</b>", suggested), 10000);
+            //setPurchaseQty(suggested);
         }
         info.purchaseQty += getPurchaseQty();
         itemCount += getPurchaseQty();
@@ -541,13 +538,10 @@ void PurchaseEditor::insertProduct(ProductInfo info)
             suggested = -info.stockqty;
         qDebug()<<"Purchase Qty:"<<info.purchaseQty<<" product stock:"<<info.stockqty<<" final Stock:"<<finalStock;
         if (finalStock < 0) {
-            //this cannot be saved, negative stock is not allowed in database.
-            qDebug()<<"Cannot be negative stock!, suggested purchase:"<<suggested;
+            qDebug()<<"Negative stock!, suggested purchase:"<<suggested;
             //launch a message
-            errorPanel->showTip(i18n("<b>Stock cannot go negative.</b> The <i>minimum</i> purchase can be <b>%1</b>", suggested), 10000);
-            setPurchaseQty(suggested);
-            ui->editQty->setFocus();
-            return;
+            errorPanel->showTip(i18n("<b>Stock is negative.</b> The <i>minimum</i> suggested purchase is <b>%1</b>", suggested), 10000);
+            //setPurchaseQty(suggested);
         }
         itemCount += info.purchaseQty;
         totalBuy = totalBuy + info.cost*info.purchaseQty;
