@@ -8,6 +8,7 @@
   <Action name="usersBrowse" />
   <Action name="measuresBrowse" />
   <Action name="categoriesBrowse" />
+  <Action name="subcategoriesBrowse" />
   <Action name="clientsBrowse" />
   <Action name="randomMsgsBrowse" />
   <Action name="viewLog" />
@@ -42,6 +43,7 @@
       <Action name="usersBrowse" />
       <Action name="measuresBrowse" />
       <Action name="categoriesBrowse" />
+      <Action name="subcategoriesBrowse" />
       <Action name="clientsBrowse" />
       <Action name="randomMsgsBrowse" />
       <Action name="reservationsBrowse" />

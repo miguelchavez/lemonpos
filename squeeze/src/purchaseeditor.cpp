@@ -340,7 +340,7 @@ void PurchaseEditor::timerCheck()
         checkIfCodeExists();
     } else {
         lastCode = ui->editCode->text();
-        QTimer::singleShot(1000, this, SLOT(justCheck()));
+        QTimer::singleShot(2000, this, SLOT(justCheck()));
     }
 }
 

@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   `extrataxes` double unsigned NOT NULL default '0',
   `photo` blob default NULL,
   `category` int(10) unsigned NOT NULL default 0,
+  `subcategory` int(10) unsigned default NULL,
   `points` INT(10) UNSIGNED NOT NULL DEFAULT 0,
   `alphacode` VARCHAR( 30 ) NULL,
   `vendorcode` VARCHAR( 30 ) NULL,
@@ -63,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   `hasUnlimitedStock` bool NOT NULL default false,
   `isNotDiscountable` bool NOT NULL default false,
   PRIMARY KEY  (`code`),
-  KEY `SEC` (`category`, `name`, `alphacode`)
+  KEY `SEC` (`category`, `subcategory`, `name`, `alphacode`, `vendorcode`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
@@ -173,6 +174,14 @@ CREATE TABLE IF NOT EXISTS `categories` (
   `catid` int(10) unsigned NOT NULL auto_increment,
   `text` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
   PRIMARY KEY  (`catid`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `subcategories` (
+`id` int(10) unsigned NOT NULL auto_increment,
+`parent` int(10) unsigned,
+`text` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
+PRIMARY KEY  (`id`),
+KEY `SEC` (`parent`,`text` )
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `users` (

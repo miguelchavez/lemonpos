@@ -69,6 +69,7 @@ public:
     QSqlTableModel *usersModel;
     QSqlTableModel *measuresModel;
     QSqlTableModel *categoriesModel;
+    QSqlTableModel *subcategoriesModel;
     QSqlTableModel *balancesModel;
     QSqlTableModel *clientsModel;
     QSqlTableModel *randomMsgModel;
@@ -134,6 +135,7 @@ signals:
    void showUsersPage();
    void showMeasuresPage();
    void showCategoriesPage();
+   void showSubCategoriesPage();
    void showClientsPage();
    void showTransactionsPage();
    void showReports();
@@ -181,6 +183,7 @@ signals:
    void createProduct();
    void createMeasure();
    void createCategory();
+   void createSubCategory();
    void createClient();
    void createRandomMsg();
    void createCurrency();
@@ -190,6 +193,7 @@ signals:
    void deleteSelectedProduct();
    void deleteSelectedMeasure();
    void deleteSelectedCategory();
+   void deleteSelectedSubCategory();
    void deleteSelectedClient();
    void populateCategoriesHash();
    void setProductsFilter();
@@ -205,6 +209,7 @@ signals:
    void setupProductsModel();
    void setupMeasuresModel();
    void setupCategoriesModel();
+   void setupSubCategoriesModel();
    void setupClientsModel();
    void setupTransactionsModel();
    void setupCurrenciesModel();

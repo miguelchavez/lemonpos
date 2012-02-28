@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>666</width>
+    <width>751</width>
     <height>650</height>
    </rect>
   </property>
@@ -1300,6 +1300,16 @@ color: blue;</string>
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="5" column="3">
+    <widget class="QComboBox" name="subcategoriesCombo"/>
+   </item>
+   <item row="5" column="2">
+    <widget class="QLabel" name="label_17">
+     <property name="text">
+      <string>Subcategory</string>
+     </property>
     </widget>
    </item>
   </layout>

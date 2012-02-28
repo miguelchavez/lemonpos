@@ -101,6 +101,13 @@ class Azahar : public QObject
     bool        insertCategory(QString text);
     bool        deleteCategory(qulonglong id);
 
+    //SUBCATEGORIES
+    QStringList getSubCategoriesList();
+    qulonglong  getSubCategoryId(QString texto);
+    QString     getSubCategoryStr(qulonglong id);
+    bool        insertSubCategory(QString text);
+    bool        deleteSubCategory(qulonglong id);
+
     //MEASURES
     QStringList getMeasuresList();
     qulonglong  getMeasureId(QString texto);

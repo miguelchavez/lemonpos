@@ -194,7 +194,16 @@ void ProductEditor::populateCategoriesCombo()
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   ui->categoriesCombo->addItems(myDb->getCategoriesList());
+  populateSubCategoriesCombo(); //call populateSubcategoriesCombo also!
   delete myDb;
+}
+
+void ProductEditor::populateSubCategoriesCombo()
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    ui->subcategoriesCombo->addItems(myDb->getSubCategoriesList());
+    delete myDb;
 }
 
 void ProductEditor::populateMeasuresCombo()
@@ -205,6 +214,10 @@ void ProductEditor::populateMeasuresCombo()
   delete myDb;
 }
 
+
+///WARNING: I dont remember exactly why i use the Id of the category for getting the text, because the location in the combobox is not the same as the category
+///         id at the database (it may be, but is not allways true).
+///         The same for subcategories.
 int ProductEditor::getCategoryId()
 {
   int code=-1;
@@ -214,6 +227,17 @@ int ProductEditor::getCategoryId()
   code = myDb->getCategoryId(currentText);
   delete myDb;
   return code;
+}
+
+int ProductEditor::getSubCategoryId()
+{
+    int code=-1;
+    QString currentText = ui->subcategoriesCombo->currentText();
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    code = myDb->getSubCategoryId(currentText);
+    delete myDb;
+    return code;
 }
 
 
@@ -238,11 +262,27 @@ void ProductEditor::setCategory(QString str)
   }
 }
 
+void ProductEditor::setSubCategory(QString str)
+{
+    int idx = ui->subcategoriesCombo->findText(str,Qt::MatchCaseSensitive);
+    if (idx > -1) ui->subcategoriesCombo->setCurrentIndex(idx);
+    else {
+        qDebug()<<"SubCategory not found:"<<str;
+    }
+}
+
 void ProductEditor::setCategory(int i)
 {
  QString text = getCategoryStr(i);
  setCategory(text);
  qDebug()<<"SET CATEGORY INT :: Category Id:"<<i<<" Name:"<<text;
+}
+
+void ProductEditor::setSubCategory(int i)
+{
+    QString text = getSubCategoryStr(i);
+    setSubCategory(text);
+    qDebug()<<"SET SUBCATEGORY INT :: Category Id:"<<i<<" Name:"<<text;
 }
 
 void ProductEditor::setMeasure(int i)
@@ -267,6 +307,16 @@ QString ProductEditor::getCategoryStr(int c)
   QString str = myDb->getCategoryStr(c);
   delete myDb;
   return str;
+}
+
+QString ProductEditor::getSubCategoryStr(int c)
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    QString str = myDb->getSubCategoryStr(c);
+    qDebug()<<"Getting subcategory #"<<c<<" -- "<<str;
+    delete myDb;
+    return str;
 }
 
 QString ProductEditor::getMeasureStr(int c)
@@ -429,6 +479,7 @@ void ProductEditor::checkIfCodeExists()
       ui->editDesc->setText(pInfo.desc);
       ui->editStockQty->setText(QString::number(pInfo.stockqty));
       setCategory(pInfo.category);
+      setSubCategory(pInfo.subcategory);
       setMeasure(pInfo.units);
       ui->editCost->setText(QString::number(pInfo.cost));
       ui->editTax->setText(QString::number(pInfo.tax));
@@ -466,6 +517,7 @@ void ProductEditor::checkIfCodeExists()
       ui->editDesc->clear();
       ui->editStockQty->clear();
       setCategory(1);
+      setSubCategory(-1); //default subcategory?
       setMeasure(1);
       ui->editCost->clear();
       ui->editTax->clear();

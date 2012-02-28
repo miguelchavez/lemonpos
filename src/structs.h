@@ -44,6 +44,7 @@ struct ProductInfo {
   int units;
   QString unitStr;
   int category;
+  int subcategory;
   double utility;
   int row; // New: Sept 30, 2007: To store the row where the product is located in the listView.
   qulonglong points; //New: Dec 15 2007: To store the points the product gives.

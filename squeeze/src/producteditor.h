@@ -55,8 +55,10 @@ class ProductEditor : public KDialog
     QString getDescription() { return ui->editDesc->text(); };
     double  getStockQty()    { return ui->editStockQty->text().toDouble(); };
     int     getCategoryId();
+    int     getSubCategoryId();
     int     getMeasureId();
     QString getCategoryStr(int c);
+    QString getSubCategoryStr(int c);
     QString getMeasureStr(int c);
     double  getCost()        { return ui->editCost->text().toDouble(); };
     double  getTax1()        { return ui->editTax->text().toDouble(); };
@@ -74,6 +76,7 @@ class ProductEditor : public KDialog
     
 
     void    populateCategoriesCombo();
+    void    populateSubCategoriesCombo();
     void    populateMeasuresCombo();
     void    calculateGroupValues();
 
@@ -85,6 +88,8 @@ class ProductEditor : public KDialog
     void    setStockQty(double q)      {ui->editStockQty->setText(QString::number(q)); };
     void    setCategory(QString str);
     void    setCategory(int i);
+    void    setSubCategory(int i);
+    void    setSubCategory(QString str);
     void    setMeasure(QString str);
     void    setMeasure(int i);
     void    setCost(double c)          {ui->editCost->setText(QString::number(c)); };
