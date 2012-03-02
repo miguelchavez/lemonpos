@@ -3794,12 +3794,23 @@ void lemonView::setupModel()
       //qDebug()<<"iterando por el hash en el item:"<<item.key()<<"/"<<item.value();
     }
 
+    //Subcategories popuplist
+    populateSubCategoriesHash();
+    QHashIterator<QString, int> itemS(subcategoriesHash);
+    while (itemS.hasNext()) {
+      itemS.next();
+      ui_mainview.comboFilterBySubCategory->addItem(itemS.key());
+    }
+
     ui_mainview.comboFilterByCategory->setCurrentIndex(0);
+    ui_mainview.comboFilterBySubCategory->setCurrentIndex(0);
     connect(ui_mainview.comboFilterByCategory,SIGNAL(currentIndexChanged(int)), this, SLOT( setFilter()) );
+    connect(ui_mainview.comboFilterBySubCategory,SIGNAL(currentIndexChanged(int)), this, SLOT( setFilter()) );
 //     connect(ui_mainview.editFilterByDesc,SIGNAL(textEdited(const QString &)), this, SLOT( setFilter()) ); //THIS MAKES SLOW SEARCH WITH LARGE DB.
     connect(ui_mainview.editFilterByDesc,SIGNAL(returnPressed()), this, SLOT( setFilter()) );
     connect(ui_mainview.rbFilterByDesc, SIGNAL(toggled(bool)), this, SLOT( setFilter()) );
     connect(ui_mainview.rbFilterByCategory, SIGNAL(toggled(bool)), this, SLOT( setFilter()) );
+    connect(ui_mainview.rbFilterBySubCategory, SIGNAL(toggled(bool)), this, SLOT( setFilter()) );
 
     ui_mainview.rbFilterByCategory->setChecked(true);
     setFilter();
@@ -3812,6 +3823,14 @@ void lemonView::populateCategoriesHash()
   myDb->setDatabase(db);
   categoriesHash = myDb->getCategoriesHash();
   delete myDb;
+}
+
+void lemonView::populateSubCategoriesHash()
+{
+    Azahar * myDb = new Azahar;
+    myDb->setDatabase(db);
+    subcategoriesHash = myDb->getSubCategoriesHash();
+    delete myDb;
 }
 
 void lemonView::listViewOnMouseMove(const QModelIndex & index)
@@ -3914,11 +3933,21 @@ void lemonView::setFilter()
     if (ui_mainview.rbFilterByCategory->isChecked()) { //by category
       //Find catId for the text on the combobox.
       int catId=-1;
+      int subCatId = -1;
       QString catText = ui_mainview.comboFilterByCategory->currentText();
       if (categoriesHash.contains(catText)) {
         catId = categoriesHash.value(catText);
       }
-      productsModel->setFilter(QString("products.isARawProduct=false and products.category=%1").arg(catId));
+      //Now check subcategory
+      if (ui_mainview.rbFilterBySubCategory->isChecked()){
+        QString subCatText = ui_mainview.comboFilterBySubCategory->currentText();
+        if (subcategoriesHash.contains(subCatText))
+            subCatId = subcategoriesHash.value(subCatText);
+      }//filter by subcategory, only if filterByCategory is checked.
+      if (subCatId > 0)
+        productsModel->setFilter(QString("products.isARawProduct=false and products.category=%1 and products.subcategory=%2").arg(catId).arg(subCatId));
+      else
+        productsModel->setFilter(QString("products.isARawProduct=false and products.category=%1").arg(catId));
     } else { //by most sold products in current month --biel
       productsModel->setFilter("products.isARawProduct=false and (products.datelastsold > ADDDATE(sysdate( ), INTERVAL -31 DAY )) ORDER BY products.datelastsold DESC"); //limit or not the result to 5?
       

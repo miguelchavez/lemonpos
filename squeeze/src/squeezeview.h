@@ -62,6 +62,7 @@ public:
     bool adminIsLogged;
     LoginWindow *dlgPassword;
     QHash<QString, int> categoriesHash;
+    QHash<QString, int> subcategoriesHash;
     QSqlRelationalTableModel *productsModel;
     QSqlRelationalTableModel *offersModel;
     QSqlRelationalTableModel *cashflowModel;
@@ -155,6 +156,7 @@ signals:
    void enableUI();
    void doEmitSignalSalir();
    void updateCategoriesCombo();
+   void updateSubCategoriesCombo();
    void showProdListAsGrid();
    void showProdListAsTable();
    void adjustProductsTable();
@@ -196,6 +198,7 @@ signals:
    void deleteSelectedSubCategory();
    void deleteSelectedClient();
    void populateCategoriesHash();
+   void populateSubCategoriesHash();
    void setProductsFilter();
    void setTransactionsFilter();
    void setBalancesFilter();

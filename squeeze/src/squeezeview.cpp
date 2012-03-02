@@ -355,6 +355,8 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.rbProductsFilterByRaw, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
   connect(ui_mainview.rbProductsFilterByGroup, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
   connect(ui_mainview.groupFilterProducts, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
+  connect(ui_mainview.comboProductsFilterBySubCategory,SIGNAL(currentIndexChanged(int)), this, SLOT( setProductsFilter()) );
+  connect(ui_mainview.rbProductsFilterBySubCategory, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
   
   // BFB: New, export qtableview
   connect(ui_mainview.btnExport, SIGNAL(clicked()),  SLOT( exportTable()));
@@ -1083,6 +1085,16 @@ void squeezeView::setupProductsModel()
       }
       ui_mainview.comboProductsFilterByCategory->setCurrentIndex(0);
 
+      //populate SubCategories...
+      populateSubCategoriesHash();
+      ui_mainview.comboProductsFilterBySubCategory->clear();
+      QHashIterator<QString, int> itemS(subcategoriesHash);
+      while (itemS.hasNext()) {
+          itemS.next();
+          ui_mainview.comboProductsFilterBySubCategory->addItem(itemS.key());
+      }
+      ui_mainview.comboProductsFilterBySubCategory->setCurrentIndex(0);
+
       ui_mainview.rbProductsFilterByAvailable->setChecked(true);
       ui_mainview.productsViewAlt->setCurrentIndex(productsModel->index(0, 0));
       setProductsFilter();
@@ -1097,6 +1109,15 @@ void squeezeView::populateCategoriesHash()
   categoriesHash.clear();
   categoriesHash = myDb->getCategoriesHash();
   delete myDb;
+}
+
+void squeezeView::populateSubCategoriesHash()
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    subcategoriesHash.clear();
+    subcategoriesHash = myDb->getSubCategoriesHash();
+    delete myDb;
 }
 
 void squeezeView::setProductsFilter()
@@ -1118,11 +1139,21 @@ else {
   //2nd if: Filter by CATEGORY
     //Find catId for the text on the combobox.
     int catId=-1;
+    int subCatId=-1;
     QString catText = ui_mainview.comboProductsFilterByCategory->currentText();
     if (categoriesHash.contains(catText)) {
       catId = categoriesHash.value(catText);
     }
-    productsModel->setFilter(QString("products.category=%1").arg(catId));
+    //check subcategory
+    if (ui_mainview.rbProductsFilterBySubCategory->isChecked()) {
+        QString subCatText = ui_mainview.comboProductsFilterBySubCategory->currentText();
+        if (subcategoriesHash.contains(subCatText)) 
+            subCatId = subcategoriesHash.value(subCatText);
+    }
+    if (subCatId > 0)
+        productsModel->setFilter(QString("products.category=%1 and products.subcategory=%2").arg(catId).arg(subCatId));
+    else
+        productsModel->setFilter(QString("products.category=%1").arg(catId));
     productsModel->setSort(productStockIndex, Qt::DescendingOrder);
   }
   else if (ui_mainview.rbProductsFilterByAvailable->isChecked()) {
@@ -2529,6 +2560,17 @@ void squeezeView::updateCategoriesCombo()
     item.next();
     ui_mainview.comboProductsFilterByCategory->addItem(item.key());
   }
+}
+
+void squeezeView::updateSubCategoriesCombo()
+{
+    populateSubCategoriesHash();
+    ui_mainview.comboProductsFilterBySubCategory->clear();
+    QHashIterator<QString, int> item(subcategoriesHash);
+    while (item.hasNext()) {
+        item.next();
+        ui_mainview.comboProductsFilterBySubCategory->addItem(item.key());
+    }
 }
 
 void squeezeView::createSubCategory()

@@ -97,6 +97,7 @@ public:
     QHash<qulonglong, ProductInfo> productsHash;
     QSqlTableModel *productsModel;
     QHash<QString, int> categoriesHash;
+    QHash<QString, int> subcategoriesHash;
     ClientInfo clientInfo;
     QHash<QString, ClientInfo> clientsHash;
     qulonglong buyPoints;
@@ -321,6 +322,7 @@ public:
     void showPriceChecker();
     void hideProductsGrid();
     void populateCategoriesHash();
+    void populateSubCategoriesHash();
     void setFilter();
     void showChangeDate();
 
