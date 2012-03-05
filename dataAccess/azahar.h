@@ -104,9 +104,10 @@ class Azahar : public QObject
     //SUBCATEGORIES
     QHash<QString, int> getSubCategoriesHash();
     QStringList getSubCategoriesList();
+    QStringList getSubCategoriesList(const qulonglong parent);
     qulonglong  getSubCategoryId(QString texto);
     QString     getSubCategoryStr(qulonglong id);
-    bool        insertSubCategory(QString text);
+    bool        insertSubCategory(QString text, qulonglong parent=0);
     bool        deleteSubCategory(qulonglong id);
 
     //MEASURES

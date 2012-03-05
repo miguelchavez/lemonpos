@@ -1282,13 +1282,43 @@ QStringList Azahar::getSubCategoriesList()
     return result;
 }
 
-bool Azahar::insertSubCategory(QString text)
+//This method gets the subcategories list for a parent category. If parent=0, returns all subcategories.
+//NOTE & WARNING: when parent=0 also this could mean only return root categories. But we are not doing this here.
+QStringList Azahar::getSubCategoriesList(qulonglong parent)
+{
+    QStringList result;
+    result.clear();
+    result.append(" --- ");
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        QString queryTxt;
+        if (parent == 0)
+            queryTxt = QString("SELECT text FROM subcategories;"); //get all subcategories...
+        else
+            queryTxt = QString("SELECT text FROM subcategories WHERE parent=%1;").arg(parent);
+        if (myQuery.exec(queryTxt)) {
+            while (myQuery.next()) {
+                int fieldText = myQuery.record().indexOf("text");
+                QString text = myQuery.value(fieldText).toString();
+                result.append(text);
+            }
+        }
+        else {
+            qDebug()<<"ERROR: "<<myQuery.lastError();
+        }
+    }
+    return result;
+}
+
+bool Azahar::insertSubCategory(QString text, qulonglong parent)
 {
     bool result=false;
     if (!db.isOpen()) db.open();
     QSqlQuery query(db);
-    query.prepare("INSERT INTO subcategories (text) VALUES (:text);");
+    query.prepare("INSERT INTO subcategories (text, parent) VALUES (:text, :parent);");
     query.bindValue(":text", text);
+    query.bindValue(":parent", parent);
     if (!query.exec()) {
         setError(query.lastError().text());
     }

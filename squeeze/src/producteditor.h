@@ -56,6 +56,7 @@ class ProductEditor : public KDialog
     double  getStockQty()    { return ui->editStockQty->text().toDouble(); };
     int     getCategoryId();
     int     getSubCategoryId();
+    int     getSubCategoryParent();
     int     getMeasureId();
     QString getCategoryStr(int c);
     QString getSubCategoryStr(int c);
@@ -90,6 +91,7 @@ class ProductEditor : public KDialog
     void    setCategory(int i);
     void    setSubCategory(int i);
     void    setSubCategory(QString str);
+    void    setSubCategoryParent(int parentId);
     void    setMeasure(QString str);
     void    setMeasure(int i);
     void    setCost(double c)          {ui->editCost->setText(QString::number(c)); };
@@ -134,6 +136,7 @@ private slots:
     void    setUnlimitedStock(bool value);
     void    verifyVendorcodeDuplicates();
     void    verifyAlphacodeDuplicates();
+    void    modifyCategory();
 protected slots:
     virtual void slotButtonClicked(int button);
   private:

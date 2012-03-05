@@ -30,6 +30,7 @@
 #include "promoeditor.h"
 #include "producteditor.h"
 #include "purchaseeditor.h"
+#include "subcategoryeditor.h"
 #include "../../src/hash.h"
 #include "../../src/misc.h"
 #include "../../src/structs.h"
@@ -852,7 +853,7 @@ void squeezeView::setupDb()
     usersModel      = new QSqlTableModel();
     measuresModel   = new QSqlTableModel();
     categoriesModel = new QSqlTableModel();
-    subcategoriesModel = new QSqlTableModel();
+    subcategoriesModel = new QSqlRelationalTableModel();
     clientsModel    = new QSqlTableModel();
     transactionsModel = new QSqlRelationalTableModel();
     balancesModel   = new QSqlTableModel();
@@ -920,7 +921,7 @@ void squeezeView::connectToDb()
       usersModel      = new QSqlTableModel();
       measuresModel   = new QSqlTableModel();
       categoriesModel = new QSqlTableModel();
-      subcategoriesModel = new QSqlTableModel();
+      subcategoriesModel = new QSqlRelationalTableModel();
       clientsModel    = new QSqlTableModel();
       transactionsModel = new QSqlRelationalTableModel();
       balancesModel   = new QSqlTableModel();
@@ -1298,12 +1299,16 @@ void squeezeView::setupSubCategoriesModel()
         ui_mainview.tableSubCategories->setModel(subcategoriesModel);
         ui_mainview.tableSubCategories->setSelectionMode(QAbstractItemView::SingleSelection);
         ui_mainview.tableSubCategories->setColumnHidden(subcategoriesModel->fieldIndex("id"), true);
-        ui_mainview.tableSubCategories->setColumnHidden(subcategoriesModel->fieldIndex("parent"), true);
+        //ui_mainview.tableSubCategories->setColumnHidden(subcategoriesModel->fieldIndex("parent"), true);
         ui_mainview.tableSubCategories->setItemDelegate(new QItemDelegate(ui_mainview.tableSubCategories));
+        
+        subcategoriesModel->setRelation(subcategoriesModel->fieldIndex("parent"), QSqlRelation("categories", "catid", "text"));
+        subcategoriesModel->setHeaderData(subcategoriesModel->fieldIndex("parent"), Qt::Horizontal, i18n("Parent Category"));
+        //NOTE: The problem with relations is that parent must point to an existent category, 0/NULL makes to show NOTHING in the table.
+        ui_mainview.tableSubCategories->setItemDelegate(new QSqlRelationalDelegate(ui_mainview.tableSubCategories));
         
         subcategoriesModel->select();
         ui_mainview.tableSubCategories->setCurrentIndex(subcategoriesModel->index(0, 0));
-        // BFB: Adjust column width to content
         ui_mainview.tableSubCategories->resizeColumnsToContents();
         
     }
@@ -2575,19 +2580,29 @@ void squeezeView::updateSubCategoriesCombo()
 
 void squeezeView::createSubCategory()
 {
-    if (db.isOpen()) {
-        bool ok=false;
-        QString cat = QInputDialog::getText(this, i18n("New subcategory"), i18n("Enter the new subcategory to insert:"),
-        QLineEdit::Normal, "", &ok );
-        if (ok && !cat.isEmpty()) {
-            Azahar *myDb = new Azahar;
-            if (!db.isOpen()) openDB();
-            myDb->setDatabase(db);
-            if (!myDb->insertSubCategory(cat)) qDebug()<<"Error:"<<myDb->lastError();
-            delete myDb;
-            subcategoriesModel->select();
-        }
+    //Launch Edit dialog
+    SubcategoryEditor *scEditor = new SubcategoryEditor(this);
+    //get categories list and populate the dialog with them.
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    QStringList catList;
+    catList.append(i18n(" Select one "));
+    catList << myDb->getCategoriesList();
+    scEditor->populateCategories( catList );
+
+    if ( scEditor->exec() ) {
+        QString subCatText = scEditor->getSubcategoryName();
+        QString parentCatName  = scEditor->getParentCategoryName();
+        qulonglong parentCatId = -1;
+        parentCatId = myDb->getCategoryId( parentCatName );
+        //create the new subcategory.
+        bool ok = myDb->insertSubCategory(subCatText, parentCatId);
+        if (!ok) qDebug()<<"* ERROR CREATING SUBCATEGORY:"<<myDb->lastError();
     }
+
+    subcategoriesModel->select();
+    
+    delete myDb;
 }
 
 void squeezeView::createClient()

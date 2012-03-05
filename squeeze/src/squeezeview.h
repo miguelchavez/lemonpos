@@ -70,7 +70,7 @@ public:
     QSqlTableModel *usersModel;
     QSqlTableModel *measuresModel;
     QSqlTableModel *categoriesModel;
-    QSqlTableModel *subcategoriesModel;
+    QSqlRelationalTableModel *subcategoriesModel;
     QSqlTableModel *balancesModel;
     QSqlTableModel *clientsModel;
     QSqlTableModel *randomMsgModel;
