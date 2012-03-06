@@ -418,6 +418,16 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item>
+          <widget class="QToolButton" name="btnCreateCategory">
+           <property name="toolTip">
+            <string>Create new category</string>
+           </property>
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="label_2">
            <property name="text">
             <string>Subcategory:</string>
@@ -429,6 +439,16 @@ p, li { white-space: pre-wrap; }
          </item>
          <item>
           <widget class="QComboBox" name="subcategoriesCombo"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="btnCreateSubcategory">
+           <property name="toolTip">
+            <string>Create new subcategory</string>
+           </property>
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>

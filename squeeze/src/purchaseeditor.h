@@ -113,6 +113,8 @@ private slots:
     void    deleteSelectedItem();
     void    insertProduct(ProductInfo info);
     void    modifyCategory();
+    void    createNewSubcategory();
+    void    createNewCategory();
 protected slots:
     virtual void slotButtonClicked(int button);
   private:
