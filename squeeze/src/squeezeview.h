@@ -70,6 +70,7 @@ public:
     QSqlTableModel *usersModel;
     QSqlTableModel *measuresModel;
     QSqlTableModel *categoriesModel;
+    QSqlTableModel *departmentsModel;
     QSqlRelationalTableModel *subcategoriesModel;
     QSqlTableModel *balancesModel;
     QSqlTableModel *clientsModel;
@@ -136,6 +137,7 @@ signals:
    void showUsersPage();
    void showMeasuresPage();
    void showCategoriesPage();
+   void showDepartmentsPage();
    void showSubCategoriesPage();
    void showClientsPage();
    void showTransactionsPage();
@@ -185,6 +187,7 @@ signals:
    void createProduct();
    void createMeasure();
    void createCategory();
+   void createDepartment();
    void createSubCategory();
    void createClient();
    void createRandomMsg();
@@ -212,6 +215,7 @@ signals:
    void setupProductsModel();
    void setupMeasuresModel();
    void setupCategoriesModel();
+   void setupDepartmentsModel();
    void setupSubCategoriesModel();
    void setupClientsModel();
    void setupTransactionsModel();

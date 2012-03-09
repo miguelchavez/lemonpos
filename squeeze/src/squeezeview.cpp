@@ -80,7 +80,7 @@
 //TODO: Change all qDebug to errorDialogs or remove them.
 //NOTE: Common configuration fields need to be shared between lemon and squeeze (low stock alarm value).
 
-enum {pWelcome=0, pBrowseProduct=1, pBrowseOffers=2, pBrowseUsers=3, pBrowseMeasures=4, pBrowseCategories=5, pBrowseClients=6, pBrowseRandomMessages=7, pBrowseLogs=8, pBrowseSO=9, pReports=10, pBrowseCurrencies=11, pBrowseReservations=12, pBrowseSubCategories=14};
+enum {pWelcome=0, pBrowseProduct=1, pBrowseOffers=2, pBrowseUsers=3, pBrowseMeasures=4, pBrowseCategories=5, pBrowseClients=6, pBrowseRandomMessages=7, pBrowseLogs=8, pBrowseSO=9, pReports=10, pBrowseCurrencies=11, pBrowseReservations=12, pBrowseSubCategories=14, pBrowseDepartments=15};
 
 
 squeezeView::squeezeView(QWidget *parent)
@@ -281,6 +281,7 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.btnDeleteOffer, SIGNAL(clicked()), SLOT(deleteSelectedOffer()));
   connect(ui_mainview.btnAddProduct, SIGNAL(clicked()), SLOT(createProduct()) );
   connect(ui_mainview.btnAddMeasure, SIGNAL(clicked()), SLOT(createMeasure()) );
+  connect(ui_mainview.btnAddDepartment, SIGNAL(clicked()), SLOT(createDepartment()) );
   connect(ui_mainview.btnAddCategory, SIGNAL(clicked()), SLOT(createCategory()) );
   connect(ui_mainview.btnAddSubCategory, SIGNAL(clicked()), SLOT(createSubCategory()) );
   connect(ui_mainview.btnAddClient, SIGNAL(clicked()), SLOT(createClient()));
@@ -468,6 +469,15 @@ void squeezeView::showMeasuresPage()
   ui_mainview.headerLabel->setText(i18n("Weight and Measures"));
   ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-ruler",48)));
   ui_mainview.btnPrintBalance->hide();
+}
+
+void squeezeView::showDepartmentsPage()
+{
+    ui_mainview.stackedWidget->setCurrentIndex(pBrowseDepartments);
+    if (departmentsModel->tableName().isEmpty()) setupDepartmentsModel();
+    ui_mainview.headerLabel->setText(i18n("Departments"));
+    ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-categories",48)));
+    ui_mainview.btnPrintBalance->hide();
 }
 
 void squeezeView::showCategoriesPage()
@@ -852,6 +862,7 @@ void squeezeView::setupDb()
     offersModel     = new QSqlRelationalTableModel();
     usersModel      = new QSqlTableModel();
     measuresModel   = new QSqlTableModel();
+    departmentsModel = new QSqlTableModel();
     categoriesModel = new QSqlTableModel();
     subcategoriesModel = new QSqlRelationalTableModel();
     clientsModel    = new QSqlTableModel();
@@ -870,6 +881,7 @@ void squeezeView::setupDb()
     setupUsersModel();
     setupTransactionsModel();
     setupCategoriesModel();
+    setupDepartmentsModel();
     setupSubCategoriesModel();
     setupOffersModel();
     setupBalancesModel();
@@ -921,6 +933,7 @@ void squeezeView::connectToDb()
       usersModel      = new QSqlTableModel();
       measuresModel   = new QSqlTableModel();
       categoriesModel = new QSqlTableModel();
+      departmentsModel = new QSqlTableModel();
       subcategoriesModel = new QSqlRelationalTableModel();
       clientsModel    = new QSqlTableModel();
       transactionsModel = new QSqlRelationalTableModel();
@@ -942,6 +955,7 @@ void squeezeView::connectToDb()
     setupUsersModel();
     setupTransactionsModel();
     setupCategoriesModel();
+    setupDepartmentsModel();
     setupSubCategoriesModel();
     setupOffersModel();
     setupBalancesModel();
@@ -1287,6 +1301,33 @@ void squeezeView::setupCategoriesModel()
     KMessageBox::detailedError(this, i18n("Squeeze has encountered an error, click details to see the error details."), details, i18n("Error"));
     QTimer::singleShot(10000, this, SLOT(setupCategoriesModel()));
   }
+}
+
+void squeezeView::setupDepartmentsModel()
+{
+    if (db.isOpen()) {
+        departmentsModel->setTable("departments");
+        departmentsModel->setEditStrategy(QSqlTableModel::OnFieldChange);
+        departmentsModel->setHeaderData(departmentsModel->fieldIndex("text"), Qt::Horizontal, i18n("Description"));
+        
+        ui_mainview.tableDepartments->setModel(departmentsModel);
+        ui_mainview.tableDepartments->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui_mainview.tableDepartments->setColumnHidden(departmentsModel->fieldIndex("id"), true);
+        ui_mainview.tableDepartments->setItemDelegate(new QItemDelegate(ui_mainview.tableDepartments));
+        
+        departmentsModel->select();
+        ui_mainview.tableDepartments->setCurrentIndex(departmentsModel->index(0, 0));
+        // BFB: Adjust column width to content
+        ui_mainview.tableDepartments->resizeColumnsToContents();
+        
+    }
+    else {
+        //At this point, what to do?
+        // inform to the user about the error and finish app  or retry again some time later?
+        QString details = db.lastError().text();
+        KMessageBox::detailedError(this, i18n("Squeeze has encountered an error, click details to see the error details."), details, i18n("Error"));
+        QTimer::singleShot(10000, this, SLOT(setupCategoriesModel()));
+    }
 }
 
 void squeezeView::setupSubCategoriesModel()
@@ -2538,22 +2579,62 @@ void squeezeView::createMeasure()
  }
 }
 
+void squeezeView::createDepartment()
+{
+    //Launch Edit dialog
+    SubcategoryEditor *scEditor = new SubcategoryEditor(this);
+    //get categories list and populate the dialog with them.
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    QStringList catList;
+    catList << myDb->getCategoriesList();
+    scEditor->populateList( catList );
+    scEditor->setLabelForName(i18n("New Department:"));
+    scEditor->setLabelForList(i18n("Select the child categories for this department:"));
+    
+    if ( scEditor->exec() ) {
+        QString depText = scEditor->getName();
+        QStringList children = scEditor->getChildren();
+        qDebug()<<" CHILDREN:"<<children;
+        //Create the department
+        if (!myDb->insertDepartment(depText)) {
+            qDebug()<<"Error:"<<myDb->lastError();
+            delete myDb;
+            return;
+        }
+        qulonglong depId = myDb->getDepartmentId(depText);
+        //create the m2m  relations for the new department/categories.
+
+        foreach(QString cat, children) {
+            //get category id
+            qulonglong cId = myDb->getCategoryId(cat);
+            //create the link [department] --> [category]
+            myDb->insertM2MDepartmentCategory(depId, cId);
+        }
+    }
+    
+    departmentsModel->select();
+    //updateDepartmentsComob();
+    
+    delete myDb;
+}
+
 void squeezeView::createCategory()
 {
-  if (db.isOpen()) {
-  bool ok=false;
-  QString cat = QInputDialog::getText(this, i18n("New category"), i18n("Enter the new category to insert:"),
-                                     QLineEdit::Normal, "", &ok );
-  if (ok && !cat.isEmpty()) {
-    Azahar *myDb = new Azahar;
-    if (!db.isOpen()) openDB();
-    myDb->setDatabase(db);
-    if (!myDb->insertCategory(cat)) qDebug()<<"Error:"<<myDb->lastError();
-    delete myDb;
-    categoriesModel->select();
-    updateCategoriesCombo();
-  }
- }
+//   if (db.isOpen()) {
+//   bool ok=false;
+//   QString cat = QInputDialog::getText(this, i18n("New category"), i18n("Enter the new category to insert:"),
+//                                      QLineEdit::Normal, "", &ok );
+//   if (ok && !cat.isEmpty()) {
+//     Azahar *myDb = new Azahar;
+//     if (!db.isOpen()) openDB();
+//     myDb->setDatabase(db);
+//     if (!myDb->insertCategory(cat)) qDebug()<<"Error:"<<myDb->lastError();
+//     delete myDb;
+//     categoriesModel->select();
+//     updateCategoriesCombo();
+//   }
+//  }
 }
 
 void squeezeView::updateCategoriesCombo()
@@ -2586,18 +2667,21 @@ void squeezeView::createSubCategory()
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
     QStringList catList;
-    catList.append(i18n(" Select one "));
+    //catList.append(i18n(" Select one "));
     catList << myDb->getCategoriesList();
-    scEditor->populateCategories( catList );
+    scEditor->populateList( catList );
+    scEditor->setLabelForName(i18n("Category:"));
+    scEditor->setLabelForList(i18n("Select the child categories for this category"));
 
     if ( scEditor->exec() ) {
-        QString subCatText = scEditor->getSubcategoryName();
-        QString parentCatName  = scEditor->getParentCategoryName();
-        qulonglong parentCatId = -1;
-        parentCatId = myDb->getCategoryId( parentCatName );
+        QString subCatText = scEditor->getName();
+        qDebug()<<" CHILDREN:"<<scEditor->getChildren();
+        //QString parentCatName  = scEditor->getParentCategoryName();
+        //qulonglong parentCatId = -1;
+        //parentCatId = myDb->getCategoryId( parentCatName );
         //create the new subcategory.
-        bool ok = myDb->insertSubCategory(subCatText, parentCatId);
-        if (!ok) qDebug()<<"* ERROR CREATING SUBCATEGORY:"<<myDb->lastError();
+        //bool ok = myDb->insertSubCategory(subCatText, parentCatId);
+        //if (!ok) qDebug()<<"* ERROR CREATING SUBCATEGORY:"<<myDb->lastError();
     }
 
     subcategoriesModel->select();
