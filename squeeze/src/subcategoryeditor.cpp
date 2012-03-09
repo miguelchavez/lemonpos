@@ -41,8 +41,7 @@ SubcategoryEditor::SubcategoryEditor( QWidget *parent )
     setButtons( KDialog::Ok|KDialog::Cancel );
 
     enableButtonOk(false);
-    connect(ui->editSubcategory, SIGNAL(editingFinished()), SLOT(checkValid()) );
-    connect(ui->comboParentCategory, SIGNAL(currentIndexChanged( int )), SLOT(checkValid()) );
+    connect(ui->editName, SIGNAL(editingFinished()), SLOT(checkValid()) );
 }
 
 SubcategoryEditor::~SubcategoryEditor()
@@ -51,22 +50,40 @@ SubcategoryEditor::~SubcategoryEditor()
 }
 
 //this needs to be called after creating the dialog.
-void SubcategoryEditor::populateCategories(QStringList list)
+void SubcategoryEditor::populateList(QStringList list)
 {
-  ui->comboParentCategory->clear();
-  //FIXME: check if list contains the " --- " element, if not, add it.
+  ui->listView->clear();
   
-  ui->comboParentCategory->addItems( list );
+  ui->listView->addItems( list );
+
+  for(int i=0;i<ui->listView->count();i++){
+    ui->listView->item(i)->setFlags(ui->listView->item(i)->flags() |Qt::ItemIsUserCheckable);
+    ui->listView->item(i)->setCheckState(Qt::Unchecked); //FIXME: Check if the item belongs to the parent!, so check it.
+  }
 }
+
+QStringList SubcategoryEditor::getChildren() {
+    //returns a list of checked children.
+    QStringList result;
+
+    for(int i=0;i<ui->listView->count();i++){
+        if (ui->listView->item(i)->checkState())
+            result.append( ui->listView->item(i)->text() );
+    }
+
+    return result;
+}
+
 
 void SubcategoryEditor::checkValid()
 {
-  bool validText = !ui->editSubcategory->text().isEmpty();
+  bool validText = !ui->editName->text().isEmpty();
   bool validSubcat = false;
-  if (ui->comboParentCategory->currentIndex() > 0) // 1 is the " --- " or None category.
-      validSubcat = true;
+  //if (ui->comboParentCategory->currentIndex() > 0) // 1 is the " --- " or None category.
+  //    validSubcat = true;
   
-  enableButtonOk(validSubcat && validText);
+  //enableButtonOk(validSubcat && validText);
+  enableButtonOk(validText);
 }
 
 #include "subcategoryeditor.moc"
