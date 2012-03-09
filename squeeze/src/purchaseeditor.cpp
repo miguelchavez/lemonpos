@@ -762,48 +762,48 @@ void PurchaseEditor::modifyCategory()
 
 void PurchaseEditor::createNewSubcategory()
 {
-    //Launch Edit dialog
-    SubcategoryEditor *scEditor = new SubcategoryEditor(this);
-    //get categories list and populate the dialog with them.
-    Azahar *myDb = new Azahar;
-    myDb->setDatabase(db);
-    QStringList catList;
-    catList.append(i18n(" Select one "));
-    catList << myDb->getCategoriesList();
-    scEditor->populateCategories( catList );
-    
-    if ( scEditor->exec() ) {
-        QString subCatText = scEditor->getSubcategoryName();
-        QString parentCatName  = scEditor->getParentCategoryName();
-        qulonglong parentCatId = -1;
-        parentCatId = myDb->getCategoryId( parentCatName );
-        //create the new subcategory.
-        bool ok = myDb->insertSubCategory(subCatText, parentCatId);
-        if (!ok) qDebug()<<"* ERROR CREATING SUBCATEGORY:"<<myDb->lastError();
-        //reload subcategories, and select the newly created.
-        QStringList subcatList = myDb->getSubCategoriesList( parentCatId );
-        ui->subcategoriesCombo->clear();
-        ui->subcategoriesCombo->addItems( subcatList );
-        setCategory(parentCatName);
-        setSubCategory(subCatText);
-    }
-    
-    delete myDb;
+//     //Launch Edit dialog
+//     SubcategoryEditor *scEditor = new SubcategoryEditor(this);
+//     //get categories list and populate the dialog with them.
+//     Azahar *myDb = new Azahar;
+//     myDb->setDatabase(db);
+//     QStringList catList;
+//     catList.append(i18n(" Select one "));
+//     catList << myDb->getCategoriesList();
+//     scEditor->populateCategories( catList );
+//     
+//     if ( scEditor->exec() ) {
+//         QString subCatText = scEditor->getSubcategoryName();
+//         QString parentCatName  = scEditor->getParentCategoryName();
+//         qulonglong parentCatId = -1;
+//         parentCatId = myDb->getCategoryId( parentCatName );
+//         //create the new subcategory.
+//         bool ok = myDb->insertSubCategory(subCatText, parentCatId);
+//         if (!ok) qDebug()<<"* ERROR CREATING SUBCATEGORY:"<<myDb->lastError();
+//         //reload subcategories, and select the newly created.
+//         QStringList subcatList = myDb->getSubCategoriesList( parentCatId );
+//         ui->subcategoriesCombo->clear();
+//         ui->subcategoriesCombo->addItems( subcatList );
+//         setCategory(parentCatName);
+//         setSubCategory(subCatText);
+//     }
+//     
+//     delete myDb;
 }
 
 void PurchaseEditor::createNewCategory()
 {
-    bool ok=false;
-    QString cat = QInputDialog::getText(this, i18n("New category"), i18n("Enter the new category to insert:"),
-    QLineEdit::Normal, "", &ok );
-    if (ok && !cat.isEmpty()) {
-        Azahar *myDb = new Azahar;
-        myDb->setDatabase(db);
-        if (!myDb->insertCategory(cat)) qDebug()<<"Error:"<<myDb->lastError();
-        delete myDb;
-        populateCategoriesCombo();
-        setCategory(cat);
-    }
+//     bool ok=false;
+//     QString cat = QInputDialog::getText(this, i18n("New category"), i18n("Enter the new category to insert:"),
+//     QLineEdit::Normal, "", &ok );
+//     if (ok && !cat.isEmpty()) {
+//         Azahar *myDb = new Azahar;
+//         myDb->setDatabase(db);
+//         if (!myDb->insertCategory(cat)) qDebug()<<"Error:"<<myDb->lastError();
+//         delete myDb;
+//         populateCategoriesCombo();
+//         setCategory(cat);
+//     }
 }
 
 #include "purchaseeditor.moc"
