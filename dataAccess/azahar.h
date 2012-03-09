@@ -93,12 +93,24 @@ class Azahar : public QObject
     //PRODUCT STOCK CORRECTION
     bool         correctStock(qulonglong pcode, double oldStockQty, double newStockQty, const QString &reason );
 
+
+    //DEPARTMENTS
+    QHash<QString, int> getDepartmentsHash();
+    QStringList getDepartmentsList();
+    qulonglong  getDepartmentId(QString texto);
+    QString     getDepartmentStr(qulonglong id);
+    bool        insertDepartment(QString text);
+    bool        deleteDepartment(qulonglong id);
+    //m2m
+    bool        m2mDepartmentCategoryExists(qulonglong d, qulonglong c);
+    bool        insertM2MDepartmentCategory(qulonglong depId, qulonglong catId);
+    
     //CATEGORIES
     QHash<QString, int> getCategoriesHash();
     QStringList getCategoriesList();
     qulonglong  getCategoryId(QString texto);
     QString     getCategoryStr(qulonglong id);
-    bool        insertCategory(QString text);
+    bool        insertCategory(QString text, qulonglong parent);
     bool        deleteCategory(qulonglong id);
 
     //SUBCATEGORIES
@@ -107,7 +119,7 @@ class Azahar : public QObject
     QStringList getSubCategoriesList(const qulonglong parent);
     qulonglong  getSubCategoryId(QString texto);
     QString     getSubCategoryStr(qulonglong id);
-    bool        insertSubCategory(QString text, qulonglong parent=0);
+    bool        insertSubCategory(QString text, qulonglong parent);
     bool        deleteSubCategory(qulonglong id);
 
     //MEASURES
