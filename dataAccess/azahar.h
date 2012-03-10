@@ -110,8 +110,11 @@ class Azahar : public QObject
     QStringList getCategoriesList();
     qulonglong  getCategoryId(QString texto);
     QString     getCategoryStr(qulonglong id);
-    bool        insertCategory(QString text, qulonglong parent);
+    bool        insertCategory(QString text);
     bool        deleteCategory(qulonglong id);
+    //m2m
+    bool        insertM2MCategorySubcategory(qulonglong catId, qulonglong subcatId);
+    bool        m2mCategorySubcategoryExists(qulonglong c, qulonglong s);
 
     //SUBCATEGORIES
     QHash<QString, int> getSubCategoriesHash();
@@ -119,7 +122,7 @@ class Azahar : public QObject
     QStringList getSubCategoriesList(const qulonglong parent);
     qulonglong  getSubCategoryId(QString texto);
     QString     getSubCategoryStr(qulonglong id);
-    bool        insertSubCategory(QString text, qulonglong parent);
+    bool        insertSubCategory(QString text);
     bool        deleteSubCategory(qulonglong id);
 
     //MEASURES

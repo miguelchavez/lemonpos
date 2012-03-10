@@ -1148,7 +1148,7 @@ QHash<QString, int> Azahar::getDepartmentsHash()
     QHash<QString, int> result;
     result.clear();
     if (!db.isOpen()) db.open();
-    if (db.isOpen()) {
+    //if (db.isOpen()) {
         QSqlQuery myQuery(db);
         if (myQuery.exec("select * from departments;")) {
             while (myQuery.next()) {
@@ -1162,7 +1162,7 @@ QHash<QString, int> Azahar::getDepartmentsHash()
         else {
             qDebug()<<"ERROR: "<<myQuery.lastError();
         }
-    }
+    //}
     return result;
 }
 
@@ -1171,7 +1171,7 @@ QStringList Azahar::getDepartmentsList()
     QStringList result;
     result.clear();
     if (!db.isOpen()) db.open();
-    if (db.isOpen()) {
+    //if (db.isOpen()) {
         QSqlQuery myQuery(db);
         if (myQuery.exec("select text from departments;")) {
             while (myQuery.next()) {
@@ -1183,7 +1183,7 @@ QStringList Azahar::getDepartmentsList()
         else {
             qDebug()<<"ERROR: "<<myQuery.lastError();
         }
-    }
+    //}
     return result;
 }
 
@@ -1191,7 +1191,7 @@ qulonglong Azahar::getDepartmentId(QString texto)
 {
     qulonglong result=0;
     if (!db.isOpen()) db.open();
-    if (db.isOpen()) {
+    //if (db.isOpen()) {
         QSqlQuery myQuery(db);
         QString qryStr = QString("SELECT departments.id FROM departments WHERE text='%1';").arg(texto);
         if (myQuery.exec(qryStr) ) {
@@ -1204,7 +1204,7 @@ qulonglong Azahar::getDepartmentId(QString texto)
         else {
             setError(myQuery.lastError().text());
         }
-    }
+    //}
     return result;
 }
 
@@ -1259,7 +1259,7 @@ bool Azahar::m2mDepartmentCategoryExists(qulonglong d, qulonglong c)
         while (query.next()) {
             int fieldD = query.record().indexOf("department");
             int fieldC = query.record().indexOf("category");
-            if ( query.value(fieldD).toULongLong() == d && query.value(fieldD).toULongLong() == c )
+            if ( query.value(fieldD).toULongLong() == d && query.value(fieldC).toULongLong() == c )
                 return true;
         }
     }
@@ -1294,7 +1294,7 @@ bool Azahar::insertM2MDepartmentCategory(qulonglong depId, qulonglong catId)
 }
 
 //CATEGORIES
-bool Azahar::insertCategory(QString text, qulonglong parent)
+bool Azahar::insertCategory(QString text)
 {
   bool result=false;
   if (!db.isOpen()) db.open();
@@ -1303,18 +1303,20 @@ bool Azahar::insertCategory(QString text, qulonglong parent)
   query.bindValue(":text", text);
   if (!query.exec()) 
     setError(query.lastError().text());
-  else {
-      //get the newly created category id.
-      qulonglong cId = getCategoryId(text);
-      QSqlQuery queryB(db);
-      //Now, insert the m2m relation, indicated by parent.
-      queryB.prepare("INSERT INTO m2m_department_category (department, category) VALUES(:dep, :cat);");
-      queryB.bindValue(":dep", parent);
-      queryB.bindValue(":cat", cId);
-      
-      result = queryB.exec();
-      qDebug()<<"INSERTED CATEGORY OK, INSERTING m2m_department_category:"<<result;
-  }
+  else
+    result = true;
+//   else {
+//       //get the newly created category id.
+//       qulonglong cId = getCategoryId(text);
+//       QSqlQuery queryB(db);
+//       //Now, insert the m2m relation, indicated by parent.
+//       queryB.prepare("INSERT INTO m2m_department_category (department, category) VALUES(:dep, :cat);");
+//       queryB.bindValue(":dep", parent);
+//       queryB.bindValue(":cat", cId);
+//       
+//       result = queryB.exec();
+//       qDebug()<<"INSERTED CATEGORY OK, INSERTING m2m_department_category:"<<result;
+//   }
   
   return result;
 }
@@ -1324,7 +1326,7 @@ QHash<QString, int> Azahar::getCategoriesHash()
   QHash<QString, int> result;
   result.clear();
   if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
+  //if (db.isOpen()) {
     QSqlQuery myQuery(db);
     if (myQuery.exec("select * from categories;")) {
       while (myQuery.next()) {
@@ -1338,7 +1340,7 @@ QHash<QString, int> Azahar::getCategoriesHash()
     else {
       qDebug()<<"ERROR: "<<myQuery.lastError();
     }
-  }
+  //}
   return result;
 }
 
@@ -1347,7 +1349,7 @@ QStringList Azahar::getCategoriesList()
   QStringList result;
   result.clear();
   if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
+  //if (db.isOpen()) {
     QSqlQuery myQuery(db);
     if (myQuery.exec("select text from categories;")) {
       while (myQuery.next()) {
@@ -1359,7 +1361,7 @@ QStringList Azahar::getCategoriesList()
     else {
       qDebug()<<"ERROR: "<<myQuery.lastError();
     }
-  }
+  //}
   return result;
 }
 
@@ -1367,7 +1369,7 @@ qulonglong Azahar::getCategoryId(QString texto)
 {
   qulonglong result=0;
   if (!db.isOpen()) db.open();
-  if (db.isOpen()) {
+  //if (db.isOpen()) {
     QSqlQuery myQuery(db);
     QString qryStr = QString("SELECT categories.catid FROM categories WHERE text='%1';").arg(texto);
     if (myQuery.exec(qryStr) ) {
@@ -1380,7 +1382,7 @@ qulonglong Azahar::getCategoryId(QString texto)
     else {
       setError(myQuery.lastError().text());
     }
-  }
+  //}
   return result;
 }
 
@@ -1422,6 +1424,48 @@ bool Azahar::deleteCategory(qulonglong id)
   return result;
 }
 
+bool Azahar::m2mCategorySubcategoryExists(qulonglong c, qulonglong s)
+{
+    bool result = false;
+    QSqlQuery query(db);
+    QString qstr = QString("select * from m2m_category_subcategory where category=%1 and subcategory=%2;").arg(c).arg(s);
+    if (query.exec(qstr)) {
+        while (query.next()) {
+            int fieldC = query.record().indexOf("category");
+            int fieldS = query.record().indexOf("subcategory");
+            if ( query.value(fieldC).toULongLong() == c && query.value(fieldS).toULongLong() == s )
+                return true;
+        }
+    }
+    else {
+        setError(query.lastError().text());
+    }
+    return result;
+}
+
+bool Azahar::insertM2MCategorySubcategory(qulonglong catId, qulonglong subcatId)
+{
+    bool result=false;
+    if (!db.isOpen()) db.open();
+    //first, check if the category->subcategory already exists.
+    if ( m2mCategorySubcategoryExists(catId, subcatId) ) {
+        qDebug()<<"m2m Category -> subCategory Already exists!";
+        return false;
+    }
+    //ok it does not exists, create the connection.
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO m2m_category_subcategory (category, subcategory) VALUES (:cat, :subcat);");
+    query.bindValue(":cat", catId);
+    query.bindValue(":subcat", subcatId);
+    if (!query.exec()) {
+        setError(query.lastError().text());
+        qDebug()<<"Error inserting m2m_category_subcategory: "<<query.lastError().text();
+        result = false;
+    }
+    else
+        result = true;
+    return result;
+}
 
 //SUBCATEGORIES
 QHash<QString, int> Azahar::getSubCategoriesHash()
@@ -1429,7 +1473,7 @@ QHash<QString, int> Azahar::getSubCategoriesHash()
     QHash<QString, int> result;
     result.clear();
     if (!db.isOpen()) db.open();
-    if (db.isOpen()) {
+    //if (db.isOpen()) {
         QSqlQuery myQuery(db);
         if (myQuery.exec("select * from subcategories;")) {
             while (myQuery.next()) {
@@ -1443,7 +1487,7 @@ QHash<QString, int> Azahar::getSubCategoriesHash()
         else {
             qDebug()<<"ERROR: "<<myQuery.lastError();
         }
-    }
+    //}
     return result;
 }
 
@@ -1451,11 +1495,12 @@ QStringList Azahar::getSubCategoriesList()
 {
     QStringList result;
     result.clear();
-    result.append(" --- ");
+    //result.append(" --- ");
     if (!db.isOpen()) db.open();
-    if (db.isOpen()) {
+    //if (db.isOpen()) { ///NOTE: I dont know why this is not working! it says is not open, but without this check it works. It fails when doing some cycling, like a subcategoryEditor inside a subcategoryEditor. The first work, the second does not...
+        qDebug()<<"Getting subcategories list... db is ok";
         QSqlQuery myQuery(db);
-        if (myQuery.exec("select text from subcategories;")) {
+        if (myQuery.exec("select * from subcategories;")) {
             while (myQuery.next()) {
                 int fieldText = myQuery.record().indexOf("text");
                 QString text = myQuery.value(fieldText).toString();
@@ -1465,7 +1510,7 @@ QStringList Azahar::getSubCategoriesList()
         else {
             qDebug()<<"ERROR: "<<myQuery.lastError();
         }
-    }
+    //}
     return result;
 }
 
@@ -1475,9 +1520,9 @@ QStringList Azahar::getSubCategoriesList(qulonglong parent)
 {
     QStringList result;
     result.clear();
-    result.append(" --- ");
+    //result.append(" --- ");
     if (!db.isOpen()) db.open();
-    if (db.isOpen()) {
+    //if (db.isOpen()) {
         QSqlQuery myQuery(db);
         QString queryTxt;
         if (parent == 0)
@@ -1499,11 +1544,11 @@ QStringList Azahar::getSubCategoriesList(qulonglong parent)
         else {
             qDebug()<<"ERROR: "<<myQuery.lastError();
         }
-    }
+    //}
     return result;
 }
 
-bool Azahar::insertSubCategory(QString text, qulonglong parent)
+bool Azahar::insertSubCategory(QString text)
 {
     bool result=false;
     if (!db.isOpen()) db.open();
@@ -1513,18 +1558,20 @@ bool Azahar::insertSubCategory(QString text, qulonglong parent)
     query.bindValue(":text", text);
     if (!query.exec()) 
         setError(query.lastError().text());
-    else {
-        //get the newly created subcategory id.
-        qulonglong scId = getSubCategoryId(text);
-        QSqlQuery queryB(db);
-        //Now, insert the m2m relation, indicated by parent.
-        queryB.prepare("INSERT INTO m2m_category_subcategory (category, subcategory) VALUES(:cat, :sub);");
-        queryB.bindValue(":sub", scId);
-        queryB.bindValue(":cat", parent);
-        
-        result = queryB.exec();
-        qDebug()<<"INSERTED SUBCATEGORY OK, INSERTING m2m_category_subcategory:"<<result;
-    }
+    else
+        result = true;
+//     else {
+//         //get the newly created subcategory id.
+//         qulonglong scId = getSubCategoryId(text);
+//         QSqlQuery queryB(db);
+//         //Now, insert the m2m relation, indicated by parent.
+//         queryB.prepare("INSERT INTO m2m_category_subcategory (category, subcategory) VALUES(:cat, :sub);");
+//         queryB.bindValue(":sub", scId);
+//         queryB.bindValue(":cat", parent);
+//         
+//         result = queryB.exec();
+//         qDebug()<<"INSERTED SUBCATEGORY OK, INSERTING m2m_category_subcategory:"<<result;
+//     }
     
     return result;
 }
@@ -1533,7 +1580,7 @@ qulonglong Azahar::getSubCategoryId(QString texto)
 {
     qulonglong result=0;
     if (!db.isOpen()) db.open();
-    if (db.isOpen()) {
+    //if (db.isOpen()) {
         QSqlQuery myQuery(db);
         QString qryStr = QString("SELECT subcategories.id FROM subcategories WHERE text='%1';").arg(texto);
         if (myQuery.exec(qryStr) ) {
@@ -1546,7 +1593,7 @@ qulonglong Azahar::getSubCategoryId(QString texto)
         else {
             setError(myQuery.lastError().text());
         }
-    }
+    //}
     return result;
 }
 
