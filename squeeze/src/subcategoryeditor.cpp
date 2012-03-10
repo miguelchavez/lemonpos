@@ -37,11 +37,12 @@ SubcategoryEditor::SubcategoryEditor( QWidget *parent )
 {
     ui = new SubcategoryEditorUI( this );
     setMainWidget( ui );
-    setCaption( i18n("Subcategory Editor") );
+    //setCaption( i18n("Subcategory Editor") );
     setButtons( KDialog::Ok|KDialog::Cancel );
 
     enableButtonOk(false);
-    connect(ui->editName, SIGNAL(editingFinished()), SLOT(checkValid()) );
+    connect(ui->editName, SIGNAL(textEdited(const QString &)), SLOT(checkValid()) );
+    connect(ui->btnAdd, SIGNAL(clicked()), SLOT(addNewChild()));
 }
 
 SubcategoryEditor::~SubcategoryEditor()
@@ -49,16 +50,25 @@ SubcategoryEditor::~SubcategoryEditor()
     delete ui;
 }
 
+void SubcategoryEditor::setDb(QSqlDatabase d)
+{
+    db = d;
+    if (!db.isOpen()) {db.open();}
+}
+
 //this needs to be called after creating the dialog.
-void SubcategoryEditor::populateList(QStringList list)
+void SubcategoryEditor::populateList(QStringList list, QStringList checkedList)
 {
   ui->listView->clear();
-  
   ui->listView->addItems( list );
 
-  for(int i=0;i<ui->listView->count();i++){
+  for(int i=0;i<ui->listView->count();i++) {
     ui->listView->item(i)->setFlags(ui->listView->item(i)->flags() |Qt::ItemIsUserCheckable);
-    ui->listView->item(i)->setCheckState(Qt::Unchecked); //FIXME: Check if the item belongs to the parent!, so check it.
+
+    if ( checkedList.contains(ui->listView->item(i)->text() ) )
+        ui->listView->item(i)->setCheckState(Qt::Checked);
+    else
+        ui->listView->item(i)->setCheckState(Qt::Unchecked);
   }
 }
 
@@ -77,13 +87,90 @@ QStringList SubcategoryEditor::getChildren() {
 
 void SubcategoryEditor::checkValid()
 {
-  bool validText = !ui->editName->text().isEmpty();
-  bool validSubcat = false;
-  //if (ui->comboParentCategory->currentIndex() > 0) // 1 is the " --- " or None category.
-  //    validSubcat = true;
-  
-  //enableButtonOk(validSubcat && validText);
-  enableButtonOk(validText);
+    bool validText = !ui->editName->text().isEmpty();
+    enableButtonOk(validText);
+}
+
+void SubcategoryEditor::setDialogType(int t)
+{
+    //Types: 0:unset, 1:AddDepartment, 2:AddCategory, 3:AddSubcategory.
+    dialogType = t;
+    if (t == 1)
+        setCaption( i18n("Department Editor") );
+    else if (t == 2)
+        setCaption( i18n("Category Editor") );
+    else if (t == 3)
+        setCaption( i18n("Subcategory Editor") );
+    else
+        setCaption( i18n("") );
+}
+
+void SubcategoryEditor::addNewChild()
+{
+    //launch dialog to ask for the new child. Using this same dialog.
+    SubcategoryEditor *scEditor = new SubcategoryEditor(this);
+    scEditor->setDb(db);
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+
+    scEditor->setCatList( catList );
+    scEditor->setScatList( scatList );
+
+    if (dialogType == 1) {
+        //From "Add Department" dialog, creating a category.
+        scEditor->setLabelForName(i18n("New category:"));
+        scEditor->setLabelForList(i18n("Select the child subcategories for this category:"));
+        scEditor->populateList( myDb->getSubCategoriesList() );
+        scEditor->setDialogType(2); //category editor
+    } else if (dialogType == 2) {
+        //From "Add Category" dialog, creating a subcategory. No child allowed.
+        scEditor->setLabelForName(i18n("New subcategory:"));
+        scEditor->setDialogType(3);
+        scEditor->setLabelForList(i18n(""));
+        scEditor->hideListView(); //subcategories does not have children.
+    }
+        
+    if ( scEditor->exec() ) {
+        QString text = scEditor->getName();
+        QStringList children = scEditor->getChildren();
+        qDebug()<<text<<" CHILDREN:"<<children;
+
+        if (dialogType == 1) { //The dialog is launched from the "Add Department" dialog. So we are going to create a category.
+            //Create the category
+            if (!myDb->insertCategory(text)) {
+                qDebug()<<"Error:"<<myDb->lastError();
+                delete myDb;
+                return;
+            }
+            //insert new category to the box
+            catList << text;
+            ui->listView->addItem(text);
+            //mark item as checkable
+            ui->listView->item(ui->listView->count()-1)->setFlags(ui->listView->item(ui->listView->count()-1)->flags() |Qt::ItemIsUserCheckable);
+            ui->listView->item(ui->listView->count()-1)->setCheckState(Qt::Checked); //mark as checked.
+            qulonglong cId = myDb->getCategoryId(text);
+            //create the m2m  relations for the new category->subcategory.
+            foreach(QString cat, children) {
+                //get subcategory id
+                qulonglong scId = myDb->getSubCategoryId(cat);
+                //create the link [category] --> [subcategory]
+                myDb->insertM2MCategorySubcategory(cId, scId);
+            }
+        } else if (dialogType == 2) { //The dialog is launched from the "Add Category" dialog. So we are going to create a subcategory which does have a child.
+            //Create the subcategory only... no m2m relation
+            if (!myDb->insertSubCategory(text)) {
+                qDebug()<<"Error:"<<myDb->lastError();
+                delete myDb;
+                return;
+            }
+            //insert new subcategory to the box
+            scatList << text;
+            ui->listView->addItem(text);
+            //mark item as checkable
+            ui->listView->item(ui->listView->count()-1)->setFlags(ui->listView->item(ui->listView->count()-1)->flags() |Qt::ItemIsUserCheckable);
+            ui->listView->item(ui->listView->count()-1)->setCheckState(Qt::Checked); //mark as checked.
+        }// dialogType == 2
+    }
 }
 
 #include "subcategoryeditor.moc"

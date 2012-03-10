@@ -43,17 +43,28 @@ class SubcategoryEditor : public KDialog
 
     void    setLabelForName(QString text) { ui->lblName->setText(text); };
     void    setLabelForList(QString text) { ui->lblChildText->setText(text); };
+    void    disableAddButton(bool y)      { ui->btnAdd->setDisabled(y); };
+    void    setDb(QSqlDatabase d);
+    void    setDialogType(int t);
+    void    setCatList(QStringList c)     { catList = c; };
+    void    setScatList(QStringList s)    { scatList = s; };
     
     QStringList getChildren();
     QString getName()    { return ui->editName->text(); };
     
-    void    populateList(QStringList list);
+    void    populateList(QStringList list, QStringList checkedList=QStringList() );
+    void    hideListView() { ui->listView->hide(); ui->lblChildText->hide(); ui->btnAdd->hide(); };
 
   private slots:
     void    checkValid();
+    void    addNewChild(); //for adding a new category or subcategory, depending on the dialog use.
 
   private:
     SubcategoryEditorUI *ui;
+    QSqlDatabase db;
+    int dialogType;
+    QStringList catList;
+    QStringList scatList;
 };
 
 #endif
