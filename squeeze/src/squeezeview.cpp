@@ -2473,6 +2473,7 @@ void squeezeView::createProduct()
         info.tax     = prodEditorDlg->getTax1();
         info.extratax= prodEditorDlg->getTax2();
         info.photo   = Misc::pixmap2ByteArray(new QPixmap(prodEditorDlg->getPhoto()));
+        info.department= prodEditorDlg->getDepartmentId();
         info.category= prodEditorDlg->getCategoryId();
         info.subcategory= prodEditorDlg->getSubCategoryId();
         info.points  = prodEditorDlg->getPoints();

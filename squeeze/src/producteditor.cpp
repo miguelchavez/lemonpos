@@ -136,6 +136,7 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     connect( ui->btnCreateCategory, SIGNAL(clicked()), SLOT(createNewCategory()) );
     connect( ui->btnCreateSubcategory, SIGNAL(clicked()), SLOT(createNewSubcategory()) );
     connect( ui->bntCreateDepartment, SIGNAL(clicked()), SLOT(createNewDepartment()) );
+    connect( ui->btnCreateMeasure, SIGNAL(clicked()), SLOT(createNewMeasure()) );
 
     status = statusNormal;
     modifyCode = false;
@@ -239,7 +240,7 @@ void ProductEditor::populateMeasuresCombo()
 int ProductEditor::getDepartmentId()
 {
     int code=-1;
-    QString currentText = ui->categoriesCombo->currentText();
+    QString currentText = ui->departmentsCombo->currentText();
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
     code = myDb->getDepartmentId(currentText);
@@ -1202,6 +1203,23 @@ void ProductEditor::createNewDepartment()
         populateDepartmentsCombo();
         //ui->DepartmentsCombo->addItems( QStringList(text) ); //WORK AROUND
         setDepartment(text); //set the newly created category...
+    }
+}
+
+void ProductEditor::createNewMeasure()
+{
+    bool ok=false;
+    QString meas = QInputDialog::getText(this, i18n("New Weight or Measure"), i18n("Enter the new weight or measure to insert:"),
+    QLineEdit::Normal, "", &ok );
+    if (ok && !meas.isEmpty()) {
+        Azahar *myDb = new Azahar;
+        if (!db.isOpen()) db.open();
+        myDb->setDatabase(db);
+        if (!myDb->insertMeasure(meas)) qDebug()<<"Error:"<<myDb->lastError();
+        
+        populateMeasuresCombo();
+        setMeasure(meas);
+        delete myDb;
     }
 }
 

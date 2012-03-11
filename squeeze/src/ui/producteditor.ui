@@ -1364,31 +1364,53 @@ color: blue;</string>
      </property>
     </widget>
    </item>
+   <item row="8" column="2">
+    <widget class="QToolButton" name="btnCreateMeasure">
+     <property name="toolTip">
+      <string>Create New Measure</string>
+     </property>
+     <property name="text">
+      <string>+</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>editCode</tabstop>
+  <tabstop>btnChangeCode</tabstop>
   <tabstop>editAlphacode</tabstop>
+  <tabstop>editVendorcode</tabstop>
   <tabstop>editDesc</tabstop>
   <tabstop>editStockQty</tabstop>
+  <tabstop>btnStockCorrect</tabstop>
+  <tabstop>editPoints</tabstop>
+  <tabstop>departmentsCombo</tabstop>
+  <tabstop>bntCreateDepartment</tabstop>
   <tabstop>categoriesCombo</tabstop>
+  <tabstop>btnCreateCategory</tabstop>
+  <tabstop>subcategoriesCombo</tabstop>
+  <tabstop>btnCreateSubcategory</tabstop>
   <tabstop>measuresCombo</tabstop>
   <tabstop>editCost</tabstop>
   <tabstop>editTax</tabstop>
   <tabstop>editExtraTaxes</tabstop>
   <tabstop>editFinalPrice</tabstop>
+  <tabstop>chNotDiscountable</tabstop>
+  <tabstop>chUnlimitedStock</tabstop>
   <tabstop>chIsARaw</tabstop>
   <tabstop>chIsAGroup</tabstop>
   <tabstop>btnShowGroup</tabstop>
+  <tabstop>btnPhoto</tabstop>
   <tabstop>editUtility</tabstop>
   <tabstop>btnCalculatePrice</tabstop>
-  <tabstop>btnPhoto</tabstop>
-  <tabstop>btnChangeCode</tabstop>
   <tabstop>editGroupPriceDrop</tabstop>
   <tabstop>sourcePView</tabstop>
-  <tabstop>btnAdd</tabstop>
-  <tabstop>groupView</tabstop>
   <tabstop>editFilter</tabstop>
+  <tabstop>editGroupQty</tabstop>
+  <tabstop>btnAdd</tabstop>
+  <tabstop>btnRemove</tabstop>
+  <tabstop>groupView</tabstop>
   <tabstop>btnCloseGroup</tabstop>
  </tabstops>
  <resources/>
