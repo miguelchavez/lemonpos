@@ -115,17 +115,16 @@ void SubcategoryEditor::addNewChild()
 
     scEditor->setCatList( catList );
     scEditor->setScatList( scatList );
+    scEditor->setDialogType(dialogType+1);//incrementing because this dialog is a child dialog (parentType+1)
 
     if (dialogType == 1) {
         //From "Add Department" dialog, creating a category.
         scEditor->setLabelForName(i18n("New category:"));
         scEditor->setLabelForList(i18n("Select the child subcategories for this category:"));
         scEditor->populateList( myDb->getSubCategoriesList() );
-        scEditor->setDialogType(2); //category editor
     } else if (dialogType == 2) {
         //From "Add Category" dialog, creating a subcategory. No child allowed.
         scEditor->setLabelForName(i18n("New subcategory:"));
-        scEditor->setDialogType(3);
         scEditor->setLabelForList(i18n(""));
         scEditor->hideListView(); //subcategories does not have children.
     }
