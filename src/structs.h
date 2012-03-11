@@ -43,6 +43,7 @@ struct ProductInfo {
   double stockqty;
   int units;
   QString unitStr;
+  int department;
   int category;
   int subcategory;
   double utility;
