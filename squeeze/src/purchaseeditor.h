@@ -52,9 +52,11 @@ class PurchaseEditor : public KDialog
     QString    getCodeStr()  { return ui->editCode->text(); };
     QString getDescription() { return ui->editDesc->text(); };
     double  getPurchaseQty();
+    int     getDepartmentId();
     int     getCategoryId();
     int     getSubCategoryId();
     int     getMeasureId();
+    QString getDepartmentStr(int c);
     QString getCategoryStr(int c);
     QString getSubCategoryStr(int c);
     QString getMeasureStr(int c);
@@ -74,6 +76,7 @@ class PurchaseEditor : public KDialog
     QString getAlphacode()   { return ui->editAlphacode->text(); }
     QString getVendorcode()  { return ui->editVendorcode->text(); }
 
+    void    populateDepartmentsCombo();
     void    populateCategoriesCombo();
     void    populateSubCategoriesCombo(); 
     void    populateMeasuresCombo();
@@ -83,6 +86,8 @@ class PurchaseEditor : public KDialog
     void    setCode(QString c)         {ui->editCode->setText(c);  }
     void    setDescription(QString d)  {ui->editDesc->setText(d); };
     void    setPurchaseQty(double q)   {ui->editQty->setText(QString::number(q)); };
+    void    setDepartment(QString str);
+    void    setDepartment(int i);
     void    setCategory(QString str);
     void    setCategory(int i);
     void    setSubCategory(QString str);
@@ -113,8 +118,11 @@ private slots:
     void    deleteSelectedItem();
     void    insertProduct(ProductInfo info);
     void    modifyCategory();
+    void    modifyDepartment();
+    void    createNewDepartment();
     void    createNewSubcategory();
     void    createNewCategory();
+    void    createNewMeasure();
 protected slots:
     virtual void slotButtonClicked(int button);
   private:

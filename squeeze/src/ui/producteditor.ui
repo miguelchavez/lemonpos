@@ -1352,7 +1352,7 @@ color: blue;</string>
     <widget class="QComboBox" name="departmentsCombo"/>
    </item>
    <item row="6" column="2">
-    <widget class="QToolButton" name="bntCreateDepartment">
+    <widget class="QToolButton" name="btnCreateDepartment">
      <property name="toolTip">
       <string>Add New Department</string>
      </property>
@@ -1386,7 +1386,7 @@ color: blue;</string>
   <tabstop>btnStockCorrect</tabstop>
   <tabstop>editPoints</tabstop>
   <tabstop>departmentsCombo</tabstop>
-  <tabstop>bntCreateDepartment</tabstop>
+  <tabstop>btnCreateDepartment</tabstop>
   <tabstop>categoriesCombo</tabstop>
   <tabstop>btnCreateCategory</tabstop>
   <tabstop>subcategoriesCombo</tabstop>

@@ -135,7 +135,7 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     connect( ui->categoriesCombo, SIGNAL(currentIndexChanged( int )), SLOT(modifyCategory()) );
     connect( ui->btnCreateCategory, SIGNAL(clicked()), SLOT(createNewCategory()) );
     connect( ui->btnCreateSubcategory, SIGNAL(clicked()), SLOT(createNewSubcategory()) );
-    connect( ui->bntCreateDepartment, SIGNAL(clicked()), SLOT(createNewDepartment()) );
+    connect( ui->btnCreateDepartment, SIGNAL(clicked()), SLOT(createNewDepartment()) );
     connect( ui->btnCreateMeasure, SIGNAL(clicked()), SLOT(createNewMeasure()) );
 
     status = statusNormal;
