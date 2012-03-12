@@ -43,6 +43,7 @@ class SubcategoryEditor : public KDialog
 
     void    setLabelForName(QString text) { ui->lblName->setText(text); };
     void    setLabelForList(QString text) { ui->lblChildText->setText(text); };
+    void    setName(QString n)            { ui->editName->setText(n); };
     void    disableAddButton(bool y)      { ui->btnAdd->setDisabled(y); };
     void    setDb(QSqlDatabase d);
     void    setDialogType(int t);

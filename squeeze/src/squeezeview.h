@@ -243,6 +243,9 @@ signals:
    void reSelectModels();
 
    void checkDefaultView();
+
+   void departmentsOnSelected(const QModelIndex &index);
+   void categoriesOnSelected(const QModelIndex &index);
    
 };
 

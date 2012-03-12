@@ -43,6 +43,8 @@ SubcategoryEditor::SubcategoryEditor( QWidget *parent )
     enableButtonOk(false);
     connect(ui->editName, SIGNAL(textEdited(const QString &)), SLOT(checkValid()) );
     connect(ui->btnAdd, SIGNAL(clicked()), SLOT(addNewChild()));
+
+    QTimer::singleShot(1000, this, SLOT(checkValid()));
 }
 
 SubcategoryEditor::~SubcategoryEditor()

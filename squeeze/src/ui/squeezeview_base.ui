@@ -99,7 +99,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>15</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="pageWelcome">
       <layout class="QGridLayout" name="gridLayout">
@@ -1154,7 +1154,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="QTableView" name="tableCategories">
          <property name="editTriggers">
-          <set>QAbstractItemView::DoubleClicked</set>
+          <set>QAbstractItemView::NoEditTriggers</set>
          </property>
          <property name="alternatingRowColors">
           <bool>true</bool>
@@ -2496,9 +2496,6 @@ color:black;</string>
       <layout class="QVBoxLayout" name="verticalLayout_10">
        <item>
         <widget class="QTableView" name="tableSubCategories">
-         <property name="editTriggers">
-          <set>QAbstractItemView::DoubleClicked</set>
-         </property>
          <property name="alternatingRowColors">
           <bool>true</bool>
          </property>
@@ -2552,7 +2549,7 @@ color:black;</string>
        <item>
         <widget class="QTableView" name="tableDepartments">
          <property name="editTriggers">
-          <set>QAbstractItemView::DoubleClicked</set>
+          <set>QAbstractItemView::NoEditTriggers</set>
          </property>
          <property name="alternatingRowColors">
           <bool>true</bool>

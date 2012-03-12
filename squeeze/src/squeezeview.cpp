@@ -269,6 +269,9 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.tableReservations, SIGNAL(entered(const QModelIndex &)), SLOT(reservationsOnSelected(const QModelIndex &)));
   ui_mainview.tableReservations->setMouseTracking(true); //to allow the entered signal works on the previous line.
 
+  connect(ui_mainview.tableDepartments, SIGNAL(activated(const QModelIndex &)), SLOT(departmentsOnSelected(const QModelIndex &)));
+  connect(ui_mainview.tableCategories, SIGNAL(activated(const QModelIndex &)), SLOT(categoriesOnSelected(const QModelIndex &)));
+
   connect(ui_mainview.groupFilterOffers, SIGNAL(toggled(bool)), SLOT(setOffersFilter()));
   connect(ui_mainview.chOffersSelectDate, SIGNAL(toggled(bool)), SLOT(setOffersFilter()));
   connect(ui_mainview.chOffersTodayDiscounts, SIGNAL(toggled(bool)), SLOT(setOffersFilter()));
@@ -1287,7 +1290,7 @@ void squeezeView::setupCategoriesModel()
     ui_mainview.tableCategories->setModel(categoriesModel);
     ui_mainview.tableCategories->setSelectionMode(QAbstractItemView::SingleSelection);
     ui_mainview.tableCategories->setColumnHidden(categoriesModel->fieldIndex("catid"), true);
-    ui_mainview.tableCategories->setItemDelegate(new QItemDelegate(ui_mainview.tableCategories));
+    //ui_mainview.tableCategories->setItemDelegate(new QItemDelegate(ui_mainview.tableCategories));
 
     categoriesModel->select();
     ui_mainview.tableCategories->setCurrentIndex(categoriesModel->index(0, 0));
@@ -1314,7 +1317,7 @@ void squeezeView::setupDepartmentsModel()
         ui_mainview.tableDepartments->setModel(departmentsModel);
         ui_mainview.tableDepartments->setSelectionMode(QAbstractItemView::SingleSelection);
         ui_mainview.tableDepartments->setColumnHidden(departmentsModel->fieldIndex("id"), true);
-        ui_mainview.tableDepartments->setItemDelegate(new QItemDelegate(ui_mainview.tableDepartments));
+        //ui_mainview.tableDepartments->setItemDelegate(new QItemDelegate(ui_mainview.tableDepartments));
         
         departmentsModel->select();
         ui_mainview.tableDepartments->setCurrentIndex(departmentsModel->index(0, 0));
@@ -4068,6 +4071,155 @@ void squeezeView::reSelectModels()
     logsModel->select();
     currenciesModel->select();
   }
+}
+
+
+void squeezeView::departmentsOnSelected(const QModelIndex &index)
+{
+    if (db.isOpen()) {
+        //getting data from model...
+        const QAbstractItemModel *model = index.model();
+        int row = index.row();
+        QModelIndex indx = model->index(row, departmentsModel->fieldIndex("id"));
+        qulonglong depId = model->data(indx, Qt::DisplayRole).toULongLong();
+        indx = model->index(row, departmentsModel->fieldIndex("text"));
+        QString name = model->data(indx, Qt::DisplayRole).toString();
+
+        QStringList children;
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
+        //get child categories
+        children = myDb->getCategoriesList(depId);//get the categories whose parent is depId.
+        qDebug()<<"DEPARTMENT "<<name<<" ["<<depId<<"]"<<" CHILDREN:"<<children;
+
+        //launch the editor.
+        SubcategoryEditor *scEditor = new SubcategoryEditor(this);
+        scEditor->setDb(db);
+        scEditor->setCatList( children );
+        scEditor->setScatList( myDb->getSubCategoriesList() );
+        scEditor->populateList( myDb->getCategoriesList(), children );
+        scEditor->setDialogType(1); //department = 1
+        scEditor->setLabelForName(i18n("Department:"));
+        scEditor->setLabelForList(i18n("Child categories for this department:"));
+        scEditor->setName(name);
+
+        //check for any changes...
+        if ( scEditor->exec() ) {
+            QString newName = scEditor->getName();
+            QStringList newChildren = scEditor->getChildren();
+            qDebug()<<"NEW NAME:"<<newName<<" CHILDREN:"<<newChildren;
+            //first see if the name changed.
+            if (name != newName) {
+                //rename the department
+                myDb->updateDepartment(depId, newName);
+            }
+            //then see if any category has been added or any removed
+            if ( children != newChildren ){
+                qDebug()<<"children != newChildren ...";
+                //condicinoes a checar:  Es nueva, No esta pero estaba,
+                foreach(QString e, newChildren) {
+                    //check if the child is in the old children.
+                    if (children.contains(e)){
+                        ///old list contains 'e', it means it already was on the list, we do not need to do anything.
+                    } else {
+                        ///old list does not contains 'e', this means that 'e' is a new child.
+                        //get its ID to make m2m connections.
+                        qulonglong catId = myDb->getCategoryId(e);
+                        qDebug()<<"NEW ELEMENT: "<<e<<" ["<<catId<<"]";
+                        myDb->insertM2MDepartmentCategory(depId, catId);
+                    }
+                }
+                //until here, we examined newChildren, but we need to know if any of the children was REMOVED (not present in newChildren)
+                //this is not a efficient way, we are duplicating the comparisons.
+                foreach(QString e, children){
+                    if ( !newChildren.contains(e) ){
+                        // 'e' is NOT in the newChildren then remove the m2m connection.
+                        qulonglong catId = myDb->getCategoryId(e);
+                        if (!myDb->m2mDepartmentCategoryRemove(depId, catId)){
+                            qDebug()<<"m2m Department -> Category could not be removed. "<<name<<"->"<<e<<" |"<<myDb->lastError();
+                        }
+                    }
+                }//for each children
+            }//if children != newChildren
+        }//if scEditor->exec
+        departmentsModel->select();
+        delete myDb;
+    }
+}
+
+
+void squeezeView::categoriesOnSelected(const QModelIndex &index)
+{
+    if (db.isOpen()) {
+        //getting data from model...
+        const QAbstractItemModel *model = index.model();
+        int row = index.row();
+        QModelIndex indx = model->index(row, categoriesModel->fieldIndex("catid"));
+        qulonglong catId = model->data(indx, Qt::DisplayRole).toULongLong();
+        indx = model->index(row, categoriesModel->fieldIndex("text"));
+        QString name = model->data(indx, Qt::DisplayRole).toString();
+        
+        QStringList children;
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
+        //get child categories
+        children = myDb->getSubCategoriesList(catId);//get the categories whose parent is depId.
+        qDebug()<<"CATEGORY "<<name<<" ["<<catId<<"]"<<" CHILDREN:"<<children;
+        
+        //launch the editor.
+        QStringList subcat = myDb->getSubCategoriesList();
+        SubcategoryEditor *scEditor = new SubcategoryEditor(this);
+        scEditor->setDb(db);
+        scEditor->setCatList( myDb->getCategoriesList() );
+        scEditor->setScatList( subcat );
+        scEditor->populateList( subcat, children );
+        scEditor->setDialogType(1); //department = 1
+        scEditor->setLabelForName(i18n("Category:"));
+        scEditor->setLabelForList(i18n("Child subcategories for this category:"));
+        scEditor->setName(name);
+        
+        //check for any changes...
+        if ( scEditor->exec() ) {
+            QString newName = scEditor->getName();
+            QStringList newChildren = scEditor->getChildren();
+            qDebug()<<"NEW NAME:"<<newName<<" CHILDREN:"<<newChildren;
+            //first see if the name changed.
+            if (name != newName) {
+                //rename the department
+                myDb->updateCategory(catId, newName);
+            }
+            //then see if any category has been added or any removed
+            if ( children != newChildren ){
+                qDebug()<<"children != newChildren ...";
+                //condicinoes a checar:  Es nueva, No esta pero estaba,
+                foreach(QString e, newChildren) {
+                    //check if the child is in the old children.
+                    if (children.contains(e)){
+                        ///old list contains 'e', it means it already was on the list, we do not need to do anything.
+                    } else {
+                        ///old list does not contains 'e', this means that 'e' is a new child.
+                        //get its ID to make m2m connections.
+                        qulonglong scatId = myDb->getSubCategoryId(e);
+                        qDebug()<<"NEW ELEMENT: "<<e<<" ["<<scatId<<"]";
+                        myDb->insertM2MCategorySubcategory(catId, scatId);
+                    }
+                }
+                //until here, we examined newChildren, but we need to know if any of the children was REMOVED (not present in newChildren)
+                //this is not a efficient way, we are duplicating the comparisons.
+                foreach(QString e, children){
+                    if ( !newChildren.contains(e) ){
+                        // 'e' is NOT in the newChildren then remove the m2m connection.
+                        qulonglong scatId = myDb->getSubCategoryId(e);
+                        if (!myDb->m2mCategorySubcategoryRemove(catId, scatId)){
+                            qDebug()<<"m2m Category -> SubCategory could not be removed. "<<name<<"->"<<e<<" |"<<myDb->lastError();
+                        }
+                    }
+                }//for each children
+            }//if children != newChildren
+        }//if scEditor->exec
+        categoriesModel->select();
+        delete myDb;
+    }
 }
 
 #include "squeezeview.moc"
