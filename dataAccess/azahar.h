@@ -105,7 +105,6 @@ class Azahar : public QObject
     //m2m
     bool        m2mDepartmentCategoryExists(qulonglong d, qulonglong c);
     bool        insertM2MDepartmentCategory(qulonglong depId, qulonglong catId);
-
     bool        m2mDepartmentCategoryRemove(qulonglong d, qulonglong c);
     
     //CATEGORIES
