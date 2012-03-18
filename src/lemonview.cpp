@@ -1820,7 +1820,7 @@ void lemonView::itemDoubleClicked(QTableWidgetItem* item)
 
   bool allowNegativeStock = Settings::allowNegativeStock();
 
-  //Launch a dialog to as the new qty
+  //Launch a dialog to ask the new qty
   if (info.units == uPiece) {
     if (dmaxItems > 0 || allowNegativeStock) {
       ok = true;
