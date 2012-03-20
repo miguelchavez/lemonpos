@@ -640,7 +640,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="editCardAuthNumber"/>
+                   <widget class="QLineEdit" name="editCardAuthNumber">
+                    <property name="text">
+                     <string>-</string>
+                    </property>
+                   </widget>
                   </item>
                   <item>
                    <spacer name="verticalSpacer">

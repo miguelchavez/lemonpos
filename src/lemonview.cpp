@@ -595,7 +595,7 @@ void lemonView::clearUsedWidgets()
 {
   ui_mainview.editAmount->setText("");
   ui_mainview.editCardNumber->setText("");
-  ui_mainview.editCardAuthNumber->setText("");
+  ui_mainview.editCardAuthNumber->setText("-");
   ui_mainview.tableWidget->clearContents();
   ui_mainview.tableWidget->setRowCount(0);
   totalSum = 0.0;
@@ -2020,20 +2020,20 @@ void lemonView::finishCurrentTransaction()
     QString cn =  ui_mainview.editCardNumber->text();
     QString cna = ui_mainview.editCardAuthNumber->text();
     if (!ui_mainview.editCardNumber->hasAcceptableInput() || cn.isEmpty() || cn == "---") {
-      canfinish = false;
+      canfinish = true; //false; //NOTE: A request by Darius @ March 19 2012.  FIXME Later: make a config option
       ui_mainview.editCardNumber->setFocus();
       ui_mainview.editCardNumber->setStyleSheet("background-color: rgb(255,100,0); color:white; font-weight:bold; selection-color: white;");
       ui_mainview.editAmount->setStyleSheet("");
       ui_mainview.editCardNumber->setSelection(0, ui_mainview.editCardNumber->text().length());
-      msg = i18n("<html><font color=red><b>Please enter the card number.</b></font></html>");
+      msg = i18n("<html><font color=red><b>Note: card number missing.</b></font></html>");
     }
     else if (!ui_mainview.editCardAuthNumber->hasAcceptableInput() || cna.isEmpty() || cna.length()<4) {
-      canfinish = false;
+      canfinish = true; //false; //NOTE: A request by Darius @ March 19 2012. FIXME Later: make a config option
       ui_mainview.editCardAuthNumber->setFocus();
       ui_mainview.editCardAuthNumber->setStyleSheet("background-color: rgb(255,100,0); color:white; font-weight:bold; selection-color: white;");
       ui_mainview.editAmount->setStyleSheet("");
       ui_mainview.editCardAuthNumber->setSelection(0, ui_mainview.editCardAuthNumber->text().length());
-      msg = i18n("<html><font color=red><b>Please enter the Authorisation number from the bank voucher.</b></font></html>");
+      msg = i18n("<html><font color=red><b>Note: Authorisation number from the bank voucher missing.</b></font></html>");
     }
     if (!msg.isEmpty())
       tipAmount->showTip(msg, 4000);
