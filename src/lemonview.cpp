@@ -761,6 +761,23 @@ void lemonView::acceptCurrencyConversion()
 }
 
 
+void lemonView::populateCardTypes()
+{
+    Azahar *myDb = new Azahar();
+    myDb->setDatabase(db);
+    
+    //get currencies from database
+    QStringList cardTypes = myDb->getCardTypes();
+    //load currencies to combobox
+    if ( ui_mainview.comboCardType->count() > 0 ) ui_mainview.comboCardType->clear();
+    foreach( QString type, cardTypes ) {
+        ui_mainview.comboCardType->addItem( type );
+    }
+    
+    delete myDb;
+}
+
+
 lemonView::~lemonView()
 {
   drawerCreated=false;
@@ -3758,6 +3775,8 @@ void lemonView::setupModel()
       ui_mainview.comboFilterByCategory->addItem(item.key());
       //qDebug()<<"iterando por el hash en el item:"<<item.key()<<"/"<<item.value();
     }
+
+    populateCardTypes();
 
     ui_mainview.comboFilterByCategory->setCurrentIndex(0);
     connect(ui_mainview.comboFilterByCategory,SIGNAL(currentIndexChanged(int)), this, SLOT( setFilter()) );

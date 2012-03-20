@@ -203,6 +203,12 @@ CREATE TABLE IF NOT EXISTS `clients` (
   PRIMARY KEY  USING BTREE (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+CREATE TABLE IF NOT EXISTS `cardtypes` (
+`typeid` int(10) unsigned NOT NULL auto_increment,
+`text` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
+PRIMARY KEY  (`typeid`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
 CREATE TABLE IF NOT EXISTS `paytypes` (
   `typeid` int(10) unsigned NOT NULL auto_increment,
   `text` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
@@ -461,6 +467,11 @@ INSERT INTO lemondb.clients (id, name, points, discount) VALUES (1, 'General', 0
 #Insert a default category
 INSERT INTO lemondb.categories (catid, text) VALUES (1, 'General');
 
+#Insert default card types (very important to keep these ids)
+INSERT INTO lemondb.cardtypes (typeid, text) VALUES(1, 'Credit VISA');
+INSERT INTO lemondb.cardtypes (typeid, text) VALUES(2, 'Credit MC');
+INSERT INTO lemondb.cardtypes (typeid, text) VALUES(3, 'Debit VISA');
+INSERT INTO lemondb.cardtypes (typeid, text) VALUES(4, 'Debit MC');
 #Insert default payment types (very important to keep these ids)
 INSERT INTO lemondb.paytypes (typeid, text) VALUES(1, 'Cash');
 INSERT INTO lemondb.paytypes (typeid, text) VALUES(2, 'Card');

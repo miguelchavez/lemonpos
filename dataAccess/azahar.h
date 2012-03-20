@@ -178,6 +178,11 @@ class Azahar : public QObject
     QList<CashFlowInfo> getCashFlowInfoList(const QList<qulonglong> &idList);
     QList<CashFlowInfo> getCashFlowInfoList(const QDateTime &start, const QDateTime &end);
 
+    //CardTypes
+    QString     getCardTypeStr(qulonglong type);
+    qulonglong  getCardTypeId(QString type);
+    QStringList getCardTypes();
+    
     //PayTypes
     QString     getPayTypeStr(qulonglong type);
     qulonglong  getPayTypeId(QString type);
