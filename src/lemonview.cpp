@@ -1090,7 +1090,7 @@ void lemonView::refreshTotalLabel()
 
     if ( ui_mainview.checkOwnCredit->isChecked() || ui_mainview.checkCard->isChecked() ) {
         //Set the amount to pay.
-        ui_mainview.editAmount->setText(QString::number(totalSum));
+        ui_mainview.editAmount->setText(QString::number(totalSum, 'f', 2));
     }
 
     //inform the user if the discount cannot be applied.
