@@ -321,6 +321,7 @@ public:
     void showPriceChecker();
     void hideProductsGrid();
     void populateCategoriesHash();
+    void populateCardTypes();
     void setFilter();
     void showChangeDate();
 

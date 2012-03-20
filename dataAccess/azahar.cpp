@@ -2960,6 +2960,58 @@ QList<CashFlowInfo> Azahar::getCashFlowInfoList(const QDateTime &start, const QD
   return result;
 }
 
+//Card Types
+QStringList Azahar::getCardTypes()
+{
+    QStringList result;
+    QSqlQuery query(db);
+    QString qstr = QString("select text from cardtypes;");
+    if (query.exec(qstr)) {
+        while (query.next()) {
+            int fieldText = query.record().indexOf("text");
+            result.append(query.value(fieldText).toString());
+        }
+    }
+    else {
+        setError(query.lastError().text());
+    }
+    return result;
+}
+
+QString  Azahar::getCardTypeStr(qulonglong type)
+{
+    QString result;
+    QSqlQuery query(db);
+    QString qstr = QString("select text from cardtypes where cardtypes.typeid=%1;").arg(type);
+    if (query.exec(qstr)) {
+        while (query.next()) {
+            int fieldText = query.record().indexOf("text");
+            result = query.value(fieldText).toString();
+        }
+    }
+    else {
+        setError(query.lastError().text());
+    }
+    return result;
+}
+
+qulonglong  Azahar::getCardTypeId(QString type)
+{
+    qulonglong result=0;
+    QSqlQuery query(db);
+    QString qstr = QString("select typeid from cardtypes where cardtypes.text='%1';").arg(type);
+    if (query.exec(qstr)) {
+        while (query.next()) {
+            int fieldText = query.record().indexOf("typeid");
+            result = query.value(fieldText).toULongLong();
+        }
+    }
+    else {
+        setError(query.lastError().text());
+    }
+    return result;
+}
+
 //TransactionTypes
 QString  Azahar::getPayTypeStr(qulonglong type)
 {

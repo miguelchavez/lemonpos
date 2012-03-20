@@ -360,41 +360,35 @@
              <property name="title">
               <string>Payment</string>
              </property>
-             <layout class="QVBoxLayout">
-              <property name="spacing">
-               <number>1</number>
-              </property>
-              <property name="margin">
-               <number>1</number>
-              </property>
+             <layout class="QVBoxLayout" name="verticalLayout_10">
               <item>
-               <layout class="QHBoxLayout">
-                <item>
-                 <widget class="QRadioButton" name="checkCash">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>100</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>Ca&amp;sh</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="mainview.qrc">
-                    <normaloff>:/images/icons/images/money.png</normaloff>:/images/icons/images/money.png</iconset>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
+               <widget class="QRadioButton" name="checkCash">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>100</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Ca&amp;sh</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="mainview.qrc">
+                  <normaloff>:/images/icons/images/money.png</normaloff>:/images/icons/images/money.png</iconset>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_4">
                 <item>
                  <widget class="QRadioButton" name="checkCard">
                   <property name="sizePolicy">
@@ -423,6 +417,9 @@
                     <normaloff>:/images/icons/images/card.png</normaloff>:/images/icons/images/card.png</iconset>
                   </property>
                  </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="comboCardType"/>
                 </item>
                </layout>
               </item>
