@@ -116,6 +116,8 @@ struct TransactionInfo
   qulonglong clientid;
   QString    cardnumber;
   QString    cardauthnum;
+  QString    cardTypeStr;
+  int        cardType;
   int        itemcount;
   QString    itemlist;
   double     disc;

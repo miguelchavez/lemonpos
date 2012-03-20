@@ -1959,6 +1959,8 @@ void lemonView::createNewTransaction(TransactionType type)
     info.providerid = 1; //default one... for no.. FIXME!
     info.terminalnum=Settings::editTerminalNumber();
     info.balanceId = currentBalanceId;
+    info.cardType = 0;
+    info.cardTypeStr = "";
 
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
@@ -2082,6 +2084,12 @@ void lemonView::finishCurrentTransaction()
       changeGiven = payWith- totalSum;
     } else if (ui_mainview.checkCard->isChecked()) {
       pType = pCard;
+      Azahar *myDb = new Azahar;
+      myDb->setDatabase(db);
+      tInfo.cardTypeStr = ui_mainview.comboCardType->currentText();
+      tInfo.cardType = myDb->getCardTypeId( tInfo.cardTypeStr );
+      qDebug()<<"CARD TYPE ID:"<<tInfo.cardType<<" Card Type STR:"<<tInfo.cardTypeStr;
+      delete myDb;
       if (ui_mainview.editCardNumber->hasAcceptableInput() ) {
         cardNum = ui_mainview.editCardNumber->text().replace(0,15,"***************"); //FIXED: Only save last 4 digits;
       }

@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   `paidwith` double unsigned NOT NULL default '0.0',
   `changegiven` double unsigned NOT NULL default '0.0',
   `paymethod` int(10) NOT NULL default '0',
+  `cardtype` int(10) NOT NULL default '0', #since March 19 2012.
   `state` int(10) NOT NULL default '0',
   `userid` int(10) NOT NULL default '0',
   `cardnumber` varchar(20) character set utf8 collate utf8_general_ci,

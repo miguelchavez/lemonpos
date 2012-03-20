@@ -1895,6 +1895,7 @@ TransactionInfo Azahar::getTransactionInfo(qulonglong id)
       int fieldTerminal  = query.record().indexOf("terminalnum");
       int fieldTax       = query.record().indexOf("totalTax");
       int fieldSpecialOrders = query.record().indexOf("specialOrders");
+      int fieldCardTypeId = query.record().indexOf("cardtype");
       
       info.id     = query.value(fieldId).toULongLong();
       info.amount = query.value(fieldAmount).toDouble();
@@ -1918,6 +1919,8 @@ TransactionInfo Azahar::getTransactionInfo(qulonglong id)
       info.terminalnum=query.value(fieldTerminal).toInt();
       info.totalTax   = query.value(fieldTax).toDouble();
       info.specialOrders = query.value(fieldSpecialOrders).toString();
+      info.cardType   =query.value(fieldCardTypeId).toInt();
+      info.cardTypeStr= getCardTypeStr(info.cardType);
     }
   }
   return info;
@@ -2218,7 +2221,7 @@ qulonglong Azahar::insertTransaction(TransactionInfo info)
   //else {
     // insert a new one.
     QSqlQuery query2(db);
-    query2.prepare("INSERT INTO transactions (clientid, type, amount, date,  time, paidwith, changegiven, paymethod, state, userid, cardnumber, itemcount, itemslist, cardauthnumber, utility, terminalnum, providerid, specialOrders, balanceId, totalTax) VALUES (:clientid, :type, :amount, :date, :time, :paidwith, :changegiven, :paymethod, :state, :userid, :cardnumber, :itemcount, :itemslist, :cardauthnumber, :utility, :terminalnum, :providerid, :specialOrders, :balance, :tax)"); //removed groups 29DIC09
+    query2.prepare("INSERT INTO transactions (clientid, type, amount, date,  time, paidwith, changegiven, paymethod, state, userid, cardnumber, itemcount, itemslist, cardauthnumber, utility, terminalnum, providerid, specialOrders, balanceId, totalTax, cardtype) VALUES (:clientid, :type, :amount, :date, :time, :paidwith, :changegiven, :paymethod, :state, :userid, :cardnumber, :itemcount, :itemslist, :cardauthnumber, :utility, :terminalnum, :providerid, :specialOrders, :balance, :tax, :cardType)"); //removed groups 29DIC09
 
     /** Remember to improve queries readability:
      * query2.prepare("INSERT INTO transactions ( \
@@ -2255,6 +2258,7 @@ qulonglong Azahar::insertTransaction(TransactionInfo info)
     query2.bindValue(":tax", info.totalTax);
     query2.bindValue(":specialOrders", info.specialOrders);
     query2.bindValue(":balance", info.balanceId);
+    query2.bindValue(":cardType", info.cardType);
     if (!query2.exec() ) {
       int errNum = query2.lastError().number();
       QSqlError::ErrorType errType = query2.lastError().type();
@@ -2271,7 +2275,7 @@ bool Azahar::updateTransaction(TransactionInfo info)
 {
   bool result=false;
   QSqlQuery query2(db);
-  query2.prepare("UPDATE transactions SET disc=:disc, discmoney=:discMoney, amount=:amount, date=:date,  time=:time, paidwith=:paidw, changegiven=:change, paymethod=:paymethod, state=:state, cardnumber=:cardnumber, itemcount=:itemcount, itemslist=:itemlist, cardauthnumber=:cardauthnumber, utility=:utility, terminalnum=:terminalnum, points=:points, clientid=:clientid, specialOrders=:sorders, balanceId=:balance, totalTax=:tax WHERE id=:code");
+  query2.prepare("UPDATE transactions SET disc=:disc, discmoney=:discMoney, amount=:amount, date=:date,  time=:time, paidwith=:paidw, changegiven=:change, paymethod=:paymethod, cardtype=:cardType, state=:state, cardnumber=:cardnumber, itemcount=:itemcount, itemslist=:itemlist, cardauthnumber=:cardauthnumber, utility=:utility, terminalnum=:terminalnum, points=:points, clientid=:clientid, specialOrders=:sorders, balanceId=:balance, totalTax=:tax WHERE id=:code");
   query2.bindValue(":disc", info.disc);
   query2.bindValue(":discMoney", info.discmoney);
   query2.bindValue(":code", info.id);
@@ -2293,6 +2297,7 @@ bool Azahar::updateTransaction(TransactionInfo info)
   query2.bindValue(":tax", info.totalTax);
   query2.bindValue(":sorders", info.specialOrders);
   query2.bindValue(":balance", info.balanceId);
+  query2.bindValue(":cardType", info.cardType);
   qDebug()<<"Transaction ID:"<<info.id;
   if (!query2.exec() ) {
     int errNum = query2.lastError().number();
@@ -2386,6 +2391,8 @@ bool Azahar::cancelTransaction(qulonglong id, bool inProgress)
   if (tinfo.id    >  0)          transExists      = true;
   if (tinfo.state == tCompleted && transExists) transCompleted   = true;
   if (tinfo.state == tCancelled && transExists) alreadyCancelled = true;
+
+  ///TODO & FIXME: What about card payments? Return money or what to do?
   
   
   if (ok) {
@@ -2500,6 +2507,7 @@ QList<TransactionInfo> Azahar::getLastTransactions(int pageNumber,int numItems,Q
       int fieldTax    = query.record().indexOf("totalTax");
       int fieldSOrd      = query.record().indexOf("specialOrders");
       int fieldBalance   = query.record().indexOf("balanceId");
+      int fieldCardType  = query.record().indexOf("cardtype");
       info.id     = query.value(fieldId).toULongLong();
       info.amount = query.value(fieldAmount).toDouble();
       info.date   = query.value(fieldDate).toDate();
@@ -2523,6 +2531,8 @@ QList<TransactionInfo> Azahar::getLastTransactions(int pageNumber,int numItems,Q
       info.totalTax  = query.value(fieldTax).toDouble();
       info.specialOrders  = query.value(fieldSOrd).toString();
       info.balanceId = query.value(fieldBalance).toULongLong();
+      info.cardType = query.value(fieldCardType).toInt();
+      info.cardTypeStr = getCardTypeStr(info.cardType);
       result.append(info);
     }
   }
