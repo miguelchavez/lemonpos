@@ -1298,6 +1298,7 @@ void squeezeView::setupTransactionsModel()
     transTerminalNumIndex=transactionsModel->fieldIndex("terminalnum");
     transProvIdIndex = transactionsModel->fieldIndex("providerid");
     transSOIndex = transactionsModel->fieldIndex("specialOrders");
+    int transCardTypeId = transactionsModel->fieldIndex("cardtype"); 
 
     
     ui_mainview.transactionsTable->setModel(transactionsModel);
@@ -1311,6 +1312,7 @@ void squeezeView::setupTransactionsModel()
     transactionsModel->setRelation(transClientidIndex, QSqlRelation("clients", "id", "name"));
     transactionsModel->setRelation(transUseridIndex, QSqlRelation("users", "id", "username"));
     transactionsModel->setRelation(transProvIdIndex, QSqlRelation("providers", "id", "name"));
+    transactionsModel->setRelation(transCardTypeId, QSqlRelation("cardtypes", "typeid", "text"));
     
     transactionsModel->setHeaderData(transIdIndex, Qt::Horizontal, i18n("Id"));
     transactionsModel->setHeaderData(transClientidIndex, Qt::Horizontal, i18n("Client"));
@@ -1332,6 +1334,7 @@ void squeezeView::setupTransactionsModel()
     transactionsModel->setHeaderData(transUtilityIndex, Qt::Horizontal, i18n("Profit") );
     transactionsModel->setHeaderData(transTerminalNumIndex, Qt::Horizontal, i18n("Terminal #") );
     transactionsModel->setHeaderData(transProvIdIndex, Qt::Horizontal, i18n("Provider") );
+    transactionsModel->setHeaderData(transCardTypeId, Qt::Horizontal, i18n("Card Type") );
 
     ui_mainview.transactionsTable->setColumnHidden(transactionsModel->fieldIndex("totalTax"), true);
     ui_mainview.transactionsTable->setColumnHidden(transactionsModel->fieldIndex("specialOrders"), true);

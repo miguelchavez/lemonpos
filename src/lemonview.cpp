@@ -1959,7 +1959,7 @@ void lemonView::createNewTransaction(TransactionType type)
     info.providerid = 1; //default one... for no.. FIXME!
     info.terminalnum=Settings::editTerminalNumber();
     info.balanceId = currentBalanceId;
-    info.cardType = 0;
+    info.cardType = 1;
     info.cardTypeStr = "";
 
     Azahar *myDb = new Azahar;

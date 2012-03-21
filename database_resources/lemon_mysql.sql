@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   `paidwith` double unsigned NOT NULL default '0.0',
   `changegiven` double unsigned NOT NULL default '0.0',
   `paymethod` int(10) NOT NULL default '0',
-  `cardtype` int(10) NOT NULL default '0', #since March 19 2012.
+  `cardtype` int(10) NOT NULL default '1', #since March 19 2012.
   `state` int(10) NOT NULL default '0',
   `userid` int(10) NOT NULL default '0',
   `cardnumber` varchar(20) character set utf8 collate utf8_general_ci,
@@ -469,10 +469,11 @@ INSERT INTO lemondb.clients (id, name, points, discount) VALUES (1, 'General', 0
 INSERT INTO lemondb.categories (catid, text) VALUES (1, 'General');
 
 #Insert default card types (very important to keep these ids)
-INSERT INTO lemondb.cardtypes (typeid, text) VALUES(1, 'Credit VISA');
-INSERT INTO lemondb.cardtypes (typeid, text) VALUES(2, 'Credit MC');
-INSERT INTO lemondb.cardtypes (typeid, text) VALUES(3, 'Debit VISA');
-INSERT INTO lemondb.cardtypes (typeid, text) VALUES(4, 'Debit MC');
+INSERT INTO lemondb.cardtypes (typeid, text) VALUES(1, 'None');
+INSERT INTO lemondb.cardtypes (typeid, text) VALUES(2, 'Credit VISA');
+INSERT INTO lemondb.cardtypes (typeid, text) VALUES(3, 'Credit MC');
+INSERT INTO lemondb.cardtypes (typeid, text) VALUES(4, 'Debit VISA');
+INSERT INTO lemondb.cardtypes (typeid, text) VALUES(5, 'Debit MC');
 #Insert default payment types (very important to keep these ids)
 INSERT INTO lemondb.paytypes (typeid, text) VALUES(1, 'Cash');
 INSERT INTO lemondb.paytypes (typeid, text) VALUES(2, 'Card');
