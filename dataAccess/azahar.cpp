@@ -2971,6 +2971,29 @@ QList<CashFlowInfo> Azahar::getCashFlowInfoList(const QDateTime &start, const QD
 }
 
 //Card Types
+QHash<QString, int> Azahar::getCardTypesHash()
+{
+    QHash<QString, int> result;
+    result.clear();
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        if (myQuery.exec("select * from cardtypes;")) {
+            while (myQuery.next()) {
+                int fieldId   = myQuery.record().indexOf("typeid");
+                int fieldText = myQuery.record().indexOf("text");
+                int id = myQuery.value(fieldId).toInt();
+                QString text = myQuery.value(fieldText).toString();
+                result.insert(text, id);
+            }
+        }
+        else {
+            qDebug()<<"ERROR: "<<myQuery.lastError();
+        }
+    }
+    return result;
+}
+
 QStringList Azahar::getCardTypes()
 {
     QStringList result;

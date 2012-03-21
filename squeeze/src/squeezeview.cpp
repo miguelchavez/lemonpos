@@ -308,6 +308,7 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.rbTransFilterByStateCancelled, SIGNAL(toggled(bool)), this, SLOT( setTransactionsFilter()) );
   connect(ui_mainview.rbTransFilterByPaidCash, SIGNAL(toggled(bool)), this, SLOT( setTransactionsFilter()) );
   connect(ui_mainview.rbTransFilterByPaidCredit, SIGNAL(toggled(bool)), this, SLOT( setTransactionsFilter()) );
+  connect(ui_mainview.comboCardTypes, SIGNAL(currentIndexChanged(int)), this, SLOT( setTransactionsFilter()) );
   connect(ui_mainview.rbTransFilterByDate, SIGNAL(toggled(bool)), this, SLOT( setTransactionsFilter()) );
   connect(ui_mainview.transactionsDateEditor, SIGNAL( changed(const QDate &) ), SLOT(setTransactionsFilter()));
   connect(ui_mainview.rbTransFilterByUser, SIGNAL(toggled(bool)), this, SLOT( setTransactionsFilter()) );
@@ -1083,6 +1084,15 @@ void squeezeView::populateCategoriesHash()
   delete myDb;
 }
 
+void squeezeView::populateCardTypesHash()
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    cardTypesHash.clear();
+    cardTypesHash = myDb->getCardTypesHash();
+    delete myDb;
+}
+
 void squeezeView::setProductsFilter()
 {
 //NOTE: This is a QT BUG.
@@ -1344,7 +1354,7 @@ void squeezeView::setupTransactionsModel()
     ui_mainview.transactionsTable->setSelectionMode(QAbstractItemView::SingleSelection);
     
     transactionsModel->select();
-    
+    updateCardTypesCombo();
   }
   qDebug()<<"setupTransactions.. done, "<<transactionsModel->lastError();
 }
@@ -1400,7 +1410,9 @@ void squeezeView::setTransactionsFilter()
     }
     else if (ui_mainview.rbTransFilterByPaidCredit->isChecked()) {
       //6th if: filter by PAID WITH CARD
-      transactionsModel->setFilter("transactions.paymethod=2 and transactions.state=2"); //paid with card and finished only
+      QString cardTypeStr = ui_mainview.comboCardTypes->currentText();
+      int cardTypeId = cardTypesHash.value(cardTypeStr);
+      transactionsModel->setFilter(QString("transactions.paymethod=2 and transactions.state=2 and transactions.cardtype=%1").arg(cardTypeId)); //paid with card and finished only
       transactionsModel->setSort(transIdIndex, Qt::AscendingOrder);
     }
     else if (ui_mainview.rbTransFilterByDate->isChecked()) {
@@ -2483,6 +2495,17 @@ void squeezeView::updateCategoriesCombo()
     item.next();
     ui_mainview.comboProductsFilterByCategory->addItem(item.key());
   }
+}
+
+void squeezeView::updateCardTypesCombo()
+{
+    populateCardTypesHash();
+    ui_mainview.comboCardTypes->clear();
+    QHashIterator<QString, int> item(cardTypesHash);
+    while (item.hasNext()) {
+        item.next();
+        ui_mainview.comboCardTypes->addItem(item.key());
+    }
 }
 
 void squeezeView::createClient()
