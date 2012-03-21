@@ -99,7 +99,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>13</number>
+      <number>10</number>
      </property>
      <widget class="QWidget" name="pageWelcome">
       <layout class="QGridLayout" name="gridLayout">
@@ -1745,8 +1745,8 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>160</x>
                  <y>10</y>
-                 <width>391</width>
-                 <height>251</height>
+                 <width>602</width>
+                 <height>347</height>
                 </rect>
                </property>
                <property name="sizePolicy">
@@ -1776,7 +1776,7 @@ p, li { white-space: pre-wrap; }
                <property name="checked">
                 <bool>false</bool>
                </property>
-               <layout class="QGridLayout" name="gridLayout_6">
+               <layout class="QGridLayout" name="gridLayout_2">
                 <item row="0" column="0">
                  <widget class="QRadioButton" name="rbTransactionsFilterOnlySales">
                   <property name="text">
@@ -1813,11 +1813,18 @@ p, li { white-space: pre-wrap; }
                  </widget>
                 </item>
                 <item row="2" column="1">
-                 <widget class="QRadioButton" name="rbTransFilterByPaidCredit">
-                  <property name="text">
-                   <string>show transactions paid with card</string>
-                  </property>
-                 </widget>
+                 <layout class="QHBoxLayout" name="horizontalLayout_14">
+                  <item>
+                   <widget class="QRadioButton" name="rbTransFilterByPaidCredit">
+                    <property name="text">
+                     <string>show transactions paid with card</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="comboCardTypes"/>
+                  </item>
+                 </layout>
                 </item>
                 <item row="3" column="1">
                  <widget class="QRadioButton" name="rbTransFilterByPaidCash">

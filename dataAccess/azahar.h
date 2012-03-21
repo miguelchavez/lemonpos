@@ -182,6 +182,7 @@ class Azahar : public QObject
     QString     getCardTypeStr(qulonglong type);
     qulonglong  getCardTypeId(QString type);
     QStringList getCardTypes();
+    QHash<QString,int> getCardTypesHash();
     
     //PayTypes
     QString     getPayTypeStr(qulonglong type);
