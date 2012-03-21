@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1005</width>
-    <height>620</height>
+    <height>655</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -379,7 +379,7 @@
                  <string>Ca&amp;sh</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="mainview.qrc">
+                 <iconset>
                   <normaloff>:/images/icons/images/money.png</normaloff>:/images/icons/images/money.png</iconset>
                 </property>
                 <property name="checked">
@@ -413,7 +413,7 @@
                    <string>Ca&amp;rd</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="mainview.qrc">
+                   <iconset>
                     <normaloff>:/images/icons/images/card.png</normaloff>:/images/icons/images/card.png</iconset>
                   </property>
                  </widget>
@@ -429,7 +429,7 @@
                  <string>&amp;Internal Credit</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="mainview.qrc">
+                 <iconset>
                   <normaloff>:/images/icons/images/owncredit.png</normaloff>:/images/icons/images/owncredit.png</iconset>
                 </property>
                </widget>
