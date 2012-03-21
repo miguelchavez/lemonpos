@@ -1,5 +1,5 @@
 /**************************************************************************
- *   Copyright © 2007-2010 by Miguel Chavez Gamboa                         *
+ *   Copyright © 2007-2012 by Miguel Chavez Gamboa                         *
  *   miguel@lemonpos.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *

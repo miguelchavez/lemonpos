@@ -1,5 +1,5 @@
 /**************************************************************************
-*   Copyright (C) 2009-2010 by Miguel Chavez Gamboa                       *
+*   Copyright (C) 2009-2012 by Miguel Chavez Gamboa                       *
 *   miguel@lemonpos.org                                                   *
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
@@ -1315,25 +1315,16 @@ bool PrintCUPS::printBigEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &prin
 bool PrintCUPS::printSmallEndOfDay(const PrintEndOfDayInfo &pdInfo, QPrinter &printer)
 {
   bool result = false;
-  // calculate font size
-  int headerSize = printer.width()/16; //divisor found by trying, maybe has to do with font metrics?
-  int textSize = headerSize/2; //i think the half of header size is ok
+  int headerSize = 15;
+  int textSize = 7;
 
   if (printer.widthMM() > 150)
       printer.setPaperSize(QSizeF(104,110), QPrinter::Millimeter); // Resetting to 104mm (4 inches) paper.
       //When i press "Properties" button on print dialog (qt/cups), and i cancel the dialog, then the size is set to 210mm.. i dont know why.
       // 210 mm is the size of A4 paper (209.90mm), which it seems to be the default size..
       // It is curious that when selecting custom size, the edit boxes for entering size are disabled and with a default 0x0 size.. why? This causes error on printing.  CUPS or qt guilty?
-
-  if (printer.widthMM() > 72 ) {
-      // The font is big in bigger papers.
-      // For paper size of 104mm (4 in). NOTE:I dont know if there is a bigger paper size for thermal POS printers.
-      // A proper aproach would be get technical details of the printer (resolution -- dots per inch/mm) and calculate font size according... a challenge.
-      headerSize = printer.width()/18;
-      textSize = headerSize/3;
-  }
   
-  qDebug()<<"Paper Width: "<<printer.widthMM()<<"mm"<<"; Page Width: "<<printer.width()<<"; calculated headerSize: "<<headerSize;
+  qDebug()<<"Paper Width: "<<printer.widthMM()<<"mm"<<"; Page Width: "<<printer.width()<<"; calculated headerSize: "<<headerSize<<" Text Size:"<<textSize;
   
   QFont header = QFont("Impact", headerSize);
   const int Margin = printer.width()/40;
