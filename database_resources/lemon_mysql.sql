@@ -70,6 +70,15 @@ CREATE TABLE IF NOT EXISTS `products` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
+CREATE TABLE IF NOT EXISTS `bundle_same` (
+  `id` bigint(20) unsigned NOT NULL auto_increment,
+  `product_id` bigint(20) unsigned NOT NULL,
+  `qty` double NOT NULL default 2,
+  `price` double NOT NULL default 2,
+  PRIMARY KEY  (`id`),
+  KEY `SEC` (`product_id`, `qty`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
 #One credit per customer. Accepts +/- amounts for credit/debit.
 CREATE TABLE IF NOT EXISTS `credits` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
