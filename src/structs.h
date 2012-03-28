@@ -470,4 +470,11 @@ struct RoundingInfo
     int     intIntPart;
 };
 
+struct BundleInfo
+{
+    qulonglong product_id;
+    double     price;
+    double     qty;
+};
+
 #endif

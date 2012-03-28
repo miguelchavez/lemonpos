@@ -33,6 +33,7 @@
 #include "sostatus.h"
 #include "resume.h"
 #include "reservations.h"
+#include "bundlelist.h"
 #include "../../mibitWidgets/mibittip.h"
 #include "../../mibitWidgets/mibitpassworddlg.h"
 #include "../../mibitWidgets/mibitfloatpanel.h"
@@ -289,6 +290,9 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   productsHash.clear();
   specialOrders.clear();
   clientsHash.clear();
+
+  bundlesHash = new BundleList(); //remember to delete it.
+  
   //ui_mainview.lblClientPhoto->hide();
   //ui_mainview.labelInsertCodeMsg->hide();
   transDateTime = QDateTime::currentDateTime();
@@ -1407,16 +1411,17 @@ if ( doNotAddMoreItems ) { //only for reservations
 
 
   bool allowNegativeStock = Settings::allowNegativeStock();
+  bool productInHash = false;
+  QString msg;
 
   info = myDb->getProductInfo(codeX); //includes discount and validdiscount
-  qDebug()<<" CodeX = "<<codeX<<" Numeric Code:"<<info.code<<" Alphacode:"<<info.alphaCode<<" Required Qty:"<<qty<<" Allow NegativeStock:"<<allowNegativeStock;
-  delete myDb;
+  qDebug()<<" CodeX = "<<codeX<<" Numeric Code:"<<info.code<<" Alphacode:"<<info.alphaCode<<"QtyOnList:"<<info.qtyOnList<<" Required Qty:"<<qty<<" Allow NegativeStock:"<<allowNegativeStock;
 
   //the next 'if' checks if the hash contains the product and got values from there.. To include purchaseQty, that we need!
-  if (productsHash.contains( info.code )) 
+  if (productsHash.contains( info.code )) {
       info = productsHash.value( info.code );
-
-  QString msg;
+      productInHash = true;
+  }
 
   //verify item units and qty..
   if (info.units == uPiece) {
@@ -1431,6 +1436,39 @@ if ( doNotAddMoreItems ) { //only for reservations
   }
 
   if ( qty <= 0) {return;}
+
+  ///Bundle procedure.
+  /// A product can be added to a bundle when at the bundle_same table exists qty for the amount required.
+  /// Example: A bundle for product 501:
+  ///          Qty: 2, Price: 5
+  ///          Qty: 3, Price: 4.5
+  ///          Qty: 4, Price: 4
+  /// So, if in the hash exists 4x501 and another is added (incremented) then the product cannot be added to the bundle, it needs to form another bundle when another is added (2+)
+  ///------------------------------------------------------------------------------------------------------------------------------------
+  /// Is product in the hash? YES -> Is any bundle containing it? YES -> Can be added to it? YES -> Add to bundle -> Add to hash
+  ///                         NO  -> Add to hash
+  ///                                                             NO  -> Create Bundle  -> Add to bundle -> Add to hash
+  ///                                                                                        NO -> Add to hash
+
+
+  if ( productsHash.contains(info.code) ) {
+      //Insert the bundle...
+      int tQty = 0;
+      if (info.qtyOnList == 1)
+          tQty = 1; //if there is ONE item at the productsHash then we need to add 1 because the first one was not added.
+      BundleInfo bundle;
+      BundleInfo maxBundled = myDb->getMaxBundledForProduct(info.code); //gets the maximum qty and price for this product bundle.
+      bundle.product_id = info.code;
+      bundle.qty = qty + tQty;
+      bundle.price = myDb->getBundlePriceFor(info.code, tQty+qty); //FIXME: we need a price for each qty on each bundle inserted.. this is going to be at the BundleList class!
+
+      qDebug()<<"Going to insert "<<bundle.qty<<" items."<<" info.qtyOnList:"<<info.qtyOnList;
+      bundlesHash->addItem(bundle, maxBundled.qty);
+
+      bundlesHash->debugAll();
+  }
+
+  delete myDb;
   
   if (!incrementTableItemQty( QString::number(info.code) /*codeX*/, qty) ) {
     info.qtyOnList = qty;
@@ -1999,6 +2037,7 @@ void lemonView::createNewTransaction(TransactionType type)
    }
   productsHash.clear();
   specialOrders.clear();
+  bundlesHash->clear();
 }
 
 void lemonView::finishCurrentTransaction()
@@ -3013,6 +3052,7 @@ void lemonView::startAgain()
   qDebug()<<"startAgain(): New Transaction";
   productsHash.clear();
   specialOrders.clear();
+  bundlesHash->clear();
   setupClients(); //clear the clientInfo (sets the default client info)
   clearUsedWidgets();
   buyPoints =0;
@@ -3053,6 +3093,7 @@ void lemonView::preCancelCurrentTransaction()
   if (ui_mainview.tableWidget->rowCount()==0 ) { //empty transaction
     productsHash.clear();
     specialOrders.clear();
+    bundlesHash->clear();
     setupClients(); //clear the clientInfo (sets the default client info)
     clearUsedWidgets();
     buyPoints =0;
@@ -3185,6 +3226,7 @@ void lemonView::cancelTransaction(qulonglong transactionNumber)
         qDebug()<<"Transaction to cancel is in progress. Clearing all to reuse transaction number...";
         productsHash.clear();
         specialOrders.clear();
+        bundlesHash->clear();
         setupClients(); //clear the clientInfo (sets the default client info)
         clearUsedWidgets();
         buyPoints =0;
@@ -4002,6 +4044,7 @@ void lemonView::connectToDb()
     //pass db to login/pass dialogs
     dlgLogin->setDb(db);
     dlgPassword->setDb(db);
+    bundlesHash->setDb(db);
 
     //checking if is the first run.
     Azahar *myDb = new Azahar;

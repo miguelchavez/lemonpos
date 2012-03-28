@@ -27,6 +27,7 @@ set(lemon_SRCS
    sostatus.cpp
    resume.cpp
    reservations.cpp
+   bundlelist.cpp
    #printers/sp500.cpp
  )
 

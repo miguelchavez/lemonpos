@@ -1157,6 +1157,77 @@ void Azahar::updateGroupElements(qulonglong code, QString elementsStr)
 }
 
 
+//Bundles
+QList<BundleInfo> Azahar::getBundleInfo(qulonglong productId)
+{
+    QList<BundleInfo> list;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery query(db);
+        query.prepare("SELECT * from bundle_same WHERE product_id=:pid");
+        query.bindValue(":pid", productId);
+        if (!query.exec()) {setError(query.lastError().text()); qDebug()<<"<*> ERROR: "<<query.lastError();}
+        else {
+            while (query.next()) {
+                int fieldQty  = query.record().indexOf("qty");
+                int fieldPrice= query.record().indexOf("price");
+                BundleInfo info;
+                info.product_id = productId;
+                info.price      = query.value(fieldPrice).toDouble();
+                info.qty        = query.value(fieldQty).toDouble();
+                list << info;
+            }
+        }
+        
+    }
+    return list;
+}
+
+BundleInfo Azahar::getMaxBundledForProduct(qulonglong pId)
+{
+    BundleInfo result;
+    result.product_id = pId;
+    result.qty = 0;
+    result.price = 0;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery query(db);
+        query.prepare("SELECT * from bundle_same WHERE product_id=:pid ORDER BY qty DESC LIMIT 1");
+        query.bindValue(":pid", pId);
+        if (!query.exec()) {setError(query.lastError().text()); qDebug()<<"<*> ERROR: "<<query.lastError();}
+        else {
+            while (query.next()) {
+                int fieldQty  = query.record().indexOf("qty");
+                int fieldPrice= query.record().indexOf("price");
+                result.price      = query.value(fieldPrice).toDouble();
+                result.qty        = query.value(fieldQty).toDouble();
+            }
+        }
+        
+    }
+    return result;
+}
+
+double Azahar::getBundlePriceFor(qulonglong pId, double qty)
+{
+    double result = 0;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery query(db);
+        query.prepare("SELECT price from bundle_same WHERE product_id=:pid");
+        query.bindValue(":pid", pId);
+        if (!query.exec()) {setError(query.lastError().text()); qDebug()<<"<*> ERROR: "<<query.lastError();}
+        else {
+            while (query.next()) {
+                int fieldPrice= query.record().indexOf("price");
+                result        = query.value(fieldPrice).toDouble();
+            }
+        }
+        
+    }
+    return result;
+}
+
 //DEPARTMENTS
 bool Azahar::insertDepartment(QString text)
 {
