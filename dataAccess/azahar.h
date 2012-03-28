@@ -94,7 +94,11 @@ class Azahar : public QObject
     //PRODUCT STOCK CORRECTION
     bool         correctStock(qulonglong pcode, double oldStockQty, double newStockQty, const QString &reason );
 
-
+    //bundles -- Same product (Simple bundle => 2x 1, 3x0.8 ..)
+    QList<BundleInfo>  getBundleInfo(qulonglong productId);
+    BundleInfo         getMaxBundledForProduct(qulonglong pId);
+    double             getBundlePriceFor(qulonglong pId, double qty);
+    
     //DEPARTMENTS
     QHash<QString, int> getDepartmentsHash();
     QStringList getDepartmentsList();

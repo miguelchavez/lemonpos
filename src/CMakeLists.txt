@@ -31,6 +31,7 @@ set(lemon_SRCS
    dialogclientdata.cpp
    ../squeeze/src/clienteditor.cpp
    refacturar.cpp
+   bundlelist.cpp
    #printers/sp500.cpp
  )
 

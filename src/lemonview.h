@@ -37,6 +37,7 @@ class MibitNotifier;
 #include "gaveta.h"
 #include "loginwindow.h"
 #include "ui_mainview.h"
+#include "bundlelist.h"
 
 /**
  * This is the main view class for lemon.  Most of the non-menu,
@@ -137,6 +138,8 @@ public:
     QDoubleValidator *valPercentage;
     QDoubleValidator *valMoney;
     
+    //QMultiHash<qulonglong, BundleInfo> bundlesHash;
+    BundleList *bundlesHash;
 
     void loadIcons();
     void setUpInputs();

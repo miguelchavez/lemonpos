@@ -531,4 +531,11 @@ struct FacturaCBB
 //      Notas de Credito (No necesario sobre una factura) [Ver si esto requiere FOLIO del SAT]
 //      Pagos a una factura, saldo sobre la factura.  Relacion entre factura->Credito->Abono
 
+struct BundleInfo
+{
+    qulonglong product_id;
+    double     price;
+    double     qty;
+};
+
 #endif
