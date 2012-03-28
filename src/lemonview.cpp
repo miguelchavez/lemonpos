@@ -228,7 +228,10 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   //Signals
   connect(timerClock, SIGNAL(timeout()), SLOT(timerTimeout()) );
   //connect(ui_mainview.editItemDescSearch, SIGNAL(returnPressed()), this, SLOT(doSearchItemDesc()));
-  connect(ui_mainview.editItemDescSearch, SIGNAL(textEdited(const QString&)), this, SLOT(doSearchItemDesc()));
+  //connect(ui_mainview.editItemDescSearch, SIGNAL(textEdited(const QString&)), this, SLOT(doSearchItemDesc()));
+  connect(ui_mainview.editItemDescSearch, SIGNAL(returnPressed()), this, SLOT(doSearchItemDesc()));
+  //WARNING: Above. With many products when searching, it may be too slow and give problems. It is better to have onreturnPressed instead of textEdited signal.
+  
   connect(ui_mainview.editItemCode, SIGNAL(returnPressed()), this, SLOT(doEmitSignalQueryDb()));
   connect(this, SIGNAL(signalQueryDb(QString)), this, SLOT(insertItem(QString)) );
   connect(ui_mainview.tableWidget, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(itemDoubleClicked(QTableWidgetItem*)) );
