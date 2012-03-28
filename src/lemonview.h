@@ -380,6 +380,8 @@ public:
     void doCreditPayment();
     void insertCashInForCredit(const CreditInfo &credit, const double &amount);
     void printCreditReport();
+
+    void qtyChanged(QTableWidgetItem *item);
 };
 
 #endif // LEMONVIEW_H

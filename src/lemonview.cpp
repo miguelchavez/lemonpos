@@ -227,14 +227,14 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   
   //Signals
   connect(timerClock, SIGNAL(timeout()), SLOT(timerTimeout()) );
-  //connect(ui_mainview.editItemDescSearch, SIGNAL(returnPressed()), this, SLOT(doSearchItemDesc()));
-  //connect(ui_mainview.editItemDescSearch, SIGNAL(textEdited(const QString&)), this, SLOT(doSearchItemDesc()));
   connect(ui_mainview.editItemDescSearch, SIGNAL(returnPressed()), this, SLOT(doSearchItemDesc()));
+  //connect(ui_mainview.editItemDescSearch, SIGNAL(textEdited(const QString&)), this, SLOT(doSearchItemDesc()));
   //WARNING: Above. With many products when searching, it may be too slow and give problems. It is better to have onreturnPressed instead of textEdited signal.
   
   connect(ui_mainview.editItemCode, SIGNAL(returnPressed()), this, SLOT(doEmitSignalQueryDb()));
   connect(this, SIGNAL(signalQueryDb(QString)), this, SLOT(insertItem(QString)) );
   connect(ui_mainview.tableWidget, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(itemDoubleClicked(QTableWidgetItem*)) );
+  connect(ui_mainview.tableWidget, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(qtyChanged(QTableWidgetItem*)));
   //connect(ui_mainview.tableSearch, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(itemSearchDoubleClicked(QTableWidgetItem*)) );
   connect(ui_mainview.tableSearch, SIGNAL(itemActivated(QTableWidgetItem*)), SLOT(itemSearchDoubleClicked(QTableWidgetItem*)) );
   connect(ui_mainview.tableWidget, SIGNAL(itemClicked(QTableWidgetItem*)), SLOT(displayItemInfo(QTableWidgetItem*)));
@@ -348,6 +348,15 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
  //    }
 
   ui_mainview.editItemCode->setFocus();
+}
+
+void lemonView::qtyChanged(QTableWidgetItem *item)
+{
+    //qDebug()<<"qtyChanged: "<<item->data(Qt::DisplayRole).toString()<<" COLUMN:"<<item->column();
+    if (item && item == ui_mainview.tableWidget ->currentItem() && item->column() == colQty) {
+        qDebug()<<"\n\nCurrent Item == item: "<<item->data(Qt::DisplayRole).toString()<<"\n\n";
+        //TODO:increment qty by the amount, in the productsHash or soHash.
+    }
 }
 
 void lemonView::showChangeDate()
