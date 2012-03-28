@@ -851,16 +851,16 @@
                <enum>Qt::ScrollBarAlwaysOn</enum>
               </property>
               <property name="editTriggers">
-               <set>QAbstractItemView::NoEditTriggers</set>
+               <set>QAbstractItemView::DoubleClicked</set>
               </property>
               <property name="tabKeyNavigation">
                <bool>false</bool>
               </property>
               <property name="showDropIndicator" stdset="0">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <property name="dragDropOverwriteMode">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <property name="alternatingRowColors">
                <bool>false</bool>
