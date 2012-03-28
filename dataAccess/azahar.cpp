@@ -427,8 +427,28 @@ QList<qulonglong> Azahar::getProductsCode(QString regExpName)
   result.clear();
   QSqlQuery query(db);
   QString qry;
+  QString tmpQry;
   if (regExpName == "*") qry = "SELECT code from products;";
-  else qry = QString("select code,name,alphacode from products WHERE `name` REGEXP '%1' OR  `alphacode` REGEXP '%1'").arg(regExpName);
+  else {
+      if ( regExpName.contains(' ') ) {
+          ///  bujia' 'platino' 'honda
+          //Podria ser ..WHERE name REGEXP 'bujia|platino|honda'. Pero como es un OR tambien nos regresaria los que contengan al menos uno de ellos.
+          QString tmpS = regExpName;
+          tmpS.replace(' ', "' '");
+          tmpS = QString("'%1'").arg(tmpS);
+          QStringList list = tmpS.split(' ', QString::SkipEmptyParts, Qt::CaseInsensitive);
+          tmpQry = list.join(" AND `name` REGEXP ");
+          QString tmpQry2 = tmpQry;
+          tmpQry2 = tmpQry2.replace("name", "alphacode");
+          qry = QString("select code,name,alphacode from products WHERE (`name` REGEXP %1) OR  (`alphacode` REGEXP %2) ").arg(tmpQry).arg(tmpQry2);
+      }
+      else
+          qry = QString("select code,name,alphacode from products WHERE `name` REGEXP '%1' OR  `alphacode` REGEXP '%1'").arg(regExpName);
+  }
+  qDebug()<<"QUERY:"<<qry;
+  //TODO: When user searches text like "white collar" and there are products like "white and red collar" or "white and brilliant collar" then the products are not found.
+  //The key is to separate words with an OR: ..WHERE name REGEXP 'white' OR name REGEXP 'collar'
+  //see if the regExpName contains spaces
   if (query.exec(qry)) {
     while (query.next()) {
       int fieldId   = query.record().indexOf("code");
