@@ -232,7 +232,8 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   connect(ui_mainview.editItemCode, SIGNAL(returnPressed()), this, SLOT(doEmitSignalQueryDb()));
   connect(this, SIGNAL(signalQueryDb(QString)), this, SLOT(insertItem(QString)) );
   connect(ui_mainview.tableWidget, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(itemDoubleClicked(QTableWidgetItem*)) );
-  connect(ui_mainview.tableSearch, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(itemSearchDoubleClicked(QTableWidgetItem*)) );
+  //connect(ui_mainview.tableSearch, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(itemSearchDoubleClicked(QTableWidgetItem*)) );
+  connect(ui_mainview.tableSearch, SIGNAL(itemActivated(QTableWidgetItem*)), SLOT(itemSearchDoubleClicked(QTableWidgetItem*)) );
   connect(ui_mainview.tableWidget, SIGNAL(itemClicked(QTableWidgetItem*)), SLOT(displayItemInfo(QTableWidgetItem*)));
   //connect(ui_mainview.listView, SIGNAL(activated(const QModelIndex &)), SLOT(listViewOnClick(const QModelIndex &)));
   connect(ui_mainview.listView, SIGNAL(clicked(const QModelIndex &)), SLOT(listViewOnClick(const QModelIndex &)));
@@ -1610,6 +1611,8 @@ int lemonView::doInsertItem(QString itemCode, QString itemDesc, double itemQty, 
   if (productsHash.contains(itemCode.toULongLong())) { 
     ProductInfo  info = productsHash.value(itemCode.toULongLong());
     if (info.units != uPiece) itemDoubleClicked(item);//NOTE: Pieces must be id=1 at database!!!! its a workaround.
+    ///WARNING: March 17 2012. Im implementing a double clicking feature for adding a delegate for typing the new QTY for the clicked item.
+    ///         So, this will cause problems with this call (maybe more).
   }
 
   refreshTotalLabel();
@@ -1852,6 +1855,7 @@ void lemonView::itemSearchDoubleClicked(QTableWidgetItem *item)
       ProductInfo info = productsHash.value(code);
       if (info.units == uPiece) incrementTableItemQty(QString::number(code), 1);
       else itemDoubleClicked(thisItem);
+      ///WARNING: March 17 2012. Im implementing a double clicking feature for adding a delegate for typing the new QTY for the clicked item.
     }
   }
   else {
