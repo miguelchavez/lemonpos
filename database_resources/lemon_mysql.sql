@@ -192,7 +192,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 CREATE TABLE IF NOT EXISTS `clients` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
-  `code` varchar(13) collate utf8_general_ci default '0000000000000',
+  `code` varchar(13) collate utf8_general_ci default '000001',
   `name` varchar(255) collate utf8_general_ci default '',
   `since` date NOT NULL default '2009-01-01',
   `address` varchar(255) collate utf8_general_ci default NULL,
@@ -464,7 +464,7 @@ INSERT INTO lemondb.users (id, username, password, salt, name, role) VALUES (1, 
 #Insert a default measure (very important to keep this id)
 INSERT INTO lemondb.measures (id, text) VALUES(1, 'Pc');
 #Insert a default client
-INSERT INTO lemondb.clients (id, name, points, discount) VALUES (1, 'General', 0, 0);
+INSERT INTO lemondb.clients (id, code, name, points, discount) VALUES (1, '000001', 'General', 0, 0);
 #Insert a default category
 INSERT INTO lemondb.categories (catid, text) VALUES (1, 'General');
 
