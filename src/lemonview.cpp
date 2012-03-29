@@ -33,6 +33,7 @@
 #include "sostatus.h"
 #include "resume.h"
 #include "reservations.h"
+#include "saleqtydelegate.h"
 #include "../../mibitWidgets/mibittip.h"
 #include "../../mibitWidgets/mibitpassworddlg.h"
 #include "../../mibitWidgets/mibitfloatpanel.h"
@@ -233,7 +234,7 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   
   connect(ui_mainview.editItemCode, SIGNAL(returnPressed()), this, SLOT(doEmitSignalQueryDb()));
   connect(this, SIGNAL(signalQueryDb(QString)), this, SLOT(insertItem(QString)) );
-  connect(ui_mainview.tableWidget, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(itemDoubleClicked(QTableWidgetItem*)) );
+  //NOTE:Disabling For editing. connect(ui_mainview.tableWidget, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(itemDoubleClicked(QTableWidgetItem*)) );
   connect(ui_mainview.tableWidget, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(qtyChanged(QTableWidgetItem*)));
   //connect(ui_mainview.tableSearch, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(itemSearchDoubleClicked(QTableWidgetItem*)) );
   connect(ui_mainview.tableSearch, SIGNAL(itemActivated(QTableWidgetItem*)), SLOT(itemSearchDoubleClicked(QTableWidgetItem*)) );
@@ -352,10 +353,37 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
 
 void lemonView::qtyChanged(QTableWidgetItem *item)
 {
+    //NOTE: This method is executed only when the data is changed. If the delegate does not allow the change, then this is not executed (signal not emitted).
     //qDebug()<<"qtyChanged: "<<item->data(Qt::DisplayRole).toString()<<" COLUMN:"<<item->column();
-    if (item && item == ui_mainview.tableWidget ->currentItem() && item->column() == colQty) {
-        qDebug()<<"\n\nCurrent Item == item: "<<item->data(Qt::DisplayRole).toString()<<"\n\n";
-        //TODO:increment qty by the amount, in the productsHash or soHash.
+    ///NOTE: Allow price change this way too?. It is more difficult than qty change, implies permissions.
+    ///      The  spinbox only support integers. We need a config option to turn ON/OFF this feature.
+    if (item && item->column() == colQty) { //item == ui_mainview.tableWidget ->currentItem() &&
+        //TODO:Create and assign a delegate to handle limits on the spinbox.
+        //get item code
+        int row = item->row();
+        double newQty = item->data(Qt::DisplayRole).toDouble();
+        QTableWidgetItem *i2Modify = ui_mainview.tableWidget->item(row, colCode);
+        qulonglong code = i2Modify->data(Qt::DisplayRole).toULongLong();
+        //is it an SO or a product?
+        if ( !productsHash.contains(code) ) {
+            qDebug()<<"Product not in the hash. SpecialOrders are not supported yet.";
+        } else {
+            ProductInfo info = productsHash.take(code);
+            info.qtyOnList = item->data(Qt::DisplayRole).toDouble();
+            //When refreshTotalLabel is executed, discounts are calculated but the discount at the line is not (also due).
+            double price    = info.price;
+            double discountperitem = info.disc;
+            double newdiscount = discountperitem* newQty;
+            i2Modify = ui_mainview.tableWidget->item(row, colDue);
+            i2Modify->setData(Qt::EditRole, QVariant((newQty*price)-newdiscount)); //only item discounts (not globalDiscounts/priceChange)
+            i2Modify = ui_mainview.tableWidget->item(row, colDisc);
+            i2Modify->setData(Qt::EditRole, QVariant(newdiscount));
+            //return product info to the hash
+            productsHash.insert(code, info);
+            ui_mainview.editItemCode->setFocus();
+            refreshTotalLabel();
+            qDebug()<<"\n\nCurrent Item == item: "<<code<<" NEW QTY:"<<newQty<<"\n\n";
+        }
     }
 }
 
@@ -3947,6 +3975,11 @@ void lemonView::setupDB()
   db.setUserName(Settings::editDBUsername());
   db.setPassword(Settings::editDBPassword());
   connectToDb();
+
+  ///NOTE: set tableWidget delegate, and set its db. Here because we need a configured db.
+  SaleQtyDelegate *qtyD = new SaleQtyDelegate();
+  qtyD->setDb(db);
+  ui_mainview.tableWidget->setItemDelegate( qtyD );
 }
 
 void lemonView::connectToDb()
