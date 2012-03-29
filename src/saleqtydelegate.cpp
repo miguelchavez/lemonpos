@@ -18,15 +18,11 @@ QWidget *SaleQtyDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
         Azahar *myDb = new Azahar;
         myDb->setDatabase(db);
         QModelIndex sibling = index.sibling( index.row(), 0 ); // colCode=0
-        QString code = sibling.data(Qt::DisplayRole).toString();
-        ProductInfo info = myDb->getProductInfo( code );
-        qDebug()<<"\n\nSIBLING:"<<code<<" | "<<info.desc<<"\n\n";
+        qulonglong code = sibling.data(Qt::DisplayRole).toULongLong();
+        int stock = myDb->getProductStockQty( code );
         //the  spinbox only support integers. We need a config option to turn ON/OFF this feature.
         editor->setMinimum(1);
-        if (info.hasUnlimitedStock)
-            editor->setMaximum(99999);
-        else
-            editor->setMaximum(info.stockqty); //as the editor contains the actual data/0, and will change, then we set max to stockqty.
+        editor->setMaximum(stock); //as the editor contains the actual data/0, and will change, then we set max to stockqty.
         delete myDb;
         return editor;
     } else {
