@@ -208,7 +208,7 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   path = KStandardDirs::locate("appdata", "styles/");
   path = path+ "panel_top_big.svg";
   creditPanel = new MibitFloatPanel(ui_mainview.frame, path, Top);
-  creditPanel->setSize(600,400);
+  creditPanel->setSize(800,450);
   creditPanel->addWidget(ui_mainview.creditWidget);
   creditPanel->setMode(pmManual);
   creditPanel->setHiddenTotally(true);
