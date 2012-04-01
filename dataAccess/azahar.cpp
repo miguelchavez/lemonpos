@@ -454,7 +454,7 @@ QList<qulonglong> Azahar::getProductsCode(QString regExpName)
       int fieldId   = query.record().indexOf("code");
       qulonglong id = query.value(fieldId).toULongLong();
       result.append(id);
-//       qDebug()<<"APPENDING TO PRODUCTS LIST:"<<id;
+      //qDebug()<<"APPENDING TO PRODUCTS LIST:"<<id;
     }
   }
   else {

@@ -2098,6 +2098,16 @@ void lemonView::finishCurrentTransaction()
       ui_mainview.editCardAuthNumber->setSelection(0, ui_mainview.editCardAuthNumber->text().length());
       msg = i18n("<html><font color=red><b>Please enter the Authorisation number from the bank voucher.</b></font></html>");
     }
+
+    //check if card type is != none.
+    qDebug()<<"CARD TYPE index:"<<ui_mainview.comboCardType->currentIndex();
+    if ( ui_mainview.comboCardType->currentIndex() == 0 ) {
+        //currentIndex == 0 => Type NONE.
+        canfinish = false;
+        msg = i18n("<html><font color=red><b>The Card Type must be of some valid type.</b></font></html>");
+        ui_mainview.comboCardType->setFocus();
+    }
+    
     if (!msg.isEmpty())
       tipAmount->showTip(msg, 4000);
   }
@@ -2112,6 +2122,7 @@ void lemonView::finishCurrentTransaction()
     ui_mainview.editAmount->setStyleSheet("");
     ui_mainview.editCardNumber->setStyleSheet("");
     TransactionInfo tInfo;
+    tInfo.cardType = 1; //none
     PaymentType      pType;
     double           payWith = 0.0;
     double           payTotal = 0.0;
@@ -5675,9 +5686,15 @@ void lemonView::printCreditReport()
             QPrinter printer(QPrinter::HighResolution);
             printer.setFullPage( true );
             printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
-            //TODO:Nueva impresora. printer.setPaperSize(QSizeF(72,200), QPrinter::Millimeter); //setting small ticket paper size. 72mm x 200mm
-            //NOTE: Ojo: si se hace click en el boton "Properties" del dialogo de Imprimir, aunque se presione "cancel", el "PAGE" se pone como 204mm
-            //NOTE: El calculo del tamano de fuente no es correcta para papeles mayores a 72mm de anchos.
+
+            qDebug()<<"-Paper Width: "<<printer.widthMM()<<"mm"<<"; Page Width: "<<printer.width();
+            //NOTE: I dont know why the printer reports a paper width of 210mm (that is a A4/Letter width).
+            //      Why, why?.. even the default printer is the TSP800.
+
+            if (printer.widthMM() > 150)
+                printer.setPaperSize(QSizeF(104,110), QPrinter::Millimeter); // Resetting to 104mm (4 inches) paper.
+            
+            qDebug()<<"+Paper Width: "<<printer.widthMM()<<"mm"<<"; Page Width: "<<printer.width();
             
             ui_mainview.creditContent->print(&printer); //this prints directly to the default printer. No print dialog.
             
@@ -5731,6 +5748,7 @@ void lemonView::insertCashInForCredit(const CreditInfo &credit, const double &am
 
 void lemonView::calculateTotalForClient()
 {
+    ui_mainview.creditContent->clear();
     if (crClientInfo.id > 0) {
         Azahar *myDb = new Azahar;
         myDb->setDatabase(db);
@@ -5749,6 +5767,7 @@ void lemonView::calculateTotalForClient()
         topFrame->setFrameFormat(topFrameFormat);
         
         QTextCharFormat textFormat;
+        QTextCharFormat smTextFormat;
         QTextCharFormat boldFormat;
         QTextCharFormat italicsFormat;
         QTextCharFormat titleFormat;
@@ -5757,8 +5776,13 @@ void lemonView::calculateTotalForClient()
         QTextBlockFormat blockLeft;
         QTextBlockFormat blockRight;
         boldFormat.setFontWeight(QFont::Bold);
+        boldFormat.setFontPointSize(8);
+        italicsFormat.setFontPointSize(8);
+        textFormat.setFontPointSize(8);
+        smTextFormat.setFontPointSize(7);
+        smTextFormat.setFontItalic(true);
         italicsFormat.setFontItalic(true);
-        titleFormat.setFontPointSize(18);
+        titleFormat.setFontPointSize(15);
         titleFormat.setFontItalic(true);
         titleFormat.setFontWeight(QFont::Bold);
         hdrFormat = boldFormat;
@@ -5777,131 +5801,151 @@ void lemonView::calculateTotalForClient()
         cursor.insertBlock();
         cursor.insertBlock();
 
-        //cursor.setPosition(topFrame->lastPosition());
-        //totals.
-        cursor.setBlockFormat(blockCenter);
-        cursor.insertText(KGlobal::locale()->formatMoney(crInfo.total), boldFormat);
-        cursor.insertBlock();
-        qDebug()<<__FUNCTION__<<"Credit for "<<crInfo.clientId<<" -- $"<<crInfo.total;
-
-
-        cursor.setBlockFormat(blockCenter);
-        cursor.insertBlock();
-        cursor.insertText(i18n("Today Credit History"), italicsFormat);
-        cursor.insertBlock();
-        cursor.insertHtml("<hr>");
-
         QTextTableFormat itemsTableFormat;
         itemsTableFormat.setAlignment(Qt::AlignHCenter);
         itemsTableFormat.setWidth(QTextLength(QTextLength::PercentageLength, 100));
-        QTextTable *itemsTable = cursor.insertTable(1, 4, itemsTableFormat);
-        
-        //table
-        QTextFrameFormat itemsFrameFormat = cursor.currentFrame()->frameFormat();
-        itemsFrameFormat.setBorder(0);
-        itemsFrameFormat.setPadding(1);
-        cursor.currentFrame()->setFrameFormat(itemsFrameFormat);
-        cursor = itemsTable->cellAt(0, 0).firstCursorPosition();
-        cursor.insertText(i18n("Date"), hdrFormat);
-        cursor = itemsTable->cellAt(0, 1).firstCursorPosition();
-        cursor.insertText(i18n("Time"), hdrFormat);
-        cursor = itemsTable->cellAt(0, 2).firstCursorPosition();
-        cursor.insertText(i18n("Amount"), hdrFormat);
-        cursor = itemsTable->cellAt(0, 3).firstCursorPosition();
-        cursor.insertText(i18n("Sale #"), hdrFormat);
+        QTextTable *itemsTable;
+        QTextFrameFormat itemsFrameFormat;
 
-        foreach(CreditHistoryInfo credit, creditHistory){
-            if (credit.date == QDate::currentDate() ) {
-                int row = itemsTable->rows();
-                itemsTable->insertRows(row, 1);
-                cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
-                cursor.insertText(KGlobal::locale()->formatDate(credit.date, KLocale::ShortDate), boldFormat);
-                cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
-                cursor.insertText(KGlobal::locale()->formatTime(credit.time), textFormat);
-                cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
-                cursor.insertText(KGlobal::locale()->formatMoney(credit.amount), boldFormat);
-                cursor = itemsTable->cellAt(row, 3).firstCursorPosition();
-                cursor.insertText(QString::number(credit.saleId), textFormat);
-                
-                ///now, we can print products for each sale asociated to the credit.
-                if (credit.saleId > 0) {
-                    QList<TransactionItemInfo> saleItems = myDb->getTransactionItems(credit.saleId);
-                    foreach(TransactionItemInfo item, saleItems) {
+        if (!creditHistory.isEmpty()) {
+            //check if there is any credit entry for TODAY.
+            int todayNum = 0;
+            //I dont like to iterate each credit to know that there is one.
+            foreach(CreditHistoryInfo credit, creditHistory){
+                if (credit.date == QDate::currentDate() ) {
+                    todayNum++;
+                    break; //finish here, with only one we need to print it.
+                }
+            }
+
+            if (todayNum > 0) {
+                //cursor.setPosition(topFrame->lastPosition());
+                cursor.setBlockFormat(blockCenter);
+                cursor.insertText(KGlobal::locale()->formatMoney(crInfo.total), boldFormat);
+                cursor.insertBlock();
+                qDebug()<<__FUNCTION__<<"Credit for "<<crInfo.clientId<<" -- $"<<crInfo.total;
+
+
+                cursor.setBlockFormat(blockCenter);
+                cursor.insertBlock();
+                cursor.insertText(i18n("Today Credit History"), italicsFormat);
+                cursor.insertBlock();
+                cursor.insertHtml("<hr>");
+
+                itemsTable = cursor.insertTable(1, 4, itemsTableFormat);
+
+                //table
+                itemsFrameFormat = cursor.currentFrame()->frameFormat();
+                itemsFrameFormat.setBorder(0);
+                itemsFrameFormat.setPadding(1);
+                cursor.currentFrame()->setFrameFormat(itemsFrameFormat);
+                cursor = itemsTable->cellAt(0, 0).firstCursorPosition();
+                cursor.insertText(i18n("Date"), hdrFormat);
+                cursor = itemsTable->cellAt(0, 1).firstCursorPosition();
+                cursor.insertText(i18n("Time"), hdrFormat);
+                cursor = itemsTable->cellAt(0, 2).firstCursorPosition();
+                cursor.insertText(i18n("Amount"), hdrFormat);
+                cursor = itemsTable->cellAt(0, 3).firstCursorPosition();
+                cursor.insertText(i18n("Sale #"), hdrFormat);
+
+                foreach(CreditHistoryInfo credit, creditHistory){
+                    if (credit.date == QDate::currentDate() ) {
                         int row = itemsTable->rows();
-                        itemsTable->insertRows(row, 1); //insert item name in the first column. Wee need to see the text length to not add very long text.
-                        if (item.name.length() > 12)
-                            item.name = item.name.left(12);//just keep first 12 chars...
-                            cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
-                        cursor.insertText(item.name, italicsFormat);
+                        itemsTable->insertRows(row, 1);
+                        cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
+                        cursor.insertText(KGlobal::locale()->formatDate(credit.date, KLocale::ShortDate), boldFormat);
                         cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
-                        cursor.insertText("x"+QString::number(item.qty), italicsFormat);
+                        cursor.insertText(KGlobal::locale()->formatTime(credit.time), textFormat);
                         cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
-                        cursor.insertText(KGlobal::locale()->formatMoney(item.total), italicsFormat);
+                        cursor.insertText(KGlobal::locale()->formatMoney(credit.amount), boldFormat);
+                        cursor = itemsTable->cellAt(row, 3).firstCursorPosition();
+                        if (credit.saleId == 0)
+                            cursor.insertText(i18n("Payment"), textFormat);
+                        else
+                            cursor.insertText(QString::number(credit.saleId), textFormat);
+
+                        ///now, we can print products for each sale asociated to the credit.
+                        if (credit.saleId > 0) {
+                            QList<TransactionItemInfo> saleItems = myDb->getTransactionItems(credit.saleId);
+                            foreach(TransactionItemInfo item, saleItems) {
+                                int row = itemsTable->rows();
+                                itemsTable->insertRows(row, 1); //insert item name in the first column. Wee need to see the text length to not add very long text.
+                                itemsTable->mergeCells(row, 0, 1,4);
+                                QString line = QString("  %1x %2   %3").arg(item.qty).arg(item.name.left(30)).arg(KGlobal::locale()->formatMoney(item.total));
+                                cursor.insertText(line, smTextFormat);
+
+                                //cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
+                                //cursor.insertText(item.name, italicsFormat);
+                                //cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
+                                //cursor.insertText("x"+QString::number(item.qty), italicsFormat);
+                                //cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
+                                //cursor.insertText(KGlobal::locale()->formatMoney(item.total), italicsFormat);
+                            }
+                        }
+                    }
+                }
+            } //any today entry?
+
+            //Beyond today...
+            cursor.movePosition(QTextCursor::NextBlock);
+            cursor.setBlockFormat(blockCenter);
+            cursor.insertBlock();
+            cursor.insertBlock();
+            cursor.insertText(i18n("Credit History"), italicsFormat);
+            cursor.insertBlock();
+            cursor.insertHtml("<hr>");
+            //cursor.insertBlock();
+
+            //QTextTableFormat itemsTableFormat;
+            itemsTableFormat.setAlignment(Qt::AlignHCenter);
+            itemsTableFormat.setWidth(QTextLength(QTextLength::PercentageLength, 100));
+            /*QTextTable **/itemsTable = cursor.insertTable(1, 4, itemsTableFormat);
+
+            //table
+            /*QTextFrameFormat*/ itemsFrameFormat = cursor.currentFrame()->frameFormat();
+            itemsFrameFormat.setBorder(0);
+            itemsFrameFormat.setPadding(1);
+            cursor.currentFrame()->setFrameFormat(itemsFrameFormat);
+            cursor = itemsTable->cellAt(0, 0).firstCursorPosition();
+            cursor.insertText(i18n("Date"), hdrFormat);
+            cursor = itemsTable->cellAt(0, 1).firstCursorPosition();
+            cursor.insertText(i18n("Time"), hdrFormat);
+            cursor = itemsTable->cellAt(0, 2).firstCursorPosition();
+            cursor.insertText(i18n("Amount"), hdrFormat);
+            cursor = itemsTable->cellAt(0, 3).firstCursorPosition();
+            cursor.insertText(i18n("Sale #"), hdrFormat);
+
+            foreach(CreditHistoryInfo credit, creditHistory){
+                if (credit.date != QDate::currentDate() ) {
+                    int row = itemsTable->rows();
+                    itemsTable->insertRows(row, 1);
+                    cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
+                    cursor.insertText(KGlobal::locale()->formatDate(credit.date, KLocale::ShortDate), boldFormat);
+                    cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
+                    cursor.insertText(KGlobal::locale()->formatTime(credit.time), textFormat);
+                    cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
+                    cursor.insertText(KGlobal::locale()->formatMoney(credit.amount), boldFormat);
+                    cursor = itemsTable->cellAt(row, 3).firstCursorPosition();
+                    if (credit.saleId == 0)
+                        cursor.insertText(i18n("Payment"), textFormat);
+                    else
+                        cursor.insertText(QString::number(credit.saleId), textFormat);
+
+                    ///now, we can print products for each sale asociated to the credit.
+                    if (credit.saleId > 0) {
+                        QList<TransactionItemInfo> saleItems = myDb->getTransactionItems(credit.saleId);
+                        foreach(TransactionItemInfo item, saleItems) {
+                            int row = itemsTable->rows();
+                            itemsTable->insertRows(row, 1); //insert item name in the first column. Wee need to see the text length to not add very long text.
+                            cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
+                            itemsTable->mergeCells(row, 0, 1,4);
+                            QString line = QString("  %1x %2   %3").arg(item.qty).arg(item.name.left(30)).arg(KGlobal::locale()->formatMoney(item.total));
+                            cursor.insertText(line, smTextFormat);
+                        }
                     }
                 }
             }
-        }
-        
-        //Beyond today...
-        cursor.movePosition(QTextCursor::NextBlock);
-        cursor.setBlockFormat(blockCenter);
-        cursor.insertBlock();
-        cursor.insertBlock();
-        cursor.insertText(i18n("More Credit History"), italicsFormat);
-        cursor.insertBlock();
-        cursor.insertHtml("<hr>");
-        //cursor.insertBlock();
-
-        //QTextTableFormat itemsTableFormat;
-        itemsTableFormat.setAlignment(Qt::AlignHCenter);
-        itemsTableFormat.setWidth(QTextLength(QTextLength::PercentageLength, 100));
-        /*QTextTable **/itemsTable = cursor.insertTable(1, 4, itemsTableFormat);
-
-        //table
-        /*QTextFrameFormat*/ itemsFrameFormat = cursor.currentFrame()->frameFormat();
-        itemsFrameFormat.setBorder(0);
-        itemsFrameFormat.setPadding(1);
-        cursor.currentFrame()->setFrameFormat(itemsFrameFormat);
-        cursor = itemsTable->cellAt(0, 0).firstCursorPosition();
-        cursor.insertText(i18n("Date"), hdrFormat);
-        cursor = itemsTable->cellAt(0, 1).firstCursorPosition();
-        cursor.insertText(i18n("Time"), hdrFormat);
-        cursor = itemsTable->cellAt(0, 2).firstCursorPosition();
-        cursor.insertText(i18n("Amount"), hdrFormat);
-        cursor = itemsTable->cellAt(0, 3).firstCursorPosition();
-        cursor.insertText(i18n("Sale #"), hdrFormat);
-
-        foreach(CreditHistoryInfo credit, creditHistory){
-            if (credit.date != QDate::currentDate() ) {
-                int row = itemsTable->rows();
-                itemsTable->insertRows(row, 1);
-                cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
-                cursor.insertText(KGlobal::locale()->formatDate(credit.date, KLocale::ShortDate), boldFormat);
-                cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
-                cursor.insertText(KGlobal::locale()->formatTime(credit.time), textFormat);
-                cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
-                cursor.insertText(KGlobal::locale()->formatMoney(credit.amount), boldFormat);
-                cursor = itemsTable->cellAt(row, 3).firstCursorPosition();
-                cursor.insertText(QString::number(credit.saleId), textFormat);
-                
-                ///now, we can print products for each sale asociated to the credit.
-                if (credit.saleId > 0) {
-                    QList<TransactionItemInfo> saleItems = myDb->getTransactionItems(credit.saleId);
-                    foreach(TransactionItemInfo item, saleItems) {
-                        int row = itemsTable->rows();
-                        itemsTable->insertRows(row, 1); //insert item name in the first column. Wee need to see the text length to not add very long text.
-                        if (item.name.length() > 12)
-                            item.name = item.name.left(12);//just keep first 12 chars...
-                            cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
-                        cursor.insertText(item.name, italicsFormat);
-                        cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
-                        cursor.insertText("x"+QString::number(item.qty), italicsFormat);
-                        cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
-                        cursor.insertText(KGlobal::locale()->formatMoney(item.total), italicsFormat);
-                    }
-                }
-            }
-        }
+        } //if not empty creditHistory
         
         ui_mainview.creditContent->setReadOnly(true);
         delete myDb;
