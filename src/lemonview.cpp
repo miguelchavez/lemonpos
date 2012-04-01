@@ -5947,9 +5947,9 @@ void lemonView::calculateTotalForClient()
             }
         } //if not empty creditHistory
         
-        ui_mainview.creditContent->setReadOnly(true);
         delete myDb;
     }
+    ui_mainview.creditContent->setReadOnly(true);
 }
 
 
