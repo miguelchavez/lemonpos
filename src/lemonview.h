@@ -132,6 +132,10 @@ public:
     ClientInfo crClientInfo;
     CreditInfo crInfo;
 
+    QDoubleValidator *valPercentage;
+    QDoubleValidator *valMoney;
+    
+
     void loadIcons();
     void setUpInputs();
     void setupModel();
@@ -385,6 +389,7 @@ public:
 
     void qtyChanged(QTableWidgetItem *item);
     void modifyClientsFilterModel();
+    void verifyDiscountEntry();
 };
 
 #endif // LEMONVIEW_H

@@ -76,11 +76,11 @@ class MibitLineEdit : public QLineEdit
 
   private slots:
     void    onTextChange(const QString &text);
-    void    clearError();
     void    stepColors();
     void shakeIt();
 public slots:
     void shake();
+    void clearError();
 
 signals:
     void plusKeyPressed();

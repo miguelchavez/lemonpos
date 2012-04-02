@@ -1815,7 +1815,7 @@ font: 75 9pt &quot;Lucida Grande&quot;;</string>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QLineEdit" name="editDiscount"/>
+            <widget class="MibitLineEdit" name="editDiscount"/>
            </item>
            <item>
             <widget class="QPushButton" name="btnApplyDiscount">
@@ -1936,8 +1936,8 @@ p, li { white-space: pre-wrap; }
        <widget class="QWidget" name="creditWidget" native="true">
         <property name="geometry">
          <rect>
-          <x>90</x>
-          <y>90</y>
+          <x>-10</x>
+          <y>200</y>
           <width>700</width>
           <height>440</height>
          </rect>
