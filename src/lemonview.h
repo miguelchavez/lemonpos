@@ -96,6 +96,7 @@ public:
     LoginWindow *dlgPassword;
     QHash<qulonglong, ProductInfo> productsHash;
     QSqlTableModel *productsModel;
+    QSqlQueryModel *clientsModel; //for the credits panel, completer.
     QHash<QString, int> categoriesHash;
     ClientInfo clientInfo;
     QHash<QString, ClientInfo> clientsHash;
@@ -134,6 +135,7 @@ public:
     void loadIcons();
     void setUpInputs();
     void setupModel();
+    void setupClientsModel();
 
     RoundingInfo roundUsStandard(const double &number);
 
@@ -382,6 +384,7 @@ public:
     void printCreditReport();
 
     void qtyChanged(QTableWidgetItem *item);
+    void modifyClientsFilterModel();
 };
 
 #endif // LEMONVIEW_H
