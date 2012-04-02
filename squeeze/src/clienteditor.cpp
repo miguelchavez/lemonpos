@@ -52,7 +52,13 @@ ClientEditor::ClientEditor( QWidget *parent )
     QRegExpValidator * validator = new QRegExpValidator(regexpC, this);
     ui->editClientPoints->setValidator(validator);
     ui->editClientDiscount->setValidator((new QDoubleValidator(0.00, 100.000, 3,ui->editClientDiscount)));
-    ui->editClientCode->setValidator(validator);
+
+    //code can contain letters (for ids with letters, like RFC in Mexico)
+    QRegExp regexpName("[A-Za-z_0-9\\s\\\\/\\-]+");//any letter, number, both slashes, dash and lower dash. and any space
+    QRegExpValidator *regexpAlpha = new QRegExpValidator(regexpName, this);
+    ui->editClientCode->setValidator(regexpAlpha);
+    //Set filter to the name. Do not allow .,&^% etc...
+    ui->editClientName->setValidator(regexpAlpha);
 
     ui->editClientCode->setEmptyMessage(i18n("Enter a 6, 12, or 13 digits Bar Code."));
     ui->editClientName->setEmptyMessage(i18n("Enter client full name"));
