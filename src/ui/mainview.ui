@@ -1180,15 +1180,21 @@
            <item row="1" column="0">
             <widget class="QGroupBox" name="groupClient">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+              <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>250</width>
                <height>120</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>250</width>
+               <height>16777215</height>
               </size>
              </property>
              <property name="title">
@@ -1198,17 +1204,8 @@
               <property name="spacing">
                <number>2</number>
               </property>
-              <property name="leftMargin">
+              <property name="margin">
                <number>2</number>
-              </property>
-              <property name="topMargin">
-               <number>2</number>
-              </property>
-              <property name="rightMargin">
-               <number>2</number>
-              </property>
-              <property name="bottomMargin">
-               <number>1</number>
               </property>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -1278,15 +1275,15 @@
               <item>
                <widget class="QLabel" name="lblClientDetails">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>150</width>
-                  <height>0</height>
+                  <width>200</width>
+                  <height>90</height>
                  </size>
                 </property>
                 <property name="styleSheet">

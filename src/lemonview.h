@@ -320,7 +320,7 @@ public:
 
     void listViewOnMouseMove(const QModelIndex & index);
     void listViewOnClick( const QModelIndex & index );
-    void comboClientsOnChange();
+    void clientChanged();
     void updateClientInfo();
     void updateModelView();
     void showProductsGrid(bool show);
