@@ -1190,77 +1190,67 @@
              <property name="title">
               <string>Client</string>
              </property>
-             <layout class="QGridLayout" rowstretch="0">
-              <property name="margin">
-               <number>1</number>
-              </property>
-              <property name="spacing">
-               <number>1</number>
-              </property>
-              <item row="0" column="0">
-               <layout class="QVBoxLayout">
-                <property name="spacing">
-                 <number>0</number>
-                </property>
+             <layout class="QVBoxLayout" name="verticalLayout_11">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_6">
                 <item>
-                 <widget class="QComboBox" name="comboClients">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
+                 <widget class="QToolButton" name="btnSearchClient">
+                  <property name="text">
+                   <string>Search</string>
                   </property>
-                  <property name="minimumSize">
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
                    <size>
-                    <width>140</width>
-                    <height>0</height>
+                    <width>40</width>
+                    <height>20</height>
                    </size>
                   </property>
-                 </widget>
+                 </spacer>
                 </item>
                 <item>
-                 <widget class="QLabel" name="lblClientDiscount">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
+                 <widget class="QToolButton" name="btnAddClient">
                   <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="labelClientDiscounted">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="indent">
-                   <number>7</number>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="lblCreditInfo">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string/>
+                   <string>+</string>
                   </property>
                  </widget>
                 </item>
                </layout>
+              </item>
+              <item>
+               <widget class="QLabel" name="lblClientDetails">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>150</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background:white;
+border: 1px solid gray;
+border-radius: 4px;
+padding: 2px;
+font-weight:normal;
+color:black;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
