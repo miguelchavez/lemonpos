@@ -133,6 +133,9 @@ public:
     ClientInfo crClientInfo;
     CreditInfo crInfo;
 
+    QDoubleValidator *valPercentage;
+    QDoubleValidator *valMoney;
+
     //QMultiHash<qulonglong, BundleInfo> bundlesHash;
     BundleList *bundlesHash;
 
@@ -385,6 +388,8 @@ public:
     void doCreditPayment();
     void insertCashInForCredit(const CreditInfo &credit, const double &amount);
     void printCreditReport();
+
+    void verifyDiscountEntry();
 };
 
 #endif // LEMONVIEW_H

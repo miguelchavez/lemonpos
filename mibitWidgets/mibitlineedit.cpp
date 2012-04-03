@@ -115,6 +115,7 @@ void MibitLineEdit::stepColors()
 
 void MibitLineEdit::clearError( )
     {
+        timer->stop(); //disable timer to disable stepColors.
         setStyleSheet("");
         setToolTip("");
     }

@@ -199,9 +199,10 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   discountPanel->setMode(pmManual);
   discountPanel->setHiddenTotally(true);
   discountPanel->hide();
-  connect(ui_mainview.rbPercentage, SIGNAL(toggled()), SLOT(changeDiscValidator()) );
-  connect(ui_mainview.rbMoney, SIGNAL(toggled()), SLOT(changeDiscValidator()) );
-  connect(ui_mainview.rbCoupon, SIGNAL(toggled()), SLOT(changeDiscValidator()) );
+  connect(ui_mainview.rbPercentage, SIGNAL(toggled(bool)), SLOT(changeDiscValidator()) );
+  connect(ui_mainview.rbMoney, SIGNAL(toggled(bool)), SLOT(changeDiscValidator()) );
+  connect(ui_mainview.rbPriceChange, SIGNAL(toggled(bool)), SLOT(changeDiscValidator()) );
+  connect(ui_mainview.rbCoupon, SIGNAL(toggled(bool)), SLOT(changeDiscValidator()) );
   oDiscountMoney = 0;
 
   //float panel for credits.
@@ -270,6 +271,7 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
 
   connect(ui_mainview.btnApplyDiscount, SIGNAL(clicked()), SLOT(applyOccasionalDiscount() ) );
   connect(ui_mainview.editDiscount, SIGNAL(returnPressed()), SLOT(applyOccasionalDiscount() ) );
+  connect(ui_mainview.editDiscount, SIGNAL(textEdited(const QString &)), SLOT(verifyDiscountEntry() ) );
   connect(ui_mainview.btnCancelDiscount, SIGNAL(clicked()), discountPanel, SLOT(hidePanel() ) );
 
   connect(ui_mainview.btnPayCredit, SIGNAL(clicked()), SLOT(showCreditPayment()));
@@ -415,8 +417,11 @@ void lemonView::setUpInputs()
   //ui_mainview.editAmount->setInputMask("000,000.00");
 
  //filter for new discount edit line. at the begining, it is by percentage discount the default.
-  QDoubleValidator *doubleVal = new QDoubleValidator(0.001, 99.00, 4, this);
-  ui_mainview.editDiscount->setValidator(doubleVal);
+  valPercentage = new QDoubleValidator(0.001, 99.000, 3, this);
+  valMoney = new QDoubleValidator(0.001, 9999999, 3, this);
+  ui_mainview.editDiscount->setValidator(valPercentage);
+  ui_mainview.editDiscount->setAutoClearError(true);
+  //NOTE: DoubleValidator does not filter characters at the input (as the RegExpValidator does). It just will NOT ACCEPT the value.
 
   ui_mainview.editCreditTendered->setValidator(validatorFloat);
   ui_mainview.creditPaymentWidget->hide();
@@ -428,17 +433,28 @@ void lemonView::setUpInputs()
 void lemonView::changeDiscValidator()
 {
     if (ui_mainview.rbPercentage->isChecked()) {
-        QDoubleValidator *doubleVal = new QDoubleValidator(0.00001, 99.00000, 5, this);
-        ui_mainview.editDiscount->setValidator(doubleVal);
+        ui_mainview.editDiscount->setValidator(valPercentage);
     }
     else if (ui_mainview.rbMoney->isChecked()) {
-        QDoubleValidator *doubleVal = new QDoubleValidator(0.001, 9999999.0, 5, this);
-        ui_mainview.editDiscount->setValidator(doubleVal);
+        ui_mainview.editDiscount->setValidator(valPercentage);
+    }
+    else if (ui_mainview.rbPriceChange->isChecked()) {
+        ui_mainview.editDiscount->setValidator(valMoney);
     }
     else {
-        //a string...
-        ui_mainview.editDiscount->setValidator(0); //remove any validator.
+        //a string... for coupons STILL NOT IMPLEMENTED!
     }
+    ui_mainview.editDiscount->clear();
+    ui_mainview.editDiscount->setFocus();
+}
+
+void lemonView::verifyDiscountEntry()
+{
+        if ( !ui_mainview.editDiscount->hasAcceptableInput() ) {
+                ui_mainview.editDiscount->setError(i18n("Invalid input"));
+            } else {
+                ui_mainview.editDiscount->clearError();
+        }
 }
 
 void lemonView::timerTimeout()

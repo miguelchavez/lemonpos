@@ -1828,7 +1828,7 @@ font: 75 9pt &quot;Lucida Grande&quot;;</string>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QLineEdit" name="editDiscount"/>
+            <widget class="MibitLineEdit" name="editDiscount"/>
            </item>
            <item>
             <widget class="QPushButton" name="btnApplyDiscount">
