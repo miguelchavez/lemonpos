@@ -253,7 +253,7 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   connect(ui_mainview.editCardAuthNumber, SIGNAL(returnPressed()), SLOT(finishCurrentTransaction()) );
   connect(ui_mainview.splitter, SIGNAL(splitterMoved(int, int)), SLOT(setUpTable()));
   connect(ui_mainview.splitterGrid, SIGNAL(splitterMoved(int, int)), SLOT(setUpTable()));
-  connect(ui_mainview.comboClients, SIGNAL(currentIndexChanged(int)), SLOT(comboClientsOnChange()));
+  ///connect(ui_mainview.comboClients, SIGNAL(currentIndexChanged(int)), SLOT(comboClientsOnChange()));
   connect(ui_mainview.btnChangeSaleDate, SIGNAL(clicked()), SLOT(showChangeDate()));
 
   ui_mainview.editTicketDatePicker->setDate(QDate::currentDate());
@@ -669,7 +669,7 @@ void lemonView::clearUsedWidgets()
   ui_mainview.labelDetailPoints->clear();
 
   //enable clients combo box...
-  ui_mainview.comboClients->setEnabled(true);
+  ui_mainview.groupClient->setEnabled(true);
 }
 
 void lemonView::askForIdToCancel()
@@ -1154,13 +1154,13 @@ void lemonView::refreshTotalLabel()
     ui_mainview.labelChange->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(change)));
     ui_mainview.lblSaleTaxes->setText(QString("%1") .arg(KGlobal::locale()->formatMoney(totalTax)));
     ///update client discount
-    QString dStr;
-    if (clientInfo.discount >0) {
-        dStr = i18n("Discount: %1%  [%2]",clientInfo.discount, KGlobal::locale()->formatMoney(discMoney));
-    } else if (oDiscountMoney >0 ){
-        dStr = i18n("Discount: %1", KGlobal::locale()->formatMoney(oDiscountMoney));
-    }
-    ui_mainview.lblClientDiscount->setText(dStr);
+    //QString dStr;
+    //if (clientInfo.discount >0) {
+    //    dStr = i18n("Discount: %1%  [%2]",clientInfo.discount, KGlobal::locale()->formatMoney(discMoney));
+    //} else if (oDiscountMoney >0 ){
+    //    dStr = i18n("Discount: %1", KGlobal::locale()->formatMoney(oDiscountMoney));
+    //}
+    updateClientInfo();
 
     if ( ui_mainview.checkOwnCredit->isChecked() || ui_mainview.checkCard->isChecked() ) {
         //Set the amount to pay.
@@ -1724,7 +1724,7 @@ void lemonView::deleteSelectedItem()
             //remove from listview
             ui_mainview.tableWidget->removeRow(row);
             ui_mainview.editItemCode->setFocus();
-            if (ui_mainview.tableWidget->rowCount() == 0) ui_mainview.comboClients->setEnabled(true);
+            if (ui_mainview.tableWidget->rowCount() == 0) ui_mainview.groupClient->setEnabled(true);
             refreshTotalLabel();
             qDebug()<<" Removing a SO when completing the Order";
             return;
@@ -1738,7 +1738,7 @@ void lemonView::deleteSelectedItem()
             QString authBy = dlgPassword->username();
             if (authBy.isEmpty()) authBy = myDb->getUserName(1); //default admin.
             log(loggedUserId, QDate::currentDate(), QTime::currentTime(), i18n("Removing an Special Item from shopping list. Authorized by %1",authBy));
-            if (ui_mainview.tableWidget->rowCount() == 0) ui_mainview.comboClients->setEnabled(true);
+            if (ui_mainview.tableWidget->rowCount() == 0) ui_mainview.groupClient->setEnabled(true);
             ui_mainview.editItemCode->setFocus();
             refreshTotalLabel();
             delete myDb;
@@ -1759,7 +1759,7 @@ void lemonView::deleteSelectedItem()
           //reinsert to the hash
           specialOrders.insert(info.orderid,info);
         }
-        if (ui_mainview.tableWidget->rowCount() == 0) ui_mainview.comboClients->setEnabled(true);
+        if (ui_mainview.tableWidget->rowCount() == 0) ui_mainview.groupClient->setEnabled(true);
         ui_mainview.editItemCode->setFocus();
         refreshTotalLabel();
         return; //to exit the method, we dont need to continue.
@@ -1813,7 +1813,7 @@ void lemonView::deleteSelectedItem()
     }//continueIt
   }//there is something to delete..
 
-  if (ui_mainview.tableWidget->rowCount() == 0) ui_mainview.comboClients->setEnabled(true);
+  if (ui_mainview.tableWidget->rowCount() == 0) ui_mainview.groupClient->setEnabled(true);
   refreshTotalLabel();
 }
 
@@ -4079,26 +4079,17 @@ void lemonView::connectToDb()
 
 void lemonView::setupClients()
 {
-  qDebug()<<"Setting up clients...";
-  ClientInfo info;
-  QString mainClient;
-  clientsHash.clear();
-  ui_mainview.comboClients->clear();
-  Azahar *myDb = new Azahar;
-  myDb->setDatabase(db);
-  clientsHash = myDb->getClientsHash();
-  mainClient  = myDb->getMainClient();
+    qDebug()<<"Setting up clients...";
+    ClientInfo info;
+    QString mainClient;
+    clientsHash.clear();
+    ui_mainview.lblClientDetails->clear();
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    clientsHash = myDb->getClientsHash();
+    mainClient  = myDb->getMainClient();
 
     //Set by default the 'general' client.
-    QHashIterator<QString, ClientInfo> i(clientsHash);
-    while (i.hasNext()) {
-      i.next();
-      info = i.value();
-      ui_mainview.comboClients->addItem(info.name);
-    }
-
-    int idx = ui_mainview.comboClients->findText(mainClient,Qt::MatchCaseSensitive);
-    if (idx>-1) ui_mainview.comboClients->setCurrentIndex(idx);
     clientInfo = clientsHash.value(mainClient);
     updateClientInfo();
     refreshTotalLabel();
@@ -4106,16 +4097,16 @@ void lemonView::setupClients()
     delete myDb;
 }
 
-void lemonView::comboClientsOnChange()
+void lemonView::clientChanged()
 {
   if ( !specialOrders.isEmpty() ) {
     // There are special orders, from now, we cannot change client
     updateClientInfo();
     refreshTotalLabel();
     return;
-    //maybe the client combo box is changed, but not the data (points, discount...)
   }
-  QString newClientName    = ui_mainview.comboClients->currentText();
+  //TODO: We need to load the clientInfo returned by the client Selector.
+  QString newClientName    = "";
   qDebug()<<"Client info changed by user.";
   if (clientsHash.contains(newClientName)) {
     clientInfo = clientsHash.value(newClientName);
@@ -4130,31 +4121,32 @@ void lemonView::updateClientInfo()
   QString dStr;
   if (clientInfo.discount >0) {
       double discMoney = (clientInfo.discount/100)*totalSumWODisc;
-      dStr = i18n("Discount: %1%  [%2]",clientInfo.discount, KGlobal::locale()->formatMoney(discMoney));
+      dStr = i18n("Discount: <b>%1%</b> [<b>%2</b>]<br>",clientInfo.discount, KGlobal::locale()->formatMoney(discMoney));
   } else if (oDiscountMoney >0 ){
-      dStr = i18n("Discount: %1% ", KGlobal::locale()->formatMoney(oDiscountMoney));
+      dStr = i18n("Discount: <b>%1%</b><br>", KGlobal::locale()->formatMoney(oDiscountMoney));
   }
-  QString pStr = i18n("%1 points", clientInfo.points);
+  
+  QString pStr = i18n("<i>%1</i> points<br>", clientInfo.points);
   if (clientInfo.points <= 0)
       pStr = "";
-  //QString dStr = i18n("Discount: %1% ",clientInfo.discount);
-  //double discMoney = (clientInfo.discount/100)*totalSumWODisc;
-  //QString frmDisc = i18n("[%1]", KGlobal::locale()->formatMoney(discMoney));
-  //dStr = dStr + "\n"+KGlobal::locale()->formatMoney(discMoney);
-  ui_mainview.lblClientDiscount->setText(dStr);
-  ui_mainview.labelClientDiscounted->setText(pStr);
-  QPixmap pix;
-  pix.loadFromData(clientInfo.photo);
+  
+  //QPixmap pix; //What about using a QTextEditor, and embed the photo inside? still uses space.
+  //pix.loadFromData(clientInfo.photo);
   //ui_mainview.lblClientPhoto->setPixmap(pix);
 
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db); //NOTE:maybe its better to add creditInfo to clientInfo, and from azahar::getClientInfo() get the creditInfoForClient. Need more code review at azahar.
 
+  QString creditStr;
   CreditInfo credit = myDb->getCreditInfoForClient(clientInfo.id, false);//do not create new credit if not found.
-  if (credit.id > 0 and credit.total != 0 )
-      ui_mainview.lblCreditInfo->setText(i18n("Credit Total: %1", KGlobal::locale()->formatMoney(credit.total)));
+  if (credit.id > 0 && credit.total != 0 )
+      creditStr = i18n("Credit Total: <i>%1</i>", KGlobal::locale()->formatMoney(credit.total));
   else
-      ui_mainview.lblCreditInfo->setText("");
+      creditStr = "";
+
+  //The format is: CLIENT-NAME (Client-Code) <br>Credit <br>Discount<br>Points.
+  ui_mainview.lblClientDetails->setText(QString("<b>%1</b> (<i>%2</i>)<br>%3%4%5").arg(clientInfo.name).arg(clientInfo.code).arg(creditStr).arg(dStr).arg(pStr));
+  
   delete myDb;
   qDebug()<<"Updating client info...";
 }
@@ -4576,8 +4568,6 @@ void lemonView::addSpecialOrder()
 
     //for the user discount, change user on transaction.
     clientInfo = myDb->getClientInfo(soInfo.clientId);
-    int idx = ui_mainview.comboClients->findText(clientInfo.name,Qt::MatchCaseSensitive);
-    if (idx>-1) ui_mainview.comboClients->setCurrentIndex(idx);
     updateClientInfo();
     refreshTotalLabel();
 
@@ -4612,7 +4602,7 @@ void lemonView::addSpecialOrder()
     updateTransaction();
 
     //disable client combo box.
-    ui_mainview.comboClients->setDisabled(true);
+    ui_mainview.groupClient->setDisabled(true);
     
     delete myDb;
   }
@@ -4720,8 +4710,6 @@ void lemonView::specialOrderComplete()
       clientInfo = clientsHash.value(myDb->getMainClient());
       clientIdForDiscount = clientInfo.id;
     } else  clientInfo = myDb->getClientInfo(clientIdForDiscount);
-    int idx = ui_mainview.comboClients->findText(clientInfo.name,Qt::MatchCaseSensitive);
-    if (idx>-1) ui_mainview.comboClients->setCurrentIndex(idx);
 
     // See if there was an occasional discount on the originating transaction to apply it to the PROFIT.
     lastDiscount = 0;
@@ -4744,7 +4732,7 @@ void lemonView::specialOrderComplete()
     updateTransaction();
     
     //disable clients combo box
-    ui_mainview.comboClients->setDisabled(true);
+    ui_mainview.groupClient->setDisabled(true);
 
     delete myDb;
   }
@@ -4972,9 +4960,6 @@ void lemonView::resumeSale()
     currentTransaction = trNumber;
     emit signalUpdateTransactionInfo();
     clientInfo = myDb->getClientInfo(clientId);
-    qDebug()<<"Client id for the resumed sale:";
-    int idx = ui_mainview.comboClients->findText(clientInfo.name,Qt::MatchCaseSensitive);
-    if (idx>-1) ui_mainview.comboClients->setCurrentIndex(idx);
     updateClientInfo();
     refreshTotalLabel();
     //NOTE: change sale date ?
@@ -5445,8 +5430,6 @@ void lemonView::resumeReservation()
         
         emit signalUpdateTransactionInfo();
         clientInfo = myDb->getClientInfo(clientId);
-        int idx = ui_mainview.comboClients->findText(clientInfo.name,Qt::MatchCaseSensitive);
-        if (idx>-1) ui_mainview.comboClients->setCurrentIndex(idx);
         updateClientInfo();
         refreshTotalLabel();
         //HERE the availability does not matter, the item is Physically Reserved.
