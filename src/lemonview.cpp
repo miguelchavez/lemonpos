@@ -253,7 +253,7 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   connect(ui_mainview.editCardAuthNumber, SIGNAL(returnPressed()), SLOT(finishCurrentTransaction()) );
   connect(ui_mainview.splitter, SIGNAL(splitterMoved(int, int)), SLOT(setUpTable()));
   connect(ui_mainview.splitterGrid, SIGNAL(splitterMoved(int, int)), SLOT(setUpTable()));
-  ///connect(ui_mainview.comboClients, SIGNAL(currentIndexChanged(int)), SLOT(comboClientsOnChange()));
+  connect(ui_mainview.editClient, SIGNAL(returnPressed()), SLOT(filterClient()));
   connect(ui_mainview.btnChangeSaleDate, SIGNAL(clicked()), SLOT(showChangeDate()));
 
   ui_mainview.editTicketDatePicker->setDate(QDate::currentDate());
@@ -450,6 +450,7 @@ void lemonView::setUpInputs()
   QRegExp regexpAN2("[A-Za-z_0-9\\s\\\\/\\-]+");//any letter, number, both slashes, dash and lower dash. and any space
   QRegExpValidator *regexpAlpha2 = new QRegExpValidator(regexpAN2, this);
   ui_mainview.editClientIdForCredit->setValidator(regexpAlpha2);
+  ui_mainview.editClient->setValidator(regexpAlpha2);
 
   //ui_mainview.editAmount->setInputMask("000,000.00");
 
@@ -3887,6 +3888,9 @@ void lemonView::setupClientsModel()
         completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
         ui_mainview.editClientIdForCredit->setCompleter(completer);
         connect(ui_mainview.editClientIdForCredit,SIGNAL(textEdited(const QString)), this, SLOT( modifyClientsFilterModel()) );
+
+        ui_mainview.editClient->setCompleter(completer); //the same completer for the client edit.
+        connect(ui_mainview.editClient,SIGNAL(textEdited(const QString)), this, SLOT( modifyClientsFilterModelB()) );
     }
 }
 
@@ -3895,6 +3899,16 @@ void lemonView::modifyClientsFilterModel()
     if (ui_mainview.editClientIdForCredit->text().length() > 1){
         QString search=ui_mainview.editClientIdForCredit->text();
         //clientsModel->setQuery(QString("SELECT code,name FROM clients WHERE code REGEXP '%1' OR name REGEXP '%1'").arg(search));
+        clientsModel->setQuery(QString("SELECT concat(code, ' -- ', name) as codename,code,name FROM clients WHERE code REGEXP '%1' OR name REGEXP '%1'").arg(search));
+    }else{
+        clientsModel->setQuery("");
+    }
+}
+
+void lemonView::modifyClientsFilterModelB()
+{
+    if (ui_mainview.editClient->text().length() > 1){
+        QString search=ui_mainview.editClient->text();
         clientsModel->setQuery(QString("SELECT concat(code, ' -- ', name) as codename,code,name FROM clients WHERE code REGEXP '%1' OR name REGEXP '%1'").arg(search));
     }else{
         clientsModel->setQuery("");
@@ -4101,12 +4115,17 @@ void lemonView::clientChanged()
 {
   if ( !specialOrders.isEmpty() ) {
     // There are special orders, from now, we cannot change client
+    ui_mainview.editClient->clear();
     updateClientInfo();
     refreshTotalLabel();
     return;
   }
-  //TODO: We need to load the clientInfo returned by the client Selector.
-  QString newClientName    = "";
+
+  QString newClientCode = ui_mainview.editClient->text(); //CODE
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  QString newClientName = myDb->getClientInfo(newClientCode).name;
+  delete myDb;
   qDebug()<<"Client info changed by user.";
   if (clientsHash.contains(newClientName)) {
     clientInfo = clientsHash.value(newClientName);
@@ -5618,8 +5637,24 @@ void lemonView::filterClientForCredit()
         crInfo = myDb->getCreditInfoForClient(crClientInfo.id); //this returns a new credit if no one found for that client.
         qDebug()<<__FUNCTION__<<"Getting credit info for clientId:"<<crInfo.clientId<<" -- $"<<crInfo.total;
         delete myDb;
-        //calculate total for unpaid customer creidts
+        //calculate total for unpaid customer credits
         calculateTotalForClient();
+    }
+}
+
+void lemonView::filterClient()
+{
+    QString searched = ui_mainview.editClient->text();
+    QString searchedTrimmed = searched.split(" -- ").at(0).trimmed();
+    ui_mainview.editClient->setText(searchedTrimmed); //The CODE only, set this in the lineedit...
+    QString clientCode = searchedTrimmed;
+    qDebug()<<"Filtering Clients | SEARCHED TEXT:"<<searched<<" TRIMMED:"<<searchedTrimmed<<" Code:"<<clientCode;
+    
+    if (clientCode.isEmpty() || clientCode == " "){ //clean filter
+        //do not anything now.
+    } else {
+        //search by client code (alphanum, 0000001 and not 1)
+        clientChanged(); //refresh information, client code is at the edit line.
     }
 }
 

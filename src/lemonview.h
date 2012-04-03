@@ -380,6 +380,7 @@ public:
 
     void showCredits();
     void filterClientForCredit();
+    void filterClient();
     void calculateTotalForClient();
     void showCreditPayment();
     void tenderedChanged();
@@ -389,6 +390,7 @@ public:
 
     void qtyChanged(QTableWidgetItem *item);
     void modifyClientsFilterModel();
+    void modifyClientsFilterModelB();
     void verifyDiscountEntry();
 };
 
