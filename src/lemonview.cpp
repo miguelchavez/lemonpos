@@ -4188,7 +4188,7 @@ void lemonView::updateClientInfo()
   myDb->setDatabase(db); //NOTE:maybe its better to add creditInfo to clientInfo, and from azahar::getClientInfo() get the creditInfoForClient. Need more code review at azahar.
 
   CreditInfo credit = myDb->getCreditInfoForClient(clientInfo.id, false);//do not create new credit if not found.
-  if (credit.id > 0 and credit.total != 0 )
+  if (credit.id > 0 && credit.total != 0 )
       ui_mainview.lblCreditInfo->setText(i18n("Credit Total: %1", KGlobal::locale()->formatMoney(credit.total)));
   else
       ui_mainview.lblCreditInfo->setText("");
