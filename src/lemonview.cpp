@@ -4145,7 +4145,7 @@ void lemonView::updateClientInfo()
   ui_mainview.labelClientDiscounted->setText(pStr);
   QPixmap pix;
   pix.loadFromData(clientInfo.photo);
-  ui_mainview.lblClientPhoto->setPixmap(pix);
+  //ui_mainview.lblClientPhoto->setPixmap(pix);
 
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db); //NOTE:maybe its better to add creditInfo to clientInfo, and from azahar::getClientInfo() get the creditInfoForClient. Need more code review at azahar.
