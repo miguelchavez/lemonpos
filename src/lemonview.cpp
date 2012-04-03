@@ -410,9 +410,10 @@ void lemonView::setUpInputs()
   QRegExpValidator *regexpAlpha = new QRegExpValidator(regexpAN, this);
   ui_mainview.editCardAuthNumber->setValidator(regexpAlpha);
 
-  QRegExp regexpCC("[0-9]{1,13}");
-  QRegExpValidator * cValidator = new QRegExpValidator(regexpCC, this);
-  ui_mainview.editClientIdForCredit->setValidator(cValidator);
+  //QRegExp regexpCC("[0-9]{1,13}"); //We need to support also names. So we need to remove this validator. Just text
+  QRegExp regexpAN2("[A-Za-z_0-9\\s\\\\/\\-]+");//any letter, number, both slashes, dash and lower dash. and any space
+  QRegExpValidator *regexpAlpha2 = new QRegExpValidator(regexpAN2, this);
+  ui_mainview.editClientIdForCredit->setValidator(regexpAlpha2);
 
   //ui_mainview.editAmount->setInputMask("000,000.00");
 
@@ -3890,7 +3891,38 @@ void lemonView::setupModel()
     ui_mainview.rbFilterByCategory->setChecked(true);
     setFilter();
   }
+  setupClientsModel();
  }
+
+void lemonView::setupClientsModel()
+{
+    if (!db.isOpen()) {
+        connectToDb();
+    }
+    else {
+        clientsModel->setQuery("");
+
+        //assign the completer.
+        QCompleter *completer = new QCompleter(this);
+        completer->setModel(clientsModel);
+        completer->setCaseSensitivity(Qt::CaseInsensitive);
+        //Show all possible results, because completer only works with prefix. The filter is done modifying the model
+        completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+        ui_mainview.editClientIdForCredit->setCompleter(completer);
+        connect(ui_mainview.editClientIdForCredit,SIGNAL(textEdited(const QString)), this, SLOT( modifyClientsFilterModel()) );
+    }
+}
+
+void lemonView::modifyClientsFilterModel()
+{
+    if (ui_mainview.editClientIdForCredit->text().length() > 1){
+        QString search=ui_mainview.editClientIdForCredit->text();
+        //clientsModel->setQuery(QString("SELECT code,name FROM clients WHERE code REGEXP '%1' OR name REGEXP '%1'").arg(search));
+        clientsModel->setQuery(QString("SELECT concat(code, ' -- ', name) as codename,code,name FROM clients WHERE code REGEXP '%1' OR name REGEXP '%1'").arg(search));
+    }else{
+        clientsModel->setQuery("");
+    }
+}
 
 void lemonView::populateCategoriesHash()
 {
@@ -4063,6 +4095,7 @@ void lemonView::connectToDb()
     if (!modelsCreated) { //Create models...
       productsModel       = new QSqlTableModel();
       historyTicketsModel = new QSqlRelationalTableModel();
+      clientsModel = new QSqlQueryModel();
       modelsCreated = true;
     }
     setupModel();
@@ -5608,6 +5641,13 @@ void lemonView::showCredits()
 
 void lemonView::filterClientForCredit()
 {
+    //modifyClientsFilterModel();
+    QString searched = ui_mainview.editClientIdForCredit->text();
+    QString searchedTrimmed = searched.split(" -- ").at(0).trimmed();
+    ui_mainview.editClientIdForCredit->setText(searchedTrimmed); //The CODE only, set this in the lineedit...
+    qDebug()<<"-SEARCHED TEXT:"<<searched<<" TRIMMED:"<<searchedTrimmed;
+
+    
     QString clientCode = ui_mainview.editClientIdForCredit->text();
     if (clientCode.isEmpty() || clientCode == " "){ //clean filter
         ui_mainview.creditContent->clear();//clear totals for customer credits
@@ -5810,7 +5850,6 @@ void lemonView::calculateTotalForClient()
         myDb->setDatabase(db);
         //TODO: Limit the credit History result, to the last ones (5?) and paid/unpaid?
         QList<CreditHistoryInfo> creditHistory = myDb->getCreditHistoryForClient(crClientInfo.id, 30); //limit last 30 days credits.
-        ui_mainview.creditContent->clear();
         
         //print client info.
         ///Use QTextDocument via QTextEdit
@@ -5895,7 +5934,7 @@ void lemonView::calculateTotalForClient()
                 itemsFrameFormat.setPadding(1);
                 cursor.currentFrame()->setFrameFormat(itemsFrameFormat);
                 cursor = itemsTable->cellAt(0, 0).firstCursorPosition();
-                cursor.insertText(i18n("Date"), hdrFormat);
+                cursor.insertText(i18n("Date"), hdrFormat); //NOTE: It is not really needed to include the date in TODAY history.
                 cursor = itemsTable->cellAt(0, 1).firstCursorPosition();
                 cursor.insertText(i18n("Time"), hdrFormat);
                 cursor = itemsTable->cellAt(0, 2).firstCursorPosition();

@@ -97,6 +97,7 @@ public:
     LoginWindow *dlgPassword;
     QHash<qulonglong, ProductInfo> productsHash;
     QSqlTableModel *productsModel;
+    QSqlQueryModel *clientsModel; //for the credits panel, completer.
     QHash<QString, int> categoriesHash;
     QHash<QString, int> subcategoriesHash;
     ClientInfo clientInfo;
@@ -142,6 +143,7 @@ public:
     void loadIcons();
     void setUpInputs();
     void setupModel();
+    void setupClientsModel();
 
     RoundingInfo roundUsStandard(const double &number);
 
@@ -389,6 +391,7 @@ public:
     void insertCashInForCredit(const CreditInfo &credit, const double &amount);
     void printCreditReport();
 
+    void modifyClientsFilterModel();
     void verifyDiscountEntry();
 };
 
