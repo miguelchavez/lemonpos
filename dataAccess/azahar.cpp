@@ -1814,12 +1814,14 @@ QHash<QString, ClientInfo> Azahar::getClientsHash()
         int fieldPhoto  = qC.record().indexOf("photo");
         int fieldDisc   = qC.record().indexOf("discount");
         int fieldSince  = qC.record().indexOf("since");
+        int fieldCode   = qC.record().indexOf("code");
         info.id = qC.value(fieldId).toUInt();
         info.name       = qC.value(fieldName).toString();
         info.points     = qC.value(fieldPoints).toULongLong();
         info.discount   = qC.value(fieldDisc).toDouble();
         info.photo      = qC.value(fieldPhoto).toByteArray();
         info.since      = qC.value(fieldSince).toDate();
+        info.code       = qC.value(fieldCode).toString();
         result.insert(info.name, info);
         if (info.id == 1) m_mainClient = info.name;
       }
