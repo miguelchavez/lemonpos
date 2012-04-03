@@ -673,6 +673,7 @@ void lemonView::clearUsedWidgets()
 
   //enable clients combo box...
   ui_mainview.groupClient->setEnabled(true);
+  ui_mainview.editClient->setText("");
 }
 
 void lemonView::askForIdToCancel()
