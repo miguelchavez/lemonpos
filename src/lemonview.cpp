@@ -38,6 +38,7 @@
 #include "../../mibitWidgets/mibitpassworddlg.h"
 #include "../../mibitWidgets/mibitfloatpanel.h"
 #include "../../mibitWidgets/mibitnotifier.h"
+#include "../../squeeze/src/clienteditor.h"
 
 
 //StarMicronics printers
@@ -283,6 +284,7 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   connect(ui_mainview.btnCancelCreditPayment, SIGNAL(clicked()), creditPanel, SLOT(hidePanel()));
   connect(ui_mainview.btnPrintCreditReport, SIGNAL(clicked()), SLOT(printCreditReport()));
   connect(ui_mainview.editClientIdForCredit, SIGNAL(returnPressed()), SLOT(filterClientForCredit()));
+  connect(ui_mainview.btnAddClient, SIGNAL(clicked()), SLOT(createClient()) );
 
   timerClock->start(1000);
 
@@ -5656,6 +5658,49 @@ void lemonView::filterClient()
         //search by client code (alphanum, 0000001 and not 1)
         clientChanged(); //refresh information, client code is at the edit line.
     }
+}
+
+void lemonView::createClient()
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    
+    if (db.isOpen()) {
+        ClientEditor *clientEditorDlg = new ClientEditor(this);
+        ClientInfo info;
+        QPixmap photo;
+        
+        if (clientEditorDlg->exec() ) {
+            info.code     = clientEditorDlg->getCode();
+            info.name     = clientEditorDlg->getName();
+            info.address  = clientEditorDlg->getAddress();
+            info.phone    = clientEditorDlg->getPhone();
+            info.cell     = clientEditorDlg->getCell();
+            photo         = clientEditorDlg->getPhoto();
+            info.points   = clientEditorDlg->getPoints();
+            info.discount = clientEditorDlg->getDiscount();
+            info.since    = QDate::currentDate();
+            
+            info.photo = Misc::pixmap2ByteArray(new QPixmap(photo));
+            if (!db.isOpen()) db.open();
+            if (!myDb->insertClient(info)) qDebug()<<myDb->lastError();
+            
+            //Select the new client and update info.
+            if ( specialOrders.isEmpty() ) {
+                clientsHash = myDb->getClientsHash(); //refresh clients with this new info.
+                clientInfo = info; //update the client.
+                updateClientInfo();
+                refreshTotalLabel();
+            } else {
+                qDebug()<<"Cannot change client while using Special Orders";
+                ui_mainview.editClient->clear();
+            }
+            
+        }
+        delete clientEditorDlg;
+    }
+    delete myDb;
+    ui_mainview.editItemCode->setFocus();
 }
 
 void lemonView::showCreditPayment()

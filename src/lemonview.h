@@ -392,6 +392,7 @@ public:
     void modifyClientsFilterModel();
     void modifyClientsFilterModelB();
     void verifyDiscountEntry();
+    void createClient();
 };
 
 #endif // LEMONVIEW_H
