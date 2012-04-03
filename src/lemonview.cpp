@@ -480,8 +480,6 @@ void lemonView::changeDiscValidator()
     }
     else {
         //a string... for coupons STILL NOT IMPLEMENTED!
-        //ui_mainview.editDiscount->setValidator(0); //remove any validator.
-        //qDebug()<<" NONE ";
     }
     ui_mainview.editDiscount->clear();
     ui_mainview.editDiscount->setFocus();
@@ -490,9 +488,7 @@ void lemonView::changeDiscValidator()
 void lemonView::verifyDiscountEntry()
 {
     if ( !ui_mainview.editDiscount->hasAcceptableInput() ) {
-        //ui_mainview.editDiscount->shake();
         ui_mainview.editDiscount->setError(i18n("Invalid input"));
-        qDebug()<<"Invalid Input";
     } else {
         ui_mainview.editDiscount->clearError();
     }
