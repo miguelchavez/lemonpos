@@ -233,6 +233,9 @@ signals:
    void reSelectModels();
 
    void checkDefaultView();
+
+   void agregarSerieFolios(); //Facturacion MX
+   void cancelarFactura();
    
 };
 

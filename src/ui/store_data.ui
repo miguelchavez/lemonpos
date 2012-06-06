@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>405</width>
-    <height>199</height>
+    <width>495</width>
+    <height>289</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -109,6 +109,73 @@
     </widget>
    </item>
    <item row="2" column="0">
+    <widget class="QLabel" name="lbl_storeCity">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>&amp;City,Province:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>kcfg_storePhone</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="kcfg_storeCity">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>300</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>300</width>
+       <height>16777215</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>RFC:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="kcfg_storeRFC">
+     <property name="maximumSize">
+      <size>
+       <width>300</width>
+       <height>16777215</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
     <widget class="QLabel" name="label_3">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -133,7 +200,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="4" column="1">
     <widget class="QLineEdit" name="kcfg_storePhone">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -155,7 +222,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="5" column="0">
     <widget class="QLabel" name="label_4">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -180,7 +247,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="5" column="1">
     <widget class="QLineEdit" name="kcfg_editTicketMessage">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -202,7 +269,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="6" column="0">
     <widget class="QLabel" name="label_5">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -224,7 +291,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
+   <item row="6" column="1">
     <widget class="QLineEdit" name="kcfg_storeLogo">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -246,14 +313,14 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
+   <item row="7" column="1">
     <widget class="QCheckBox" name="kcfg_chLogoOnTop">
      <property name="text">
       <string>Print Logo on ticket top, otherwise at the right</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="8" column="1">
     <spacer>
      <property name="orientation">
       <enum>Qt::Vertical</enum>

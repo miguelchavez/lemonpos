@@ -56,6 +56,7 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     double stockqty = model->data(nameIndex, Qt::DisplayRole).toDouble();
     nameIndex = model->index(row, 0);
     QString strCode = "# " + model->data(nameIndex, Qt::DisplayRole).toString();
+    //TODO: Add alphacode too
     nameIndex = model->index(row, 16);
     bool isGroup = model->data(nameIndex, Qt::DisplayRole).toBool();
     nameIndex  = model->index(row, 15);

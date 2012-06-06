@@ -379,6 +379,49 @@ CREATE TABLE IF NOT EXISTS `reservation_payments` (
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
+CREATE TABLE IF NOT EXISTS `folios_cbb` (
+  `id` bigint(20) unsigned NOT NULL auto_increment,
+  `pool_id` varchar(100) collate utf8_general_ci NOT NULL,
+  `numero` varchar(100) collate utf8_general_ci NOT NULL UNIQUE,
+  `usado` bool NOT NULL default true,
+  `valido` bool NOT NULL default true,
+  PRIMARY KEY  (`id`,`numero`),
+  KEY `SEC` (`pool_id`, `usado`, `valido`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `folios_pool` (
+  `id` bigint(20) unsigned NOT NULL auto_increment,
+  `fecha_aprobacion` date NOT NULL,
+  `num_aprobacion` varchar(100) collate utf8_general_ci NOT NULL UNIQUE,
+  `folio_inicial` varchar(100) collate utf8_general_ci NOT NULL,
+  `folio_final` varchar(100) collate utf8_general_ci NOT NULL,
+  `cbb` blob default NULL,
+  `cantidad` bigint(10) UNSIGNED NOT NULL default 0,
+  PRIMARY KEY  (`id`,`num_aprobacion`),
+  KEY `SEC` (`fecha_aprobacion`, `num_aprobacion` )
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `facturas_cbb` (
+  `fecha` date NOT NULL default '2012-01-01',
+  `folio` varchar(100) collate utf8_general_ci NOT NULL,
+  `folio_num_autorizacion` varchar(100) collate utf8_general_ci NOT NULL,
+  `folio_fecha_autorizacion` date NOT NULL,
+  `valida` bool NOT NULL default true,
+  `nombre_cliente` varchar(100) collate utf8_general_ci default '',
+  `rfc_cliente` varchar(100) collate utf8_general_ci default '',
+  `direccion_cliente` varchar(255) collate utf8_general_ci default '',
+  `transaction_id` bigint(20) unsigned NOT NULL default 0,
+  `subtotal` double unsigned NOT NULL default 0,
+  `impuestos` double unsigned NOT NULL default 0,
+  `impuestos_tasa` double unsigned NOT NULL default 0,
+  #--POR el momento concentra los impuestos en una sola linea. Tendra que soportar varias (IVA mas otros impuestos como al tabaco, etc..)
+  `descuentos` double unsigned NOT NULL default 0,
+  `total` double unsigned NOT NULL default 0,
+  PRIMARY KEY  (`folio`),
+  KEY `SEC` (`nombre_cliente`, `rfc_cliente`, `valida`, `fecha`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+
 CREATE OR REPLACE VIEW `v_transactions` AS
 select
 concat( DATE_FORMAT( t.date, '%d/%m/%Y' ) , ' ', TIME_FORMAT( t.time, '%H:%i' ) ) AS datetime,
@@ -477,6 +520,7 @@ INSERT INTO lemondb.cardtypes (typeid, text) VALUES(5, 'Debit MC');
 #Insert default payment types (very important to keep these ids)
 INSERT INTO lemondb.paytypes (typeid, text) VALUES(1, 'Cash');
 INSERT INTO lemondb.paytypes (typeid, text) VALUES(2, 'Card');
+INSERT INTO lemondb.paytypes (typeid, text) VALUES(3, 'Internal Credit');
 #Insert default transactions states (very important to keep these ids)
 INSERT INTO lemondb.transactionstates (stateid, text) VALUES(1, 'Not Completed');
 INSERT INTO lemondb.transactionstates (stateid, text) VALUES(2, 'Completed');
@@ -485,6 +529,9 @@ INSERT INTO lemondb.transactionstates (stateid, text) VALUES(4, 'PO Pending');
 INSERT INTO lemondb.transactionstates (stateid, text) VALUES(5, 'PO Completed');
 INSERT INTO lemondb.transactionstates (stateid, text) VALUES(6, 'PO Incomplete');
 INSERT INTO lemondb.transactionstates (stateid, text) VALUES(7, 'Reservation');
+INSERT INTO lemondb.transactionstates (stateid, text) VALUES(8, 'Internal Credit');
+INSERT INTO lemondb.transactionstates (stateid, text) VALUES(9, 'Internal Credit');
+
 #Insert default transactions types (very important to keep these ids)
 INSERT INTO lemondb.transactiontypes (ttypeid, text) VALUES(1, 'Sell');
 INSERT INTO lemondb.transactiontypes (ttypeid, text) VALUES(2, 'Purchase');
@@ -513,5 +560,20 @@ INSERT INTO lemondb.bool_values (id, text) VALUES(0, 'NO');
 INSERT INTO lemondb.bool_values (id, text) VALUES(1, 'YES');
 
 INSERT INTO lemondb.config (firstrun, taxIsIncludedInPrice, storeLogo, storeName, storeAddress, storePhone, logoOnTop, useCUPS, smallPrint, db_version) VALUES ('yes, it is February 6 1978', true, '', '', '', '', true, true, true, '0950');
+
+
+#--The next data is ignored by lemon, but required to work properly.
+#--mexico_taxes.sql moved here to avoid common problems due to not running it.
+INSERT INTO lemondb.taxmodels (modelid,tname,elementsid) VALUES(1,"Exento", "1");
+INSERT INTO lemondb.taxelements (elementid, ename, rate) VALUES (1,"Exento de impuestos", 0);
+
+INSERT INTO lemondb.taxmodels (modelid,tname,elementsid) VALUES(2,"General","2");
+INSERT INTO lemondb.taxelements (elementid, ename, rate) VALUES (2,"IVA", 16);
+
+INSERT INTO lemondb.taxmodels (modelid,tname,elementsid) VALUES(3,"Cigarros", "2,3");
+INSERT INTO lemondb.taxelements (elementid, ename, rate) VALUES (3,"Impuesto al tabaco", 5);
+
+INSERT INTO lemondb.taxmodels (modelid,tname,elementsid) VALUES(4,"Comunicaciones","3,4");
+INSERT INTO lemondb.taxelements (elementid, ename, rate) VALUES (4,"Impuesto a las comunicaciones", 2);
 
 

@@ -25,6 +25,16 @@
       <label>Store Address</label>
       <default></default>
     </entry>
+    <entry name="storeCity" type="String">
+        <label>Store City</label>
+        <default>
+        </default>
+    </entry>
+    <entry name="storeRFC" type="String">
+        <label>Store RFC</label>
+        <default>
+        </default>
+    </entry>
     <entry name="editTicketMessage" type="String">
       <label>Ticket Message</label>
       <default>Thanks for your preference!</default>
@@ -97,6 +107,10 @@
     </entry>
     <entry name="roundToUSStandard" type="Bool">
         <label>Round to US Standard 5/4</label>
+        <default>0</default>
+    </entry>
+    <entry name="askForInvoice" type="Bool">
+        <label>Ask for Invoice generation</label>
         <default>0</default>
     </entry>
   </group>

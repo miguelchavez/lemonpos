@@ -30,6 +30,9 @@
     <Action name="suspendSale"/>
     <Action name="resumeSale"/>
     <Action name="showCredits"/>
+    <Action name="emitirFactura" />
+    <Action name="cancelarFactura" />
+    <Action name="reprintFactura" />
     <Action name="options_configure" />
     <Action name="file_quit" />
  </ToolBar>

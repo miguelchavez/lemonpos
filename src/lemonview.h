@@ -128,6 +128,7 @@ public:
     MibitNotifier *notifierPanel;
 
     double oDiscountMoney;
+    double gTaxPercentage;
 
     ClientInfo crClientInfo;
     CreditInfo crInfo;
@@ -393,6 +394,13 @@ public:
     void modifyClientsFilterModelB();
     void verifyDiscountEntry();
     void createClient();
+    void printFactura(FacturaCBB factura);
+    void cancelarFactura();
+    void emitirFactura();
+    void reprintFactura();
+    void facturasLibres();
+    void resizeSearchTable();
+    
 };
 
 #endif // LEMONVIEW_H

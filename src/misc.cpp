@@ -28,14 +28,14 @@
 #include <QStringList>
 #include <QString>
 
-QByteArray Misc::pixmap2ByteArray(QPixmap *pix)
+QByteArray Misc::pixmap2ByteArray(QPixmap *pix, bool scale)
 {
   QByteArray bytes;
   QBuffer buffer(&bytes);
   buffer.open(QIODevice::WriteOnly);
   int max = 150;
 
-  if ((pix->height() > max) || (pix->width() > max) ) {
+  if (((pix->height() > max) || (pix->width() > max)) && scale ) {
     QPixmap newPix;
     if (pix->height() == pix->width()) {
       newPix = pix->scaled(QSize(max, max));

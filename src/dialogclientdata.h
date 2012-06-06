@@ -1,9 +1,8 @@
 /***************************************************************************
- *   Copyright (C) 2007-2009 by Miguel Chavez Gamboa                  *
+ *   Copyright (C) 2012 by Miguel Chavez Gamboa                            *
  *   miguel.chavez.gamboa@gmail.com                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
-
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
@@ -18,29 +17,36 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
  ***************************************************************************/
-#ifndef MISC_H
-#define MISC_H
+#ifndef DIALOGCLIENTDATA_H
+#define DIALOGCLIENTDATA_H
 
+#include <KDialog>
+#include <QtGui>
+#include "ui_datoscliente.h"
 
-class QByteArray;
-class QPixmap;
-class QFontMetrics;
-class QStringList;
-class QString;
-
-/**
- * This class is for Misc code.
- * Actual Stuff:  pixmap2ByteArray in diferent versions.
- *
- * @author Miguel Chavez Gamboa <miguel.chavez.gamboa@gmail.com>
- * @version 0.1
- */
-class Misc {
+class DialogClientDataUI : public QFrame, public Ui::datosCliente
+{
+  Q_OBJECT
   public:
-    static QByteArray pixmap2ByteArray(QPixmap *pix, bool scale=true);
-    static QByteArray pixmap2ByteArray(QPixmap *pix, int maxW, int maxH);
-    
-    static QStringList stringToParagraph(const QString &str, const QFontMetrics &fm, const double &maxL);
-    static QStringList stringToParagraph(const QString &str, const int &maxChars);
+    DialogClientDataUI( QWidget *parent=0 );
 };
+
+class DialogClientData : public KDialog
+{
+  Q_OBJECT
+  public:
+    DialogClientData( QWidget *parent=0 );
+    ~DialogClientData();
+    QString getNombre(){ return ui->editNombre->text();};
+    QString getRFC(){ return ui->editRFC->text();};
+    QString getDireccion();
+    
+  private slots:
+    void validate();
+
+
+  private:
+    DialogClientDataUI *ui;
+};
+
 #endif

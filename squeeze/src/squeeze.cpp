@@ -210,6 +210,8 @@ void squeeze::enableUI()
     action->setEnabled(true);
     action = actionCollection()->action("reservationsBrowse");
     action->setEnabled(true);
+    action = actionCollection()->action("cancelarFactura");
+    action->setEnabled(true);
   }
   qDebug()<<"Enabling others..";
   action = actionCollection()->action("usersBrowse");
@@ -269,6 +271,8 @@ void squeeze::disableUI()
   action = actionCollection()->action("currenciesBrowse");
   action->setDisabled(true);
   action = actionCollection()->action("reservationsBrowse");
+  action->setDisabled(true);
+  action = actionCollection()->action("cancelarFactura");
   action->setDisabled(true);
   
 }
@@ -428,6 +432,18 @@ void squeeze::setupActions()
     action->setIcon(KIcon("lemon-box"));
     action->setShortcut(Qt::ALT+Qt::Key_R);
     connect(action, SIGNAL(triggered(bool)),m_view, SLOT(showReservations()));
+
+    action = actionCollection()->addAction( "agregarSerieFolios" );
+    action->setText(i18n("Agregar Serie de Folios"));
+    action->setIcon(KIcon("lemon-ticket"));
+    action->setShortcut(Qt::ALT+Qt::Key_F);
+    connect(action, SIGNAL(triggered(bool)),m_view, SLOT(agregarSerieFolios()));
+
+    action = actionCollection()->addAction( "cancelarFactura" );
+    action->setText(i18n("Cancelar una factura"));
+    action->setIcon(KIcon("lemon-ticket-cancel"));
+    action->setShortcut(Qt::CTRL+Qt::ALT+Qt::Key_F);
+    connect(action, SIGNAL(triggered(bool)),m_view, SLOT(cancelarFactura()));
 
 }
 

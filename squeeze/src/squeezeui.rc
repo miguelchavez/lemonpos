@@ -48,6 +48,10 @@
       <Action name="currenciesBrowse" />
       <Action name="viewLog" />
     </Menu>
+    <Menu name="Reports"><text>&amp;Facturación</text>
+        <Action name="agregarSerieFolios" />
+        <Action name="cancelarFactura" />
+    </Menu>
     <Menu name="Reports"><text>&amp;Reports</text>
       <Action name="cashFlowBrowse" />
       <Action name="transactionsBrowse" />

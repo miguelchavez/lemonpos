@@ -469,4 +469,62 @@ struct RoundingInfo
     int     intIntPart;
 };
 
+struct FoliosPool
+{
+    QDate   fechaAprobacion; //FIXME: Es Fecha o Fecha Y HORA ???
+    QString numAprobacion; //El número de aprobación del folio asignado por SICOFI. Este es el primary key.
+    QByteArray cbb;
+    QString folioInicial; // 'A101', incluye la serie (A,B,C...)
+    QString folioFinal;   // 'A200'
+    int     cantidadFolios;
+};
+
+//NOTE:Tomar en cuenta 'race conditions'. Si dos terminales piden un folio al mismo tiempo, podrian tener el mismo numero ambos, siendo que esta 'usado=false'
+//     Para solucionar esto, en el mismo momento de pedir un folio, se marca como usado. (como en un stack, se retira.)
+//     Un problema es que no se puede regresar al stack con 'usado=false', porque entonces se podrian estar usando folios no consecutivos.
+//     ejemplo: Hoy dos terminales compiten por un folio, una obtiene el A101, otra el A102. La del A101 cancela y se regresa A101 con usado=false.
+//              Al dia siguiente, se pide un folio libre, y A102 se devuelve. Entonces A101 se factura con una fecha POSTERIOR a la de A102. Este
+//              seria un problema ante hacienda porque A101 es de una fecha posterior a A102 y no deberia de ser.
+struct FolioInfo
+{
+    QString poolId; //al pool que pertenece (La serie de folios pedidos al sat)
+    QString    numero; // Este es la primary key de la tabla, asi no se permiten duplicados.
+    bool       usado; //indica si el folio ya fue usado o esta libre para ser usado.
+    bool       valido; //indica si el folio es valido o cancelado.
+    QByteArray cbb;
+};
+
+struct FacturaCBB
+{
+    QDate   fecha;
+    QString folio; //este es el primary key
+    QString authFolios;
+    QDate   fechaAutFolios;
+    QByteArray cbb; //QR Code, PNG.  NOTE: Podia ser un apuntador a otra tabla, ya que una serie de folios comparten CBB.
+    bool    valida; //Para cancelar facturas.
+    QString nombreCliente;
+    QString RFCCliente;
+    QString direccionCliente;
+    QList<TicketLineInfo> lineas;
+    qulonglong trId;
+    double  subTotal; // Sin Impuestos, sin descuentos.
+    double  descuentos;
+    double  impuestos; // IVA... alguno mas ?
+    double  impuestosTasa; // impuestos en %
+    double  total; // Incluyendo iva, y descuentos.
+    ///not stored on db:
+    QString totalLetra;
+    QString storeName;
+    QString storeRFC;
+    QString storeAddr;
+    QString storeLugar;
+    QString storePhone;
+    QPixmap storeLogo;
+};
+
+//TODO: Operaciones relacionadas con facturas:
+//      Cancelacion
+//      Notas de Credito (No necesario sobre una factura) [Ver si esto requiere FOLIO del SAT]
+//      Pagos a una factura, saldo sobre la factura.  Relacion entre factura->Credito->Abono
+
 #endif

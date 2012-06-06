@@ -32,8 +32,10 @@
 #include "soselector.h"
 #include "sostatus.h"
 #include "resume.h"
+#include "refacturar.h"
 #include "reservations.h"
 #include "saleqtydelegate.h"
+#include "dialogclientdata.h"
 #include "../../mibitWidgets/mibittip.h"
 #include "../../mibitWidgets/mibitpassworddlg.h"
 #include "../../mibitWidgets/mibitfloatpanel.h"
@@ -67,6 +69,7 @@
 #include <QTextEdit>
 #include <QPushButton>
 #include <QDir>
+#include <QMessageBox>
 
 #include <klocale.h>
 #include <kiconloader.h>
@@ -372,21 +375,70 @@ void lemonView::qtyChanged(QTableWidgetItem *item)
         if ( !productsHash.contains(code) ) {
             qDebug()<<"Product not in the hash. SpecialOrders are not supported yet.";
         } else {
+            //ok so now check qtys to see if they are available at stock.
             ProductInfo info = productsHash.take(code);
-            info.qtyOnList = item->data(Qt::DisplayRole).toDouble();
-            //When refreshTotalLabel is executed, discounts are calculated but the discount at the line is not (also due).
-            double price    = info.price;
-            double discountperitem = info.disc;
-            double newdiscount = discountperitem* newQty;
-            i2Modify = ui_mainview.tableWidget->item(row, colDue);
-            i2Modify->setData(Qt::EditRole, QVariant((newQty*price)-newdiscount)); //only item discounts (not globalDiscounts/priceChange)
-            i2Modify = ui_mainview.tableWidget->item(row, colDisc);
-            i2Modify->setData(Qt::EditRole, QVariant(newdiscount));
-            //return product info to the hash
-            productsHash.insert(code, info);
-            ui_mainview.editItemCode->setFocus();
-            refreshTotalLabel();
-            qDebug()<<"\n\nCurrent Item == item: "<<code<<" NEW QTY:"<<newQty<<"\n\n";
+            double stockqty = info.stockqty;
+            QStringList itemsNotAvailable;
+            bool available = true;
+            double old_qty = info.qtyOnList;//To reject the new qty if not available.
+            qDebug()<<"Old item on list:"<<old_qty;
+            if (info.isAGroup) {
+                Azahar *myDb = new Azahar;
+                myDb->setDatabase(db);
+                QStringList lelem = info.groupElementsStr.split(",");
+                foreach(QString ea, lelem) {
+                    qulonglong c  = ea.section('/',0,0).toULongLong();
+                    double     qq = ea.section('/',1,1).toDouble();
+                    ProductInfo pi = myDb->getProductInfo(QString::number(c));
+                    QString unitStr;
+                    bool yes = false;
+                    double onList = getTotalQtyOnList(pi); // item itself and contained in any gruped product.
+                    // q     : item qty to add == newQty here
+                    // qq    : item qty on current grouped element to add
+                    // qq*q  : total items to add for this product.
+                    // onList: items of the same product already on the shopping list.
+                    if (pi.stockqty >= ((qq*newQty)+onList) ) yes = true;
+                    available = (available && yes );
+                    if (!yes) {
+                        itemsNotAvailable << i18n("%1 has %2 %3 but requested %4 + %5",pi.desc,pi.stockqty,unitStr,qq*newQty,onList);
+                    }
+                    qDebug()<<pi.desc<<" qtyonstock:"<<pi.stockqty<<" needed qty (onlist and new):"<<QString::number((qq*newQty)+onList);
+                }
+                delete myDb;
+            } else {
+                double onList = getTotalQtyOnList(info); // item itself and contained in any gruped product.
+                if (stockqty >= newQty+onList) available = true; else available = false;
+                qDebug()<<info.desc<<" qtyonstock:"<<info.stockqty<<" needed qty (onlist and new):"<<QString::number(newQty+onList);
+            }
+
+            if (!available) {
+                QString msg;
+                double onList = getTotalQtyOnList(info); // item itself and contained in any gruped product.
+                //remove the inserted qty by the user (restore old_qty)
+                item->setData(Qt::EditRole, QVariant(old_qty));
+                qDebug()<<"Se restablecio la cantidad original de:"<<old_qty<<". Se ignora la cantidad requerida:"<<newQty;
+                if (!itemsNotAvailable.isEmpty())
+                    msg = i18n("<html><font color=red><b>The group/pack is not available because:<br>%1</b></font></html>", itemsNotAvailable.join("<br>"));
+                else
+                    msg = i18n("<html><font color=red><b>There are only %1 articles of your choice at stock.<br> You requested %2</b></font></html>", info.stockqty,newQty+onList);
+
+                if (ui_mainview.mainPanel->currentIndex() == pageMain) {
+                    tipCode->showTip(msg, 6000);
+                }
+                if (ui_mainview.mainPanel->currentIndex() == pageSearch) {
+                    ui_mainview.labelSearchMsg->setText(msg);
+                    ui_mainview.labelSearchMsg->show();
+                    QTimer::singleShot(3000, this, SLOT(clearLabelSearchMsg()) );
+                }
+            } else {
+                //Available, continue...
+                info.qtyOnList = newQty;
+                productsHash.insert(info.code, info);
+                updateItem(info);
+                refreshTotalLabel();
+                ui_mainview.editItemCode->setFocus();
+                qDebug()<<"\n\nCurrent Item == item: "<<code<<" NEW QTY:"<<newQty<<"\n\n";
+            }
         }
     }
 }
@@ -423,12 +475,21 @@ void lemonView::setUpTable()
   ui_mainview.tableWidget->horizontalHeader()->resizeSection(colUnits, portion-15);//UNITS
   ui_mainview.tableWidget->horizontalHeader()->resizeSection(colDisc, portion); //Discount
   ui_mainview.tableWidget->horizontalHeader()->resizeSection(colDue, portion+10); //DUE
-  //search table
-  tableSize = ui_mainview.tableSearch->size();
-  ui_mainview.tableSearch->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
-  ui_mainview.tableSearch->horizontalHeader()->resizeSection(0, 2*(tableSize.width()/4));
-  ui_mainview.tableSearch->horizontalHeader()->resizeSection(1, tableSize.width()/4);
-  ui_mainview.tableSearch->horizontalHeader()->resizeSection(2, tableSize.width()/4);
+  resizeSearchTable();
+}
+
+
+void lemonView::resizeSearchTable()
+{
+    QSize tableSize = ui_mainview.tableSearch->size();
+    int portion = tableSize.width()/12;
+    ui_mainview.tableSearch->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
+    ui_mainview.tableSearch->horizontalHeader()->resizeSection(0, portion*4); //description
+    ui_mainview.tableSearch->horizontalHeader()->resizeSection(1, portion*1.3); //PRICe
+    ui_mainview.tableSearch->horizontalHeader()->resizeSection(2, portion*1.5); //PRICE+TAX
+    ui_mainview.tableSearch->horizontalHeader()->resizeSection(3, portion);  //STOCK
+    ui_mainview.tableSearch->horizontalHeader()->resizeSection(4, portion*1.8);//ALPHACODE
+    ui_mainview.tableSearch->horizontalHeader()->resizeSection(5, portion*1.8); //CODE
 }
 
 void lemonView::setUpInputs()
@@ -562,7 +623,9 @@ void lemonView::syncSettingsOnDb()
   myDb->setDatabase(db);
   if (!Settings::storeLogo().isEmpty()) {
     QPixmap p = QPixmap( Settings::storeLogo() );
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     myDb->setConfigStoreLogo(Misc::pixmap2ByteArray(new QPixmap(p), p.size().width(),p.size().height()));
+    QApplication::restoreOverrideCursor();
   }
   myDb->setConfigStoreName(Settings::editStoreName());
   myDb->setConfigStoreAddress(Settings::storeAddress());
@@ -993,14 +1056,20 @@ void lemonView::doSearchItemDesc()
       //NOTE:bug fixed Sept 26 2008: Without QString::number, no data was inserted.
       // if it is passed a numer as the only parameter to QTableWidgetItem, it is taken as a type
       // and not as a data to display.
-      ui_mainview.tableSearch->setItem(rowCount, 1, new QTableWidgetItem(QString::number(pInfo.price)));
-      ui_mainview.tableSearch->setItem(rowCount, 2, new QTableWidgetItem(QString::number(pInfo.code)));
-      ui_mainview.tableSearch->resizeRowsToContents();
+      double finalPrice = pInfo.price;
+      if (Settings::addTax())
+          finalPrice += pInfo.totaltax;
+      ui_mainview.tableSearch->setItem(rowCount, 1, new QTableWidgetItem(QString::number(pInfo.price, 'f', 2)));
+      ui_mainview.tableSearch->setItem(rowCount, 2, new QTableWidgetItem(QString::number(finalPrice, 'f', 2))); //price with taxes
+      ui_mainview.tableSearch->setItem(rowCount, 3, new QTableWidgetItem(QString::number(pInfo.stockqty))); //STOCK Level
+      ui_mainview.tableSearch->setItem(rowCount, 4, new QTableWidgetItem(pInfo.alphaCode)); //Alphacode
+      ui_mainview.tableSearch->setItem(rowCount, 5, new QTableWidgetItem(QString::number(pInfo.code)));
     }
     if (pList.count()>0) ui_mainview.labelSearchMsg->setText(i18np("%1 item found","%1 items found.", pList.count()-numRaw));
     else ui_mainview.labelSearchMsg->setText(i18n("No items found."));
 
     delete myDb;
+    resizeSearchTable();
   }
 
 int lemonView::getItemRow(QString c)
@@ -1064,7 +1133,9 @@ void lemonView::refreshTotalLabel()
             double iTaxM = 0;
             //if item has discount, apply it.
             if (!prod.validDiscount && prod.disc > 0 && !prod.isNotDiscountable) ///if this is true, then there is a product price change.
-                iPrice -= prod.disc; //product price changed.
+                iPrice -= prod.disc;
+            if (!prod.validDiscount && prod.disc < 0 && !prod.isNotDiscountable) ///if this is true, then there is a product price change.
+                iPrice -= prod.disc;
             if (prod.validDiscount && !prod.isNotDiscountable)
                 iPrice -= (prod.discpercentage/100)*iPrice; //prod.price;  because the price could be changed.
             if ( gDiscountPercentage > 0 ) //apply general discount. gDiscountPercentage is in PERCENTAGE Already... do not divide by 100.
@@ -1180,6 +1251,8 @@ void lemonView::refreshTotalLabel()
         notifierPanel->showNotification("<b>Cannot apply discount</b> to a product marked as not discountable.",5000);
     }
 
+    gTaxPercentage = totalTaxP; //saving global tax percentage.
+
     delete myDb;
     //END of Rewrite
 }
@@ -1247,7 +1320,6 @@ void lemonView::doEmitSignalQueryDb()
 bool lemonView::incrementTableItemQty(QString code, double q)
 {
   double qty  = 1;
-  double discount_old=0.0;
   double qty_old=0.0;
   double stockqty=0;
   bool done=false;
@@ -1290,7 +1362,7 @@ bool lemonView::incrementTableItemQty(QString code, double q)
     } else {
       double onList = getTotalQtyOnList(info); // item itself and contained in any gruped product.
       if (stockqty >= q+onList) available = true; else available = false;
-      qDebug()<<info.desc<<" qtyonstock:"<<info.stockqty<<" needed qty (onlist and new):"<<QString::number(q+onList);
+      qDebug()<<info.desc<<" qtyonstock:"<<info.stockqty<<" needed qty (onlist and new):"<<QString::number(q+onList)<<" onlist:"<<onList;
     }
       
     if (available) qty+=q; else {
@@ -1310,30 +1382,18 @@ bool lemonView::incrementTableItemQty(QString code, double q)
          QTimer::singleShot(3000, this, SLOT(clearLabelSearchMsg()) );
       }
     }
-    QTableWidgetItem *itemQ = ui_mainview.tableWidget->item(info.row, colQty);//item qty
-    itemQ->setData(Qt::EditRole, QVariant(qty));
-    done = true;
-    QTableWidgetItem *itemD = ui_mainview.tableWidget->item(info.row, colDisc);//item discount
-    discount_old = itemD->data(Qt::DisplayRole).toDouble();
-    //calculate new discount
-    double discountperitem = (discount_old/qty_old);
-    double newdiscount = discountperitem*qty;
-    itemD->setData(Qt::EditRole, QVariant(newdiscount));
-    //qDebug()<<"incrementTableQty... old discount:"<<discount_old<<" old qty:"<<qty_old<<" new discount:"<<newdiscount<<"new qty:"<<qty<<" disc per item:"<<discountperitem;
 
+    done = true;
     info.qtyOnList = qty;
-    //qDebug()<<"  New qty on list:"<<info.qtyOnList;
     productsHash.remove(code.toULongLong());
     productsHash.insert(info.code, info);
-
-    //get item Due to update it.
-    QTableWidgetItem *itemDue = ui_mainview.tableWidget->item(info.row, colDue); //4 item Due
-    itemDue->setData(Qt::EditRole, QVariant((info.price*qty)-newdiscount));//fixed on april 30 2009 00:35. Added *qtyqDebug()<<"INCREMENTING TABLE ITEM QTY";
+    //display new info on the purchase list.
+    updateItem(info);
     refreshTotalLabel();
     QTableWidgetItem *item = ui_mainview.tableWidget->item(info.row, colCode);//item code
     displayItemInfo(item); //TODO: Cambiar para desplegar de ProductInfo.
     ui_mainview.editItemCode->clear();
-   }//if productsHash.contains...
+   } //if productsHash.contains...
 
   return done;
 }
@@ -1611,31 +1671,41 @@ void lemonView::updateItem(ProductInfo prod)
 
     //check if discounts
     double itemDiscount = 0;
-    if (prod.disc > 0 || (prod.discpercentage > 0 && prod.validDiscount) ) {
-        qDebug()<<"Item may have a discount.  Disc:"<<prod.disc<<" discPercent:"<<prod.discpercentage<<" valid Discount:"<<prod.validDiscount;
-        if (prod.disc > 0 && !prod.validDiscount)
+    if (prod.disc > 0 || prod.disc < 0 || (prod.discpercentage > 0 && prod.validDiscount) ) {
+        if ((prod.disc > 0 || prod.disc < 0) && !prod.validDiscount)
             itemDiscount += prod.disc; //price change
         if ( prod.discpercentage > 0 && prod.validDiscount )
             itemDiscount += (prod.discpercentage/100)*prod.qtyOnList; //item offer
-        qDebug()<<"ItemDiscount:"<<itemDiscount;
     }
-    //change color for discounts
-    item  = ui_mainview.tableWidget->item(prod.row, colDisc);
+    
+    
+    if (itemDiscount < 0) {
+        //item changed price to higer. So do not say it is a discount.
+        item  = ui_mainview.tableWidget->item(prod.row, colDisc);
+        item->setData(Qt::EditRole, "0.0");
+        item  = ui_mainview.tableWidget->item(prod.row, colPrice);
+        item->setData(Qt::EditRole, QVariant(prod.price-itemDiscount));
+    } else {
+        item  = ui_mainview.tableWidget->item(prod.row, colDisc);
+        QBrush b = QBrush(QColor::fromRgb(255,0,0), Qt::SolidPattern);
+        item->setForeground(b);
+        item->setData(Qt::EditRole, QVariant(itemDiscount));
+    }
+
+    //update QTY (this code is reused)
+    item = ui_mainview.tableWidget->item(prod.row, colQty);
+    item->setData(Qt::EditRole, QVariant(prod.qtyOnList));
+
+    //now update product total
+    item = ui_mainview.tableWidget->item(prod.row, colDue);
     if (itemDiscount > 0) {
         QBrush b = QBrush(QColor::fromRgb(255,0,0), Qt::SolidPattern);
         item->setForeground(b);
     }
-    item->setData(Qt::EditRole, QVariant(itemDiscount));
-    //now update product total
-    item = ui_mainview.tableWidget->item(prod.row, colDue);
+
     //we modified discount per item, so now multiply by item qty to update the final price with discount.  dec 10 2011.
     itemDiscount = itemDiscount*prod.qtyOnList;
     item->setData(Qt::EditRole, QVariant((prod.qtyOnList*prod.price)-itemDiscount));
-    //set the color of the total if discounted.
-    if (itemDiscount > 0) {
-        QBrush b = QBrush(QColor::fromRgb(255,0,0), Qt::SolidPattern);
-        item->setForeground(b);
-    }
 
     ui_mainview.tableWidget->resizeRowsToContents();
 }
@@ -1906,7 +1976,7 @@ void lemonView::itemDoubleClicked(QTableWidgetItem* item)
 void lemonView::itemSearchDoubleClicked(QTableWidgetItem *item)
 {
   int row = item->row();
-  QTableWidgetItem *cItem = ui_mainview.tableSearch->item(row,2); //get item code
+  QTableWidgetItem *cItem = ui_mainview.tableSearch->item(row,5); //get item code: at row 5 from May 2012
   qulonglong code = cItem->data(Qt::DisplayRole).toULongLong();
   //qDebug()<<"Linea 981: Data at column 2:"<<cItem->data(Qt::DisplayRole).toString();
   if (productsHash.contains(code)) {
@@ -1934,6 +2004,15 @@ void lemonView::displayItemInfo(QTableWidgetItem* item)
   if (productsHash.contains(code)) {
     ProductInfo info = productsHash.value(code);
     QString uLabel=info.unitStr; // Dec 15  2007
+
+    double disc = 0;
+    if (info.disc < 0) {
+        //price change, to higher price.
+        price = info.price - info.disc;
+    } else {
+        disc = info.disc;
+        price = info.price;
+    }
 
     double discP=0.0;
     if (info.validDiscount) discP = info.discpercentage;
@@ -1975,7 +2054,7 @@ void lemonView::displayItemInfo(QTableWidgetItem* item)
     ui_mainview.labelDetailPrice->setText(QString("<html>%1 <b>%2</b></html>")
         .arg(tPrice).arg(KGlobal::locale()->formatMoney(price)));
     ui_mainview.labelDetailDiscount->setText(QString("<html>%1 <b>%2 (%3 %)</b></html>")
-        .arg(tDisc).arg(KGlobal::locale()->formatMoney(info.disc)).arg(discP));
+        .arg(tDisc).arg(KGlobal::locale()->formatMoney(disc)).arg(discP));
     if (info.points>0) {
       ui_mainview.labelDetailPoints->setText(QString("<html>%1 <b>%2</b></html>")
         .arg(tPoints).arg(info.points));
@@ -2072,9 +2151,16 @@ void lemonView::finishCurrentTransaction()
     qDebug()<<"  totalSum:"<<QString::number(totalSum,'f',64);
 
     bool iguales = false;
-    if ( (dif1 < 0.0001) && (dif2 < 0.0001) ) {
+    if ( (dif1 < 0.1) && (dif2 < 0.1) ) {
         iguales = true;//the difference is practically zero.
     }
+
+    //another aproach
+    QLocale localeForPrinting;
+    QString amntStr = localeForPrinting.toString(amnt, 'f', 2); //amount tendered
+    QString totalStr = localeForPrinting.toString(totalSum, 'f', 2); //total
+    qDebug()<<" Tendered Str:"<<amntStr<<" Total Str:"<<totalStr;
+    
 
     if (iguales)
         canfinish = true;
@@ -2137,6 +2223,16 @@ void lemonView::finishCurrentTransaction()
     canfinish=false;
     KMessageBox::sorry(this, i18n("Before selling, you must start operations."));
   }
+
+  if (ui_mainview.checkOwnCredit->isChecked() && clientInfo.id <= 1 ) {
+      QString msgC = i18n("<html><font color=red><b>The Client for an interal credit sale must not be the default client.</b> Please select another client</font></html>");
+      canfinish = false;
+      notifierPanel->showNotification(msgC,3000);
+      ui_mainview.editClient->setFocus();
+  }
+
+  if (!canfinish)
+      return; ///WARNING:at the end of the if (canfinish){} block, there is oDiscount..= 0; is this right or not? can we safely quit here? At the beginnig of this method the oDiscount is calculated when calling refreshTotalLabel() method.
 
   if (canfinish) // Ticket #52: Allow ZERO DUE.
   {
@@ -2297,8 +2393,10 @@ void lemonView::finishCurrentTransaction()
       position++;
       productIDs.append(QString::number(i.key())+"/"+QString::number(i.value().qtyOnList));
       if (i.value().units == uPiece) cantidad += i.value().qtyOnList; else cantidad += 1; // :)
+      //WARNING: If changePrice to a higer price, dont expect to have accurate information on profit and other information. It would give a bigger profit.
       utilidad  += (i.value().price - i.value().cost - i.value().disc) * i.value().qtyOnList; //FIXME: Now with REWRITTEN TOTALS CALCULATION!! WARNING with discount
-      pDiscounts+= i.value().disc * i.value().qtyOnList;
+      if (i.value().disc > 0 )
+        pDiscounts+= i.value().disc * i.value().qtyOnList;
       //decrement stock qty, increment soldunits.. CHECK FOR GROUP
       if (!i.value().isAGroup)
         myDb->decrementProductStock(i.key(), i.value().qtyOnList, QDate::currentDate() );
@@ -2368,7 +2466,13 @@ void lemonView::finishCurrentTransaction()
         tLineInfo.isGroup = true;
       }
       tLineInfo.desc    = i.value().desc;
-      tLineInfo.price   = i.value().price;
+
+      //If a higer price with PriceChange feature:
+      if (i.value().disc < 0 ) {
+          tLineInfo.price   = i.value().price - i.value().disc;
+          qDebug()<<"* There is a higher price change:"<<tLineInfo.price;
+      } else tLineInfo.price   = i.value().price;
+      
       tLineInfo.disc    = i.value().disc*i.value().qtyOnList;
       tLineInfo.total   = tItemInfo.total;
       tLineInfo.tax     = tItemInfo.tax;
@@ -2575,6 +2679,8 @@ void lemonView::finishCurrentTransaction()
       realSubtotal = KGlobal::locale()->formatMoney(subTotalSum+discMoney+soDiscounts+pDiscounts, QString(), 2);
     else
       realSubtotal = KGlobal::locale()->formatMoney(subTotalSum-totalTax+discMoney+soDiscounts+pDiscounts, QString(), 2); //FIXME: es +discMoney o -discMoney??
+
+    qDebug()<<"\n pDiscounts:"<<pDiscounts;
     qDebug()<<"\n >>>>>>>>> Real SUBTOTAL = "<<realSubtotal<<"  subTotalSum = "<<subTotalSum<<" ADDTAXES:"<<Settings::addTax()<<"  Disc:"<<discMoney;
     qDebug()<<"\n********** Total Taxes:"<<totalTax<<" total Discount:"<<discMoney<< " SO Discount:"<<soDiscounts<<" Prod Discounts:"<<pDiscounts;
 
@@ -2606,15 +2712,153 @@ void lemonView::finishCurrentTransaction()
     ticket.terminal = QString::number(tInfo.terminalnum);
     qDebug()<<" \n soGTotal:"<<soGTotal<<" deliveryDT:"<<soDeliveryDT<<"\n";
 
-    if (printDTticket)
-      printTicket(ticket);
-    else {
-        //if not printing ticket, it means it is config to not print date changed tickets.. but this affects to the freeze/unfreeze UI, and to call startAgain().
-        freezeWidgets();
-        QTimer::singleShot(500, this, SLOT(unfreezeWidgets()));
-        qDebug()<<"Not printing ticket...";
-      }
 
+    ///TODO: Imprimir FACTURA.
+    ///      * Factura o Ticket ?? Preguntar si imprimir FACTURa, si NO solo imprimir ticket, si SI imprimir SOLO FACTURA, sin ticket. (VERIFICAR ESTO)
+    ///      * Casos en los que no se puede imprimir factura:
+    ///          * S.O. si no esta completada.
+    ///          * Apartados si no estan completados (pagados totalmente).
+
+    bool facturar = false;
+    if (!specialOrders.isEmpty() )
+        facturar = completingOrder;
+    else if ( startingReservation )
+        facturar = false;
+    else if ( finishingReservation )
+        facturar = finishingReservation;
+    else if (ticket.total == 0)
+        facturar = false;
+    else
+        facturar = true;
+    
+    //finalmente ver si hay folios disponibles
+    int foliosDisponibles = myDb->getFoliosLibres();
+    if ( foliosDisponibles > 0 ) {
+        facturar = true;
+        if (foliosDisponibles < 6)
+            notifierPanel->showNotification(QString("<b>ATENCION:</b> Hay %1 folios disponibles.").arg(foliosDisponibles),5000);
+    } else {
+        facturar = false;
+        qDebug()<<"No hay folios disponibles, no se puede facturar!";
+        notifierPanel->showNotification("<b>Imposible facturar:</b> No hay folios disponibles.",5000);
+        //A message box would be better to get attention.
+        //QMessageBox::critical(this, "Facturación","No se puede facturar, no hay folios disponibles!", QMessageBox::Ok);
+    }
+
+    qDebug()<<" --Facturar:"<<facturar<<"--";
+
+    if ( facturar && Settings::askForInvoice() ) {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, i18n("Facturación"), i18n("¿Desea facturar?"), QMessageBox::Yes | QMessageBox::No);
+
+        if (reply == QMessageBox::Yes) {
+            qDebug()<<"Creando Factura...";
+            //Crear la factura.
+            FacturaCBB factura;
+            QPixmap logoPixmap;
+            logoPixmap.load(Settings::storeLogo());
+            bool completar = false;
+            if (clientInfo.id == 1) {
+                //preguntar NOMBRE y RFC del cliente;
+                DialogClientData *dlgClient = new DialogClientData(this);
+
+                int resultado = dlgClient->exec();
+                //while ( resultado != QDialog::Accepted ) {
+                //    resultado = dlgClient->exec();
+                //}
+                if ( resultado == QDialog::Accepted ){
+                    factura.nombreCliente    = dlgClient->getNombre();
+                    factura.RFCCliente = dlgClient->getRFC();
+                    factura.direccionCliente = dlgClient->getDireccion();
+                    completar = true;
+                } else {
+                    qDebug()<<"REJECTED! this should not be happened.";
+                    completar = false;//se cancelo.
+                }
+            } else {
+                factura.nombreCliente    = clientInfo.name;
+                factura.RFCCliente = clientInfo.code;
+                factura.direccionCliente = clientInfo.address;
+                completar = true;
+            }
+            if (completar) {
+                //TODO:formatear direccion
+                
+                factura.valida = true;
+                factura.trId = currentTransaction;
+                factura.fecha = QDate::currentDate();
+                factura.lineas = ticketLines;
+                ///FIXME: Si en settings esta otra moneda, con simbolo diferente a $, entonces no funcionara el workaround siguiente:
+                factura.subTotal = realSubtotal.remove(',').remove('$').remove(' ').toDouble(); //realSubtotal is affected with discounts/taxes (see line 5408)   //subTotalSum
+                factura.descuentos = discMoney;
+                factura.impuestos = totalTax;
+                factura.impuestosTasa = gTaxPercentage;
+                factura.total = totalSum;
+                factura.totalLetra = "pendiente";
+                factura.storeName  = Settings::editStoreName();
+                factura.storeRFC   = Settings::storeRFC();
+                factura.storeAddr  = Settings::storeAddress();
+                factura.storeLugar = Settings::storeCity();
+                factura.storePhone = Settings::storePhone();
+                factura.storeLogo  = logoPixmap;
+                //Obtener folio
+                FolioInfo elFolio = myDb->getSiguienteFolio();
+                FoliosPool pool = myDb->getFolioPool(elFolio.poolId);
+                factura.folio = elFolio.numero;
+                factura.authFolios = pool.numAprobacion;
+                factura.fechaAutFolios = pool.fechaAprobacion;
+                factura.cbb = pool.cbb; //byteArray
+                //insertar factura en db.
+                if (!myDb->insertFactura(factura)) {
+                    QMessageBox::critical(this, i18n("No se pudo crear la factura"),myDb->lastError(), QMessageBox::Ok);
+                } else {
+                    //mandar imprimir...
+                    if (elFolio.valido)
+                        printFactura(factura);
+                    else
+                        QMessageBox::critical(this, i18n("Folio Obtenido es invalido."),myDb->lastError(), QMessageBox::Ok);
+                    //No print ticket.
+                }
+                freezeWidgets();
+                QTimer::singleShot(500, this, SLOT(unfreezeWidgets()));
+            } else { //completar
+                qDebug()<<"Se cancelo el proceso de facturacion.";
+                //We only print ticket if no creating invoice.
+                if (printDTticket)
+                    printTicket(ticket);
+                else {
+                    //if not printing ticket, it means it is config to not print date changed tickets.. but this affects to the freeze/unfreeze UI, and to call startAgain().
+                    freezeWidgets();
+                    QTimer::singleShot(500, this, SLOT(unfreezeWidgets()));
+                    qDebug()<<"Not printing ticket...";
+                }
+            }
+        } else {
+            qDebug()<<"No se deseo facturar.";
+            //We only print ticket if no creating invoice.
+            if (printDTticket)
+                printTicket(ticket);
+            else {
+                //if not printing ticket, it means it is config to not print date changed tickets.. but this affects to the freeze/unfreeze UI, and to call startAgain().
+                freezeWidgets();
+                QTimer::singleShot(500, this, SLOT(unfreezeWidgets()));
+                qDebug()<<"Not printing ticket...";
+            }
+        } //no invoice
+    } else {
+        qDebug()<<"No se puede facturar: Apartados|SpecialOrdersNotCompleted";
+        //We only print ticket if no creating invoice.
+        if (printDTticket)
+            printTicket(ticket);
+        else {
+            //if not printing ticket, it means it is config to not print date changed tickets.. but this affects to the freeze/unfreeze UI, and to call startAgain().
+            freezeWidgets();
+            QTimer::singleShot(500, this, SLOT(unfreezeWidgets()));
+            qDebug()<<"Not printing ticket...";
+        }
+    } //no invoice
+
+    
     //update balance
     qDebug()<<"FINISH TRANSACTION, UPDATING BALANCE #"<<currentBalanceId;
     updateBalance(false);//for sessions.
@@ -2641,6 +2885,121 @@ void lemonView::finishCurrentTransaction()
    oDiscountMoney = 0; //reset discount money... the new discount type.
 }
 
+
+void lemonView::reprintFactura() {
+    if (!Settings::askForInvoice())
+        return;
+    
+    Azahar *myDb = new Azahar;
+    FacturaCBB factura;
+    QList<TicketLineInfo> theLines;
+    myDb->setDatabase(db);
+
+    RefacturarDialog *dlg = new RefacturarDialog(this);
+    dlg->setDb(db);
+    
+    if (dlg->exec()) {
+        //get data
+        QString folio = dlg->getSelectedInvoice();
+        FacturaCBB factura = myDb->getFacturaInfo(folio);
+        //append additional data from the store
+        factura.storeName  = Settings::editStoreName();
+        factura.storeRFC   = Settings::storeRFC();
+        factura.storeAddr  = Settings::storeAddress();
+        factura.storeLugar = Settings::storeCity();
+        factura.storePhone = Settings::storePhone();
+        QPixmap logoPixmap;
+        logoPixmap.load(Settings::storeLogo());
+        factura.storeLogo  = logoPixmap;
+
+        if (factura.folio == folio && factura.valida) {
+            //get factura items
+            QList<TransactionItemInfo> pListItems = myDb->getTransactionItems(factura.trId);
+            for (int i = 0; i < pListItems.size(); ++i) {
+                TransactionItemInfo trItem = pListItems.at(i);
+                TicketLineInfo tLineInfo;
+                tLineInfo.qty     = trItem.qty;
+                tLineInfo.unitStr = trItem.unitStr;
+                tLineInfo.desc    = trItem.name;
+                tLineInfo.price   = trItem.price;
+                tLineInfo.disc    = trItem.disc;
+                tLineInfo.total   = trItem.total;
+                tLineInfo.payment = trItem.payment;
+                tLineInfo.completePayment = trItem.completePayment;
+                tLineInfo.isGroup = trItem.isGroup;
+                tLineInfo.deliveryDateTime = trItem.deliveryDateTime;
+                tLineInfo.tax     = trItem.tax;
+                double gtotal     = trItem.total + trItem.tax;
+                tLineInfo.gtotal  =  Settings::addTax()  ? gtotal : tLineInfo.total;
+
+                QString newName;
+                newName = trItem.soId;
+                qulonglong sorderid = newName.remove(0,3).toULongLong();
+                QString    soNotes  = myDb->getSONotes(sorderid);
+                soNotes = soNotes.replace("\n", "|  ");
+                if (sorderid > 0) {
+                    QList<ProductInfo> pList = myDb->getSpecialOrderProductsList(sorderid);
+                    newName = "";
+                    foreach(ProductInfo info, pList ) {
+                        QString unitStr;
+                        if (info.units == 1 ) unitStr=" "; else unitStr = info.unitStr;
+                        newName += "|  " + QString::number(info.qtyOnList) + " "+ unitStr +" "+ info.desc;
+                    }
+                    tLineInfo.geForPrint = trItem.name+newName+"|  |"+i18n("Notes:")+soNotes+" | ";
+                } else tLineInfo.geForPrint = "";
+                
+                if (trItem.isGroup) {
+                    tLineInfo.geForPrint = trItem.name;
+                    QString n = trItem.name.section('|',0,0);
+                    trItem.name = n;
+                    tLineInfo.desc    = trItem.name;
+                }
+
+                //append data to the invoice.
+                theLines.append(tLineInfo);
+            }//for each item
+            factura.lineas = theLines;
+            //fianlly print it.
+            printFactura(factura);
+        }//factura valida
+    }
+}
+
+void lemonView::printFactura(FacturaCBB factura)
+{
+    QPrinter printer;
+    printer.setFullPage( true );
+    
+    //This is lost when the user chooses a printer. Because the printer overrides the paper sizes.
+    printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+    //QString pName = printer.printerName(); //default printer name
+    QPrintDialog printDialog( &printer );
+    printDialog.setWindowTitle(i18n("Imprimir Factura"));
+    
+    if ( printDialog.exec() ) {
+        //this overrides what the user chooses if he does change sizes and margins.
+        printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+        PrintCUPS::printFactura(factura, printer, KGlobal::locale()->formatDate(factura.fecha, KLocale::LongDate), false); //original
+        PrintCUPS::printFactura(factura, printer, KGlobal::locale()->formatDate(factura.fecha, KLocale::LongDate), true); //copy
+    }
+
+    //export to PDF.
+    QString fn = QString("%1/lemon-printing/").arg(QDir::homePath());
+    QString fn2 = QString("%1/lemon-printing/").arg(QDir::homePath());
+    QDir dir;
+    if (!dir.exists(fn))
+        dir.mkdir(fn);
+    fn = fn+QString("factura-%1__%2.pdf").arg(factura.folio).arg(factura.fecha.toString("dd-MMM-yy"));
+    fn2 = fn2+QString("copia_factura-%1__%2.pdf").arg(factura.folio).arg(factura.fecha.toString("dd-MMM-yy"));
+    qDebug()<<fn;
+
+    printer.setOutputFileName(fn);
+    printer.setPageMargins(0,0,0,0,QPrinter::Millimeter);
+
+    PrintCUPS::printFactura(factura, printer, KGlobal::locale()->formatDate(factura.fecha, KLocale::LongDate), false);//original
+    printer.setOutputFileName(fn2);
+    PrintCUPS::printFactura(factura, printer, KGlobal::locale()->formatDate(factura.fecha, KLocale::LongDate), true); //copy
+}
 
 void lemonView::printTicket(TicketInfo ticket)
 {
@@ -4143,12 +4502,12 @@ void lemonView::updateClientInfo()
   QString dStr;
   if (clientInfo.discount >0) {
       double discMoney = (clientInfo.discount/100)*totalSumWODisc;
-      dStr = i18n("Discount: <b>%1%</b> [<b>%2</b>]<br>",clientInfo.discount, KGlobal::locale()->formatMoney(discMoney));
+      dStr = i18n("Discount: <b>%1%</b> [<b>%2</b>]",clientInfo.discount, KGlobal::locale()->formatMoney(discMoney));
   } else if (oDiscountMoney >0 ){
-      dStr = i18n("Discount: <b>%1%</b><br>", KGlobal::locale()->formatMoney(oDiscountMoney));
+      dStr = i18n("Discount: <b>%1%</b>", KGlobal::locale()->formatMoney(oDiscountMoney));
   }
   
-  QString pStr = i18n("<i>%1</i> points<br>", clientInfo.points);
+  QString pStr = i18n("<i>%1</i> points", clientInfo.points);
   if (clientInfo.points <= 0)
       pStr = "";
   
@@ -4167,7 +4526,7 @@ void lemonView::updateClientInfo()
       creditStr = "";
 
   //The format is: CLIENT-NAME (Client-Code) <br>Credit <br>Discount<br>Points.
-  ui_mainview.lblClientDetails->setText(QString("<b>%1</b> (<i>%2</i>)<br>%3%4%5").arg(clientInfo.name).arg(clientInfo.code).arg(creditStr).arg(dStr).arg(pStr));
+  ui_mainview.lblClientDetails->setText(QString("<b>%1</b> (<i>%2</i>)<br>%3<br>%4<br>%5").arg(clientInfo.name).arg(clientInfo.code).arg(creditStr).arg(dStr).arg(pStr));
   
   delete myDb;
   qDebug()<<"Updating client info...";
@@ -5119,6 +5478,10 @@ void lemonView::applyOccasionalDiscount()
                     return;
                 }
                 priceDiff = info.price - ui_mainview.editDiscount->text().toDouble();
+                //NOTE: A price change to higher the price would give a negative priceDiff.
+                if (priceDiff < 0) {
+                    qDebug()<<"Applying a price change to make the product's price higher";
+                }
                 info.disc = priceDiff; // set item discount money. discPercentage will be zero.
                 info.discpercentage = 0;
                 info.validDiscount = false; ///to detect the difference between offers and price changes.
@@ -5925,11 +6288,20 @@ void lemonView::calculateTotalForClient()
         cursor.setBlockFormat(blockCenter);
         cursor.insertText(i18n("CREDIT REPORT"), titleFormat);
         cursor.insertBlock();
+        cursor.insertText(KGlobal::locale()->formatDateTime(QDateTime::currentDateTime(), KLocale::LongDate), textFormat);
+        cursor.insertBlock();
+        cursor.insertBlock();
+        italicsFormat.setFontPointSize(13);
         cursor.insertText(crClientInfo.name, italicsFormat);
         cursor.insertBlock();
-        cursor.insertText(KGlobal::locale()->formatDateTime(QDateTime::currentDateTime(), KLocale::LongDate));
+
+        //cursor.setPosition(topFrame->lastPosition());
+        cursor.setBlockFormat(blockCenter);
+        italicsFormat.setFontPointSize(8);
+        cursor.insertText(i18n("Balance: %1", KGlobal::locale()->formatMoney(crInfo.total)), boldFormat);
         cursor.insertBlock();
         cursor.insertBlock();
+        qDebug()<<__FUNCTION__<<"Credit for "<<crInfo.clientId<<" -- $"<<crInfo.total;
 
         QTextTableFormat itemsTableFormat;
         itemsTableFormat.setAlignment(Qt::AlignHCenter);
@@ -5949,13 +6321,6 @@ void lemonView::calculateTotalForClient()
             }
 
             if (todayNum > 0) {
-                //cursor.setPosition(topFrame->lastPosition());
-                cursor.setBlockFormat(blockCenter);
-                cursor.insertText(KGlobal::locale()->formatMoney(crInfo.total), boldFormat);
-                cursor.insertBlock();
-                qDebug()<<__FUNCTION__<<"Credit for "<<crInfo.clientId<<" -- $"<<crInfo.total;
-
-
                 cursor.setBlockFormat(blockCenter);
                 cursor.insertBlock();
                 cursor.insertText(i18n("Today Credit History"), italicsFormat);
@@ -5972,11 +6337,11 @@ void lemonView::calculateTotalForClient()
                 cursor = itemsTable->cellAt(0, 0).firstCursorPosition();
                 cursor.insertText(i18n("Date"), hdrFormat); //NOTE: It is not really needed to include the date in TODAY history.
                 cursor = itemsTable->cellAt(0, 1).firstCursorPosition();
-                cursor.insertText(i18n("Time"), hdrFormat);
-                cursor = itemsTable->cellAt(0, 2).firstCursorPosition();
                 cursor.insertText(i18n("Amount"), hdrFormat);
-                cursor = itemsTable->cellAt(0, 3).firstCursorPosition();
+                cursor = itemsTable->cellAt(0, 2).firstCursorPosition();
                 cursor.insertText(i18n("Sale #"), hdrFormat);
+                cursor = itemsTable->cellAt(0, 3).firstCursorPosition();
+                cursor.insertText(i18n("Invoice"), hdrFormat);
 
                 foreach(CreditHistoryInfo credit, creditHistory){
                     if (credit.date == QDate::currentDate() ) {
@@ -5985,14 +6350,16 @@ void lemonView::calculateTotalForClient()
                         cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
                         cursor.insertText(KGlobal::locale()->formatDate(credit.date, KLocale::ShortDate), boldFormat);
                         cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
-                        cursor.insertText(KGlobal::locale()->formatTime(credit.time), textFormat);
-                        cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
                         cursor.insertText(KGlobal::locale()->formatMoney(credit.amount), boldFormat);
-                        cursor = itemsTable->cellAt(row, 3).firstCursorPosition();
+                        cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
                         if (credit.saleId == 0)
                             cursor.insertText(i18n("Payment"), textFormat);
                         else
                             cursor.insertText(QString::number(credit.saleId), textFormat);
+                        cursor = itemsTable->cellAt(row, 3).firstCursorPosition();
+                        //The Factura number that belongs to this credit/sale.  Apr 24 2012.
+                        QString folio = myDb->getFolioFactura(credit.saleId);
+                        cursor.insertText(folio, textFormat);
 
                         ///now, we can print products for each sale asociated to the credit.
                         if (credit.saleId > 0) {
@@ -6003,13 +6370,6 @@ void lemonView::calculateTotalForClient()
                                 itemsTable->mergeCells(row, 0, 1,4);
                                 QString line = QString("  %1x %2   %3").arg(item.qty).arg(item.name.left(30)).arg(KGlobal::locale()->formatMoney(item.total));
                                 cursor.insertText(line, smTextFormat);
-
-                                //cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
-                                //cursor.insertText(item.name, italicsFormat);
-                                //cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
-                                //cursor.insertText("x"+QString::number(item.qty), italicsFormat);
-                                //cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
-                                //cursor.insertText(KGlobal::locale()->formatMoney(item.total), italicsFormat);
                             }
                         }
                     }
@@ -6039,11 +6399,11 @@ void lemonView::calculateTotalForClient()
             cursor = itemsTable->cellAt(0, 0).firstCursorPosition();
             cursor.insertText(i18n("Date"), hdrFormat);
             cursor = itemsTable->cellAt(0, 1).firstCursorPosition();
-            cursor.insertText(i18n("Time"), hdrFormat);
-            cursor = itemsTable->cellAt(0, 2).firstCursorPosition();
             cursor.insertText(i18n("Amount"), hdrFormat);
-            cursor = itemsTable->cellAt(0, 3).firstCursorPosition();
+            cursor = itemsTable->cellAt(0, 2).firstCursorPosition();
             cursor.insertText(i18n("Sale #"), hdrFormat);
+            cursor = itemsTable->cellAt(0, 3).firstCursorPosition();
+            cursor.insertText(i18n("Invoice"), hdrFormat);
 
             foreach(CreditHistoryInfo credit, creditHistory){
                 if (credit.date != QDate::currentDate() ) {
@@ -6052,15 +6412,17 @@ void lemonView::calculateTotalForClient()
                     cursor = itemsTable->cellAt(row, 0).firstCursorPosition();
                     cursor.insertText(KGlobal::locale()->formatDate(credit.date, KLocale::ShortDate), boldFormat);
                     cursor = itemsTable->cellAt(row, 1).firstCursorPosition();
-                    cursor.insertText(KGlobal::locale()->formatTime(credit.time), textFormat);
-                    cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
                     cursor.insertText(KGlobal::locale()->formatMoney(credit.amount), boldFormat);
-                    cursor = itemsTable->cellAt(row, 3).firstCursorPosition();
+                    cursor = itemsTable->cellAt(row, 2).firstCursorPosition();
                     if (credit.saleId == 0)
                         cursor.insertText(i18n("Payment"), textFormat);
                     else
                         cursor.insertText(QString::number(credit.saleId), textFormat);
-
+                    cursor = itemsTable->cellAt(row, 3).firstCursorPosition();
+                    //The Factura number that belongs to this credit/sale.  Apr 24 2012.
+                    QString folio = myDb->getFolioFactura(credit.saleId);
+                    cursor.insertText(folio, textFormat);
+                    
                     ///now, we can print products for each sale asociated to the credit.
                     if (credit.saleId > 0) {
                         QList<TransactionItemInfo> saleItems = myDb->getTransactionItems(credit.saleId);
@@ -6082,6 +6444,219 @@ void lemonView::calculateTotalForClient()
     ui_mainview.creditContent->setReadOnly(true);
 }
 
+
+void lemonView::emitirFactura()
+{
+    if (!Settings::askForInvoice())
+        return;
+    
+    Azahar *myDb = new Azahar;
+    FacturaCBB factura;
+    QList<TicketLineInfo> ticketLines;
+    myDb->setDatabase(db);
+
+    //check if a folio can be obtained.
+    if (myDb->getFoliosLibres() <= 0) {
+        QMessageBox::critical(this, i18n("Facturar"),i18n("No hay folios disponibles. No se puede facturar"), QMessageBox::Ok);
+        return;
+    }
+    
+    bool ok;
+    QString trIdStr = QInputDialog::getText(this, i18n("Facturar"), i18n("Numero de Ticket:"), QLineEdit::Normal, "", &ok);
+    qulonglong trId = trIdStr.toULongLong();
+    
+    if (ok && !trIdStr.isEmpty() ) {
+        //ok get transaction details
+        TransactionInfo trInfo = myDb->getTransactionInfo(trId);
+        QList<TransactionItemInfo> pListItems = myDb->getTransactionItems(trId);
+        double itemsDiscount=0;
+        double soGTotal = 0;
+        QDateTime soDeliveryDT;
+        //check that is a valid transaction
+        //Checar que la transaccion NO ESTE FACTURADA YA.
+        if ( myDb->ventaFacturada(trId) ) {
+            QString folioFactura = myDb->getFolioFactura(trId); //devuelve el ultimo folio de esta trId (el ultimo es el unico que puede ser valido)
+            QMessageBox::critical(this, i18n("Facturar"),i18n("No se puede facturar, la venta YA HABIA SIDO FACTURADA.\nEl folio de esta venta es el %1", folioFactura), QMessageBox::Ok);
+            return;
+        }
+        if ( trInfo.id == trId && trInfo.id > 0) {
+            //ok, examine each item
+            for (int i = 0; i < pListItems.size(); ++i) {
+                TransactionItemInfo trItem = pListItems.at(i);
+                // add line to ticketLines
+                TicketLineInfo tLineInfo;
+                tLineInfo.qty     = trItem.qty;
+                tLineInfo.unitStr = trItem.unitStr;
+                tLineInfo.desc    = trItem.name;
+                tLineInfo.price   = trItem.price;
+                tLineInfo.disc    = trItem.disc;
+                tLineInfo.total   = trItem.total;
+                tLineInfo.payment = trItem.payment;
+                tLineInfo.completePayment = trItem.completePayment;
+                tLineInfo.isGroup = trItem.isGroup;
+                tLineInfo.deliveryDateTime = trItem.deliveryDateTime;
+                tLineInfo.tax     = trItem.tax;
+                itemsDiscount    += tLineInfo.disc;
+                
+                double gtotal     = trItem.total + trItem.tax;
+                tLineInfo.gtotal  =  Settings::addTax()  ? gtotal : tLineInfo.total;
+                soGTotal         += tLineInfo.gtotal;
+                soDeliveryDT      = trItem.deliveryDateTime; // this will be the same for all the SO, so it does not matter if overwrited.
+                
+                //qDebug()<<"\n*** item discount:"<<tLineInfo.disc<<" total itemsDiscount:"<<itemsDiscount<<"\n";
+                //qDebug()<<"\n*** soGTotal:"<<soGTotal<<" deliveryDT:"<<soDeliveryDT<<"\n";
+                QString newName;
+                newName = trItem.soId;
+                qulonglong sorderid = newName.remove(0,3).toULongLong();
+                QString    soNotes  = myDb->getSONotes(sorderid);
+                soNotes = soNotes.replace("\n", "|  ");
+                if (sorderid > 0) {
+                    QList<ProductInfo> pList = myDb->getSpecialOrderProductsList(sorderid);
+                    newName = "";
+                    foreach(ProductInfo info, pList ) {
+                        QString unitStr;
+                        if (info.units == 1 ) unitStr=" "; else unitStr = info.unitStr;
+                        newName += "|  " + QString::number(info.qtyOnList) + " "+ unitStr +" "+ info.desc;
+                    }
+                    tLineInfo.geForPrint = trItem.name+newName+"|  |"+i18n("Notes:")+soNotes+" | ";
+                } else tLineInfo.geForPrint = "";
+                                                                           
+                                                                           //qDebug()<<"isGROUP:"<<trItem.isGroup;
+                if (trItem.isGroup) {
+                    tLineInfo.geForPrint = trItem.name;
+                    QString n = trItem.name.section('|',0,0);
+                    trItem.name = n;
+                    tLineInfo.desc    = trItem.name;
+                }
+                
+                ticketLines.append(tLineInfo);
+            } //examine each item in the sale
+
+            bool completar = false;
+            if (trInfo.clientid == 1) {
+                //preguntar NOMBRE y RFC del cliente;
+                DialogClientData *dlgClient = new DialogClientData(this);
+                int resultado = dlgClient->exec();
+                if ( resultado == QDialog::Accepted ){
+                    factura.nombreCliente    = dlgClient->getNombre();
+                    factura.RFCCliente = dlgClient->getRFC();
+                    factura.direccionCliente = dlgClient->getDireccion();
+                    completar = true;
+                } else {
+                    qDebug()<<"Se cancelo el proceso de facturacion.";
+                    return; //cancelar!
+                }//El nombre/rfc del cliente, si es DEFAULT.
+            } else {
+                //cliente de la venta
+                ClientInfo cliente = myDb->getClientInfo(trInfo.clientid);
+                factura.nombreCliente    = cliente.name;
+                factura.RFCCliente = cliente.code;
+                factura.direccionCliente = cliente.address;
+                completar = true;
+            }
+
+            if (completar) {
+                //now, create the factura.
+                FolioInfo elFolio = myDb->getSiguienteFolio();
+                FoliosPool pool = myDb->getFolioPool(elFolio.poolId);
+                //check if folio is valid.
+                if (!elFolio.valido) {
+                    QMessageBox::critical(this, i18n("Facturar"),i18n("No se puede facturar. El folio obtenido es inválido, verifique sus folios."), QMessageBox::Ok);
+                    qDebug()<<"No se puede facturar. El folio obtenido es inválido, verifique sus folios.";
+                    return;
+                }
+                // OK, continue...
+                factura.folio = elFolio.numero;
+                factura.authFolios = pool.numAprobacion;
+                factura.fechaAutFolios = pool.fechaAprobacion;
+                factura.cbb = pool.cbb; //byteArray
+                // llenar datos
+                factura.valida = true;
+                factura.trId = trId;
+                factura.fecha = QDate::currentDate(); //La fecha de la factura es la de EXPEDICION, no de venta.
+                factura.lineas = ticketLines;
+                factura.impuestos = trInfo.totalTax;
+                factura.descuentos = trInfo.discmoney;
+                //factura.impuestosTasa = 0; FIXME!
+                factura.total = trInfo.amount; //including taxes and discounts.
+                double subtotal = trInfo.amount + trInfo.discmoney;
+                if (Settings::addTax()) {
+                    subtotal -= trInfo.totalTax;
+                    qDebug()<<" ADDTAX: NO";
+                }
+                factura.subTotal = subtotal;
+                qDebug()<<"Subtotal de factura:"<<factura.subTotal<<" | Total:"<<trInfo.amount<<" Discounts:"<<trInfo.discmoney<<" Taxes:"<<trInfo.totalTax;
+                factura.totalLetra = "pendiente";
+                factura.storeName  = Settings::editStoreName();
+                factura.storeRFC   = Settings::storeRFC();
+                factura.storeAddr  = Settings::storeAddress();
+                factura.storeLugar = Settings::storeCity();
+                factura.storePhone = Settings::storePhone();
+
+                QPixmap logoPixmap;
+                logoPixmap.load(Settings::storeLogo());
+                factura.storeLogo = logoPixmap;
+
+                //save it!
+                myDb->insertFactura(factura);
+
+                //Print...
+                printFactura(factura);
+            }
+        } else {
+            qDebug()<<"Invalid ticket number:"<<trId;
+            QMessageBox::critical(this, i18n("Facturar"),i18n("El ticket %1 no existe. No se puede facturar", trId), QMessageBox::Ok);
+        }
+    } else {
+        QMessageBox::critical(this, i18n("Facturar"),i18n("No se escribio un numero de ticket. No se puede facturar"), QMessageBox::Ok);
+    }
+    delete myDb;
+}
+
+
+void lemonView::cancelarFactura()
+{
+    if (!Settings::askForInvoice())
+        return;
+    
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    
+    bool ok;
+    QString folio = QInputDialog::getText(this, i18n("Cancelar Factura"), i18n("Folio de la Factura:"), QLineEdit::Normal, "", &ok);
+    if (ok && !folio.isEmpty()) {
+        //get invoice data.
+        FacturaCBB factura = myDb->getFacturaInfo(folio);
+        qDebug()<<"Cancelando Factura:"<<factura.folio;
+        if (factura.folio == folio && factura.valida) {
+            bool r = myDb->cancelFactura( folio ); //this cancels the invoice as well as the folio itself.
+            if (r)
+                QMessageBox::information(this, i18n("Cancelación de factura"),i18n("Se cancelo la factura con folio %1.",folio), QMessageBox::Ok);
+            else
+                QMessageBox::information(this, i18n("Cancelación de factura"),i18n("No se pudo cancelar la factura con folio %1.\n Detalle:",folio, myDb->lastError()), QMessageBox::Ok);
+            qDebug()<<"Factura Cancelada:"<<r;
+        } else {
+            if (factura.folio == folio && !factura.valida)
+                QMessageBox::critical(this, i18n("Cancelación de factura"),i18n("La factura %1 ya estaba cancelada", folio), QMessageBox::Ok);
+            else if ( factura.folio.isEmpty() || factura.folio == " " )
+                QMessageBox::critical(this, i18n("Cancelación de factura"),i18n("La factura %1 no existe.", folio), QMessageBox::Ok);
+            else
+                qDebug()<<"Factura invalida, inexistente o ya cancelada...";
+        }
+    }
+    delete myDb;
+}
+
+
+void lemonView::facturasLibres()
+{
+    Azahar *myDb = new Azahar;
+    double num = myDb->getFoliosLibres();
+    notifierPanel->setSize(350,150);
+    notifierPanel->showNotification(QString("<i>%1</i> Folios <b>disponibles</b> para facturar.").arg(num),5000);
+    
+    delete myDb;
+}
 
 #include "lemonview.moc"
 

@@ -28,7 +28,9 @@ set(lemon_SRCS
    resume.cpp
    reservations.cpp
    saleqtydelegate.cpp
+   dialogclientdata.cpp
    ../squeeze/src/clienteditor.cpp
+   refacturar.cpp
    #printers/sp500.cpp
  )
 
@@ -49,7 +51,9 @@ kde4_add_ui_files( lemon_SRCS
   ui/resume.ui
   ui/reservations.ui
   ui/checker.ui
+  ui/datoscliente.ui
   ../squeeze/src/ui/editclient_widget.ui
+  ui/refacturar.ui
   )
 
 kde4_add_kcfg_files(lemon_SRCS settings.kcfgc )
