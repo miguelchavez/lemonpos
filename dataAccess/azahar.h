@@ -87,6 +87,7 @@ class Azahar : public QObject
     QString      getProductGroupElementsStr(qulonglong id);
     void         updateGroupPriceDrop(qulonglong code, double pd);
     void         updateGroupElements(qulonglong code, QString elementsStr);
+    qulonglong   getNextProductCode();
 
     
     //PRODUCT STOCK CORRECTION

@@ -69,6 +69,7 @@ class ProductEditor : public KDialog
     double  getGRoupStockMax();
     double  getGroupPriceDrop() { return groupInfo.priceDrop; };
     void    setStockQtyReadOnly(bool enabled) { ui->editStockQty->setReadOnly(enabled); };
+    void    setAutoCode(bool yes) { autoCode = yes;};
 
     
 
@@ -125,6 +126,7 @@ private slots:
     void    updatePriceDrop(double value);
     void    setNotDiscountable(bool value);
     void    setUnlimitedStock(bool value);
+    qulonglong getNextCode();
 protected slots:
     virtual void slotButtonClicked(int button);
   private:
@@ -133,6 +135,7 @@ protected slots:
     QPixmap pix;
     returnType status;
     bool modifyCode;
+    bool autoCode;
     double oldStockQty;
     QString reason;
     bool correctingStockOk;

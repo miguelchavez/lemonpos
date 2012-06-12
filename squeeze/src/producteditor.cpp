@@ -122,10 +122,18 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
 
     status = statusNormal;
     modifyCode = false;
+    autoCode = newProduct;
 
     if (newProduct) {
       ui->labelStockQty->setText(i18n("Purchase Qty:"));
       disableStockCorrection();
+      qDebug()<<"Adding new product, autocalulate code:"<<autoCode;
+      if (autoCode) {
+          qulonglong c = getNextCode();
+          ui->editCode->setText(QString::number(c));
+          qDebug()<<"Got next code:"<<c;
+          ui->editAlphacode->setFocus();
+      }
     } else ui->labelStockQty->setText(i18n("Stock Qty:"));
 
     QTimer::singleShot(350, this, SLOT(checkIfCodeExists()));
@@ -134,6 +142,8 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     ui->editStockQty->setText("0.0");
     ui->editPoints->setText("0.0");
     ui->editExtraTaxes->setText("0.0");
+    
+    autoCode = false;
 }
 
 ProductEditor::~ProductEditor()
@@ -882,6 +892,17 @@ void ProductEditor::calculateGroupValues()
 double ProductEditor::getGRoupStockMax()
 {
   return 1; // stockqty on grouped products will not be stored, only check for contents availability
+}
+
+
+qulonglong ProductEditor::getNextCode()
+{
+    qulonglong r=0;
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    r = myDb->getNextProductCode() + 1;
+    qDebug()<<__FUNCTION__<<" next code:"<<r;
+    return r;
 }
 
 #include "producteditor.moc"

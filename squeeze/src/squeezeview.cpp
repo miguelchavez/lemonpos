@@ -2328,6 +2328,7 @@ void squeezeView::createProduct()
   prodEditorDlg->setDb(db);
   prodEditorDlg->enableCode();
   prodEditorDlg->setStockQtyReadOnly(false);
+  prodEditorDlg->setAutoCode(true);
   qulonglong newcode = 0;
 
   if (prodEditorDlg->exec()) {

@@ -1690,6 +1690,11 @@ void lemonView::updateItem(ProductInfo prod)
         QBrush b = QBrush(QColor::fromRgb(255,0,0), Qt::SolidPattern);
         item->setForeground(b);
         item->setData(Qt::EditRole, QVariant(itemDiscount));
+        //when the item has a previous price change to higer price, the price then is changed
+        //so if after applying this kind of change price, the price is set lower again, then we
+        //need to change the price according.
+        item  = ui_mainview.tableWidget->item(prod.row, colPrice);
+        item->setData(Qt::EditRole, QVariant(prod.price)); //set the original price.
     }
 
     //update QTY (this code is reused)

@@ -151,6 +151,23 @@ qulonglong Azahar::getProductOfferCode(qulonglong code)
 }
 
 
+qulonglong Azahar::getNextProductCode()
+{
+    qulonglong r = 0;
+    
+    if (!db.isOpen()) db.open();
+    QSqlQuery myQuery(db);
+    QString qry("SELECT * FROM products ORDER BY code DESC LIMIT 1;");
+    if (myQuery.exec(qry) ) {
+        while (myQuery.next()) {
+            int numId      = myQuery.record().indexOf("code");
+            r = myQuery.value(numId).toULongLong();
+        }
+    }
+    
+    return r;
+}
+
 ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderDiscounts)
 {
   ProductInfo info;
