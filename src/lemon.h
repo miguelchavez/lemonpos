@@ -33,6 +33,7 @@
 #include "ui_pref_style.h"
 #include "ui_pref_security.h"
 #include "ui_pref_printers.h"
+#include "ui_facturas_data.h"
 
 class lemonView;
 
@@ -173,6 +174,7 @@ private:
     Ui::pref_style ui_pref_style;
     Ui::pref_security ui_pref_security;
     Ui::pref_printers ui_pref_printers;
+    Ui::facturas_data ui_facturas_data;
 
     lemonView *m_view;
     QLabel *labelUserInfo;

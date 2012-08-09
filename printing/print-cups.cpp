@@ -2029,7 +2029,7 @@ void PrintCUPS::printFooter(const FacturaCBB &factura, QPrinter &printer, QPaint
     textFont.setBold(true);
     painter.setFont(textFont);
     fm = painter.fontMetrics();
-    painter.drawText(columnPrice+fm.size(Qt::TextExpandTabs | Qt::TextDontClip, "Precio Unitario").width(), yPos , "Subtotal");
+    painter.drawText(columnPrice, yPos , "Subtotal"); //+fm.size(Qt::TextExpandTabs | Qt::TextDontClip, "Precio Unitario").width()
     textFont.setBold(false);
     painter.setFont(textFont);
     fm = painter.fontMetrics();
@@ -2040,7 +2040,7 @@ void PrintCUPS::printFooter(const FacturaCBB &factura, QPrinter &printer, QPaint
         textFont.setBold(true);
         painter.setFont(textFont);
         fm = painter.fontMetrics();
-        painter.drawText(columnPrice+fm.size(Qt::TextExpandTabs | Qt::TextDontClip, "Precio Unitario").width(), yPos , "Descuentos");
+        painter.drawText(columnPrice, yPos , "Descuentos"); //+fm.size(Qt::TextExpandTabs | Qt::TextDontClip, "Precio Unitario").width()
         textFont.setBold(false);
         painter.setFont(textFont);
         fm = painter.fontMetrics();
@@ -2051,7 +2051,7 @@ void PrintCUPS::printFooter(const FacturaCBB &factura, QPrinter &printer, QPaint
     textFont.setBold(true);
     painter.setFont(textFont);
     fm = painter.fontMetrics();
-    painter.drawText(columnPrice+fm.size(Qt::TextExpandTabs | Qt::TextDontClip, "Precio Unitario").width(), yPos , "IVA");
+    painter.drawText(columnPrice, yPos , "IVA"); //+fm.size(Qt::TextExpandTabs | Qt::TextDontClip, "Precio Unitario").width()
     textFont.setBold(false);
     painter.setFont(textFont);
     fm = painter.fontMetrics();
@@ -2061,7 +2061,7 @@ void PrintCUPS::printFooter(const FacturaCBB &factura, QPrinter &printer, QPaint
     textFont.setBold(true);
     painter.setFont(textFont);
     fm = painter.fontMetrics();
-    painter.drawText(columnPrice+fm.size(Qt::TextExpandTabs | Qt::TextDontClip, "Precio Unitario").width(), yPos , "Total");
+    painter.drawText(columnPrice, yPos , "Total"); //+fm.size(Qt::TextExpandTabs | Qt::TextDontClip, "Precio Unitario").width()
     textFont.setBold(false);
     painter.setFont(textFont);
     fm = painter.fontMetrics();
@@ -2170,6 +2170,11 @@ void PrintCUPS::printFactura(const FacturaCBB &factura, QPrinter &printer, const
     }
     
     text = "RFC: " + factura.storeRFC;
+    textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
+    painter.drawText(Margin, yPos, text);
+    yPos = yPos + fm.lineSpacing();
+    
+    text = factura.storeRegimen;
     textWidth = fm.size(Qt::TextExpandTabs | Qt::TextDontClip, text);
     painter.drawText(Margin, yPos, text);
     yPos = yPos + fm.lineSpacing();
@@ -2289,15 +2294,22 @@ void PrintCUPS::printFactura(const FacturaCBB &factura, QPrinter &printer, const
 
     //Preparar headers para productos.
     int boxW = 0; int boxS = yPos - fm.lineSpacing();
-    QString textDesc = "Descripción"; QString textQty = "Cantidad"; QString textTotal = "Importe"; QString textPrecio = "Precio Unitario";
+    QString textDesc = "Descripción"; 
+    QString textQty = "Cantidad"; 
+    QString textTotal = "Importe"; 
+    QString textPrecio = "Precio Unitario";
+    QString unidadDeMedida = "Unidad de Medida";
     int columnDesc = Margin*1.2;
-    int columnQty  = printer.width()/2;
-    int columnPrice= columnQty + (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, textQty).width()) + Margin*3;
+    int columnQty  = (printer.width()/2) - (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, textQty).width());
+    int columnUnits = printer.width()/2 + Margin;
+    int columnPrice= columnUnits/*Qty*/ + (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, unidadDeMedida/*textQty*/).width()) + Margin*2;
     int columnTotal= printer.width() - Margin*1.2 - (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, textTotal).width());
     //Printing Product
     painter.drawText(columnDesc, yPos, textDesc);
     //Printing Qty
     painter.drawText(columnQty, yPos, textQty);
+    //Printing Unit 
+    painter.drawText(columnUnits, yPos, unidadDeMedida);
     //Printint Price
     painter.drawText(columnPrice, yPos, textPrecio);
     //Printing TOTAL
@@ -2352,9 +2364,11 @@ void PrintCUPS::printFactura(const FacturaCBB &factura, QPrinter &printer, const
         if (iqty.endsWith(".00") || iqty.endsWith(",00")) { iqty.chop(3); iqty += "";}//we chop the trailing zeroes...
         QString idue =  localeForPrinting.toString(tLine.total,'f',2);
         while (fm.size(Qt::TextExpandTabs | Qt::TextDontClip, idesc).width()+columnDesc >= columnQty) { idesc.chop(1); }
+        QString medida = tLine.unitStr;
 
         painter.drawText(columnDesc, yPos, idesc);
         painter.drawText(columnQty, yPos, iqty);
+        painter.drawText(columnUnits, yPos, medida);
         painter.drawText(columnPrice, yPos, iprice);
         painter.drawText(printer.width()-fm.size(Qt::TextExpandTabs | Qt::TextDontClip, idue).width() - Margin*1.2, yPos, idue);
     } //for each product

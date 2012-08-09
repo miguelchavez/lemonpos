@@ -42,6 +42,7 @@ kde4_add_ui_files( lemon_SRCS
   ui/prefs_base.ui
   ui/pref_printers.ui
   ui/store_data.ui
+  ui/facturas_data.ui
   ui/prefs_db.ui
   ui/pref_style.ui
   ui/pref_security.ui

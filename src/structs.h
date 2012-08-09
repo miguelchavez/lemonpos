@@ -516,6 +516,7 @@ struct FacturaCBB
     QString totalLetra;
     QString storeName;
     QString storeRFC;
+    QString storeRegimen;
     QString storeAddr;
     QString storeLugar;
     QString storePhone;

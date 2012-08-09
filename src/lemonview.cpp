@@ -2802,6 +2802,7 @@ void lemonView::finishCurrentTransaction()
                 factura.totalLetra = "pendiente";
                 factura.storeName  = Settings::editStoreName();
                 factura.storeRFC   = Settings::storeRFC();
+                factura.storeRegimen = Settings::storeRegimen();
                 factura.storeAddr  = Settings::storeAddress();
                 factura.storeLugar = Settings::storeCity();
                 factura.storePhone = Settings::storePhone();
@@ -2910,6 +2911,7 @@ void lemonView::reprintFactura() {
         //append additional data from the store
         factura.storeName  = Settings::editStoreName();
         factura.storeRFC   = Settings::storeRFC();
+        factura.storeRegimen = Settings::storeRegimen();
         factura.storeAddr  = Settings::storeAddress();
         factura.storeLugar = Settings::storeCity();
         factura.storePhone = Settings::storePhone();
@@ -6594,6 +6596,7 @@ void lemonView::emitirFactura()
                 factura.totalLetra = "pendiente";
                 factura.storeName  = Settings::editStoreName();
                 factura.storeRFC   = Settings::storeRFC();
+                factura.storeRegimen = Settings::storeRegimen();
                 factura.storeAddr  = Settings::storeAddress();
                 factura.storeLugar = Settings::storeCity();
                 factura.storePhone = Settings::storePhone();
