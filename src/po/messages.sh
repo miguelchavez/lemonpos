@@ -22,9 +22,11 @@ WDIR=`pwd`          # working dir
 
 echo ${PROJECT}
 echo "Preparing rc files"
-cd ${BASEDIR}
+cd ${BASEDIR}/ui
 # we use simple sorting to make sure the lines do not jump around too much from system to system
-find . -name '*.rc' -o -name '*.ui' -o -name '*.kcfg' | sort > ${WDIR}/rcfiles.list
+#find . -name '*.rc' -o -name '*.ui' -o -name '*.kcfg' | sort > ${WDIR}/rcfiles.list
+#Note: Aug 9 2012. I only include the .ui files, since .rc and .kcfg are useless for translate.
+find . -name '*.ui' | sort > ${WDIR}/rcfiles.list
 xargs --arg-file=${WDIR}/rcfiles.list extractrc > ${WDIR}/extractedrc.cpp
 # additional string for KAboutData
 echo 'i18nc("NAME OF TRANSLATORS","Your names");' >> ${WDIR}/extractedrc.cpp
@@ -63,7 +65,7 @@ echo "Done merging translations"
 
 echo "Cleaning up"
 cd ${WDIR}
-rm rcfiles.list
+#rm rcfiles.list
 #rm infiles.list
 rm extractedrc.cpp
 echo "Done"
