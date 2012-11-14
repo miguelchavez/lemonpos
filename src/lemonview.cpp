@@ -2745,7 +2745,8 @@ void lemonView::finishCurrentTransaction()
     } else {
         facturar = false;
         qDebug()<<"No hay folios disponibles, no se puede facturar!";
-        notifierPanel->showNotification("<b>Imposible facturar:</b> No hay folios disponibles.",5000);
+        if (Settings::askForInvoice())
+          notifierPanel->showNotification("<b>Imposible facturar:</b> No hay folios disponibles.",5000);
         //A message box would be better to get attention.
         //QMessageBox::critical(this, "Facturación","No se puede facturar, no hay folios disponibles!", QMessageBox::Ok);
     }
