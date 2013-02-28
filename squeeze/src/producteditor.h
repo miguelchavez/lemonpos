@@ -148,6 +148,7 @@ private slots:
     void    createNewSubcategory();
     void    createNewCategory();
     void    createNewDepartment();
+    void    createNewMeasure();
 protected slots:
     virtual void slotButtonClicked(int button);
   private:
