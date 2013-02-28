@@ -80,7 +80,7 @@
 //TODO: Change all qDebug to errorDialogs or remove them.
 //NOTE: Common configuration fields need to be shared between lemon and squeeze (low stock alarm value).
 
-enum {pWelcome=0, pBrowseProduct=1, pBrowseOffers=2, pBrowseUsers=3, pBrowseMeasures=4, pBrowseCategories=5, pBrowseClients=6, pBrowseRandomMessages=7, pBrowseLogs=8, pBrowseSO=9, pReports=10, pBrowseCurrencies=11, pBrowseReservations=12};
+enum {pWelcome=0, pBrowseProduct=1, pBrowseOffers=2, pBrowseUsers=3, pBrowseMeasures=4, pBrowseCategories=5, pBrowseClients=6, pBrowseRandomMessages=7, pBrowseLogs=8, pBrowseSO=9, pReports=10, pBrowseCurrencies=11, pBrowseReservations=12, pBrowseSubCategories=14};
 
 
 squeezeView::squeezeView(QWidget *parent)
@@ -282,10 +282,12 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.btnAddProduct, SIGNAL(clicked()), SLOT(createProduct()) );
   connect(ui_mainview.btnAddMeasure, SIGNAL(clicked()), SLOT(createMeasure()) );
   connect(ui_mainview.btnAddCategory, SIGNAL(clicked()), SLOT(createCategory()) );
+  connect(ui_mainview.btnAddSubCategory, SIGNAL(clicked()), SLOT(createSubCategory()) );
   connect(ui_mainview.btnAddClient, SIGNAL(clicked()), SLOT(createClient()));
   connect(ui_mainview.btnDeleteProduct, SIGNAL(clicked()), SLOT(deleteSelectedProduct()) );
   connect(ui_mainview.btnDeleteMeasure, SIGNAL(clicked()), SLOT(deleteSelectedMeasure()) );
   connect(ui_mainview.btnDeleteCategory, SIGNAL(clicked()), SLOT(deleteSelectedCategory()) );
+  connect(ui_mainview.btnDeleteSubCategory, SIGNAL(clicked()), SLOT(deleteSelectedSubCategory()) );
   connect(ui_mainview.btnDeleteClient, SIGNAL(clicked()), SLOT(deleteSelectedClient()));
   //connect(ui_mainview.btnConfigure, SIGNAL(clicked()),  SLOT( showPrefs()));
 
@@ -364,6 +366,7 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.btnExportClients, SIGNAL(clicked()),  SLOT( exportTable()));
   connect(ui_mainview.btnExportMeasures, SIGNAL(clicked()),  SLOT( exportTable()));
   connect(ui_mainview.btnExportCategories, SIGNAL(clicked()),  SLOT( exportTable()));
+  connect(ui_mainview.btnExportSubCategories, SIGNAL(clicked()),  SLOT( exportTable()));
   //connect(ui_mainview.btnExportCustomReports, SIGNAL(clicked()),  SLOT( exportTable()));
 
   //connect(ui_mainview.btnLogin, SIGNAL(clicked()), this, SLOT(login()));
@@ -473,6 +476,15 @@ void squeezeView::showCategoriesPage()
   ui_mainview.headerLabel->setText(i18n("Categories"));
   ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-categories",48)));
   ui_mainview.btnPrintBalance->hide();
+}
+
+void squeezeView::showSubCategoriesPage()
+{
+    ui_mainview.stackedWidget->setCurrentIndex(pBrowseSubCategories);
+    if (subcategoriesModel->tableName().isEmpty()) setupSubCategoriesModel();
+    ui_mainview.headerLabel->setText(i18n("Subcategories"));
+    ui_mainview.headerImg->setPixmap((DesktopIcon("lemon-categories",48)));
+    ui_mainview.btnPrintBalance->hide();
 }
 
 void squeezeView::showClientsPage()
@@ -840,6 +852,7 @@ void squeezeView::setupDb()
     usersModel      = new QSqlTableModel();
     measuresModel   = new QSqlTableModel();
     categoriesModel = new QSqlTableModel();
+    subcategoriesModel = new QSqlTableModel();
     clientsModel    = new QSqlTableModel();
     transactionsModel = new QSqlRelationalTableModel();
     balancesModel   = new QSqlTableModel();
@@ -856,6 +869,7 @@ void squeezeView::setupDb()
     setupUsersModel();
     setupTransactionsModel();
     setupCategoriesModel();
+    setupSubCategoriesModel();
     setupOffersModel();
     setupBalancesModel();
     setupCashFlowModel();
@@ -906,6 +920,7 @@ void squeezeView::connectToDb()
       usersModel      = new QSqlTableModel();
       measuresModel   = new QSqlTableModel();
       categoriesModel = new QSqlTableModel();
+      subcategoriesModel = new QSqlTableModel();
       clientsModel    = new QSqlTableModel();
       transactionsModel = new QSqlRelationalTableModel();
       balancesModel   = new QSqlTableModel();
@@ -926,6 +941,7 @@ void squeezeView::connectToDb()
     setupUsersModel();
     setupTransactionsModel();
     setupCategoriesModel();
+    setupSubCategoriesModel();
     setupOffersModel();
     setupBalancesModel();
     setupCashFlowModel();
@@ -1248,9 +1264,38 @@ void squeezeView::setupCategoriesModel()
      // inform to the user about the error and finish app  or retry again some time later?
     QString details = db.lastError().text();
     KMessageBox::detailedError(this, i18n("Squeeze has encountered an error, click details to see the error details."), details, i18n("Error"));
-    QTimer::singleShot(10000, this, SLOT(setupMeasuresModel()));
+    QTimer::singleShot(10000, this, SLOT(setupCategoriesModel()));
   }
 }
+
+void squeezeView::setupSubCategoriesModel()
+{
+    if (db.isOpen()) {
+        subcategoriesModel->setTable("subcategories");
+        subcategoriesModel->setEditStrategy(QSqlTableModel::OnFieldChange);
+        subcategoriesModel->setHeaderData(subcategoriesModel->fieldIndex("text"), Qt::Horizontal, i18n("Description"));
+        
+        ui_mainview.tableSubCategories->setModel(subcategoriesModel);
+        ui_mainview.tableSubCategories->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui_mainview.tableSubCategories->setColumnHidden(subcategoriesModel->fieldIndex("id"), true);
+        ui_mainview.tableSubCategories->setColumnHidden(subcategoriesModel->fieldIndex("parent"), true);
+        ui_mainview.tableSubCategories->setItemDelegate(new QItemDelegate(ui_mainview.tableSubCategories));
+        
+        subcategoriesModel->select();
+        ui_mainview.tableSubCategories->setCurrentIndex(subcategoriesModel->index(0, 0));
+        // BFB: Adjust column width to content
+        ui_mainview.tableSubCategories->resizeColumnsToContents();
+        
+    }
+    else {
+        //At this point, what to do?
+        // inform to the user about the error and finish app  or retry again some time later?
+        QString details = db.lastError().text();
+        KMessageBox::detailedError(this, i18n("Squeeze has encountered an error, click details to see the error details."), details, i18n("Error"));
+        QTimer::singleShot(10000, this, SLOT(setupSubCategoriesModel()));
+    }
+}
+
 
 void squeezeView::setupClientsModel()
 {
@@ -1993,6 +2038,7 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
       pInfo.tax      = productEditorDlg->getTax1();
       pInfo.extratax = productEditorDlg->getTax2();
       pInfo.category = productEditorDlg->getCategoryId();
+      pInfo.subcategory = productEditorDlg->getSubCategoryId();
       pInfo.points   = productEditorDlg->getPoints();
       photo          = productEditorDlg->getPhoto();
       pInfo.photo    = Misc::pixmap2ByteArray(new QPixmap(photo)); //Photo ByteArray
@@ -2366,6 +2412,7 @@ void squeezeView::createProduct()
         info.extratax= prodEditorDlg->getTax2();
         info.photo   = Misc::pixmap2ByteArray(new QPixmap(prodEditorDlg->getPhoto()));
         info.category= prodEditorDlg->getCategoryId();
+        info.subcategory= prodEditorDlg->getSubCategoryId();
         info.points  = prodEditorDlg->getPoints();
         //FIXME: NEXT line is temporal remove on 0.8 version
         info.lastProviderId = 1;
@@ -2509,6 +2556,24 @@ void squeezeView::updateCardTypesCombo()
     while (item.hasNext()) {
         item.next();
         ui_mainview.comboCardTypes->addItem(item.key());
+    }
+}
+
+
+void squeezeView::createSubCategory()
+{
+    if (db.isOpen()) {
+        bool ok=false;
+        QString cat = QInputDialog::getText(this, i18n("New subcategory"), i18n("Enter the new subcategory to insert:"),
+        QLineEdit::Normal, "", &ok );
+        if (ok && !cat.isEmpty()) {
+            Azahar *myDb = new Azahar;
+            if (!db.isOpen()) openDB();
+            myDb->setDatabase(db);
+            if (!myDb->insertSubCategory(cat)) qDebug()<<"Error:"<<myDb->lastError();
+            delete myDb;
+            subcategoriesModel->select();
+        }
     }
 }
 
@@ -2708,7 +2773,7 @@ void squeezeView::deleteSelectedCategory()
   if (db.isOpen()) {
     QModelIndex index = ui_mainview.tableCategories->currentIndex();
     if (categoriesModel->tableName().isEmpty()) setupCategoriesModel();
-    if (index == offersModel->index(-1,-1) ) {
+    if (index == categoriesModel->index(-1,-1) ) {
       KMessageBox::information(this, i18n("Please select a category to delete, then press the delete button again."), i18n("Cannot delete"));
     }
     else  {
@@ -2734,6 +2799,38 @@ void squeezeView::deleteSelectedCategory()
       delete myDb;
     }
   }
+}
+
+void squeezeView::deleteSelectedSubCategory()
+{
+    if (db.isOpen()) {
+        QModelIndex index = ui_mainview.tableSubCategories->currentIndex();
+        if (subcategoriesModel->tableName().isEmpty()) setupSubCategoriesModel();
+        if (index == subcategoriesModel->index(-1,-1) ) {
+            KMessageBox::information(this, i18n("Please select a subcategory to delete, then press the delete button again."), i18n("Cannot delete"));
+        }
+        else  {
+            QString catText = subcategoriesModel->record(index.row()).value("text").toString();
+            Azahar *myDb = new Azahar;
+            myDb->setDatabase(db);
+            qulonglong catId = myDb->getSubCategoryId(catText);
+            if (catId >0) {
+                int answer = KMessageBox::questionYesNo(this, i18n("Do you really want to delete the subcategory '%1'?", catText),
+                i18n("Delete"));
+                if (answer == KMessageBox::Yes) {
+                    qulonglong  iD = subcategoriesModel->record(index.row()).value("id").toULongLong();
+                    if (!subcategoriesModel->removeRow(index.row(), index)) {
+                        // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 ..
+                        bool d = myDb->deleteSubCategory(iD); qDebug()<<"Deleteing SubCategory ("<<iD<<") manually...";
+                        if (d) qDebug()<<"Deletion succed...";
+                    }
+                    subcategoriesModel->submitAll();
+                    subcategoriesModel->select();
+                }
+            } else KMessageBox::information(this, i18n("Default subcategory cannot be deleted."), i18n("Cannot delete"));
+                    delete myDb;
+        }
+    }
 }
 
 
@@ -2794,6 +2891,7 @@ void squeezeView::exportTable()
     case pBrowseUsers: exportQTableView(ui_mainview.usersView);break;
     case pBrowseMeasures: exportQTableView(ui_mainview.tableMeasures);break;
     case pBrowseCategories: exportQTableView(ui_mainview.tableCategories);break;
+    case pBrowseSubCategories: exportQTableView(ui_mainview.tableSubCategories);break;
     case pBrowseClients: exportQTableView(ui_mainview.clientsView);break;
     //case pBrowseTransactions: exportQTableView(ui_mainview.transactionsTable);break;
     //case pBrowseBalances: exportQTableView(ui_mainview.balancesTable);break;

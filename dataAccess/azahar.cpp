@@ -192,6 +192,7 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
   info.groupPriceDrop = 0;
   info.hasUnlimitedStock = false;
   info.isNotDiscountable = false;
+  info.subcategory = 0;
   QString rawCondition;
 
   if (!db.isOpen()) db.open();
@@ -207,6 +208,7 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
     P.points as POINTS, \
     P.photo as PHOTO, \
     P.category as CATID, \
+    P.subcategory as SUBCATID, \
     P.lastproviderid as PROVIDERID, \
     P.taxpercentage as TAX1, \
     P.extrataxes as TAX2, \
@@ -252,6 +254,7 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
         int fieldTaxModelId= query.record().indexOf("TAXMODELID");
         //int fieldCategoryName= query.record().indexOf("CATEGORY");
         int fieldCategoryId= query.record().indexOf("CATID");
+        int fieldSubCategoryId= query.record().indexOf("SUBCATID");
         int fieldPoints= query.record().indexOf("POINTS");
         //int fieldLastProviderName = query.record().indexOf("LASTPROVIDER");
         int fieldLastProviderId = query.record().indexOf("PROVIDERID");
@@ -279,6 +282,7 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
         info.units    = query.value(fieldUnits).toInt();
         info.unitStr  = query.value(fieldUnitsDESC).toString();
         info.category = query.value(fieldCategoryId).toInt();
+        info.subcategory = query.value(fieldSubCategoryId).toInt();
         info.utility  = info.price - info.cost;
         info.row      = -1;
         info.points   = query.value(fieldPoints).toInt();
@@ -539,7 +543,7 @@ bool Azahar::insertProduct(ProductInfo info)
   if (info.hasUnlimitedStock)
       info.stockqty = 1; //for not showing "Not Available" in the product delegate.
   
-  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, category, points, alphacode, vendorcode, lastproviderid, isARawProduct,isAGroup, groupElements, groupPriceDrop, taxmodel, hasUnlimitedStock, isNotDiscountable ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastgetld, :units, :tax1, :tax2, :photo, :category, :points, :alphacode, :vendorcode, :lastproviderid, :isARaw, :isAGroup, :groupE, :groupPriceDrop, :taxmodel, :unlimitedStock, :NonDiscountable);");
+  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, category, subcategory, points, alphacode, vendorcode, lastproviderid, isARawProduct,isAGroup, groupElements, groupPriceDrop, taxmodel, hasUnlimitedStock, isNotDiscountable ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastgetld, :units, :tax1, :tax2, :photo, :category, :subcategory, :points, :alphacode, :vendorcode, :lastproviderid, :isARaw, :isAGroup, :groupE, :groupPriceDrop, :taxmodel, :unlimitedStock, :NonDiscountable);");
   query.bindValue(":code", info.code);
   query.bindValue(":name", info.desc);
   query.bindValue(":price", info.price);
@@ -552,6 +556,7 @@ bool Azahar::insertProduct(ProductInfo info)
   query.bindValue(":tax2", info.extratax);
   query.bindValue(":photo", info.photo);
   query.bindValue(":category", info.category);
+  query.bindValue(":subcategory", info.subcategory);
   query.bindValue(":points", info.points);
   query.bindValue(":alphacode", info.alphaCode);
   query.bindValue(":vendorcode", info.vendorCode);
@@ -618,6 +623,7 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   taxmodel=:taxmodel, \
   photo=:photo, \
   category=:category, \
+  subcategory=:subcategory, \
   points=:points, \
   alphacode=:alphacode, \
   vendorcode=:vendorcode, \
@@ -640,6 +646,7 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   query.bindValue(":tax2", info.extratax);
   query.bindValue(":photo", info.photo);
   query.bindValue(":category", info.category);
+  query.bindValue(":subcategory", info.subcategory);
   query.bindValue(":points", info.points);
   query.bindValue(":id", oldcode);
   query.bindValue(":alphacode", info.alphaCode);
@@ -1265,6 +1272,92 @@ bool Azahar::deleteCategory(qulonglong id)
   return result;
 }
 
+
+//SUBCATEGORIES
+QStringList Azahar::getSubCategoriesList()
+{
+    QStringList result;
+    result.clear();
+    result.append(" --- ");
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        if (myQuery.exec("select text from subcategories;")) {
+            while (myQuery.next()) {
+                int fieldText = myQuery.record().indexOf("text");
+                QString text = myQuery.value(fieldText).toString();
+                result.append(text);
+            }
+        }
+        else {
+            qDebug()<<"ERROR: "<<myQuery.lastError();
+        }
+    }
+    return result;
+}
+
+bool Azahar::insertSubCategory(QString text)
+{
+    bool result=false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO subcategories (text) VALUES (:text);");
+    query.bindValue(":text", text);
+    if (!query.exec()) {
+        setError(query.lastError().text());
+    }
+    else result=true;
+    
+    return result;
+}
+
+qulonglong Azahar::getSubCategoryId(QString texto)
+{
+    qulonglong result=0;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        QString qryStr = QString("SELECT subcategories.id FROM subcategories WHERE text='%1';").arg(texto);
+        if (myQuery.exec(qryStr) ) {
+            while (myQuery.next()) {
+                int fieldId   = myQuery.record().indexOf("id");
+                qulonglong id= myQuery.value(fieldId).toULongLong();
+                result = id;
+            }
+        }
+        else {
+            setError(myQuery.lastError().text());
+        }
+    }
+    return result;
+}
+
+QString Azahar::getSubCategoryStr(qulonglong id)
+{
+    QString result = "";
+    QSqlQuery query(db);
+    QString qstr = QString("select text from subcategories where subcategories.id=%1;").arg(id);
+    if (query.exec(qstr)) {
+        while (query.next()) {
+            int fieldText = query.record().indexOf("text");
+            result = query.value(fieldText).toString();
+        }
+    }
+    else {
+        setError(query.lastError().text());
+    }
+    return result;
+}
+
+bool Azahar::deleteSubCategory(qulonglong id)
+{
+    bool result = false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query = QString("DELETE FROM subcategories WHERE subcategories.id=%1").arg(id);
+    if (!query.exec()) setError(query.lastError().text()); else result=true;
+    return result;
+}
 
 //MEASURES
 bool Azahar::insertMeasure(QString text)

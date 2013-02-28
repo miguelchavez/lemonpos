@@ -161,9 +161,9 @@ void squeeze::enableUI()
 {
   qDebug()<<"Enabling Actions..";
   QAction *action = actionCollection()->action("login");
+  action->setEnabled(true);
   if (m_view->isAdminUser()) {
     qDebug()<<"Enabling for admin";
-    action->setEnabled(true);
     action = actionCollection()->action("productsBrowse");
     action->setEnabled(true);
     action = actionCollection()->action("offersBrowse");
@@ -171,6 +171,8 @@ void squeeze::enableUI()
     action = actionCollection()->action("measuresBrowse");
     action->setEnabled(true);
     action = actionCollection()->action("categoriesBrowse");
+    action->setEnabled(true);
+    action = actionCollection()->action("subcategoriesBrowse");
     action->setEnabled(true);
     action = actionCollection()->action("balancesBrowse");
     action->setEnabled(true);
@@ -229,6 +231,8 @@ void squeeze::disableUI()
   action = actionCollection()->action("measuresBrowse");
   action->setDisabled(true);
   action = actionCollection()->action("categoriesBrowse");
+  action->setDisabled(true);
+  action = actionCollection()->action("subcategoriesBrowse");
   action->setDisabled(true);
   action = actionCollection()->action("balancesBrowse");
   action->setDisabled(true);
@@ -318,6 +322,12 @@ void squeeze::setupActions()
     categoriesBrowseAction->setIcon(KIcon("lemon-categories"));
     categoriesBrowseAction->setShortcut(Qt::CTRL+Qt::Key_C);
     connect(categoriesBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showCategoriesPage()));
+
+    QAction* subcategoriesBrowseAction =  actionCollection()->addAction( "subcategoriesBrowse" );
+    subcategoriesBrowseAction->setText(i18n("Subcategories"));
+    subcategoriesBrowseAction->setIcon(KIcon("lemon-categories"));
+    subcategoriesBrowseAction->setShortcut(Qt::CTRL+Qt::Key_S); //see if it not causes troubles... CTRL-S
+    connect(subcategoriesBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showSubCategoriesPage()));
 
     QAction* offersBrowseAction =  actionCollection()->addAction( "offersBrowse" );
     offersBrowseAction->setText(i18n("Offers"));
