@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   `taxpercentage` double unsigned NOT NULL default '15',
   `extrataxes` double unsigned NOT NULL default '0',
   `photo` blob default NULL,
+  `department` int(10) unsigned NOT NULL default 0,
   `category` int(10) unsigned NOT NULL default 0,
   `subcategory` int(10) unsigned default NULL,
   `points` INT(10) UNSIGNED NOT NULL DEFAULT 0,
@@ -65,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   `hasUnlimitedStock` bool NOT NULL default false,
   `isNotDiscountable` bool NOT NULL default false,
   PRIMARY KEY  (`code`),
-  KEY `SEC` (`category`, `subcategory`, `name`, `alphacode`, `vendorcode`)
+  KEY `SEC` (`department`, `category`, `subcategory`, `name`, `alphacode`, `vendorcode`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
@@ -543,9 +544,12 @@ INSERT INTO lemondb.users (id, username, password, salt, name, role) VALUES (1, 
 INSERT INTO lemondb.measures (id, text) VALUES(1, 'Pc');
 #Insert a default client
 INSERT INTO lemondb.clients (id, code, name, points, discount) VALUES (1, '000001', 'General', 0, 0);
-#Insert a default category
-INSERT INTO lemondb.categories (catid, text) VALUES (1, 'None'); --This is used as a root category. Used ONLY for pointing to a root category at subcategories.
-INSERT INTO lemondb.categories (catid, text) VALUES (2, 'General');
+
+#Insert a default department/category/subcategory
+-- INSERT INTO lemondb.categories (catid, text) VALUES (1, 'None'); --This is used as a root category. Used ONLY for pointing to a root category at subcategories.
+INSERT INTO lemondb.categories (catid, text) VALUES (1, 'General');
+INSERT INTO lemondb.departments (id, text) VALUES (1, 'General');
+INSERT INTO lemondb.subcategories (id, text) VALUES (1, 'General');
 
 #Insert default card types (very important to keep these ids)
 INSERT INTO lemondb.cardtypes (typeid, text) VALUES(1, 'None');
