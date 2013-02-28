@@ -171,18 +171,43 @@ CREATE TABLE IF NOT EXISTS `balances` (
   KEY `SEC` (`datetime_start`,`datetime_end`, `userid` )
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+
+CREATE TABLE IF NOT EXISTS `departments` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `text` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
 CREATE TABLE IF NOT EXISTS `categories` (
   `catid` int(10) unsigned NOT NULL auto_increment,
   `text` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
-  PRIMARY KEY  (`catid`)
+  PRIMARY KEY  (`catid`),
+  KEY `SEC` (`text` )
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `subcategories` (
-`id` int(10) unsigned NOT NULL auto_increment,
-`parent` int(10) unsigned NOT NULL DEFAULT 1,
-`text` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
-PRIMARY KEY  (`id`),
-KEY `SEC` (`parent`,`text` )
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `text` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `SEC` (`text` )
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+
+#-- intermediary table for m2m relations
+CREATE TABLE IF NOT EXISTS `m2m_department_category` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `department` int(10) unsigned default '0',
+  `category` int(10) unsigned default '0',
+  PRIMARY KEY  (`id`),
+  KEY `SEC` (`department`,`category` )
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `m2m_category_subcategory` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `category` int(10) unsigned default '0',
+  `subcategory` int(10) unsigned default '0',
+  PRIMARY KEY  (`id`),
+  KEY `SEC` (`subcategory`,`category` )
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `users` (
