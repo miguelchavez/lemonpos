@@ -1335,6 +1335,8 @@ bool lemonView::incrementTableItemQty(QString code, double q)
     QStringList itemsNotAvailable;
 
     bool allowNegativeStock = Settings::allowNegativeStock();
+    bool overSelling = false;
+    QString msg;
     
     //stock qty for groups are different. NEW: Take into account the negative stock settings.
     bool available = true;
@@ -1359,34 +1361,55 @@ bool lemonView::incrementTableItemQty(QString code, double q)
           itemsNotAvailable << i18n("%1 has %2 %3 but requested %4 + %5",pi.desc,pi.stockqty,unitStr,qq*q,onList);
         }
         qDebug()<<pi.desc<<" qtyonstock:"<<pi.stockqty<<" needed qty (onlist and new):"<<QString::number((qq*q)+onList);
-        //New: if allowNegativeStock, then allow it anyway.
+        //New: if allowNegativeStock, then allow it anyway. FIXME: TEST THIS!!!!!!  Grouped products with allowNegativeStock. also for inserting.
         if (allowNegativeStock)
             available = true;
+        if (pi.stockqty >= ((qq*q)+onList)) overSelling=false; else overSelling = true;
+        if (overSelling && available)
+            msg += i18n("<html><font color=red>The product you requested %1 articles <b>has a negative or zero stock level.</b></font></html>", ((qq*q)+onList));
       }
       delete myDb;
     } else {
       double onList = getTotalQtyOnList(info); // item itself and contained in any gruped product.
-      if (stockqty >= q+onList || allowNegativeStock) available = true; else available = false;
-      qDebug()<<info.desc<<" qtyonstock:"<<info.stockqty<<" needed qty (onlist and new):"<<QString::number(q+onList)<<" onlist:"<<onList<<" Allow NegativeStock:"<<allowNegativeStock;
+      if (stockqty >= q+onList) available = true; else {available = false; overSelling = true;}
+      if (allowNegativeStock)
+          available = true;
+      qDebug()<<info.desc<<" qtyonstock:"<<info.stockqty<<" needed qty (onlist and new):"<<QString::number(q+onList)<<" Allow NegativeStock:"<<allowNegativeStock;
     }
-      
-    if (available) qty+=q; else {
-      QString msg;
+
+    if (available) {
+      qty+=q;
+      if (overSelling) //FIXME: msg += is for the case when grouped products has some not available product.
+          msg += i18n("<html><font color=red>The product you requested %1 articles <b>has a negative or zero stock level.</b></font></html>", qty);
+    } else {
       double onList = getTotalQtyOnList(info); // item itself and contained in any gruped product.
       if (!itemsNotAvailable.isEmpty())
         msg = i18n("<html><font color=red><b>The group/pack is not available because:<br>%1</b></font></html>", itemsNotAvailable.join("<br>"));
       else
         msg = i18n("<html><font color=red><b>There are only %1 articles of your choice at stock.<br> You requested %2</b></font></html>", info.stockqty,q+onList);
       
-      if (ui_mainview.mainPanel->currentIndex() == pageMain) {
-         tipCode->showTip(msg, 6000);
-      }
       if (ui_mainview.mainPanel->currentIndex() == pageSearch) {
          ui_mainview.labelSearchMsg->setText(msg);
          ui_mainview.labelSearchMsg->show();
          QTimer::singleShot(3000, this, SLOT(clearLabelSearchMsg()) );
       }
     }
+
+
+    if ( ui_mainview.mainPanel->currentIndex() == pageMain && !msg.isEmpty() ) {
+         tipCode->showTip(msg, 6000);
+    }
+    
+    QTableWidgetItem *itemQ = ui_mainview.tableWidget->item(info.row, colQty);//item qty
+    itemQ->setData(Qt::EditRole, QVariant(qty));
+    done = true;
+    QTableWidgetItem *itemD = ui_mainview.tableWidget->item(info.row, colDisc);//item discount
+    discount_old = itemD->data(Qt::DisplayRole).toDouble();
+    //calculate new discount
+    double discountperitem = (discount_old/qty_old);
+    double newdiscount = discountperitem*qty;
+    itemD->setData(Qt::EditRole, QVariant(newdiscount));
+    //qDebug()<<"incrementTableQty... old discount:"<<discount_old<<" old qty:"<<qty_old<<" new discount:"<<newdiscount<<"new qty:"<<qty<<" disc per item:"<<discountperitem;
 
     done = true;
     info.qtyOnList = qty;
@@ -1561,7 +1584,7 @@ if ( doNotAddMoreItems ) { //only for reservations
   if (!incrementTableItemQty( QString::number(info.code) /*codeX*/, qty) ) {
     info.qtyOnList = qty;
 
-    
+    bool overSelling = false;
     int insertedAtRow = -1;
     bool productFound = false;
     if ( info.code > 0 ) productFound = true;
@@ -1602,6 +1625,9 @@ if ( doNotAddMoreItems ) { //only for reservations
             //New: if allowNegativeStock, then allow it anyway.
             if (allowNegativeStock)
                 available = true;
+            if (pi.stockqty >= ((q*qty)+onList)) overSelling=false; else overSelling = true;
+            if (overSelling && available)
+                msg += i18n("<html><font color=red>The product you requested %1 articles <b>has a negative or zero stock level.</b></font></html>", ((q*qty)+onList));
           }
           //CHECK AVAILABILITY OR ALLOWNEGATIVESTOCK
           if (available || availabilityDoesNotMatters || allowNegativeStock) {
@@ -1614,17 +1640,21 @@ if ( doNotAddMoreItems ) { //only for reservations
         }
       } else { //It is not a grouped product
         double onList = getTotalQtyOnList(info); // item itself and contained in any gruped product.
+        if (info.stockqty >= qty+onList) overSelling = false; else overSelling = true;
         if (info.stockqty >=  qty+onList || availabilityDoesNotMatters || allowNegativeStock) {
           if (availabilityDoesNotMatters) qDebug() << __FUNCTION__ <<" Availability DOES NOT MATTERS! ";
           insertedAtRow = doInsertItem( QString::number(info.code) /*codeX*/, iname, qty, info.price, descuento, info.unitStr);
+          if (overSelling)
+              msg = i18n("<html><font color=red>The product you requested %1 articles <b>has a negative or zero stock level.</b></font></html>", qty+onList);
         }
         else
           msg = i18n("<html><font color=red><b>There are only %1 articles of your choice at stock.<br> You requested %2</b></font></html>", info.stockqty,qty+onList);
       }
     } else qDebug()<<"\n\n***Este ELSE no importa!!! ya se tomaron acciones al respecto***\nTHIS SHOULD NOT BE PRINTED!!!\n\n";
 
-    if (allowNegativeStock)
+    if (allowNegativeStock && info.stockqty > qty) //we are inserting the product the first time, so no onlist.FIXME: check for group case.
         msg = i18n("<html><font color=red>The product you requested %1 articles <b>has a negative or zero stock level.</b></font></html>", qty);
+    qDebug()<<"AllowNegativeStock:"<<allowNegativeStock<<" info.stockqty:"<<info.stockqty<<" qty:"<<qty;
     
     if (!msg.isEmpty()) {
         if (ui_mainview.mainPanel->currentIndex() == pageMain) {
