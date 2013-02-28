@@ -109,6 +109,7 @@ class Azahar : public QObject
     //CATEGORIES
     QHash<QString, int> getCategoriesHash();
     QStringList getCategoriesList();
+    QStringList getCategoriesList(const qulonglong parent);
     qulonglong  getCategoryId(QString texto);
     QString     getCategoryStr(qulonglong id);
     bool        insertCategory(QString text);

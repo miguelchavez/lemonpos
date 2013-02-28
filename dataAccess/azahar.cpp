@@ -177,7 +177,9 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
   info.disc=0;
   info.cost=0;
   info.lastProviderId = 0;
+  info.department=0;
   info.category=0;
+  info.subcategory=0;
   info.taxmodelid=0; //for future use! MCH DEC 28 2010
   info.units=0;
   info.points=0;
@@ -207,6 +209,7 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
     P.units as UNITS, \
     P.points as POINTS, \
     P.photo as PHOTO, \
+    P.department as DEPARTMENTID, \
     P.category as CATID, \
     P.subcategory as SUBCATID, \
     P.lastproviderid as PROVIDERID, \
@@ -253,6 +256,7 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
         //int fieldTaxName= query.record().indexOf("TAXNAME");
         int fieldTaxModelId= query.record().indexOf("TAXMODELID");
         //int fieldCategoryName= query.record().indexOf("CATEGORY");
+        int fieldDepartmentId= query.record().indexOf("DEPARTMENTID");
         int fieldCategoryId= query.record().indexOf("CATID");
         int fieldSubCategoryId= query.record().indexOf("SUBCATID");
         int fieldPoints= query.record().indexOf("POINTS");
@@ -281,6 +285,7 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
         info.extratax = query.value(fieldTax2).toDouble(); ///TO be removed later, when taxmodel is coded.
         info.units    = query.value(fieldUnits).toInt();
         info.unitStr  = query.value(fieldUnitsDESC).toString();
+        info.department = query.value(fieldDepartmentId).toInt();
         info.category = query.value(fieldCategoryId).toInt();
         info.subcategory = query.value(fieldSubCategoryId).toInt();
         info.utility  = info.price - info.cost;
@@ -298,6 +303,8 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
         info.groupElementsStr = query.value(fieldGE).toString();
         info.hasUnlimitedStock = query.value(fieldUnlimited).toBool();
         info.isNotDiscountable = query.value(fieldNonDiscount).toBool();
+
+        qDebug()<<info.desc<<" DEP:"<<info.department<<" CAT:"<<info.category<<" SUBCAT:"<<info.subcategory;
       }
 
       if ( info.hasUnlimitedStock )
@@ -543,7 +550,7 @@ bool Azahar::insertProduct(ProductInfo info)
   if (info.hasUnlimitedStock)
       info.stockqty = 1; //for not showing "Not Available" in the product delegate.
   
-  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, category, subcategory, points, alphacode, vendorcode, lastproviderid, isARawProduct,isAGroup, groupElements, groupPriceDrop, taxmodel, hasUnlimitedStock, isNotDiscountable ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastgetld, :units, :tax1, :tax2, :photo, :category, :subcategory, :points, :alphacode, :vendorcode, :lastproviderid, :isARaw, :isAGroup, :groupE, :groupPriceDrop, :taxmodel, :unlimitedStock, :NonDiscountable);");
+  query.prepare("INSERT INTO products (code, name, price, stockqty, cost, soldunits, datelastsold, units, taxpercentage, extrataxes, photo, department, category, subcategory, points, alphacode, vendorcode, lastproviderid, isARawProduct,isAGroup, groupElements, groupPriceDrop, taxmodel, hasUnlimitedStock, isNotDiscountable ) VALUES (:code, :name, :price, :stock, :cost, :soldunits, :lastgetld, :units, :tax1, :tax2, :photo, :department, :category, :subcategory, :points, :alphacode, :vendorcode, :lastproviderid, :isARaw, :isAGroup, :groupE, :groupPriceDrop, :taxmodel, :unlimitedStock, :NonDiscountable);");
   query.bindValue(":code", info.code);
   query.bindValue(":name", info.desc);
   query.bindValue(":price", info.price);
@@ -555,6 +562,7 @@ bool Azahar::insertProduct(ProductInfo info)
   query.bindValue(":tax1", info.tax);
   query.bindValue(":tax2", info.extratax);
   query.bindValue(":photo", info.photo);
+  query.bindValue(":department", info.department);
   query.bindValue(":category", info.category);
   query.bindValue(":subcategory", info.subcategory);
   query.bindValue(":points", info.points);
@@ -623,6 +631,7 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   taxmodel=:taxmodel, \
   photo=:photo, \
   category=:category, \
+  department=:department, \
   subcategory=:subcategory, \
   points=:points, \
   alphacode=:alphacode, \
@@ -645,6 +654,7 @@ bool Azahar::updateProduct(ProductInfo info, qulonglong oldcode)
   query.bindValue(":tax1", info.tax);
   query.bindValue(":tax2", info.extratax);
   query.bindValue(":photo", info.photo);
+  query.bindValue(":department", info.department);
   query.bindValue(":category", info.category);
   query.bindValue(":subcategory", info.subcategory);
   query.bindValue(":points", info.points);
@@ -1267,22 +1277,24 @@ bool Azahar::deleteDepartment(qulonglong id)
     bool result = false;
     if (!db.isOpen()) db.open();
     QSqlQuery query(db);
-    query = QString("DELETE FROM departments WHERE department.id=%1").arg(id);
+    query = QString("DELETE FROM departments WHERE departments.id=%1").arg(id);
     if (!query.exec()) setError(query.lastError().text()); else result=true;
     qDebug()<<"DEPARTMENT "<<id<<" DELETED:"<<result;
     
     //Now, delete any m2m relation for the category...
-    //WARNING & NOTE: What to do here, delete relations or leave it as they are and let responsibility to the administrator to fix incoherences?
 
-    qDebug()<<"IF THE DELETED DEPARTMENT HAS CHILD CATEGORIES, THEN YOU MUST FIX MANUALLY THE INCONSISTENCE. WE ARE GOING TO LEAVE ORPHAN CATEGORIES, INSTEAD OF DELETE THEM.";
+    //NOTE: What to do here, delete relations or leave it as they are and let responsibility to the administrator to fix incoherences?
+    //qDebug()<<"IF THE DELETED DEPARTMENT HAS CHILD CATEGORIES, THEN YOU MUST FIX MANUALLY THE INCONSISTENCE. WE ARE GOING TO LEAVE ORPHAN CATEGORIES, INSTEAD OF DELETE THEM.";
+    //NOTE: Or delete the links? I think doing this is not dangerous because we are not deleting the categories itself, only the links between dep->cat.
+    //      if the categories had only this links then the categories will be orphans.
     
-    //QSqlQuery queryX(db);
-    //queryX.prepare("DELETE FROM m2m_department_category WHERE department=:id");
-    //queryX.bindValue(":id", id);
-    //bool m2mOK = queryX.exec();
-    //result = (result && m2mOK);
-    //if (!m2mOK) setError(query.lastError().text());
-    //qDebug()<<" --> M2M Relation for department_category DELETED:"<<m2mOK;
+    QSqlQuery queryX(db);
+    queryX.prepare("DELETE FROM m2m_department_category WHERE department=:id");
+    queryX.bindValue(":id", id);
+    bool m2mOK = queryX.exec();
+    result = (result && m2mOK);
+    if (!m2mOK) setError(query.lastError().text());
+    qDebug()<<" --> M2M Relation for department_category DELETED:"<<m2mOK;
     
     return result;
 }
@@ -1551,6 +1563,35 @@ QStringList Azahar::getSubCategoriesList()
     return result;
 }
 
+QStringList Azahar::getCategoriesList(const qulonglong parent)
+{
+    QStringList result;
+    result.clear();
+    //result.append(" --- ");
+    if (!db.isOpen()) db.open();
+        QSqlQuery myQuery(db);
+        QString queryTxt;
+        if (parent == 0)
+            queryTxt = QString("SELECT text FROM categories;"); //get all categories...
+        else
+            queryTxt = QString("SELECT \
+            M2M.category AS M2M_CAT, C.text AS text \
+            FROM categories AS C, m2m_department_category as M2M \
+            WHERE M2M.department=%1 AND C.catid=M2M.category;").arg(parent);
+        
+        if (myQuery.exec(queryTxt)) {
+            while (myQuery.next()) {
+                int fieldText = myQuery.record().indexOf("text");
+                QString text = myQuery.value(fieldText).toString();
+                result.append(text);
+            }
+        }
+        else {
+            qDebug()<<"ERROR: "<<myQuery.lastError();
+        }
+        return result;
+}
+
 //This method gets the subcategories list for a parent category. If parent=0, returns all subcategories.
 //NOTE & WARNING: when parent=0 also this could mean only return root categories. But we are not doing this here.
 QStringList Azahar::getSubCategoriesList(qulonglong parent)
@@ -1567,9 +1608,9 @@ QStringList Azahar::getSubCategoriesList(qulonglong parent)
         else
             //queryTxt = QString("SELECT text FROM subcategories WHERE parent=%1;").arg(parent);
             queryTxt = QString("SELECT \
-            M2M.subcategory AS M2M_SUBCAT \
-            FROM categories AS C, m2m_category_subcategory as M2M \
-            WHERE M2M.category=%1 AND C.catid=M2M.category;").arg(parent);
+            M2M.subcategory AS M2M_SUBCAT, S.text AS text \
+            FROM subcategories as S, m2m_category_subcategory as M2M \
+            WHERE M2M.category=%1 AND S.id=M2M.subcategory;").arg(parent);
         
         if (myQuery.exec(queryTxt)) {
             while (myQuery.next()) {
