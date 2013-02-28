@@ -1164,18 +1164,194 @@ void Azahar::updateGroupElements(qulonglong code, QString elementsStr)
 }
 
 
+//DEPARTMENTS
+bool Azahar::insertDepartment(QString text)
+{
+    bool result=false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO departments (text) VALUES (:text);");
+    query.bindValue(":text", text);
+    if (!query.exec())
+        setError(query.lastError().text());
+    else
+        result = true;
+    
+    return result;
+}
+
+QHash<QString, int> Azahar::getDepartmentsHash()
+{
+    QHash<QString, int> result;
+    result.clear();
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        if (myQuery.exec("select * from departments;")) {
+            while (myQuery.next()) {
+                int fieldId   = myQuery.record().indexOf("id");
+                int fieldText = myQuery.record().indexOf("text");
+                int id = myQuery.value(fieldId).toInt();
+                QString text = myQuery.value(fieldText).toString();
+                result.insert(text, id);
+            }
+        }
+        else {
+            qDebug()<<"ERROR: "<<myQuery.lastError();
+        }
+    }
+    return result;
+}
+
+QStringList Azahar::getDepartmentsList()
+{
+    QStringList result;
+    result.clear();
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        if (myQuery.exec("select text from departments;")) {
+            while (myQuery.next()) {
+                int fieldText = myQuery.record().indexOf("text");
+                QString text = myQuery.value(fieldText).toString();
+                result.append(text);
+            }
+        }
+        else {
+            qDebug()<<"ERROR: "<<myQuery.lastError();
+        }
+    }
+    return result;
+}
+
+qulonglong Azahar::getDepartmentId(QString texto)
+{
+    qulonglong result=0;
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        QString qryStr = QString("SELECT departments.id FROM departments WHERE text='%1';").arg(texto);
+        if (myQuery.exec(qryStr) ) {
+            while (myQuery.next()) {
+                int fieldId   = myQuery.record().indexOf("id");
+                qulonglong id= myQuery.value(fieldId).toULongLong();
+                result = id;
+            }
+        }
+        else {
+            setError(myQuery.lastError().text());
+        }
+    }
+    return result;
+}
+
+QString Azahar::getDepartmentStr(qulonglong id)
+{
+    QString result;
+    QSqlQuery query(db);
+    QString qstr = QString("select text from departments where id=%1;").arg(id);
+    if (query.exec(qstr)) {
+        while (query.next()) {
+            int fieldText = query.record().indexOf("text");
+            result = query.value(fieldText).toString();
+        }
+    }
+    else {
+        setError(query.lastError().text());
+    }
+    return result;
+}
+
+bool Azahar::deleteDepartment(qulonglong id)
+{
+    bool result = false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query = QString("DELETE FROM departments WHERE department.id=%1").arg(id);
+    if (!query.exec()) setError(query.lastError().text()); else result=true;
+    qDebug()<<"DEPARTMENT "<<id<<" DELETED:"<<result;
+    
+    //Now, delete any m2m relation for the category...
+    //WARNING & NOTE: What to do here, delete relations or leave it as they are and let responsibility to the administrator to fix incoherences?
+
+    qDebug()<<"IF THE DELETED DEPARTMENT HAS CHILD CATEGORIES, THEN YOU MUST FIX MANUALLY THE INCONSISTENCE. WE ARE GOING TO LEAVE ORPHAN CATEGORIES, INSTEAD OF DELETE THEM.";
+    
+    //QSqlQuery queryX(db);
+    //queryX.prepare("DELETE FROM m2m_department_category WHERE department=:id");
+    //queryX.bindValue(":id", id);
+    //bool m2mOK = queryX.exec();
+    //result = (result && m2mOK);
+    //if (!m2mOK) setError(query.lastError().text());
+    //qDebug()<<" --> M2M Relation for department_category DELETED:"<<m2mOK;
+    
+    return result;
+}
+
+bool Azahar::m2mDepartmentCategoryExists(qulonglong d, qulonglong c)
+{
+    bool result = false;
+    QSqlQuery query(db);
+    QString qstr = QString("select * from m2m_department_category where department=%1 and category=%2;").arg(d).arg(c);
+    if (query.exec(qstr)) {
+        while (query.next()) {
+            int fieldD = query.record().indexOf("department");
+            int fieldC = query.record().indexOf("category");
+            if ( query.value(fieldD).toULongLong() == d && query.value(fieldD).toULongLong() == c )
+                return true;
+        }
+    }
+    else {
+        setError(query.lastError().text());
+    }
+    return result;
+}
+
+bool Azahar::insertM2MDepartmentCategory(qulonglong depId, qulonglong catId)
+{
+    bool result=false;
+    if (!db.isOpen()) db.open();
+    //first, check if the department->category already exists.
+    if ( m2mDepartmentCategoryExists(depId, catId) ) {
+        qDebug()<<"m2m Department -> Category Already exists!";
+        return false;
+    }
+    //ok it does not exists, create the connection.    
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO m2m_department_category (department, category) VALUES (:dep, :cat);");
+    query.bindValue(":dep", depId);
+    query.bindValue(":cat", catId);
+    if (!query.exec()) {
+        setError(query.lastError().text());
+        qDebug()<<"Error inserting m2m_department_category: "<<query.lastError().text();
+        result = false;
+    }
+    else 
+        result = true;
+   return result;
+}
+
 //CATEGORIES
-bool Azahar::insertCategory(QString text)
+bool Azahar::insertCategory(QString text, qulonglong parent)
 {
   bool result=false;
   if (!db.isOpen()) db.open();
   QSqlQuery query(db);
   query.prepare("INSERT INTO categories (text) VALUES (:text);");
   query.bindValue(":text", text);
-  if (!query.exec()) {
+  if (!query.exec()) 
     setError(query.lastError().text());
+  else {
+      //get the newly created category id.
+      qulonglong cId = getCategoryId(text);
+      QSqlQuery queryB(db);
+      //Now, insert the m2m relation, indicated by parent.
+      queryB.prepare("INSERT INTO m2m_department_category (department, category) VALUES(:dep, :cat);");
+      queryB.bindValue(":dep", parent);
+      queryB.bindValue(":cat", cId);
+      
+      result = queryB.exec();
+      qDebug()<<"INSERTED CATEGORY OK, INSERTING m2m_department_category:"<<result;
   }
-  else result=true;
   
   return result;
 }
@@ -1269,6 +1445,17 @@ bool Azahar::deleteCategory(qulonglong id)
   QSqlQuery query(db);
   query = QString("DELETE FROM categories WHERE catid=%1").arg(id);
   if (!query.exec()) setError(query.lastError().text()); else result=true;
+  qDebug()<<"CATEGORY "<<id<<" DELETED:"<<result;
+  
+  //Now, delete any m2m relation for the subcategory...
+  QSqlQuery queryX(db);
+  queryX.prepare("DELETE FROM m2m_department_category WHERE category=:id");
+  queryX.bindValue(":id", id);
+  bool m2mOK = queryX.exec();
+  result = (result && m2mOK);
+  if (!m2mOK) setError(query.lastError().text());
+  qDebug()<<" --> M2M Relation for department_category DELETED:"<<m2mOK;
+  
   return result;
 }
 
@@ -1333,7 +1520,12 @@ QStringList Azahar::getSubCategoriesList(qulonglong parent)
         if (parent == 0)
             queryTxt = QString("SELECT text FROM subcategories;"); //get all subcategories...
         else
-            queryTxt = QString("SELECT text FROM subcategories WHERE parent=%1;").arg(parent);
+            //queryTxt = QString("SELECT text FROM subcategories WHERE parent=%1;").arg(parent);
+            queryTxt = QString("SELECT \
+            M2M.subcategory AS M2M_SUBCAT \
+            FROM categories AS C, m2m_category_subcategory as M2M \
+            WHERE M2M.category=%1 AND C.catid=M2M.category;").arg(parent);
+        
         if (myQuery.exec(queryTxt)) {
             while (myQuery.next()) {
                 int fieldText = myQuery.record().indexOf("text");
@@ -1353,13 +1545,23 @@ bool Azahar::insertSubCategory(QString text, qulonglong parent)
     bool result=false;
     if (!db.isOpen()) db.open();
     QSqlQuery query(db);
-    query.prepare("INSERT INTO subcategories (text, parent) VALUES (:text, :parent);");
+    //First, insert the category itself.
+    query.prepare("INSERT INTO subcategories (text) VALUES (:text);");
     query.bindValue(":text", text);
-    query.bindValue(":parent", parent);
-    if (!query.exec()) {
+    if (!query.exec()) 
         setError(query.lastError().text());
+    else {
+        //get the newly created subcategory id.
+        qulonglong scId = getSubCategoryId(text);
+        QSqlQuery queryB(db);
+        //Now, insert the m2m relation, indicated by parent.
+        queryB.prepare("INSERT INTO m2m_category_subcategory (category, subcategory) VALUES(:cat, :sub);");
+        queryB.bindValue(":sub", scId);
+        queryB.bindValue(":cat", parent);
+        
+        result = queryB.exec();
+        qDebug()<<"INSERTED SUBCATEGORY OK, INSERTING m2m_category_subcategory:"<<result;
     }
-    else result=true;
     
     return result;
 }
@@ -1409,6 +1611,17 @@ bool Azahar::deleteSubCategory(qulonglong id)
     QSqlQuery query(db);
     query = QString("DELETE FROM subcategories WHERE subcategories.id=%1").arg(id);
     if (!query.exec()) setError(query.lastError().text()); else result=true;
+    qDebug()<<"SUBCATEGORY "<<id<<" DELETED:"<<result;
+
+    //Now, delete any m2m relation for the subcategory...
+    QSqlQuery queryX(db);
+    queryX.prepare("DELETE FROM m2m_category_subcategory WHERE subcategory=:id");
+    queryX.bindValue(":id", id);
+    bool m2mOK = queryX.exec();
+    result = (result && m2mOK);
+    if (!m2mOK) setError(query.lastError().text());
+    qDebug()<<" --> M2M Relation for category_subcategory DELETED:"<<m2mOK;
+    
     return result;
 }
 
