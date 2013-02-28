@@ -80,8 +80,11 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
 
     connect(ui->btnRemoveItem, SIGNAL( clicked() ), SLOT( deleteSelectedItem() ) );
     connect( ui->categoriesCombo, SIGNAL(currentIndexChanged( int )), SLOT(modifyCategory()) );
+    connect( ui->departmentsCombo, SIGNAL(currentIndexChanged( int )), SLOT(modifyDepartment()) );
     connect( ui->btnCreateCategory, SIGNAL(clicked()), SLOT(createNewCategory()) );
     connect( ui->btnCreateSubcategory, SIGNAL(clicked()), SLOT(createNewSubcategory()) );
+    connect( ui->btnCreateDepartment, SIGNAL(clicked()), SLOT(createNewDepartment()) );
+    connect( ui->btnCreateMeasure, SIGNAL(clicked()), SLOT(createNewMeasure()) );
 
     ui->chIsAGroup->setDisabled(true);
 
@@ -119,8 +122,19 @@ void PurchaseEditor::setDb(QSqlDatabase database)
 {
   db = database;
   if (!db.isOpen()) db.open();
-  populateCategoriesCombo();
+  populateDepartmentsCombo();
+  //populateCategoriesCombo(); //it is called by populateDepartmentsCombo...
   populateMeasuresCombo();
+}
+
+void PurchaseEditor::populateDepartmentsCombo()
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    ui->departmentsCombo->clear();
+    ui->departmentsCombo->addItems(myDb->getDepartmentsList());
+    populateCategoriesCombo(); //call populateCategoriesCombo also!
+    delete myDb;
 }
 
 void PurchaseEditor::populateCategoriesCombo()
@@ -188,6 +202,21 @@ int PurchaseEditor::getMeasureId()
   return code;
 }
 
+void PurchaseEditor::setDepartment(QString str)
+{
+    int idx = ui->departmentsCombo->findText(str,Qt::MatchCaseSensitive);
+    if (idx > -1) ui->departmentsCombo->setCurrentIndex(idx);
+    else {
+        qDebug()<<"Department not found:"<<str;
+    }
+}
+
+void PurchaseEditor::setDepartment(int i)
+{
+    QString text = getDepartmentStr(i);
+    setDepartment(text);
+    qDebug()<<"SET DEPARTMENT INT :: Department Id:"<<i<<" Name:"<<text;
+}
 
 void PurchaseEditor::setCategory(QString str)
 {
@@ -235,6 +264,26 @@ int idx = ui->measuresCombo->findText(str,Qt::MatchCaseSensitive);
  else {
   qDebug()<<"Str not found:"<<str;
   }
+}
+
+int PurchaseEditor::getDepartmentId()
+{
+    int code=-1;
+    QString currentText = ui->departmentsCombo->currentText();
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    code = myDb->getDepartmentId(currentText);
+    delete myDb;
+    return code;
+}
+
+QString PurchaseEditor::getDepartmentStr(int c)
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    QString str = myDb->getDepartmentStr(c);
+    delete myDb;
+    return str;
 }
 
 QString PurchaseEditor::getCategoryStr(int c)
@@ -439,6 +488,7 @@ void PurchaseEditor::checkIfCodeExists()
     qDebug()<<"Product code:"<<pInfo.code<<" Product AlphaCode:"<<pInfo.alphaCode<<" qtyOnDb:"<<qtyOnDb<<" SubCat:"<<pInfo.subcategory;
     //Prepopulate dialog...
     ui->editDesc->setText(pInfo.desc);
+    setDepartment(pInfo.department);
     setCategory(pInfo.category);
     setSubCategory(pInfo.subcategory);
     setMeasure(pInfo.units);
@@ -544,6 +594,7 @@ void PurchaseEditor::addItemToList()
     info.extratax= getTax2();
     info.photo   = getPhotoBA();
     info.units   = getMeasureId();
+    info.department = getDepartmentId();
     info.category= getCategoryId();
     info.subcategory= getSubCategoryId();
     info.utility = getProfit();
@@ -614,6 +665,7 @@ void PurchaseEditor::insertProduct(ProductInfo info)
         }
         itemCount += info.purchaseQty;
         totalBuy = totalBuy + info.cost*info.purchaseQty;
+        qDebug()<<"NEW DEP:"<<info.department<<" New CAT:"<<info.category<<" NEW SUBCAT:"<<info.subcategory;
     }
     //its ok to reset edits now...
     resetEdits();
@@ -729,6 +781,8 @@ void PurchaseEditor::resetEdits()
   ui->editAlphacode->setText("");
   ui->editVendorcode->setText("");
   setSubCategory(0);
+  setDepartment(0);
+  setCategory(0);
   gelem = "";
 }
 
@@ -746,6 +800,21 @@ void PurchaseEditor::setIsAGroup(bool value)
   ui->chIsAGroup->setChecked(value);
 }
 
+void PurchaseEditor::modifyDepartment()
+{
+    //When a department is changed, we must filter categories according.
+    QString depText = ui->departmentsCombo->currentText();
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    //get categories..
+    qulonglong parentId = myDb->getDepartmentId( depText );
+    QStringList catList = myDb->getCategoriesList( parentId );
+    ui->categoriesCombo->clear();
+    ui->categoriesCombo->addItems( catList );
+    qDebug()<<"CAT LIST for "<<depText<<" :"<<catList;
+    delete myDb;
+}
+
 void PurchaseEditor::modifyCategory()
 {
     //When a category is changed, we must filter subcategories according.
@@ -757,53 +826,131 @@ void PurchaseEditor::modifyCategory()
     QStringList subcatList = myDb->getSubCategoriesList( parentId );
     ui->subcategoriesCombo->clear();
     ui->subcategoriesCombo->addItems( subcatList );
-    qDebug()<<"SUBCAT LIST for "<<catText<<" :"<<subcatList;
+    qDebug()<<"SUBCAT LIST for ("<<parentId<<") "<<catText<<" :"<<subcatList;
+    delete myDb;
 }
 
 void PurchaseEditor::createNewSubcategory()
 {
-//     //Launch Edit dialog
-//     SubcategoryEditor *scEditor = new SubcategoryEditor(this);
-//     //get categories list and populate the dialog with them.
-//     Azahar *myDb = new Azahar;
-//     myDb->setDatabase(db);
-//     QStringList catList;
-//     catList.append(i18n(" Select one "));
-//     catList << myDb->getCategoriesList();
-//     scEditor->populateCategories( catList );
-//     
-//     if ( scEditor->exec() ) {
-//         QString subCatText = scEditor->getSubcategoryName();
-//         QString parentCatName  = scEditor->getParentCategoryName();
-//         qulonglong parentCatId = -1;
-//         parentCatId = myDb->getCategoryId( parentCatName );
-//         //create the new subcategory.
-//         bool ok = myDb->insertSubCategory(subCatText, parentCatId);
-//         if (!ok) qDebug()<<"* ERROR CREATING SUBCATEGORY:"<<myDb->lastError();
-//         //reload subcategories, and select the newly created.
-//         QStringList subcatList = myDb->getSubCategoriesList( parentCatId );
-//         ui->subcategoriesCombo->clear();
-//         ui->subcategoriesCombo->addItems( subcatList );
-//         setCategory(parentCatName);
-//         setSubCategory(subCatText);
-//     }
-//     
-//     delete myDb;
+    bool ok=false;
+    QString cat = QInputDialog::getText(this, i18n("New subcategory"), i18n("Enter the new subcategory:"),
+                                        QLineEdit::Normal, "", &ok );
+    if (ok && !cat.isEmpty()) {
+        Azahar *myDb = new Azahar;
+        myDb->setDatabase(db);
+        if (!myDb->insertSubCategory(cat)) qDebug()<<"Error:"<<myDb->lastError();
+        
+        //modifyCategory(); //BUG:It is weird that this does not appends the new item; it should do it.
+        ui->subcategoriesCombo->addItems( QStringList(cat) ); //WORK AROUND
+        setSubCategory(cat);
+        //NOTE: Hey, the subcategory here belongs to a category.. so we must insert the m2m relation!
+        qulonglong scId = myDb->getSubCategoryId(cat);
+        qulonglong cId  = myDb->getCategoryId( ui->categoriesCombo->currentText() );
+        qDebug()<<cId<<"-->"<<scId<<" | "<<cat<<"-->"<<ui->categoriesCombo->currentText();
+        if (!myDb->insertM2MCategorySubcategory(cId, scId)) qDebug()<<"ERROR:"<<myDb->lastError();
+        delete myDb;
+    }
 }
 
 void PurchaseEditor::createNewCategory()
 {
-//     bool ok=false;
-//     QString cat = QInputDialog::getText(this, i18n("New category"), i18n("Enter the new category to insert:"),
-//     QLineEdit::Normal, "", &ok );
-//     if (ok && !cat.isEmpty()) {
-//         Azahar *myDb = new Azahar;
-//         myDb->setDatabase(db);
-//         if (!myDb->insertCategory(cat)) qDebug()<<"Error:"<<myDb->lastError();
-//         delete myDb;
-//         populateCategoriesCombo();
-//         setCategory(cat);
-//     }
+    //launch dialog to ask for the new child. Using this same dialog.
+    SubcategoryEditor *scEditor = new SubcategoryEditor(this);
+    scEditor->setDb(db);
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    
+    QStringList list = myDb->getSubCategoriesList();
+    scEditor->setCatList( myDb->getCategoriesList() );
+    scEditor->setScatList( list );
+    scEditor->populateList( list );
+    scEditor->setDialogType(2); //category = 2
+    scEditor->setLabelForName(i18n("New category:"));
+    scEditor->setLabelForList(i18n("Select the child subcategories for this category:"));
+    
+    if ( scEditor->exec() ) {
+        QString text = scEditor->getName();
+        QStringList children = scEditor->getChildren();
+        qDebug()<<text<<" CHILDREN:"<<children;
+        
+        //Create the category
+        if (!myDb->insertCategory(text)) {
+            qDebug()<<"Error:"<<myDb->lastError();
+            delete myDb;
+            return;
+        }
+        qulonglong cId = myDb->getCategoryId(text);
+        //create the m2m  relations for the new category->subcategory.
+        foreach(QString cat, children) {
+            //get subcategory id
+            qulonglong scId = myDb->getSubCategoryId(cat);
+            //create the link [category] --> [subcategory]
+            myDb->insertM2MCategorySubcategory(cId, scId);
+        }
+        //reload categories combo
+        //modifyDepartment();//BUG:It is weird that this does not appends the new item; it should do it.
+        ui->categoriesCombo->addItems( QStringList(text) ); //WORK AROUND
+        setCategory(text); //set the newly created category...
+    }
+}
+
+void PurchaseEditor::createNewDepartment()
+{
+    //launch dialog to ask for the new child. Using this same dialog.
+    SubcategoryEditor *scEditor = new SubcategoryEditor(this);
+    scEditor->setDb(db);
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    
+    QStringList list = myDb->getCategoriesList();
+    scEditor->setCatList( list );
+    scEditor->setScatList( myDb->getSubCategoriesList() );
+    scEditor->populateList( list );
+    scEditor->setDialogType(1); //department = 1
+    scEditor->setLabelForName(i18n("New department:"));
+    scEditor->setLabelForList(i18n("Select the child categories for this department:"));
+    
+    if ( scEditor->exec() ) {
+        QString text = scEditor->getName();
+        QStringList children = scEditor->getChildren();
+        qDebug()<<text<<" CHILDREN:"<<children;
+        
+        //Create the department
+        if (!myDb->insertDepartment(text)) {
+            qDebug()<<"Error:"<<myDb->lastError();
+            delete myDb;
+            return;
+        }
+        qulonglong depId = myDb->getDepartmentId(text);
+        //create the m2m  relations for the new department->category.
+        foreach(QString cat, children) {
+            //get category id
+            qulonglong cId = myDb->getCategoryId(cat);
+            //create the link [category] --> [subcategory]
+            myDb->insertM2MDepartmentCategory(depId, cId);
+        }
+        //reload departments combo
+        populateDepartmentsCombo();
+        //ui->DepartmentsCombo->addItems( QStringList(text) ); //WORK AROUND
+        setDepartment(text); //set the newly created category...
+    }
+}
+
+void PurchaseEditor::createNewMeasure()
+{
+    bool ok=false;
+    QString meas = QInputDialog::getText(this, i18n("New Weight or Measure"), i18n("Enter the new weight or measure to insert:"),
+                                         QLineEdit::Normal, "", &ok );
+    if (ok && !meas.isEmpty()) {
+        Azahar *myDb = new Azahar;
+        if (!db.isOpen()) db.open();
+        myDb->setDatabase(db);
+        if (!myDb->insertMeasure(meas)) qDebug()<<"Error:"<<myDb->lastError();
+        
+        populateMeasuresCombo();
+        setMeasure(meas);
+        delete myDb;
+    }
 }
 
 #include "purchaseeditor.moc"
