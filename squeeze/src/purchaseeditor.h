@@ -53,8 +53,10 @@ class PurchaseEditor : public KDialog
     QString getDescription() { return ui->editDesc->text(); };
     double  getPurchaseQty();
     int     getCategoryId();
+    int     getSubCategoryId();
     int     getMeasureId();
     QString getCategoryStr(int c);
+    QString getSubCategoryStr(int c);
     QString getMeasureStr(int c);
     double  getCost()        { return ui->editCost->text().toDouble(); };
     double  getTax1()        { return ui->editTax->text().toDouble(); };
@@ -69,8 +71,11 @@ class PurchaseEditor : public KDialog
     double  getTotalBuy()    { return totalBuy; };
     double  getItemCount()   { return itemCount; };
     double  getTotalTaxes()  { return totalTaxes; };
+    QString getAlphacode()   { return ui->editAlphacode->text(); }
+    QString getVendorcode()  { return ui->editVendorcode->text(); }
 
     void    populateCategoriesCombo();
+    void    populateSubCategoriesCombo(); 
     void    populateMeasuresCombo();
 
     void    setDb(QSqlDatabase database);
@@ -80,6 +85,8 @@ class PurchaseEditor : public KDialog
     void    setPurchaseQty(double q)   {ui->editQty->setText(QString::number(q)); };
     void    setCategory(QString str);
     void    setCategory(int i);
+    void    setSubCategory(QString str);
+    void    setSubCategory(int i);
     void    setMeasure(QString str);
     void    setMeasure(int i);
     void    setCost(double c)          {ui->editCost->setText(QString::number(c)); };

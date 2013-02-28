@@ -274,6 +274,8 @@ void ProductEditor::setCategory(QString str)
 
 void ProductEditor::setSubCategory(QString str)
 {
+    if (str == "") {ui->subcategoriesCombo->setCurrentIndex(0); return;}
+    
     int idx = ui->subcategoriesCombo->findText(str,Qt::MatchCaseSensitive);
     if (idx > -1) ui->subcategoriesCombo->setCurrentIndex(idx);
     else {

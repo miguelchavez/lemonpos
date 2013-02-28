@@ -45,7 +45,7 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
     setCaption( i18n("Purchase") );
     setButtons( KDialog::Ok|KDialog::Cancel );
     setDefaultButton(KDialog::None);
-    ui->btnAddItem->setDefault(true);
+    //ui->btnAddItem->setDefault(true); //This makes this button default action when pressing enter on any field. As the setDefaultButton is set to None.
 
     //Set Validators for input boxes
     //QRegExp regexpC("[0-9]{1,13}"); //(EAN-13 y EAN-8) .. y productos sin codigo de barras?
@@ -73,7 +73,7 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
     connect( ui->editUtility , SIGNAL( textEdited(const QString &) ), this, SLOT( calculatePrice() ) );
     //connect( ui->editCode, SIGNAL(textEdited(const QString &)), SLOT(timerCheck())); for slow type... just keep the "enter"
     connect( ui->editCode, SIGNAL(returnPressed()), SLOT(checkIfCodeExists()));
-    connect( ui->editCode, SIGNAL(returnPressed()), ui->editQty, SLOT(setFocus()));
+    //connect( ui->editCode, SIGNAL(returnPressed()), ui->editQty, SLOT(setFocus()));
     connect( ui->btnAddItem, SIGNAL( clicked() ), this, SLOT( addItemToList() ) );
     connect(ui->groupBoxedItem, SIGNAL(toggled(bool)), this, SLOT(focusItemsPerBox(bool)) );
 
@@ -125,6 +125,17 @@ void PurchaseEditor::populateCategoriesCombo()
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   ui->categoriesCombo->addItems(myDb->getCategoriesList());
+  populateSubCategoriesCombo();
+  delete myDb;
+}
+
+void PurchaseEditor::populateSubCategoriesCombo()
+{
+    QSqlQuery query(db);
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    ui->subcategoriesCombo->addItems(myDb->getSubCategoriesList());
+    delete myDb;
 }
 
 void PurchaseEditor::populateMeasuresCombo()
@@ -133,6 +144,7 @@ void PurchaseEditor::populateMeasuresCombo()
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   ui->measuresCombo->addItems(myDb->getMeasuresList());
+  delete myDb;
 }
 
 int PurchaseEditor::getCategoryId()
@@ -143,9 +155,21 @@ int PurchaseEditor::getCategoryId()
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   code = myDb->getCategoryId(currentText);
+  delete myDb;
   return code;
 }
 
+int PurchaseEditor::getSubCategoryId()
+{
+    QSqlQuery query(db);
+    int code=-1;
+    QString currentText = ui->subcategoriesCombo->currentText();
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    code = myDb->getSubCategoryId(currentText);
+    delete myDb;
+    return code;
+}
 
 int PurchaseEditor::getMeasureId()
 {
@@ -155,6 +179,7 @@ int PurchaseEditor::getMeasureId()
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   code = myDb->getMeasureId(currentText);
+  delete myDb;
   return code;
 }
 
@@ -172,6 +197,24 @@ void PurchaseEditor::setCategory(int i)
 {
  QString text = getCategoryStr(i);
  setCategory(text);
+}
+
+void PurchaseEditor::setSubCategory(QString str)
+{
+    if (str == "") {ui->subcategoriesCombo->setCurrentIndex(0); return;}
+    
+    int idx = ui->subcategoriesCombo->findText(str,Qt::MatchCaseSensitive);
+    if (idx > -1) ui->subcategoriesCombo->setCurrentIndex(idx);
+    else {
+        qDebug()<<"Str not found:"<<str;
+    }
+}
+
+void PurchaseEditor::setSubCategory(int i)
+{
+    QString text = getSubCategoryStr(i);
+    qDebug()<<" Setting subcateory id "<<i<< ":"<<text;
+    setSubCategory(text);
 }
 
 void PurchaseEditor::setMeasure(int i)
@@ -194,7 +237,17 @@ QString PurchaseEditor::getCategoryStr(int c)
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   QString str = myDb->getCategoryStr(c);
+  delete myDb;
   return str;
+}
+
+QString PurchaseEditor::getSubCategoryStr(int c)
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    QString str = myDb->getSubCategoryStr(c);
+    delete myDb;
+    return str;
 }
 
 QString PurchaseEditor::getMeasureStr(int c)
@@ -355,7 +408,7 @@ void PurchaseEditor::justCheck()
 
 //This will check for codes and vendor codes.
 void PurchaseEditor::checkIfCodeExists()
-{
+{  
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   gelem = "";
@@ -378,10 +431,11 @@ void PurchaseEditor::checkIfCodeExists()
     status = estatusMod;
     productExists = true;
     qtyOnDb  = pInfo.stockqty;
-    qDebug()<<"Product code:"<<pInfo.code<<" Product AlphaCode:"<<pInfo.alphaCode<<" qtyOnDb:"<<qtyOnDb;
+    qDebug()<<"Product code:"<<pInfo.code<<" Product AlphaCode:"<<pInfo.alphaCode<<" qtyOnDb:"<<qtyOnDb<<" SubCat:"<<pInfo.subcategory;
     //Prepopulate dialog...
     ui->editDesc->setText(pInfo.desc);
     setCategory(pInfo.category);
+    setSubCategory(pInfo.subcategory);
     setMeasure(pInfo.units);
     ui->editCost->setText(QString::number(pInfo.cost));
     ui->editTax->setText(QString::number(pInfo.tax));
@@ -389,6 +443,8 @@ void PurchaseEditor::checkIfCodeExists()
     ui->editFinalPrice->setText(QString::number(pInfo.price));
     ui->editPoints->setText(QString::number(pInfo.points));
     ui->chIsAGroup->setChecked(pInfo.isAGroup);
+    ui->editAlphacode->setText(pInfo.alphaCode);
+    ui->editVendorcode->setText(pInfo.vendorCode);
     gelem = pInfo.groupElementsStr;
     if (!(pInfo.photo).isEmpty()) {
       QPixmap photo;
@@ -407,6 +463,9 @@ void PurchaseEditor::checkIfCodeExists()
             setCode(codeStr);
     }
   }
+  ui->editQty->setFocus(); //always focus the Qty input box.
+  qDebug()<<"SET QTY FOCUS";
+  delete myDb;
 }
 
 
@@ -439,18 +498,19 @@ void PurchaseEditor::setupTable() {
 
 void PurchaseEditor::addItemToList()
 {
+  qDebug()<<"Adding item to list...";
   ProductInfo pInfo;
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
   bool ok=false;
 
   if (ui->editCode->text().isEmpty()) ui->editCode->setFocus();
+  else if (ui->editQty->text().isEmpty() || ui->editQty->text()=="0") ui->editQty->setFocus();
   else if (ui->editDesc->text().isEmpty()) ui->editDesc->setFocus();
   else if (ui->editPoints->text().isEmpty()) ui->editPoints->setFocus();
   else if (ui->editCost->text().isEmpty()) ui->editCost->setFocus();
   else if (ui->editTax->text().isEmpty()) ui->editTax->setFocus();
   else if (ui->editFinalPrice->text().isEmpty()) ui->editFinalPrice->setFocus();
-  else if (ui->editQty->text().isEmpty() || ui->editQty->text()=="0") ui->editQty->setFocus();
   else if ((ui->editUtility->text().isEmpty() && ui->editFinalPrice->text().isEmpty()) || ui->editFinalPrice->text().toDouble() < ui->editCost->text().toDouble() ) ui->editFinalPrice->setFocus();
   else if (ui->groupBoxedItem->isChecked() && (ui->editItemsPerBox->text().isEmpty() || ui->editItemsPerBox->text()=="0"))  ui->editItemsPerBox->setFocus();
   else if (ui->groupBoxedItem->isChecked() && (ui->editPricePerBox->text().isEmpty() || ui->editPricePerBox->text()=="0")) ui->editPricePerBox->setFocus();
@@ -480,10 +540,13 @@ void PurchaseEditor::addItemToList()
     info.photo   = getPhotoBA();
     info.units   = getMeasureId();
     info.category= getCategoryId();
+    info.subcategory= getSubCategoryId();
     info.utility = getProfit();
     info.points  = getPoints();
     info.purchaseQty = getPurchaseQty();
     info.validDiscount = productExists; //used to check if product is already on db.
+    info.alphaCode = getAlphacode();
+    info.vendorCode = getVendorcode();
 
     if (info.isAGroup) {
       // get each product fo the group/pack
@@ -503,6 +566,7 @@ void PurchaseEditor::addItemToList()
     //resetEdits();
     ui->editCode->setFocus();
   }
+  delete myDb;
 }
 
 void PurchaseEditor::insertProduct(ProductInfo info)
@@ -657,6 +721,9 @@ void PurchaseEditor::resetEdits()
   ui->editPricePerBox->setText("");
   ui->editQty->setText("");
   ui->chIsAGroup->setChecked(false);
+  ui->editAlphacode->setText("");
+  ui->editVendorcode->setText("");
+  setSubCategory(0);
   gelem = "";
 }
 
