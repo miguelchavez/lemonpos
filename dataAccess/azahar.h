@@ -103,6 +103,7 @@ class Azahar : public QObject
     bool        deleteCategory(qulonglong id);
 
     //SUBCATEGORIES
+    QHash<QString, int> getSubCategoriesHash();
     QStringList getSubCategoriesList();
     qulonglong  getSubCategoryId(QString texto);
     QString     getSubCategoryStr(qulonglong id);

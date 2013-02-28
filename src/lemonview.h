@@ -98,6 +98,7 @@ public:
     QSqlTableModel *productsModel;
     QSqlQueryModel *clientsModel; //for the credits panel, completer.
     QHash<QString, int> categoriesHash;
+    QHash<QString, int> subcategoriesHash;
     ClientInfo clientInfo;
     QHash<QString, ClientInfo> clientsHash;
     qulonglong buyPoints;
@@ -329,6 +330,7 @@ public:
     void hideProductsGrid();
     void populateCategoriesHash();
     void populateCardTypes();
+    void populateSubCategoriesHash();
     void setFilter();
     void showChangeDate();
 

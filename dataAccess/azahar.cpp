@@ -1274,6 +1274,29 @@ bool Azahar::deleteCategory(qulonglong id)
 
 
 //SUBCATEGORIES
+QHash<QString, int> Azahar::getSubCategoriesHash()
+{
+    QHash<QString, int> result;
+    result.clear();
+    if (!db.isOpen()) db.open();
+    if (db.isOpen()) {
+        QSqlQuery myQuery(db);
+        if (myQuery.exec("select * from subcategories;")) {
+            while (myQuery.next()) {
+                int fieldId   = myQuery.record().indexOf("id");
+                int fieldText = myQuery.record().indexOf("text");
+                int id = myQuery.value(fieldId).toInt();
+                QString text = myQuery.value(fieldText).toString();
+                result.insert(text, id);
+            }
+        }
+        else {
+            qDebug()<<"ERROR: "<<myQuery.lastError();
+        }
+    }
+    return result;
+}
+
 QStringList Azahar::getSubCategoriesList()
 {
     QStringList result;

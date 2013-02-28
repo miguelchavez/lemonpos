@@ -817,8 +817,18 @@
                <item row="2" column="2">
                 <widget class="QComboBox" name="comboFilterByCategory"/>
                </item>
-               <item row="3" column="0" colspan="3">
+               <item row="4" column="0" colspan="3">
                 <widget class="QListView" name="listView"/>
+               </item>
+               <item row="3" column="2">
+                <widget class="QComboBox" name="comboFilterBySubCategory"/>
+               </item>
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="rbFilterBySubCategory">
+                 <property name="text">
+                  <string>filter by subcategory</string>
+                 </property>
+                </widget>
                </item>
               </layout>
              </widget>
