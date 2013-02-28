@@ -1190,6 +1190,25 @@ bool Azahar::insertDepartment(QString text)
     return result;
 }
 
+bool Azahar::updateDepartment(qulonglong id, QString t)
+{
+    bool result=false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query.prepare("UPDATE departments set text=:text WHERE id=:id;");
+    query.bindValue(":text", t);
+    query.bindValue(":id", id);
+    if (!query.exec()) {
+        setError(query.lastError().text());
+        qDebug()<<"ERROR:"<<query.lastError().text();
+    }
+        
+    else
+        result = true;
+    
+    return result;
+}
+
 QHash<QString, int> Azahar::getDepartmentsHash()
 {
     QHash<QString, int> result;
@@ -1318,6 +1337,22 @@ bool Azahar::m2mDepartmentCategoryExists(qulonglong d, qulonglong c)
     return result;
 }
 
+bool Azahar::m2mDepartmentCategoryRemove(qulonglong d, qulonglong c)
+{
+    bool result = false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery queryX(db);
+    queryX.prepare("DELETE FROM m2m_department_category WHERE department=:dep AND category=:cat;");
+    queryX.bindValue(":dep", d);
+    queryX.bindValue(":cat", c);
+    result = queryX.exec();
+    if (!result) {
+        qDebug()<<"ERROR REMOVING CONNECTION BETWEEN DEP->CAT:"<<d<<"->"<<c<<" |"<<queryX.lastError().text();
+        setError(queryX.lastError().text());
+    }
+    return result;
+}
+
 bool Azahar::insertM2MDepartmentCategory(qulonglong depId, qulonglong catId)
 {
     bool result=false;
@@ -1368,6 +1403,25 @@ bool Azahar::insertCategory(QString text)
 //   }
   
   return result;
+}
+
+bool Azahar::updateCategory(qulonglong id, QString t)
+{
+    bool result=false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery query(db);
+    query.prepare("UPDATE categories set text=:text WHERE catid=:id;");
+    query.bindValue(":text", t);
+    query.bindValue(":id", id);
+    if (!query.exec()) {
+        setError(query.lastError().text());
+        qDebug()<<"ERROR:"<<query.lastError().text();
+    }
+    
+    else
+        result = true;
+    
+    return result;
 }
 
 QHash<QString, int> Azahar::getCategoriesHash()
@@ -1513,6 +1567,22 @@ bool Azahar::insertM2MCategorySubcategory(qulonglong catId, qulonglong subcatId)
     }
     else
         result = true;
+    return result;
+}
+
+bool Azahar::m2mCategorySubcategoryRemove(qulonglong c, qulonglong sc)
+{
+    bool result = false;
+    if (!db.isOpen()) db.open();
+    QSqlQuery queryX(db);
+    queryX.prepare("DELETE FROM m2m_category_subcategory WHERE category=:cat AND subcategory=:scat;");
+    queryX.bindValue(":cat", c);
+    queryX.bindValue(":scat", sc);
+    result = queryX.exec();
+    if (!result) {
+        qDebug()<<"ERROR REMOVING CONNECTION BETWEEN CAT->SUBCAT:"<<c<<"->"<<sc<<" |"<<queryX.lastError().text();
+        setError(queryX.lastError().text());
+    }
     return result;
 }
 

@@ -102,9 +102,12 @@ class Azahar : public QObject
     QString     getDepartmentStr(qulonglong id);
     bool        insertDepartment(QString text);
     bool        deleteDepartment(qulonglong id);
+    bool        updateDepartment(qulonglong id, QString t); //to rename a department.
     //m2m
     bool        m2mDepartmentCategoryExists(qulonglong d, qulonglong c);
     bool        insertM2MDepartmentCategory(qulonglong depId, qulonglong catId);
+
+    bool        m2mDepartmentCategoryRemove(qulonglong d, qulonglong c);
     
     //CATEGORIES
     QHash<QString, int> getCategoriesHash();
@@ -113,10 +116,13 @@ class Azahar : public QObject
     qulonglong  getCategoryId(QString texto);
     QString     getCategoryStr(qulonglong id);
     bool        insertCategory(QString text);
+    bool        updateCategory(qulonglong id, QString t); //to rename a category.
     bool        deleteCategory(qulonglong id);
     //m2m
     bool        insertM2MCategorySubcategory(qulonglong catId, qulonglong subcatId);
     bool        m2mCategorySubcategoryExists(qulonglong c, qulonglong s);
+
+    bool        m2mCategorySubcategoryRemove(qulonglong c, qulonglong sc);
 
     //SUBCATEGORIES
     QHash<QString, int> getSubCategoriesHash();

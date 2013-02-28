@@ -249,6 +249,8 @@ signals:
 
    void agregarSerieFolios(); //Facturacion MX
    void cancelarFactura();
+   void departmentsOnSelected(const QModelIndex &index);
+   void categoriesOnSelected(const QModelIndex &index);
    
 };
 
