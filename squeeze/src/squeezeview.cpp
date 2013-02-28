@@ -2606,8 +2606,11 @@ void squeezeView::createDepartment()
     QStringList catList;
     catList << myDb->getCategoriesList();
     scEditor->populateList( catList );
+    scEditor->setCatList(catList);
+    scEditor->setScatList(myDb->getSubCategoriesList());
     scEditor->setLabelForName(i18n("New Department:"));
     scEditor->setLabelForList(i18n("Select the child categories for this department:"));
+    scEditor->setDialogType(1); //department = 1
     
     if ( scEditor->exec() ) {
         QString depText = scEditor->getName();
@@ -2631,6 +2634,8 @@ void squeezeView::createDepartment()
     }
     
     departmentsModel->select();
+    categoriesModel->select();
+    subcategoriesModel->select();
     //updateDepartmentsComob();
     
     delete myDb;
