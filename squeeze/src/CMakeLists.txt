@@ -11,6 +11,7 @@ set(squeeze_SRCS
    purchaseeditor.cpp
    offersdelegate.cpp
    dialogseriefolios.cpp
+   subcategoryeditor.cpp
    ../../src/inputdialog.cpp
    ../../src/loginwindow.cpp
    ../../src/misc.cpp
@@ -37,6 +38,7 @@ kde4_add_ui_files( squeeze_SRCS
   ui/producteditor.ui
   ui/purchaseeditor.ui
   ui/editfolios.ui
+  ui/subcategoryeditor.ui
   )
 
 

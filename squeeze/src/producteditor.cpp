@@ -130,6 +130,8 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     connect( ui->editAlphacode,  SIGNAL(textEdited(const QString &)), this, SLOT(verifyAlphacodeDuplicates()) );
     connect( ui->editVendorcode,  SIGNAL(textEdited(const QString &)), this, SLOT(verifyVendorcodeDuplicates()) );
 
+    connect( ui->categoriesCombo, SIGNAL(currentIndexChanged( int )), SLOT(modifyCategory()) );
+
     status = statusNormal;
     modifyCode = false;
     autoCode = newProduct;
@@ -203,6 +205,7 @@ void ProductEditor::populateCategoriesCombo()
 {
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
+  ui->categoriesCombo->clear();
   ui->categoriesCombo->addItems(myDb->getCategoriesList());
   populateSubCategoriesCombo(); //call populateSubcategoriesCombo also!
   delete myDb;
@@ -212,6 +215,7 @@ void ProductEditor::populateSubCategoriesCombo()
 {
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
+    ui->subcategoriesCombo->clear();
     ui->subcategoriesCombo->addItems(myDb->getSubCategoriesList());
     delete myDb;
 }
@@ -220,6 +224,7 @@ void ProductEditor::populateMeasuresCombo()
 {
   Azahar *myDb = new Azahar;
   myDb->setDatabase(db);
+  ui->measuresCombo->clear();
   ui->measuresCombo->addItems(myDb->getMeasuresList());
   delete myDb;
 }
@@ -250,6 +255,17 @@ int ProductEditor::getSubCategoryId()
     return code;
 }
 
+//returns the parent category id of a subcategory.
+int ProductEditor::getSubCategoryParent()
+{
+    int code=-1;
+    QString currentText = ui->categoriesCombo->currentText(); //get category
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    code = myDb->getCategoryId(currentText);
+    delete myDb;
+    return code;
+}
 
 int ProductEditor::getMeasureId()
 {
@@ -295,6 +311,18 @@ void ProductEditor::setSubCategory(int i)
     QString text = getSubCategoryStr(i);
     setSubCategory(text);
     qDebug()<<"SET SUBCATEGORY INT :: Category Id:"<<i<<" Name:"<<text;
+}
+
+
+//NOTE:This maybe is duplicated, because the ProducInfo already contains a category. Parent in subcategory is a pointer to the category. Both must be the same.
+void ProductEditor::setSubCategoryParent(int parentId)
+{
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    QString text = myDb->getCategoryStr(parentId);
+    setSubCategory(text);
+    qDebug()<<"SET SUBCATEGORY PARENT INT :: Category Id:"<<parentId<<" Parent Name:"<<text;
+    delete myDb;
 }
 
 void ProductEditor::setMeasure(int i)
@@ -1010,6 +1038,21 @@ void ProductEditor::verifyVendorcodeDuplicates()
     }
     
     delete myDb;
+}
+
+
+void ProductEditor::modifyCategory()
+{
+    //When a category is changed, we must filter subcategories according.
+    QString catText = ui->categoriesCombo->currentText();
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    //get subcategories' children
+    qulonglong parentId = myDb->getCategoryId( catText );
+    QStringList subcatList = myDb->getSubCategoriesList( parentId );
+    ui->subcategoriesCombo->clear();
+    ui->subcategoriesCombo->addItems( subcatList );
+    qDebug()<<"SUBCAT LIST for "<<catText<<" :"<<subcatList;
 }
 
 #include "producteditor.moc"

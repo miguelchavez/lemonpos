@@ -179,7 +179,7 @@ CREATE TABLE IF NOT EXISTS `categories` (
 
 CREATE TABLE IF NOT EXISTS `subcategories` (
 `id` int(10) unsigned NOT NULL auto_increment,
-`parent` int(10) unsigned,
+`parent` int(10) unsigned NOT NULL DEFAULT 1,
 `text` varchar(50) character set utf8 collate utf8_general_ci NOT NULL,
 PRIMARY KEY  (`id`),
 KEY `SEC` (`parent`,`text` )
@@ -519,7 +519,8 @@ INSERT INTO lemondb.measures (id, text) VALUES(1, 'Pc');
 #Insert a default client
 INSERT INTO lemondb.clients (id, code, name, points, discount) VALUES (1, '000001', 'General', 0, 0);
 #Insert a default category
-INSERT INTO lemondb.categories (catid, text) VALUES (1, 'General');
+INSERT INTO lemondb.categories (catid, text) VALUES (1, 'None'); --This is used as a root category. Used ONLY for pointing to a root category at subcategories.
+INSERT INTO lemondb.categories (catid, text) VALUES (2, 'General');
 
 #Insert default card types (very important to keep these ids)
 INSERT INTO lemondb.cardtypes (typeid, text) VALUES(1, 'None');
