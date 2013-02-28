@@ -303,12 +303,12 @@ CREATE TABLE IF NOT EXISTS `providers` (
 #) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
-# Introduced on Sept 7 2009.
+# Introduced on Sept 7 2009. #Fix on Feb 25 2012: changed new stock and old stock to double, because stock is double, not int.
 CREATE TABLE IF NOT EXISTS `stock_corrections` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `product_id` bigint(20) unsigned NOT NULL,
-  `new_stock_qty` bigint(20) unsigned NOT NULL,
-  `old_stock_qty` bigint(20) unsigned NOT NULL,
+  `new_stock_qty` double NOT NULL,
+  `old_stock_qty` double NOT NULL,
   `reason` varchar(255) collate utf8_general_ci NOT NULL,
   `date` varchar(20) NOT NULL default '2009-01-01',
   `time` varchar(20) NOT NULL default '00:00',
