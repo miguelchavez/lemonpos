@@ -103,6 +103,10 @@
         <label>Ask for Invoice generation</label>
         <default>0</default>
     </entry>
+    <entry name="allowNegativeStock" type="Bool">
+        <label>Allow negative stock.</label>
+        <default>0</default>
+    </entry>
   </group>
   <group name="Database">
     <entry name="editDBServer" type="String">

@@ -298,6 +298,7 @@ ProductInfo Azahar::getProductInfo(const QString &code, const bool &notConsiderD
 
       if ( info.hasUnlimitedStock )
             info.stockqty = 999999; //just make sure we do not return 0 for unlimited stock items.
+      ///NOTE:negative stock will be reported as is (negative), lemon must verify at settings if allowing negative stock with an alert.
       
       /** @TODO: for future releases where taxmodel is included in code
       //get missing stuff - tax,offers for the requested product
