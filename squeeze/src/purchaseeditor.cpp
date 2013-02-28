@@ -45,7 +45,7 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
     setCaption( i18n("Purchase") );
     setButtons( KDialog::Ok|KDialog::Cancel );
     setDefaultButton(KDialog::None);
-    //ui->btnAddItem->setDefault(true); //This makes this button default action when pressing enter on any field. As the setDefaultButton is set to None.
+    ui->btnAddItem->setDefault(true); //This makes this button default action when pressing enter on any field. As the setDefaultButton is set to None.
 
     //Set Validators for input boxes
     //QRegExp regexpC("[0-9]{1,13}"); //(EAN-13 y EAN-8) .. y productos sin codigo de barras?
