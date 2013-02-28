@@ -41,9 +41,13 @@ class SubcategoryEditor : public KDialog
     SubcategoryEditor( QWidget *parent=0 );
     ~SubcategoryEditor();
 
-    QString getParentCategoryName()   { return ui->comboParentCategory->currentText(); };
-    QString getSubcategoryName()    { return ui->editSubcategory->text(); };
-    void    populateCategories(QStringList list);
+    void    setLabelForName(QString text) { ui->lblName->setText(text); };
+    void    setLabelForList(QString text) { ui->lblChildText->setText(text); };
+    
+    QStringList getChildren();
+    QString getName()    { return ui->editName->text(); };
+    
+    void    populateList(QStringList list);
 
   private slots:
     void    checkValid();
