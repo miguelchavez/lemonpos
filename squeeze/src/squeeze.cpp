@@ -170,6 +170,8 @@ void squeeze::enableUI()
     action->setEnabled(true);
     action = actionCollection()->action("measuresBrowse");
     action->setEnabled(true);
+    action = actionCollection()->action("departmentsBrowse");
+    action->setEnabled(true);
     action = actionCollection()->action("categoriesBrowse");
     action->setEnabled(true);
     action = actionCollection()->action("subcategoriesBrowse");
@@ -229,6 +231,8 @@ void squeeze::disableUI()
   action = actionCollection()->action("offersBrowse");
   action->setDisabled(true);
   action = actionCollection()->action("measuresBrowse");
+  action->setDisabled(true);
+  action = actionCollection()->action("departmentsBrowse");
   action->setDisabled(true);
   action = actionCollection()->action("categoriesBrowse");
   action->setDisabled(true);
@@ -316,6 +320,12 @@ void squeeze::setupActions()
     measuresBrowseAction->setIcon(KIcon("lemon-ruler"));
     measuresBrowseAction->setShortcut(Qt::CTRL+Qt::Key_M);
     connect(measuresBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showMeasuresPage()));
+
+    QAction* departmentsBrowseAction =  actionCollection()->addAction( "departmentsBrowse" );
+    departmentsBrowseAction->setText(i18n("Departments"));
+    departmentsBrowseAction->setIcon(KIcon("lemon-categories"));
+    departmentsBrowseAction->setShortcut(Qt::CTRL+Qt::Key_C);
+    connect(departmentsBrowseAction, SIGNAL(triggered(bool)),m_view, SLOT(showDepartmentsPage()));
 
     QAction* categoriesBrowseAction =  actionCollection()->addAction( "categoriesBrowse" );
     categoriesBrowseAction->setText(i18n("Categories"));
