@@ -71,7 +71,7 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
     connect( ui->editTax , SIGNAL( textEdited(const QString &) ), this, SLOT( calculatePrice() ) );
     connect( ui->editExtraTaxes , SIGNAL( textEdited(const QString &) ), this, SLOT( calculatePrice() ) );
     connect( ui->editUtility , SIGNAL( textEdited(const QString &) ), this, SLOT( calculatePrice() ) );
-    connect( ui->editCode, SIGNAL(textEdited(const QString &)), SLOT(timerCheck()));
+    //connect( ui->editCode, SIGNAL(textEdited(const QString &)), SLOT(timerCheck())); for slow type... just keep the "enter"
     connect( ui->editCode, SIGNAL(returnPressed()), SLOT(checkIfCodeExists()));
     connect( ui->editCode, SIGNAL(returnPressed()), ui->editQty, SLOT(setFocus()));
     connect( ui->btnAddItem, SIGNAL( clicked() ), this, SLOT( addItemToList() ) );
