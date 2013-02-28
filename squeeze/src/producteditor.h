@@ -51,6 +51,7 @@ class ProductEditor : public KDialog
 
     qulonglong getCode()     { return ui->editCode->text().toULongLong(); };
     QString getAlphacode()   { return ui->editAlphacode->text(); };
+    QString getVendorcode()   { return ui->editVendorcode->text(); };
     QString getDescription() { return ui->editDesc->text(); };
     double  getStockQty()    { return ui->editStockQty->text().toDouble(); };
     int     getCategoryId();
@@ -80,6 +81,7 @@ class ProductEditor : public KDialog
     void    setDb(QSqlDatabase database);
     void    setCode(qulonglong c)      {ui->editCode->setText(QString::number(c)); };
     void    setAlphacode(QString c)    { ui->editAlphacode->setText(c); };
+    void    setVendorcode(QString c)    { ui->editVendorcode->setText(c); };
     void    setDescription(QString d)  {ui->editDesc->setText(d); };
     void    setStockQty(double q)      {ui->editStockQty->setText(QString::number(q)); };
     void    setCategory(QString str);
@@ -127,6 +129,8 @@ private slots:
     void    setNotDiscountable(bool value);
     void    setUnlimitedStock(bool value);
     qulonglong getNextCode();
+    void    verifyVendorcodeDuplicates();
+    void    verifyAlphacodeDuplicates();
 protected slots:
     virtual void slotButtonClicked(int button);
   private:
@@ -145,6 +149,8 @@ protected slots:
 
     MibitFloatPanel *groupPanel;
     MibitTip        *errorPanel;
+    MibitTip        *errorAlphacode;
+    MibitTip        *errorVendorcode;
 };
 
 #endif

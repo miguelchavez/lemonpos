@@ -353,6 +353,7 @@ void PurchaseEditor::justCheck()
 }
 
 
+//This will check for codes and vendor codes.
 void PurchaseEditor::checkIfCodeExists()
 {
   Azahar *myDb = new Azahar;
@@ -360,7 +361,18 @@ void PurchaseEditor::checkIfCodeExists()
   gelem = "";
   QString codeStr = ui->editCode->text();
   if (codeStr.isEmpty()) codeStr = "0";
-  ProductInfo pInfo = myDb->getProductInfo(codeStr);
+  qulonglong cVc = 0;
+  cVc = myDb->getProductCodeFromVendorcode(codeStr);
+  ProductInfo pInfo;
+  //NOTE: this may have a failure chance, if vendor code is exactly the same as some product code (numbers) then it will be a false positive.
+  if (cVc > 0) {
+      //use the vendor code instead.
+      pInfo = myDb->getProductInfo(QString::number(cVc));
+      ui->editCode->setText(QString::number(cVc));//for adding to work.
+  } else {
+      //use the product code...
+      pInfo = myDb->getProductInfo(codeStr);
+  }
   if (pInfo.code ==0 && pInfo.desc=="Ninguno") productExists = false;
   if (pInfo.code > 0) {
     status = estatusMod;
@@ -386,9 +398,14 @@ void PurchaseEditor::checkIfCodeExists()
   } else {
     qDebug()<< "no product found with code "<<codeStr;
     qulonglong codeSaved = getCode();
+    QString codeStr = getCodeStr();
     resetEdits();
     if (codeSaved > 0) //do not set code "0" in the input box, just let it empty,
         setCode(codeSaved);
+    else {
+        if (!codeStr.isEmpty())
+            setCode(codeStr);
+    }
   }
 }
 

@@ -63,6 +63,12 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     path = path+"tip.svg";
     errorPanel = new MibitTip(this, ui->editCode, path, DesktopIcon("dialog-warning", 32));
     errorPanel->setMaxHeight(65);
+
+    errorAlphacode = new MibitTip(this, ui->editAlphacode, path, DesktopIcon("dialog-warning", 32));
+    errorAlphacode->setMaxHeight(65);
+    errorVendorcode = new MibitTip(this, ui->editVendorcode, path, DesktopIcon("dialog-warning", 32));
+    errorVendorcode->setMaxHeight(65);
+    
     path = KStandardDirs::locate("appdata", "styles/");
     path = path+"floating_bottom.svg";
     groupPanel = new MibitFloatPanel(this, path, Bottom);
@@ -88,6 +94,7 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     QRegExp regexpAC("[0-9]*[//.]{0,1}[0-9]{0,2}[//*]{0,1}[0-9]*[A-Za-z_0-9\\\\/\\-]{0,30}"); // Instead of {0,13} fro EAN13, open for up to 30 chars.
     QRegExpValidator * validatorAC = new QRegExpValidator(regexpAC, this);
     ui->editAlphacode->setValidator(validatorAC);
+    ui->editVendorcode->setValidator(validatorAC); //the same validator as alphacode.
 
     connect( ui->btnPhoto          , SIGNAL( clicked() ), this, SLOT( changePhoto() ) );
     connect( ui->btnCalculatePrice , SIGNAL( clicked() ), this, SLOT( calculatePrice() ) );
@@ -119,6 +126,9 @@ ProductEditor::ProductEditor( QWidget *parent, bool newProduct )
     connect( ui->editFinalPrice, SIGNAL(textChanged(QString) ), SLOT(calculateProfit(QString)) );
 
     connect( ui->chUnlimitedStock, SIGNAL(clicked(bool)), SLOT(setUnlimitedStock(bool)) );
+
+    connect( ui->editAlphacode,  SIGNAL(textEdited(const QString &)), this, SLOT(verifyAlphacodeDuplicates()) );
+    connect( ui->editVendorcode,  SIGNAL(textEdited(const QString &)), this, SLOT(verifyVendorcodeDuplicates()) );
 
     status = statusNormal;
     modifyCode = false;
@@ -425,6 +435,7 @@ void ProductEditor::checkIfCodeExists()
     if (!modifyCode){
       //Prepopulate dialog...
       ui->editAlphacode->setText( pInfo.alphaCode );
+      ui->editVendorcode->setText( pInfo.vendorCode );
       ui->editDesc->setText(pInfo.desc);
       ui->editStockQty->setText(QString::number(pInfo.stockqty));
       setCategory(pInfo.category);
@@ -461,6 +472,7 @@ void ProductEditor::checkIfCodeExists()
     if (!modifyCode) {
       //clear all used edits
       ui->editAlphacode->clear();
+      ui->editVendorcode->clear();
       ui->editDesc->clear();
       ui->editStockQty->clear();
       setCategory(1);
@@ -903,6 +915,47 @@ qulonglong ProductEditor::getNextCode()
     r = myDb->getNextProductCode() + 1;
     qDebug()<<__FUNCTION__<<" next code:"<<r;
     return r;
+}
+
+
+void ProductEditor::verifyAlphacodeDuplicates()
+{
+    QString strAc = ui->editAlphacode->text();
+    if (strAc.isEmpty()) strAc="-1";
+
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    qulonglong rcode = myDb->getProductCodeFromAlphacode(strAc);
+
+    if (rcode > 0) {
+        errorAlphacode->showTip(i18n("Alpha Code %1 already exists.", strAc),3000);
+        enableButtonOk( false );
+        qDebug()<<"Duplicate alphacode!";
+    } else {
+        enableButtonOk( true );
+    }
+    
+    delete myDb;
+}
+
+void ProductEditor::verifyVendorcodeDuplicates()
+{
+    QString strVc = ui->editVendorcode->text();
+    if (strVc.isEmpty()) strVc="-1";
+    
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    qulonglong rcode = myDb->getProductCodeFromVendorcode(strVc);
+    
+    if (rcode > 0) {
+        errorVendorcode->showTip(i18n("Vendor Code %1 already exists.", strVc),3000);
+        enableButtonOk( false );
+        qDebug()<<"Duplicate vendor code!";
+    } else {
+        enableButtonOk( true );
+    }
+    
+    delete myDb;
 }
 
 #include "producteditor.moc"

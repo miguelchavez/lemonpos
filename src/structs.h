@@ -51,6 +51,7 @@ struct ProductInfo {
   double purchaseQty; //New: Jan 13 2007: For purchase editor...
   qulonglong lastProviderId;
   QString alphaCode;
+  QString vendorCode; // ben branch
   double soldUnits; // mch 21Nov09 FOR PRINTED REPORT - LOW STOCK
   // for grouped products and special orders
   bool isAGroup;

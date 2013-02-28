@@ -60,6 +60,7 @@ class Azahar : public QObject
     qulonglong   getProductOfferCode(qulonglong code);
     qulonglong   getProductCode(QString text);
     qulonglong   getProductCodeFromAlphacode(QString text);
+    qulonglong   getProductCodeFromVendorcode(QString text);
     QList<qulonglong> getProductsCode(QString regExpName);
     QStringList  getProductsList();
     bool         insertProduct(ProductInfo info);
