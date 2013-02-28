@@ -288,6 +288,7 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.btnAddClient, SIGNAL(clicked()), SLOT(createClient()));
   connect(ui_mainview.btnDeleteProduct, SIGNAL(clicked()), SLOT(deleteSelectedProduct()) );
   connect(ui_mainview.btnDeleteMeasure, SIGNAL(clicked()), SLOT(deleteSelectedMeasure()) );
+  connect(ui_mainview.btnDeleteDepartment, SIGNAL(clicked()), SLOT(deleteSelectedDepartment()) );
   connect(ui_mainview.btnDeleteCategory, SIGNAL(clicked()), SLOT(deleteSelectedCategory()) );
   connect(ui_mainview.btnDeleteSubCategory, SIGNAL(clicked()), SLOT(deleteSelectedSubCategory()) );
   connect(ui_mainview.btnDeleteClient, SIGNAL(clicked()), SLOT(deleteSelectedClient()));
@@ -2114,6 +2115,7 @@ void squeezeView::productsViewOnSelected(const QModelIndex &index)
       pInfo.units    = productEditorDlg->getMeasureId();
       pInfo.tax      = productEditorDlg->getTax1();
       pInfo.extratax = productEditorDlg->getTax2();
+      pInfo.department= productEditorDlg->getDepartmentId();
       pInfo.category = productEditorDlg->getCategoryId();
       pInfo.subcategory = productEditorDlg->getSubCategoryId();
       pInfo.points   = productEditorDlg->getPoints();
@@ -2636,27 +2638,54 @@ void squeezeView::createDepartment()
     departmentsModel->select();
     categoriesModel->select();
     subcategoriesModel->select();
-    //updateDepartmentsComob();
+    //updateDepartmentsCombo();
     
     delete myDb;
 }
 
 void squeezeView::createCategory()
 {
-//   if (db.isOpen()) {
-//   bool ok=false;
-//   QString cat = QInputDialog::getText(this, i18n("New category"), i18n("Enter the new category to insert:"),
-//                                      QLineEdit::Normal, "", &ok );
-//   if (ok && !cat.isEmpty()) {
-//     Azahar *myDb = new Azahar;
-//     if (!db.isOpen()) openDB();
-//     myDb->setDatabase(db);
-//     if (!myDb->insertCategory(cat)) qDebug()<<"Error:"<<myDb->lastError();
-//     delete myDb;
-//     categoriesModel->select();
-//     updateCategoriesCombo();
-//   }
-//  }
+    //Launch Edit dialog
+    SubcategoryEditor *scEditor = new SubcategoryEditor(this);
+    //get categories list and populate the dialog with them.
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    QStringList catList;
+    catList << myDb->getSubCategoriesList();
+    scEditor->populateList( catList );
+    scEditor->setCatList(myDb->getCategoriesList());
+    scEditor->setScatList(catList);
+    scEditor->setLabelForName(i18n("New Category:"));
+    scEditor->setLabelForList(i18n("Select the child subcategories for this category:"));
+    scEditor->setDialogType(2); //category = 2
+    
+    if ( scEditor->exec() ) {
+        QString text = scEditor->getName();
+        QStringList children = scEditor->getChildren();
+        qDebug()<<" CHILDREN:"<<children;
+        //Create the department
+        if (!myDb->insertCategory(text)) {
+            qDebug()<<"Error:"<<myDb->lastError();
+            delete myDb;
+            return;
+        }
+        qulonglong cId = myDb->getCategoryId(text);
+        //create the m2m  relations for the new department/categories.
+        
+        foreach(QString cat, children) {
+            //get category id
+            qulonglong scId = myDb->getSubCategoryId(cat);
+            //create the link [category] --> [subcategory]
+            myDb->insertM2MCategorySubcategory(cId, scId);
+        }
+    }
+    
+    departmentsModel->select();
+    categoriesModel->select();
+    subcategoriesModel->select();
+    updateCategoriesCombo();
+    
+    delete myDb;
 }
 
 void squeezeView::updateCategoriesCombo()
@@ -2694,32 +2723,17 @@ void squeezeView::updateSubCategoriesCombo()
 
 void squeezeView::createSubCategory()
 {
-    //Launch Edit dialog
-    SubcategoryEditor *scEditor = new SubcategoryEditor(this);
-    //get categories list and populate the dialog with them.
-    Azahar *myDb = new Azahar;
-    myDb->setDatabase(db);
-    QStringList catList;
-    //catList.append(i18n(" Select one "));
-    catList << myDb->getCategoriesList();
-    scEditor->populateList( catList );
-    scEditor->setLabelForName(i18n("Category:"));
-    scEditor->setLabelForList(i18n("Select the child categories for this category"));
-
-    if ( scEditor->exec() ) {
-        QString subCatText = scEditor->getName();
-        qDebug()<<" CHILDREN:"<<scEditor->getChildren();
-        //QString parentCatName  = scEditor->getParentCategoryName();
-        //qulonglong parentCatId = -1;
-        //parentCatId = myDb->getCategoryId( parentCatName );
-        //create the new subcategory.
-        //bool ok = myDb->insertSubCategory(subCatText, parentCatId);
-        //if (!ok) qDebug()<<"* ERROR CREATING SUBCATEGORY:"<<myDb->lastError();
+    bool ok=false;
+    QString c = QInputDialog::getText(this, i18n("New Subcategory"), i18n("Enter the new subcategory:"),
+    QLineEdit::Normal, "", &ok );
+    if (ok && !c.isEmpty()) {
+        Azahar *myDb = new Azahar;
+        if (!db.isOpen()) openDB();
+        myDb->setDatabase(db);
+        if (!myDb->insertSubCategory(c)) qDebug()<<"Error:"<<myDb->lastError();
+        delete myDb;
     }
-
     subcategoriesModel->select();
-    
-    delete myDb;
 }
 
 void squeezeView::createClient()
@@ -2911,6 +2925,39 @@ void squeezeView::deleteSelectedMeasure()
       delete myDb;
     }
   }
+}
+
+void squeezeView::deleteSelectedDepartment()
+{
+    if (db.isOpen()) {
+        QModelIndex index = ui_mainview.tableDepartments->currentIndex();
+        if (departmentsModel->tableName().isEmpty()) setupDepartmentsModel();
+        if (index == departmentsModel->index(-1,-1) ) {
+            KMessageBox::information(this, i18n("Please select a department to delete, then press the delete button again."), i18n("Cannot delete"));
+        }
+        else  {
+            QString text = departmentsModel->record(index.row()).value("text").toString();
+            Azahar *myDb = new Azahar;
+            myDb->setDatabase(db);
+            qulonglong dId = myDb->getDepartmentId(text);
+            if (dId >0) {
+                int answer = KMessageBox::questionYesNo(this, i18n("Do you really want to delete the department '%1'?", text),
+                i18n("Delete"));
+                if (answer == KMessageBox::Yes) {
+                    qulonglong  iD = departmentsModel->record(index.row()).value("id").toULongLong();
+                    if (!departmentsModel->removeRow(index.row(), index)) {
+                        // weird:  since some time, removeRow does not work... it worked fine on versions < 0.9 ..
+                        bool d = myDb->deleteDepartment(iD); qDebug()<<"Deleteing Department ("<<iD<<") manually...";
+                        if (d) qDebug()<<"Deletion succed...";
+                    }
+                    departmentsModel->submitAll();
+                    departmentsModel->select();
+                    //updateDepartmentsCombo();
+                }
+            } else KMessageBox::information(this, i18n("Default department cannot be deleted."), i18n("Cannot delete"));
+                    delete myDb;
+        }
+    }
 }
 
 void squeezeView::deleteSelectedCategory()

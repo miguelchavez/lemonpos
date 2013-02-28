@@ -199,6 +199,7 @@ signals:
    void deleteSelectedUser();
    void deleteSelectedProduct();
    void deleteSelectedMeasure();
+   void deleteSelectedDepartment();
    void deleteSelectedCategory();
    void deleteSelectedSubCategory();
    void deleteSelectedClient();
