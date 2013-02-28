@@ -139,6 +139,8 @@ private slots:
     void    verifyVendorcodeDuplicates();
     void    verifyAlphacodeDuplicates();
     void    modifyCategory();
+    void    createNewSubcategory();
+    void    createNewCategory();
 protected slots:
     virtual void slotButtonClicked(int button);
   private:
