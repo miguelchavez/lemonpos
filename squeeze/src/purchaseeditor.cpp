@@ -78,6 +78,7 @@ PurchaseEditor::PurchaseEditor( QWidget *parent )
     connect(ui->groupBoxedItem, SIGNAL(toggled(bool)), this, SLOT(focusItemsPerBox(bool)) );
 
     connect(ui->btnRemoveItem, SIGNAL( clicked() ), SLOT( deleteSelectedItem() ) );
+    connect( ui->categoriesCombo, SIGNAL(currentIndexChanged( int )), SLOT(modifyCategory()) );
 
     ui->chIsAGroup->setDisabled(true);
 
@@ -134,6 +135,7 @@ void PurchaseEditor::populateSubCategoriesCombo()
     QSqlQuery query(db);
     Azahar *myDb = new Azahar;
     myDb->setDatabase(db);
+    ui->subcategoriesCombo->clear();
     ui->subcategoriesCombo->addItems(myDb->getSubCategoriesList());
     delete myDb;
 }
@@ -739,6 +741,20 @@ double PurchaseEditor::getPurchaseQty()
 void PurchaseEditor::setIsAGroup(bool value)
 {
   ui->chIsAGroup->setChecked(value);
+}
+
+void PurchaseEditor::modifyCategory()
+{
+    //When a category is changed, we must filter subcategories according.
+    QString catText = ui->categoriesCombo->currentText();
+    Azahar *myDb = new Azahar;
+    myDb->setDatabase(db);
+    //get subcategories' children
+    qulonglong parentId = myDb->getCategoryId( catText );
+    QStringList subcatList = myDb->getSubCategoriesList( parentId );
+    ui->subcategoriesCombo->clear();
+    ui->subcategoriesCombo->addItems( subcatList );
+    qDebug()<<"SUBCAT LIST for "<<catText<<" :"<<subcatList;
 }
 
 #include "purchaseeditor.moc"

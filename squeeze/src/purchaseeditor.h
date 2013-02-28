@@ -112,6 +112,7 @@ private slots:
     void    focusItemsPerBox(bool set);
     void    deleteSelectedItem();
     void    insertProduct(ProductInfo info);
+    void    modifyCategory();
 protected slots:
     virtual void slotButtonClicked(int button);
   private:
