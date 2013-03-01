@@ -402,8 +402,8 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
 
       
   //Setting fixed font size for every paper size.
-  headerSize = 15;
-  textSize = 7; //I think 7 is fine (for me). Small and readable. 8 is bigger but uses more space, precious space (horizontally).
+  int headerSize = 15;
+  int textSize = 7; //I think 7 is fine (for me). Small and readable. 8 is bigger but uses more space, precious space (horizontally).
   
   qDebug()<<"* PAPER SIZE"<<printer.paperSize(QPrinter::Inch)<<"Paper Width: "<<printer.widthMM()<<"mm"<<" Height:"<<printer.heightMM()<<"; Page Width: "<<printer.width()<<"; calculated headerSize: "<<headerSize<<" Text size:"<<textSize;
   
