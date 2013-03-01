@@ -116,6 +116,8 @@ squeezeView::squeezeView(QWidget *parent)
   timerUpdateGraphs = new QTimer(this);
   timerUpdateGraphs->setInterval(10000);
   categoriesHash.clear();
+  subcategoriesHash.clear();
+  departmentsHash.clear();
   setupSignalConnections();
   QTimer::singleShot(1100, this, SLOT(setupDb()));
   QTimer::singleShot(2000, timerCheckDb, SLOT(start()));
@@ -365,6 +367,7 @@ void squeezeView::setupSignalConnections()
   connect(ui_mainview.groupFilterProducts, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
   connect(ui_mainview.comboProductsFilterBySubCategory,SIGNAL(currentIndexChanged(int)), this, SLOT( setProductsFilter()) );
   connect(ui_mainview.rbProductsFilterBySubCategory, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
+  connect(ui_mainview.chChainiedFilterForCategories, SIGNAL(toggled(bool)), this, SLOT( setProductsFilter()) );
   
   // BFB: New, export qtableview
   connect(ui_mainview.btnExport, SIGNAL(clicked()),  SLOT( exportTable()));
@@ -1098,29 +1101,47 @@ void squeezeView::setupProductsModel()
 
     //populate Categories...
     populateCategoriesHash();
+    populateSubCategoriesHash();
+    populateDepartmentsHash();
     ui_mainview.comboProductsFilterByCategory->clear();
-      QHashIterator<QString, int> item(categoriesHash);
-      while (item.hasNext()) {
-        item.next();
-        ui_mainview.comboProductsFilterByCategory->addItem(item.key());
-      }
-      ui_mainview.comboProductsFilterByCategory->setCurrentIndex(0);
+    ui_mainview.comboProductsFilterBySubCategory->clear();
+    ui_mainview.comboProductsFilterByDepartment->clear();
+    QHashIterator<QString, int> item(categoriesHash);
+    while (item.hasNext()) {
+      item.next();
+      ui_mainview.comboProductsFilterByCategory->addItem(item.key());
+    }
+    ui_mainview.comboProductsFilterByCategory->setCurrentIndex(0);
 
-      //populate SubCategories...
-      populateSubCategoriesHash();
-      ui_mainview.comboProductsFilterBySubCategory->clear();
-      QHashIterator<QString, int> itemS(subcategoriesHash);
-      while (itemS.hasNext()) {
-          itemS.next();
-          ui_mainview.comboProductsFilterBySubCategory->addItem(itemS.key());
-      }
-      ui_mainview.comboProductsFilterBySubCategory->setCurrentIndex(0);
+    //populate SubCategories...
+    QHashIterator<QString, int> itemS(subcategoriesHash);
+    while (itemS.hasNext()) {
+        itemS.next();
+        ui_mainview.comboProductsFilterBySubCategory->addItem(itemS.key());
+    }
+    ui_mainview.comboProductsFilterBySubCategory->setCurrentIndex(0);
+      
+    QHashIterator<QString, int> itemD(departmentsHash);
+    while (itemD.hasNext()) {
+      itemD.next();
+      ui_mainview.comboProductsFilterByDepartment->addItem(itemD.key());
+    }
+    ui_mainview.comboProductsFilterByDepartment->setCurrentIndex(0);
 
-      ui_mainview.rbProductsFilterByAvailable->setChecked(true);
-      ui_mainview.productsViewAlt->setCurrentIndex(productsModel->index(0, 0));
-      setProductsFilter();
+    ui_mainview.rbProductsFilterByAvailable->setChecked(true);
+    ui_mainview.productsViewAlt->setCurrentIndex(productsModel->index(0, 0));
+    setProductsFilter();
  }
  qDebug()<<"setupProducts.. done.";
+}
+
+void squeezeView::populateDepartmentsHash()
+{
+  Azahar *myDb = new Azahar;
+  myDb->setDatabase(db);
+  departmentsHash.clear();
+  departmentsHash = myDb->getDepartmentsHash();
+  delete myDb;
 }
 
 void squeezeView::populateCategoriesHash()
@@ -1165,27 +1186,6 @@ else {
     else  productsModel->setFilter(QString("products.name REGEXP '%1'").arg(ui_mainview.editProductsFilterByDesc->text()));
     productsModel->setSort(productStockIndex, Qt::DescendingOrder);
   }
-  else if (ui_mainview.rbProductsFilterByCategory->isChecked()) {
-  //2nd if: Filter by CATEGORY
-    //Find catId for the text on the combobox.
-    int catId=-1;
-    int subCatId=-1;
-    QString catText = ui_mainview.comboProductsFilterByCategory->currentText();
-    if (categoriesHash.contains(catText)) {
-      catId = categoriesHash.value(catText);
-    }
-    //check subcategory
-    if (ui_mainview.rbProductsFilterBySubCategory->isChecked()) {
-        QString subCatText = ui_mainview.comboProductsFilterBySubCategory->currentText();
-        if (subcategoriesHash.contains(subCatText)) 
-            subCatId = subcategoriesHash.value(subCatText);
-    }
-    if (subCatId > 0)
-        productsModel->setFilter(QString("products.category=%1 and products.subcategory=%2").arg(catId).arg(subCatId));
-    else
-        productsModel->setFilter(QString("products.category=%1").arg(catId));
-    productsModel->setSort(productStockIndex, Qt::DescendingOrder);
-  }
   else if (ui_mainview.rbProductsFilterByAvailable->isChecked()) {
   //3rd if: filter by Available items
     productsModel->setFilter(QString("products.stockqty>0"));
@@ -1216,12 +1216,68 @@ else {
     productsModel->setFilter(QString("products.isAGroup=true"));
     productsModel->setSort(productCodeIndex, Qt::AscendingOrder);
   }
-  else {
+  else if (ui_mainview.rbProductsFilterByLessSold->isChecked()) {
   //else: filter by less sold items
     productsModel->setFilter("");
     productsModel->setSort(productSoldUnitsIndex, Qt::AscendingOrder);
   }
+  else {  //if (ui_mainview.rbProductsFilterByDepartment->isChecked()) {
+    //Filter by DEPARTMENT/CATEGORY/SUBCATEGORY
+    qDebug()<<"Last check, Department/Category/Subcategory filter";
+    bool chained = ui_mainview.chChainiedFilterForCategories->isChecked();
+    bool depChecked = ui_mainview.rbProductsFilterByDepartment->isChecked();
+    bool catChecked = ui_mainview.rbProductsFilterByCategory->isChecked();
+    //NOTE:NOT NEEDED. bool subChecked = ui_mainview.rbProductsFilterBySubCategory->isChecked();
+    //Find catId for the text on the combobox.
+    int depId=-1;
+    int catId=-1;
+    int subCatId=-1;
+    QString depText = ui_mainview.comboProductsFilterByDepartment->currentText();
+    QString catText = ui_mainview.comboProductsFilterByCategory->currentText();
+    QString subCatText = ui_mainview.comboProductsFilterBySubCategory->currentText();
+    
+    //enable/disable the chainedFilter checkbox (only allow on dep/cat checkbox is checked; subcat does not has children.
+    ui_mainview.chChainiedFilterForCategories->setEnabled( depChecked || catChecked );
+    
+    if (categoriesHash.contains(catText))
+      catId = categoriesHash.value(catText);
+    if (departmentsHash.contains(depText))
+      depId = departmentsHash.value(depText);
+    if (subcategoriesHash.contains(subCatText))
+      subCatId = subcategoriesHash.value(subCatText);
+    
+    QString qryStr;
+    //check if chained filter for dep/cat/subcat is checked. Then we will AND the query filter.
+    if (chained) {
+      //if department is checked then chain dep->cat->subcat
+      if (depChecked) 
+	qryStr = QString("products.department=%1 AND products.category=%2 AND products.subcategory=%3").arg(depId).arg(catId).arg(subCatId);
+      //if category is checked then chain cat->subcat
+      else if (catChecked)
+	qryStr = QString("products.category=%1 and products.subcategory=%2").arg(catId).arg(subCatId);
+      //if subcat is checked then nothing is chained (subcat has no children)
+      else
+	qryStr = QString("products.category=%1").arg(catId);
+    } //if chained filters
+    else {
+      if (depChecked)
+	qryStr = QString("products.department=%1").arg(depId);
+      else if (catChecked)
+	qryStr = QString("products.category=%1").arg(catId);
+      else
+	qryStr = QString("products.subcategory=%1").arg(subCatId);
+    }// no chained filters.. check only the selected one.
+    
+    qDebug()<<"Setting Filter:"<<qryStr;
+    productsModel->setFilter(qryStr);
+    productsModel->setSort(productStockIndex, Qt::DescendingOrder);
+  } //filter by category
 
+  //enable/disable the chainedFilter checkbox (only allow on dep/cat checkbox is checked; subcat does not has children.
+  bool depChecked = ui_mainview.rbProductsFilterByDepartment->isChecked();
+  bool catChecked = ui_mainview.rbProductsFilterByCategory->isChecked();
+  ui_mainview.chChainiedFilterForCategories->setEnabled( depChecked || catChecked );
+    
   productsModel->select();
  }
 }
@@ -2642,7 +2698,7 @@ void squeezeView::createDepartment()
     departmentsModel->select();
     categoriesModel->select();
     subcategoriesModel->select();
-    //updateDepartmentsCombo();
+    updateDepartmentsCombo();
     
     delete myDb;
 }
@@ -2692,6 +2748,18 @@ void squeezeView::createCategory()
     delete myDb;
 }
 
+
+void squeezeView::updateDepartmentsCombo()
+{
+  populateDepartmentsHash();
+  ui_mainview.comboProductsFilterByDepartment->clear();
+  QHashIterator<QString, int> item(departmentsHash);
+  while (item.hasNext()) {
+    item.next();
+    ui_mainview.comboProductsFilterByDepartment->addItem(item.key());
+  }
+}
+
 void squeezeView::updateCategoriesCombo()
 {
   populateCategoriesHash();
@@ -2738,6 +2806,7 @@ void squeezeView::createSubCategory()
         delete myDb;
     }
     subcategoriesModel->select();
+    updateSubCategoriesCombo();
 }
 
 void squeezeView::createClient()
@@ -2956,7 +3025,7 @@ void squeezeView::deleteSelectedDepartment()
                     }
                     departmentsModel->submitAll();
                     departmentsModel->select();
-                    //updateDepartmentsCombo();
+                    updateDepartmentsCombo();
                 }
             } else KMessageBox::information(this, i18n("Default department cannot be deleted."), i18n("Cannot delete"));
                     delete myDb;
@@ -3022,6 +3091,7 @@ void squeezeView::deleteSelectedSubCategory()
                     }
                     subcategoriesModel->submitAll();
                     subcategoriesModel->select();
+		    updateSubCategoriesCombo();
                 }
             } else KMessageBox::information(this, i18n("Default subcategory cannot be deleted."), i18n("Cannot delete"));
                     delete myDb;

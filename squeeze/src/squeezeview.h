@@ -63,6 +63,7 @@ public:
     LoginWindow *dlgPassword;
     QHash<QString, int> categoriesHash;
     QHash<QString, int> cardTypesHash;
+    QHash<QString, int> departmentsHash;
     QHash<QString, int> subcategoriesHash;
     QSqlRelationalTableModel *productsModel;
     QSqlRelationalTableModel *offersModel;
@@ -158,6 +159,7 @@ signals:
    void disableUI();
    void enableUI();
    void doEmitSignalSalir();
+   void updateDepartmentsCombo();
    void updateCategoriesCombo();
    void updateCardTypesCombo();
    void updateSubCategoriesCombo();
@@ -203,6 +205,7 @@ signals:
    void deleteSelectedCategory();
    void deleteSelectedSubCategory();
    void deleteSelectedClient();
+   void populateDepartmentsHash();
    void populateCategoriesHash();
    void populateCardTypesHash();
    void populateSubCategoriesHash();
