@@ -403,8 +403,9 @@ bool PrintCUPS::printSmallTicket(const PrintTicketInfo &ptInfo, QPrinter &printe
       //When i press "Properties" button on print dialog (qt/cups), and i cancel the dialog, then the size is set to 210mm.. i dont know why.
       // 210 mm is the size of A4 paper (209.90mm), which it seems to be the default size..
       // It is curious that when selecting custom size, the edit boxes for entering size are disabled and with a default 0x0 size.. why? This causes error on printing.  CUPS or qt guilty?
+
       
-  if (printer.widthMM() > 72 ) {
+  if (printer.widthMM() > 72 && printer.widthMM() < 104) {
       // The font is big in bigger papers.
       // For paper size of 104mm (4 in). NOTE:I dont know if there is a bigger paper size for thermal POS printers.
       // A proper aproach would be get technical details of the printer (resolution -- dots per inch/mm) and calculate font size according... a challenge.
