@@ -1653,7 +1653,7 @@ if ( doNotAddMoreItems ) { //only for reservations
       }
     } else qDebug()<<"\n\n***Este ELSE no importa!!! ya se tomaron acciones al respecto***\nTHIS SHOULD NOT BE PRINTED!!!\n\n";
 
-    if (allowNegativeStock && info.stockqty > qty) //we are inserting the product the first time, so no onlist.FIXME: check for group case.
+    if (allowNegativeStock && info.stockqty < qty && info.code > 0) //we are inserting the product the first time, so no onlist.FIXME: check for group case.
         msg = i18n("<html><font color=red>The product you requested %1 articles <b>has a negative or zero stock level.</b></font></html>", qty);
     qDebug()<<"AllowNegativeStock:"<<allowNegativeStock<<" info.stockqty:"<<info.stockqty<<" qty:"<<qty;
     
