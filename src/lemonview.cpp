@@ -241,6 +241,7 @@ lemonView::lemonView(QWidget *parent) //: QWidget(parent)
   connect(this, SIGNAL(signalQueryDb(QString)), this, SLOT(insertItem(QString)) );
   //NOTE:Disabling For editing. connect(ui_mainview.tableWidget, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(itemDoubleClicked(QTableWidgetItem*)) );
   connect(ui_mainview.tableWidget, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(qtyChanged(QTableWidgetItem*)));
+  connect(ui_mainview.tableWidget, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(itemDoubleClicked(QTableWidgetItem*)) );
   //connect(ui_mainview.tableSearch, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(itemSearchDoubleClicked(QTableWidgetItem*)) );
   connect(ui_mainview.tableSearch, SIGNAL(itemActivated(QTableWidgetItem*)), SLOT(itemSearchDoubleClicked(QTableWidgetItem*)) );
   connect(ui_mainview.tableWidget, SIGNAL(itemClicked(QTableWidgetItem*)), SLOT(displayItemInfo(QTableWidgetItem*)));
@@ -1994,6 +1995,8 @@ void lemonView::itemDoubleClicked(QTableWidgetItem* item)
   }
   else {
     ///FIXME: Alert the user why is restricted to a max items!
+    if (dmaxItems <= 0 && allowNegativeStock )
+        dmaxItems = 9999999; //just allow negative stock.
     InputDialog *dlg = new InputDialog(this, false, dialogMeasures, msg, 0.001, dmaxItems);
     if (dlg->exec() ) {
       dqty = dlg->dValue;
