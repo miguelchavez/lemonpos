@@ -1325,6 +1325,7 @@ void lemonView::doEmitSignalQueryDb()
 bool lemonView::incrementTableItemQty(QString code, double q)
 {
   double qty  = 1;
+  double discount_old=0.0;
   double qty_old=0.0;
   double stockqty=0;
   bool done=false;
