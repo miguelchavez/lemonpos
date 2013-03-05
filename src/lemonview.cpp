@@ -2984,7 +2984,7 @@ void lemonView::finishCurrentTransaction()
 
 void lemonView::reprintFactura() {
     if (!Settings::askForInvoice()){
-        qDebug()<<"Not using FacturaMX feature."
+        qDebug()<<"Not using FacturaMX feature.";
         return;
     }
     
@@ -6580,7 +6580,7 @@ void lemonView::calculateTotalForClient()
 void lemonView::emitirFactura()
 {
     if (!Settings::askForInvoice()){
-        qDebug()<<"Not using FacturaMX feature."
+        qDebug()<<"Not using FacturaMX feature.";
         return;
     }
     
@@ -6752,7 +6752,7 @@ void lemonView::emitirFactura()
 void lemonView::cancelarFactura()
 {
     if (!Settings::askForInvoice()){
-        qDebug()<<"Not using FacturaMX feature."
+        qDebug()<<"Not using FacturaMX feature.";
         return;
     }
     
@@ -6788,10 +6788,10 @@ void lemonView::cancelarFactura()
 void lemonView::facturasLibres()
 {
     if (!Settings::askForInvoice()){
-        qDebug()<<"Not using FacturaMX feature."
+        qDebug()<<"Not using FacturaMX feature.";
         return;
     }
-    
+
     Azahar *myDb = new Azahar;
     double num = myDb->getFoliosLibres();
     notifierPanel->setSize(350,150);
