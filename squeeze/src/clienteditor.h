@@ -38,6 +38,7 @@ class ClientEditor : public KDialog
   public:
     ClientEditor( QWidget *parent=0 );
     ~ClientEditor();
+    void setTitle(QString t) {setCaption( t );}
     void setCode(QString code) { ui->editClientCode->setText(code); };
     void setName(QString name) { ui->editClientName->setText(name); };
     void setAddress(QString address) { ui->editClientAddress->setText(address); } ;

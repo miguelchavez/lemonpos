@@ -57,10 +57,14 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     nameIndex = model->index(row, 0);
     QString strCode = "# " + model->data(nameIndex, Qt::DisplayRole).toString();
     //TODO: Add alphacode too
-    nameIndex = model->index(row, 16);
+    nameIndex = model->index(row, 19);
     bool isGroup = model->data(nameIndex, Qt::DisplayRole).toBool();
-    nameIndex  = model->index(row, 15);
+    nameIndex  = model->index(row, 18);
     bool isRaw = model->data(nameIndex, Qt::DisplayRole).toBool();
+    nameIndex  = model->index(row, 23);
+    bool hasUnlimitedStock = model->data(nameIndex, Qt::DisplayRole).toBool();
+    nameIndex  = model->index(row, 24);
+    bool nonDiscountItem = model->data(nameIndex, Qt::DisplayRole).toBool();
 
     //preparing photo to paint it...
     QPixmap pix;
@@ -114,7 +118,12 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     }
 
     //painting stock Availability
-    if (stockqty <= 0) {
+    if (stockqty <= 0 || hasUnlimitedStock) {
+      QString naStr;
+      if (hasUnlimitedStock)
+        naStr = i18n("Unlimited Stock");
+      else
+        naStr = i18n(" Out of stock ");
       font = QFont("Trebuchet MS", 12);
       font.setBold(true);
       font.setItalic(true);
@@ -122,7 +131,6 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
       painter->setBackgroundMode(Qt::OpaqueMode);
       painter->setPen(Qt::red);
       painter->setBackground(QColor(255,180,0,160));
-      QString naStr = i18n(" Out of stock ");
       painter->drawText(option.rect.x()+10,
                       option.rect.y()+(option.rect.height()/2)-10,
                       150, 20, Qt::AlignCenter, naStr);
@@ -157,18 +165,18 @@ void ProductDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
                         option.rect.y()+22,
                         150, 20, Qt::AlignCenter, naStr);
                         painter->setBackgroundMode(Qt::TransparentMode);
-    } else if (isGroup) {
-      font = QFont("Trebuchet MS", 9);
-      font.setBold(true);
-      font.setItalic(false);
-      painter->setFont(font);
-      painter->setBackgroundMode(Qt::OpaqueMode);
-      painter->setPen(Qt::blue);
-      painter->setBackground(QColor(255,225,0,160));
-      QString naStr = i18n(" Group ");
+    } 
+    if (isGroup) {
       //load pixmap
-      pix = QPixmap(DesktopIcon("lemon-groups", 48));
-      //painter->drawText(option.rect.x()+10,
+      pix = QPixmap(DesktopIcon("lemon-groups", 32));
+      painter->drawPixmap(option.rect.x()+10,
+                        option.rect.y()+20,
+                        /*150, 20, */ pix /*Qt::AlignCenter, naStr*/);
+                        painter->setBackgroundMode(Qt::TransparentMode);
+    }
+    if (nonDiscountItem) {
+      //load pixmap
+      pix = QPixmap(DesktopIcon("lemon-nondiscount", 32));
       painter->drawPixmap(option.rect.x()+10,
                         option.rect.y()+20,
                         /*150, 20, */ pix /*Qt::AlignCenter, naStr*/);

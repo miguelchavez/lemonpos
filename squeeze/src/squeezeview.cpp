@@ -1052,6 +1052,7 @@ void squeezeView::setupProductsModel()
     productAlphaCodeIndex = productsModel->fieldIndex("alphacode");
     productIsAGroupIndex  = productsModel->fieldIndex("isAGroup");
     productIsARawIndex    = productsModel->fieldIndex("isARawProduct");
+    productIsNotDiscountable = productsModel->fieldIndex("isNotDiscountable");
     productGEIndex        = productsModel->fieldIndex("groupElements");
 
 
@@ -1074,6 +1075,8 @@ void squeezeView::setupProductsModel()
     ui_mainview.productsViewAlt->setColumnHidden(productGEIndex, true);
     ui_mainview.productsViewAlt->setColumnHidden(productIsAGroupIndex, true);
     ui_mainview.productsViewAlt->setColumnHidden(productIsARawIndex, true);
+    ui_mainview.productsViewAlt->setColumnHidden(productIsNotDiscountable, true);
+
     /// 0.7 version : hidden next columns
     ui_mainview.productsViewAlt->setColumnHidden(productLastProviderIndex, true);
     ui_mainview.productsViewAlt->setColumnHidden(productAlphaCodeIndex, true);

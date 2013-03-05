@@ -38,7 +38,7 @@ ClientEditor::ClientEditor( QWidget *parent )
 {
     ui = new ClientEditorUI( this );
     setMainWidget( ui );
-    setCaption( i18n("Client Editor") );
+    setCaption( i18n("Customer Editor") );
     setButtons( KDialog::Ok|KDialog::Cancel );
     setDefaultButton(KDialog::NoDefault); //disable default button (return Pressed)
     enableButton(KDialog::Ok, false);
@@ -61,7 +61,7 @@ ClientEditor::ClientEditor( QWidget *parent )
     ui->editClientName->setValidator(regexpAlpha);
 
     ui->editClientCode->setEmptyMessage(i18n("Enter a 6, 12, or 13 digits Bar Code."));
-    ui->editClientName->setEmptyMessage(i18n("Enter client full name"));
+    ui->editClientName->setEmptyMessage(i18n("Enter customer full name"));
     ui->editClientPhone->setEmptyMessage(i18n("Phone number"));
     ui->editClientCell->setEmptyMessage(i18n("Cell phone number"));
     ui->editClientPoints->setEmptyMessage(i18n("Accumulated points"));

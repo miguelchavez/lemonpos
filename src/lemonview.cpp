@@ -1491,7 +1491,7 @@ if ( doNotAddMoreItems ) { //only for reservations
       if (!specialOrders.isEmpty()) {
           notifierPanel->setSize(350,150);
           notifierPanel->setOnBottom(false);
-          notifierPanel->showNotification(i18n("Cannot change client while Special Orders are in Purchase.",codeX),4000);
+          notifierPanel->showNotification(i18n("Cannot change customer while Special Orders are in Purchase.",codeX),4000);
           ui_mainview.editItemCode->clear();
           ui_mainview.editItemCode->setFocus();
           return;
@@ -1533,7 +1533,7 @@ if ( doNotAddMoreItems ) { //only for reservations
         } else {
             notifierPanel->setSize(350,150);
             notifierPanel->setOnBottom(false);
-            notifierPanel->showNotification(i18n("No Client found with code %1.",codeX),4000);
+            notifierPanel->showNotification(i18n("No Customer found with code %1.",codeX),4000);
             ui_mainview.editItemCode->clear();
             ui_mainview.editItemCode->setFocus();
             return;
@@ -2319,7 +2319,7 @@ void lemonView::finishCurrentTransaction()
   }
 
   if (ui_mainview.checkOwnCredit->isChecked() && clientInfo.id <= 1 ) {
-      QString msgC = i18n("<html><font color=red><b>The Client for an interal credit sale must not be the default client.</b> Please select another client</font></html>");
+      QString msgC = i18n("<html><font color=red><b>The customer for an interal credit sale must not be the default customer.</b> Please select another customer</font></html>");
       canfinish = false;
       notifierPanel->showNotification(msgC,3000);
       ui_mainview.editClient->setFocus();
@@ -4661,7 +4661,7 @@ void lemonView::updateClientInfo()
   ui_mainview.lblClientDetails->setText(QString("<b>%1</b> (<i>%2</i>)<br>%3<br>%4<br>%5").arg(clientInfo.name).arg(clientInfo.code).arg(creditStr).arg(dStr).arg(pStr));
   
   delete myDb;
-  qDebug()<<"Updating client info...";
+  qDebug()<<"Updating customer info...";
 }
 
 void lemonView::setHistoryFilter() {
@@ -4680,7 +4680,7 @@ void lemonView::setupHistoryTicketsModel()
     historyTicketsModel->setRelation(historyTicketsModel->fieldIndex("userid"), QSqlRelation("users", "id", "username"));
     
     historyTicketsModel->setHeaderData(historyTicketsModel->fieldIndex("id"), Qt::Horizontal, i18n("Tr"));
-    historyTicketsModel->setHeaderData(historyTicketsModel->fieldIndex("clientid"), Qt::Horizontal, i18n("Client"));
+    historyTicketsModel->setHeaderData(historyTicketsModel->fieldIndex("clientid"), Qt::Horizontal, i18n("Customer"));
     historyTicketsModel->setHeaderData(historyTicketsModel->fieldIndex("datetime"), Qt::Horizontal, i18n("Date"));
     historyTicketsModel->setHeaderData(historyTicketsModel->fieldIndex("userid"), Qt::Horizontal, i18n("User"));
     historyTicketsModel->setHeaderData(historyTicketsModel->fieldIndex("itemcount"), Qt::Horizontal, i18n("Items"));
@@ -6163,6 +6163,7 @@ void lemonView::createClient()
     
     if (db.isOpen()) {
         ClientEditor *clientEditorDlg = new ClientEditor(this);
+        clientEditorDlg->setTitle("Add Customer");
         ClientInfo info;
         QPixmap photo;
         
@@ -6188,7 +6189,7 @@ void lemonView::createClient()
                 updateClientInfo();
                 refreshTotalLabel();
             } else {
-                qDebug()<<"Cannot change client while using Special Orders";
+                qDebug()<<"Cannot change customer while using Special Orders";
                 ui_mainview.editClient->clear();
             }
             
